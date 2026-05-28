@@ -37,6 +37,8 @@ npm ci && npm run catalog && npm run build:wasm && npm run build
 
 ## Cloudflare Pages
 
+**Deploy checklist and MCP notes:** [DEPLOY-CLOUDFLARE.md](./DEPLOY-CLOUDFLARE.md) (dashboard settings, Wrangler, GitHub `07AMIT10/chaitra`).
+
 Connect the **chaitra** Git repository in the Cloudflare dashboard (Workers & Pages → Create → Connect to Git). Set the **root directory** to `website` so build commands run inside this folder.
 
 | Setting | Value |
