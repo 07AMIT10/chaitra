@@ -1,0 +1,16 @@
+---
+import "../styles/tokens.css";
+const { title = "Chaitra" } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <header><a href="/">Chaitra</a> · <a href="/catalog">Catalog</a></header>
+    <main><slot /></main>
+  </body>
+</html>
