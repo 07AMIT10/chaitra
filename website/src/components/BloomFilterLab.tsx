@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import {
   bitArraySize,
   falsePositiveRate,
@@ -102,15 +102,26 @@ export default function BloomFilterLab() {
 
   useEffect(() => {
     drawBits();
-  }, [drawBits]);
-
-  useEffect(() => {
-    if (reducedMotion) {
-      drawBits();
-      return;
-    }
-    drawBits();
   }, [drawBits, reducedMotion]);
+
+  const modeTabs: ControlMode[] = ["goal", "manual"];
+
+  const onModeTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    const idx = modeTabs.indexOf(mode);
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      setMode(modeTabs[(idx + 1) % modeTabs.length]);
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      setMode(modeTabs[(idx - 1 + modeTabs.length) % modeTabs.length]);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      setMode(modeTabs[0]);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      setMode(modeTabs[modeTabs.length - 1]);
+    }
+  };
 
   const loadDemo = () => {
     setKeys([...DEMO_PRESENT]);
@@ -177,18 +188,26 @@ export default function BloomFilterLab() {
         <button
           type="button"
           role="tab"
+          id="bloom-tab-goal"
           className="bloom-lab__tab"
           aria-selected={mode === "goal"}
+          aria-controls="bloom-panel-goal"
+          tabIndex={mode === "goal" ? 0 : -1}
           onClick={() => setMode("goal")}
+          onKeyDown={onModeTabKeyDown}
         >
           Size from target FP
         </button>
         <button
           type="button"
           role="tab"
+          id="bloom-tab-manual"
           className="bloom-lab__tab"
           aria-selected={mode === "manual"}
+          aria-controls="bloom-panel-manual"
+          tabIndex={mode === "manual" ? 0 : -1}
           onClick={() => setMode("manual")}
+          onKeyDown={onModeTabKeyDown}
         >
           Manual m &amp; k
         </button>
@@ -196,8 +215,14 @@ export default function BloomFilterLab() {
 
       <div className="bloom-lab__grid">
         <div>
-          <div className="bloom-lab__controls">
-            {mode === "goal" ? (
+          <div
+            id="bloom-panel-goal"
+            role="tabpanel"
+            aria-labelledby="bloom-tab-goal"
+            hidden={mode !== "goal"}
+            className="bloom-lab__controls"
+          >
+            {mode === "goal" && (
               <>
                 <div className="bloom-lab__control">
                   <label htmlFor="goal-n">
@@ -237,7 +262,16 @@ export default function BloomFilterLab() {
                   <span className="hint">Formulas from bloom_filter.py — m ≈ {effectiveM} bits, k ≈ {effectiveK}</span>
                 </div>
               </>
-            ) : (
+            )}
+          </div>
+          <div
+            id="bloom-panel-manual"
+            role="tabpanel"
+            aria-labelledby="bloom-tab-manual"
+            hidden={mode !== "manual"}
+            className="bloom-lab__controls"
+          >
+            {mode === "manual" && (
               <>
                 <div className="bloom-lab__control">
                   <label htmlFor="lab-m">
@@ -281,12 +315,21 @@ export default function BloomFilterLab() {
                 </div>
               </>
             )}
+          </div>
+          <div className="bloom-lab__controls bloom-lab__controls--keys">
             <div className="bloom-lab__control">
-              <label htmlFor="lab-inserted">
+              <span id="lab-inserted-label">
                 Inserted keys (n = {n})
-                <span className="hint">MD5-based hashes, same recipe as the Python topic code.</span>
-              </label>
-              <div className="bloom-lab__probe-row">
+              </span>
+              <span className="hint" id="lab-inserted-hint">
+                MD5-based hashes, same recipe as the Python topic code.
+              </span>
+              <div
+                className="bloom-lab__probe-row"
+                role="group"
+                aria-labelledby="lab-inserted-label"
+                aria-describedby="lab-inserted-hint"
+              >
                 <button type="button" className="bloom-lab__btn bloom-lab__btn--ghost" onClick={loadDemo}>
                   Demo set
                 </button>
@@ -377,7 +420,10 @@ export default function BloomFilterLab() {
               setHighlightIndices([]);
             }}
             onKeyDown={(e) => {
-              if (e.key === "Enter") onProbeKey(testKey);
+              if (e.key === "Enter") {
+                e.preventDefault();
+                onProbeKey(testKey);
+              }
             }}
             aria-label="Key to test"
             placeholder="e.g. war"

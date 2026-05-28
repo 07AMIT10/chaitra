@@ -8,18 +8,34 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
   {pyodide && (
     <script slot="head" src={PYODIDE_SCRIPT} defer></script>
   )}
-  <article class="topic">
+  <a class="skip-link" href="#narrative">Skip to content</a>
+  <article class="topic" aria-labelledby="topic-page-title">
+    <h1 id="topic-page-title" class="topic__title">{title}</h1>
     <nav aria-label="Topic sections">
       <a href="#narrative">Story</a> · <a href="#lab">Lab</a> · <a href="#code">Code</a>
     </nav>
-    <slot name="hero" />
-    <section id="prerequisites"><slot name="prerequisites" /></section>
-    <section id="narrative"><slot name="narrative" /></section>
-    {Astro.slots.has("lab") && (
-      <section id="lab"><slot name="lab" /></section>
+    {Astro.slots.has("hero") && (
+      <section id="hero" aria-label="Overview">
+        <slot name="hero" />
+      </section>
     )}
-    <section id="code"><slot name="code" /></section>
-    <footer>
+    {Astro.slots.has("prerequisites") && (
+      <section id="prerequisites" aria-label="Prerequisites">
+        <slot name="prerequisites" />
+      </section>
+    )}
+    <section id="narrative" aria-label="Topic narrative" tabindex="-1">
+      <slot name="narrative" />
+    </section>
+    {Astro.slots.has("lab") && (
+      <section id="lab" aria-label="Interactive lab">
+        <slot name="lab" />
+      </section>
+    )}
+    <section id="code" aria-label="Implementation code">
+      <slot name="code" />
+    </section>
+    <footer class="topic__footer">
       <a href={`https://github.com/07AMIT10/chaitra/tree/main/${repoFolder}`}>View on GitHub</a>
     </footer>
   </article>
@@ -29,6 +45,13 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
   .topic {
     color: var(--color-text);
     max-width: 72ch;
+    position: relative;
+  }
+
+  .topic__title {
+    margin: 0 0 var(--space-4);
+    font-size: 1.75rem;
+    line-height: 1.2;
   }
 
   .topic nav a {
@@ -39,16 +62,32 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
     color: var(--color-accent-hover);
   }
 
+  .topic nav a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: 2px;
+  }
+
   .topic section {
     margin-block: var(--space-6);
   }
 
-  .topic footer {
+  .topic section:focus {
+    outline: none;
+  }
+
+  .topic__footer {
     margin-block-start: var(--space-6);
     color: var(--color-muted);
   }
 
-  .topic footer a {
+  .topic__footer a {
     color: var(--color-accent);
+  }
+
+  .topic__footer a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: 2px;
   }
 </style>

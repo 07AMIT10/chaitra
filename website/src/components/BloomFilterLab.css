@@ -69,6 +69,14 @@
   gap: var(--space-4);
 }
 
+.bloom-lab__controls[hidden] {
+  display: none;
+}
+
+.bloom-lab__controls--keys {
+  margin-top: var(--space-2);
+}
+
 .bloom-lab__control label {
   display: flex;
   flex-direction: column;
@@ -281,6 +289,11 @@
 .bloom-lab__chip[aria-pressed="true"] {
   border-color: var(--color-accent);
   color: var(--color-accent-hover);
+}
+
+.bloom-lab__chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .bloom-lab__compare {

@@ -114,3 +114,26 @@ cd website && npm run build:wasm && npm run build
 ## Catalog script
 
 `npm run catalog` scans the **repository root** (parent of `website/`) for topic folders with `README.md` and writes `src/data/topics.json`. Run it after adding or renaming topic directories, even when only READMEs change outside `website/`.
+
+## Accessibility (Lighthouse)
+
+After layout or lab UI changes, run a static build and audit the Bloom topic:
+
+```bash
+cd website
+npm run build
+npx --yes serve dist -l 4321
+```
+
+In another terminal (Chrome required):
+
+```bash
+npx --yes lighthouse http://localhost:4321/topics/bloom-filters/ \
+  --only-categories=accessibility \
+  --chrome-flags="--headless=new" \
+  --output=json --output-path=./lighthouse-a11y.json
+```
+
+Target: **accessibility score ≥ 90**. Manual checks: Tab through Bloom lab sliders and buttons; Enter on **Test** / **Insert**; arrow keys on parameter and code tabs; verify skip link (“Skip to content”) appears on keyboard focus.
+
+Topic pages use `TopicLayout` (skip link, section landmarks) and shared focus rings in `src/styles/tokens.css`.

@@ -11,7 +11,36 @@ const { title = "Chaitra" } = Astro.props;
     <slot name="head" />
   </head>
   <body>
-    <header><a href="/">Chaitra</a> · <a href="/catalog">Catalog</a></header>
-    <main><slot /></main>
+    <header role="banner">
+      <nav aria-label="Site">
+        <a href="/">Chaitra</a> · <a href="/catalog">Catalog</a>
+      </nav>
+    </header>
+    <main id="main-content"><slot /></main>
   </body>
 </html>
+
+<style is:global>
+  body {
+    margin: 0;
+    padding: var(--space-4);
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-sans);
+    line-height: 1.5;
+  }
+
+  header nav a {
+    color: var(--color-accent);
+  }
+
+  header nav a:hover {
+    color: var(--color-accent-hover);
+  }
+
+  header nav a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: 2px;
+  }
+</style>

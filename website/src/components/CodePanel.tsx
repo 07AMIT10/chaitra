@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useState, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useState, type KeyboardEvent, type ReactNode } from "react";
 import "./CodePanel.css";
 
 const PyodideRunner = lazy(() => import("./PyodideRunner"));
@@ -32,10 +32,29 @@ export default function CodePanel({
   const [activeTab, setActiveTab] = useState<CodePanelTab>("python");
   const [mounted, setMounted] = useState({ python: true, rust: false, github: false });
 
+  const tabOrder: CodePanelTab[] = ["python", "rust", "github"];
+
   const selectTab = useCallback((tab: CodePanelTab) => {
     setActiveTab(tab);
     setMounted((prev) => (prev[tab] ? prev : { ...prev, [tab]: true }));
   }, []);
+
+  const onTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>, tab: CodePanelTab) => {
+    const idx = tabOrder.indexOf(tab);
+    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+      e.preventDefault();
+      selectTab(tabOrder[(idx + 1) % tabOrder.length]);
+    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+      e.preventDefault();
+      selectTab(tabOrder[(idx - 1 + tabOrder.length) % tabOrder.length]);
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      selectTab(tabOrder[0]);
+    } else if (e.key === "End") {
+      e.preventDefault();
+      selectTab(tabOrder[tabOrder.length - 1]);
+    }
+  };
 
   const panels: Record<CodePanelTab, ReactNode> = {
     python: mounted.python ? (
@@ -100,8 +119,10 @@ export default function CodePanel({
             id={`code-tab-${id}`}
             aria-selected={activeTab === id}
             aria-controls={`code-panel-${id}`}
+            tabIndex={activeTab === id ? 0 : -1}
             className="code-panel__tab"
             onClick={() => selectTab(id)}
+            onKeyDown={(e) => onTabKeyDown(e, id)}
           >
             {label}
           </button>
