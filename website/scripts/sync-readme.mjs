@@ -15,6 +15,8 @@ for (const t of topics) {
     continue;
   }
   fs.mkdirSync(destDir, { recursive: true });
-  fs.copyFileSync(src, dest);
+  let body = fs.readFileSync(src, "utf8");
+  body = body.replace(/```ascii/g, "```text");
+  fs.writeFileSync(dest, body, "utf8");
   console.log(`synced ${t.slug}`);
 }

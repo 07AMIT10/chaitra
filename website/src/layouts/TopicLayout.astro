@@ -11,7 +11,9 @@ const { title, repoFolder } = Astro.props;
     <slot name="hero" />
     <section id="prerequisites"><slot name="prerequisites" /></section>
     <section id="narrative"><slot name="narrative" /></section>
-    <section id="lab"><slot name="lab" /></section>
+    {Astro.slots.has("lab") && (
+      <section id="lab"><slot name="lab" /></section>
+    )}
     <section id="code"><slot name="code" /></section>
     <footer>
       <a href={`https://github.com/07AMIT10/chaitra/tree/main/${repoFolder}`}>View on GitHub</a>

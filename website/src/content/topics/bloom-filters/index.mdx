@@ -1,16 +1,20 @@
 ---
 title: Bloom Filters
-slug: bloom-filters
 ---
 
 import ReadmeBody from "./readme-body.md";
+import BloomFilterLab from "../../../components/BloomFilterLab.tsx";
 
 ## The probabilistic bouncer
 
 <ReadmeBody />
 
-## Lab
+<h2 id="lab">Lab</h2>
 
-Use the interactive lab below to change **m**, **n**, and **k**.
+<p>
+  Tune <strong>m</strong> (bits), <strong>n</strong> (inserted keys), and <strong>k</strong> (hash
+  functions). The live bit array uses the same sizing formulas and MD5 hashing as{" "}
+  <code>bloom_filter.py</code> in the repo.
+</p>
 
-export const BloomFilterLab = null;
+<BloomFilterLab client:visible />
