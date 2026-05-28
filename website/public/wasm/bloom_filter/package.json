@@ -1,0 +1,15 @@
+{
+  "name": "bloom_filter_wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "bloom_filter_wasm_bg.wasm",
+    "bloom_filter_wasm.js",
+    "bloom_filter_wasm.d.ts"
+  ],
+  "main": "bloom_filter_wasm.js",
+  "types": "bloom_filter_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

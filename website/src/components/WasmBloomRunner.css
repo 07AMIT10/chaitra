@@ -1,0 +1,51 @@
+.wasm-bloom-runner {
+  font-family: var(--font-sans);
+}
+
+.wasm-bloom-runner__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+  color: var(--color-muted);
+  font-size: 0.95rem;
+}
+
+.wasm-bloom-runner__header a {
+  color: var(--color-accent);
+  white-space: nowrap;
+}
+
+.wasm-bloom-runner__header a:hover {
+  color: var(--color-accent-hover);
+}
+
+.wasm-bloom-runner__status {
+  margin: 0;
+  color: var(--color-muted);
+}
+
+.wasm-bloom-runner__output {
+  margin: 0;
+  padding: var(--space-3);
+  border: 1px solid color-mix(in srgb, var(--color-muted) 35%, transparent);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.45;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.wasm-bloom-runner--error p {
+  margin: 0 0 var(--space-2);
+  color: var(--color-text);
+}
+
+.wasm-bloom-runner--error a {
+  color: var(--color-accent);
+}

@@ -1,20 +1,20 @@
-import PyodideRunner from "../../../components/PyodideRunner.tsx";
+import CodePanel from "../../../components/CodePanel.tsx";
 import bloomPy from "../../../assets/code/bloom_filter.py.txt?raw";
 
-## Run Python in the browser
+## Run implementations
 
 <p>
-  This editor loads the same <code>BloomFilter</code> API as{" "}
-  <a href="https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.py">
-    <code>bloom_filter.py</code>
-  </a>{" "}
-  in the repo — sizing formulas, MD5-based hashes, <code>add</code>, and <code>check</code>. Pyodide
-  uses the CPython stdlib only (no pip).
+  Same topic, three ways to explore: edit and run Python in the browser (Pyodide), run the Rust
+  reference demo compiled to WASM, or open the full sources on GitHub.
 </p>
 
-<PyodideRunner
+<CodePanel
   client:visible
-  defaultCode={bloomPy}
-  sourceUrl="https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.py"
-  sourceLabel="bloom_filter.py on GitHub"
+  defaultPythonCode={bloomPy}
+  pythonSourceUrl="https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.py"
+  pythonSourceLabel="bloom_filter.py on GitHub"
+  rustSourceUrl="https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.rs"
+  rustSourceLabel="bloom_filter.rs on GitHub"
+  githubTreeUrl="https://github.com/07AMIT10/chaitra/tree/main/BLOOM_FILTERS"
+  githubLabel="BLOOM_FILTERS folder"
 />
