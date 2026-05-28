@@ -1,0 +1,4 @@
+[
+  { "ops": [["add", "a"], ["add", "b"], ["query", "a"]], "expect_contains": true },
+  { "ops": [["add", "a"], ["query", "z"]], "expect_contains": false }
+]

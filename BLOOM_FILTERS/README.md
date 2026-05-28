@@ -1,5 +1,24 @@
 # Bloom Filters: The Probabilistic Bouncer
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Bloom[Bloom Filters]
+  Hash[Hash functions] --> Bloom
+  Bloom --> CMS[Count-Min Sketch]
+  Bloom --> HLL[HyperLogLog]
+```
+
+## Quickstart
+
+```bash
+cd BLOOM_FILTERS
+python bloom_filter.py
+# Optional: pytest test_bloom_parity.py -q
+cargo test --manifest-path ../website/wasm/bloom_filter/Cargo.toml  # after WASM crate exists
+```
+
 ## Simple Fundamental Explanation
 Imagine you're running an exclusive club. You have a list of millions of VIP members. Checking the giant guestbook every time someone arrives takes too long. Instead, you use a clever system:
 
@@ -126,3 +145,17 @@ This means that in an optimal Bloom Filter, roughly 50% of the bits are set to 1
 
 ### Why It Scales
 The space required $m$ scales linearly with $n$. If you want to maintain a 1% false positive rate ($P = 0.01$), you need roughly $m = 9.6n$ bits. This is less than 10 bits per item, regardless of the size of the item! Storing a billion 100-byte strings exactly takes 100GB. A Bloom filter with a 1% error rate takes about 1.2GB.
+
+---
+
+## Benchmarks
+
+| Scenario | m | n | k | Notes |
+|----------|---|---|---|-------|
+| Baseline | 1024 | 500 | 7 | 1% target FP |
+
+Reproduce (Python): `pytest BLOOM_FILTERS/test_bloom_parity.py --benchmark-only` (after adding pytest-benchmark).
+
+---
+
+**Interactive version:** [Bloom filters (web)](https://chaitra.pages.dev/topics/bloom-filters) — update hostname after Cloudflare custom domain is set.
