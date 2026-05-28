@@ -80,7 +80,10 @@ If the scheduler randomly samples $k$ nodes, what is the probability $P_{success
 The probability that a single randomly chosen node is *not* good is $1 - p$.
 The probability that *all* $k$ sampled nodes are not good is $(1 - p)^k$.
 Therefore, the probability of finding at least one good node is:
-$$ P_{success} = 1 - (1 - p)^k $$
+
+$$
+P_{success} = 1 - (1 - p)^k
+$$
 
 ### 2. The Efficiency of Sampling
 If $p = 0.1$ (we want a node in the top 10%):

@@ -66,10 +66,16 @@ Let $H$ be the hypothesis (e.g., "The server is failing").
 Let $E_1, E_2, \dots$ be a stream of incoming evidence (e.g., latency spikes).
 
 The Posterior probability of the hypothesis after observing the first piece of evidence is:
-$$ P(H \mid E_1) = \frac{P(E_1 \mid H) \cdot P(H)}{P(E_1)} $$
+
+$$
+P(H \mid E_1) = \frac{P(E_1 \mid H) \cdot P(H)}{P(E_1)}
+$$
 
 When the next piece of evidence $E_2$ arrives, the old Posterior becomes the new Prior!
-$$ P(H \mid E_1, E_2) = \frac{P(E_2 \mid H, E_1) \cdot P(H \mid E_1)}{P(E_2)} $$
+
+$$
+P(H \mid E_1, E_2) = \frac{P(E_2 \mid H, E_1) \cdot P(H \mid E_1)}{P(E_2)}
+$$
 
 This recursive formula means the system has a "memory." It mathematically accumulates evidence over time, shifting its confidence higher or lower with every tick of the clock.
 
@@ -78,7 +84,10 @@ To model complex, multi-modal cluster behaviors (e.g., a server has one latency 
 
 A GMM assumes the data is generated from a mixture of $K$ different Gaussian (normal) distributions.
 The probability density function for an observation $x$ is:
-$$ p(x) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x \mid \mu_k, \Sigma_k) $$
+
+$$
+p(x) = \sum_{k=1}^{K} \pi_k \mathcal{N}(x \mid \mu_k, \Sigma_k)
+$$
 
 Where:
 - $\pi_k$ is the prior probability (weight) of the $k$-th Gaussian.

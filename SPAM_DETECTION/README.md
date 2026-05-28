@@ -64,13 +64,19 @@ Furthermore, spammers tried "Bayesian Poisoning" by adding giant paragraphs of c
 ## The Mathematics: Equations and In-Depth Analysis
 
 The algorithm relies entirely on **Bayes' Theorem**:
-$$ P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)} $$
+
+$$
+P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}
+$$
 
 In the context of spam detection, we want to find $P(\text{Spam} \mid \text{Words})$: the probability the email is spam, given the words inside it.
 
 ### 1. Bayes' Theorem for a Single Word
 For a single word $W$:
-$$ P(\text{Spam} \mid W) = \frac{P(W \mid \text{Spam}) \cdot P(\text{Spam})}{P(W)} $$
+
+$$
+P(\text{Spam} \mid W) = \frac{P(W \mid \text{Spam}) \cdot P(\text{Spam})}{P(W)}
+$$
 
 - $P(\text{Spam})$ is the prior probability (e.g., 80% of all internet email is spam).
 - $P(W) = P(W \mid \text{Spam})P(\text{Spam}) + P(W \mid \text{Ham})P(\text{Ham})$ (The overall probability of seeing the word anywhere).
@@ -83,8 +89,14 @@ To fix this, we use the **Logarithmic Sum**.
 Instead of comparing $P(\text{Spam}) \prod P(W_i \mid \text{Spam})$, we take the natural logarithm $\ln()$ of the equation. Because $\ln(a \cdot b) = \ln(a) + \ln(b)$, multiplication turns into simple addition!
 
 **The Final Scoring Equation:**
-$$ \text{Score}_{\text{Spam}} = \ln(P(\text{Spam})) + \sum_{i=1}^{n} \ln(P(W_i \mid \text{Spam})) $$
-$$ \text{Score}_{\text{Ham}} = \ln(P(\text{Ham})) + \sum_{i=1}^{n} \ln(P(W_i \mid \text{Ham})) $$
+
+$$
+\text{Score}_{\text{Spam}} = \ln(P(\text{Spam})) + \sum_{i=1}^{n} \ln(P(W_i \mid \text{Spam}))
+$$
+
+$$
+\text{Score}_{\text{Ham}} = \ln(P(\text{Ham})) + \sum_{i=1}^{n} \ln(P(W_i \mid \text{Ham}))
+$$
 
 If $\text{Score}_{\text{Spam}} > \text{Score}_{\text{Ham}}$, the email is classified as Spam.
 This logarithmic transformation allows the system to probabilistically score emails containing tens of thousands of words in microseconds.

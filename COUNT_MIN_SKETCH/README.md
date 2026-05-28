@@ -81,7 +81,9 @@ This allows real-time DDoS mitigation in a streaming environment using only kilo
 
 The Count-Min Sketch guarantees bounds on the estimation error. The estimated count $\hat{f}_x$ of item $x$ is related to its true count $f_x$ by:
 
-$$ f_x \le \hat{f}_x \le f_x + \epsilon N $$
+$$
+f_x \le \hat{f}_x \le f_x + \epsilon N
+$$
 
 Where:
 - $N$ is the total sum of all counts inserted into the sketch.
@@ -95,8 +97,14 @@ The dimensions of the matrix are chosen based on two desired parameters:
 - $\delta$ (Probability of failure): The probability that the estimate exceeds the error bound.
 
 The parameters are calculated as:
-$$ w = \lceil \frac{e}{\epsilon} \rceil $$
-$$ d = \lceil \ln(\frac{1}{\delta}) \rceil $$
+
+$$
+w = \lceil \frac{e}{\epsilon} \rceil
+$$
+
+$$
+d = \lceil \ln(\frac{1}{\delta}) \rceil
+$$
 
 Where $e$ is Euler's number ($2.718...$).
 

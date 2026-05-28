@@ -69,7 +69,10 @@ Let $\beta$ be the learned weights.
 
 The system calculates a linear combination $z = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots$
 To convert this unbounded number $z$ into a strict probability between 0 and 1, it uses the Sigmoid (Logistic) function:
-$$ P(\text{Event} = 1 \mid X) = \frac{1}{1 + e^{-z}} $$
+
+$$
+P(\text{Event} = 1 \mid X) = \frac{1}{1 + e^{-z}}
+$$
 
 If $z$ is highly positive, the probability approaches 1 (100%). If $z$ is highly negative, it approaches 0.
 
@@ -78,9 +81,15 @@ If we want to know *when* the event will happen, we use Survival Analysis.
 Let $T$ be the time until the event (failure).
 The Survival Function $S(t) = P(T > t)$ is the probability the server survives past time $t$.
 The Hazard Function $h(t)$ is the instantaneous rate of failure at time $t$, given that the server has survived up to time $t$:
-$$ h(t) = \lim_{\Delta t \to 0} \frac{P(t \le T < t + \Delta t \mid T \ge t)}{\Delta t} $$
+
+$$
+h(t) = \lim_{\Delta t \to 0} \frac{P(t \le T < t + \Delta t \mid T \ge t)}{\Delta t}
+$$
 
 In the famous **Cox Proportional Hazards Model**, the hazard for a specific server with features $X$ is modeled as a baseline hazard $h_0(t)$ multiplied by an exponential risk factor:
-$$ h(t \mid X) = h_0(t) e^{\beta_1 X_1 + \dots + \beta_k X_k} $$
+
+$$
+h(t \mid X) = h_0(t) e^{\beta_1 X_1 + \dots + \beta_k X_k}
+$$
 
 This allows the prediction system to dynamically scale the risk profile of a server in real-time. If $X_1$ (CPU Temperature) suddenly spikes, the exponential term explodes, the Hazard Function spikes, and the system probabilistically calculates that the expected time to failure has dropped from 3 years to 3 minutes, triggering an immediate proactive shutdown.

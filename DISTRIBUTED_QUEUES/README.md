@@ -60,7 +60,9 @@ The analytics engine downstream reads these messages out of order. Because analy
 ### 1. Little's Law (Queueing Theory)
 The fundamental theorem governing all queues is Little's Law. It mathematically links the average number of items in a stationary queueing system ($L$), the average arrival rate ($\lambda$), and the average time an item spends in the system ($W$).
 
-$$ L = \lambda \cdot W $$
+$$
+L = \lambda \cdot W
+$$
 
 This law is remarkably powerful because it holds true regardless of the queueing discipline (FIFO, LIFO, random), the probability distribution of arrivals, or the distribution of service times.
 
@@ -77,8 +79,15 @@ Let $\rho$ be the utilization factor of the system: $\rho = \frac{\lambda}{c \mu
 If $\rho \ge 1$, the queue will grow to infinity and crash.
 
 The probabilistic formula for the average time a message spends waiting in the queue ($W_q$) before a worker picks it up is derived from the Erlang C formula ($P_c$):
-$$ W_q = \frac{P_c}{c \mu - \lambda} $$
+
+$$
+W_q = \frac{P_c}{c \mu - \lambda}
+$$
+
 Where $P_c$ is the probability that an arriving message finds all $c$ workers busy:
-$$ P_c = \frac{ \frac{(c \rho)^c}{c! (1-\rho)} }{ \sum_{k=0}^{c-1} \frac{(c \rho)^k}{k!} + \frac{(c \rho)^c}{c! (1-\rho)} } $$
+
+$$
+P_c = \frac{ \frac{(c \rho)^c}{c! (1-\rho)} }{ \sum_{k=0}^{c-1} \frac{(c \rho)^k}{k!} + \frac{(c \rho)^c}{c! (1-\rho)} }
+$$
 
 This math proves that as utilization $\rho$ approaches $1.0$ (100%), the wait time doesn't just increase linearly; it asymptotes exponentially to infinity. This is why site reliability engineers (SREs) design distributed queues to probabilistically autoscale backend workers the moment $\rho$ crosses 70-80%, preventing the math from crossing the catastrophic threshold.

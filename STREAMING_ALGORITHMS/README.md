@@ -78,7 +78,11 @@ AMS proved that you can approximate $F_2$ using surprisingly little memory.
 **Why does this work?**
 Because the hash function maps items uniformly to $+1$ and $-1$, the expected value of the cross terms $h(i)h(j)$ is 0.
 When you square $Z$, you get:
-$$ Z^2 = \left( \sum f_i h(i) \right)^2 = \sum f_i^2 h(i)^2 + \sum_{i \ne j} 2 f_i f_j h(i) h(j) $$
+
+$$
+Z^2 = \left( \sum f_i h(i) \right)^2 = \sum f_i^2 h(i)^2 + \sum_{i \ne j} 2 f_i f_j h(i) h(j)
+$$
+
 Since $h(i)^2 = (\pm 1)^2 = 1$, the first term is exactly $F_2$.
 The expected value of the second term is 0.
 Therefore, $\mathbb{E}[Z^2] = F_2$.

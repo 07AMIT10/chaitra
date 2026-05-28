@@ -85,7 +85,10 @@ To compare if Event A happened before Event B, we check if the Bloom Filter of A
 
 Because it's a Bloom Filter, there is a probability of a false positive (thinking A happened before B when they were actually concurrent).
 The false positive rate $P$ for comparing two Bloom Clocks is:
-$$ P \approx \left( 1 - e^{-k n / M} \right)^k $$
+
+$$
+P \approx \left( 1 - e^{-k n / M} \right)^k
+$$
 
 ### 2. State-Based CRDT Convergence
 A state-based CRDT is formally a join semi-lattice. The state space $S$ must have a partial order $\le$, and a merge function (least upper bound) $\sqcup$.

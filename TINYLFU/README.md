@@ -72,7 +72,10 @@ In practice, a TinyLFU sketch for a cache of 100,000 items requires tracking 1,0
 
 ### The Error Bound Tradeoff
 Because TinyLFU uses a Count-Min Sketch, the frequency $\hat{f}$ of an item is subject to overestimation:
-$$ f \le \hat{f} \le f + \epsilon W $$
+
+$$
+f \le \hat{f} \le f + \epsilon W
+$$
 
 This positive error means a relatively unpopular item might accidentally bypass the admission bouncer if it suffers hash collisions with highly popular items.
 

@@ -63,10 +63,16 @@ This meant that for any given word, the active compute used was only a tiny frac
 Let $x$ be the input token vector. Let $W_g$ be the weight matrix of the gating network.
 The raw scores (logits) for the $N$ experts are $H(x) = x \cdot W_g$.
 The probabilities $P(x)$ are generated via Softmax:
-$$ P(x)_i = \frac{e^{H(x)_i}}{\sum_{j=1}^N e^{H(x)_j}} $$
+
+$$
+P(x)_i = \frac{e^{H(x)_i}}{\sum_{j=1}^N e^{H(x)_j}}
+$$
 
 If we are using Top-K routing, the output of the entire MoE layer is:
-$$ y = \sum_{i \in \text{TopK}(P(x))} P(x)_i \cdot \text{Expert}_i(x) $$
+
+$$
+y = \sum_{i \in \text{TopK}(P(x))} P(x)_i \cdot \text{Expert}_i(x)
+$$
 
 Notice that we multiply the expert's output by the probability $P(x)_i$. This is crucial. It means the Router's decision process is *differentiable*. During training, if Expert $i$ gives a terrible answer, the backpropagation math will reduce $P(x)_i$, causing the Router to learn not to send similar tokens to Expert $i$ in the future.
 
@@ -75,7 +81,11 @@ What happens if the Router decides to send *every single token* in a sentence to
 Expert 1's memory buffer will overflow, and Experts 2-8 will sit idle.
 
 To prevent this in hardware implementations, each expert has a strict physical buffer size, called the **Capacity Factor ($C$)**.
-$$ \text{Expert Capacity} = \frac{\text{Tokens in Batch}}{\text{Number of Experts}} \times C $$
+
+$$
+\text{Expert Capacity} = \frac{\text{Tokens in Batch}}{\text{Number of Experts}} \times C
+$$
+
 Usually, $C \approx 1.25$. This means an expert is only allowed to process 25% more tokens than its perfectly fair share.
 
 If the router tries to send 100 tokens to an expert that only has capacity for 50, the expert processes the first 50. The remaining 50 tokens are mathematically **Dropped**. They bypass the expert layer entirely, passing through as a residual connection (zeros).

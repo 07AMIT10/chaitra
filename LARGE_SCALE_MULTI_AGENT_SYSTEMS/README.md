@@ -77,6 +77,9 @@ During training (in a massive simulator), a central "Critic" neural network (see
 It uses this perfect Q-value to train the 10,000 individual "Actor" networks.
 
 However, the Actor networks only take *local* observations as input.
-$$ \nabla J(\theta) = \mathbb{E} \left[ \nabla_\theta \log \pi_\theta(a_i \mid o_i) \cdot Q_{central}(s, a_1, \dots, a_N) \right] $$
+
+$$
+\nabla J(\theta) = \mathbb{E} \left[ \nabla_\theta \log \pi_\theta(a_i \mid o_i) \cdot Q_{central}(s, a_1, \dots, a_N) \right]
+$$
 
 Once training is finished, the central Critic is deleted. The 10,000 Actors are deployed into the real world. They execute completely decentrally, looking only at their local observations $o_i$, but their neural weights were mathematically shaped by the global knowledge of the Critic, allowing them to cooperate seamlessly.

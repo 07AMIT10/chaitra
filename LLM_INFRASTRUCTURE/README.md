@@ -63,16 +63,25 @@ By separating the infrastructure into specialized Prefill and Decode clusters, t
 
 ### The Memory Wall (Arithmetic Intensity)
 The fundamental mathematical limit of LLM infrastructure is Arithmetic Intensity ($I$), which is the ratio of mathematical operations (FLOPs) to memory bytes accessed:
-$$ I = \frac{\text{Compute Operations}}{\text{Memory Bytes Transferred}} $$
+
+$$
+I = \frac{\text{Compute Operations}}{\text{Memory Bytes Transferred}}
+$$
 
 During the **Prefill** phase (reading the prompt), $I$ is extremely high. The GPU loads the weights once, and multiplies them against thousands of tokens simultaneously. The GPU achieves near 100% of its theoretical TFLOPs limit.
 
 During the **Decode** phase (generating the answer one token at a time), $I$ is extremely low. To generate a single word, the GPU must load the *entire* 100GB model from VRAM into the compute cores, do a tiny amount of math, and write the answer back.
 The time taken is bounded by the Memory Bandwidth ($BW$) of the GPU hardware.
-$$ \text{Time per token} \approx \frac{\text{Model Size in Bytes}}{BW} $$
+
+$$
+\text{Time per token} \approx \frac{\text{Model Size in Bytes}}{BW}
+$$
 
 If you run a 70 Billion parameter model (140 GB in 16-bit) on an Nvidia A100 (which has 2000 GB/s bandwidth), the theoretical absolute fastest it can generate a single token for a single user is:
-$$ \frac{140 \text{ GB}}{2000 \text{ GB/s}} = 0.07 \text{ seconds (or 14 tokens per second)} $$
+
+$$
+\frac{140 \text{ GB}}{2000 \text{ GB/s}} = 0.07 \text{ seconds (or 14 tokens per second)}
+$$
 
 This is the **Memory Wall**. No matter how much faster Nvidia makes the compute cores, the model cannot run faster than the VRAM can physically push data.
 This equation is the sole reason why approximate computing techniques (like 4-bit Quantization, which shrinks the Model Size to 35GB and boosts the speed to 57 tokens/sec) are the most critical aspect of modern LLM infrastructure deployment.

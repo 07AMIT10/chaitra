@@ -110,11 +110,17 @@ $1 - e^{-kn/m}$
 
 ### 3. False Positive Rate ($P$)
 A false positive occurs if, when checking an item, all $k$ hashed bits happen to be 1. The probability of this is the probability that one bit is 1, raised to the power of $k$:
-$$ P \approx \left( 1 - e^{-kn/m} \right)^k $$
+
+$$
+P \approx \left( 1 - e^{-kn/m} \right)^k
+$$
 
 ### Optimizing $k$
 To minimize the false positive rate for a given $m$ and $n$, the optimal number of hash functions $k$ is:
-$$ k = \frac{m}{n} \ln(2) $$
+
+$$
+k = \frac{m}{n} \ln(2)
+$$
 
 This means that in an optimal Bloom Filter, roughly 50% of the bits are set to 1.
 

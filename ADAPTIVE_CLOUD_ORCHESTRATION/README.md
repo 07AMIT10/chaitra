@@ -66,12 +66,22 @@ At its core, adaptive orchestration is a Constrained Optimization problem. The o
 Let $x_i$ be the number of servers of type $i$ (e.g., $x_1$ = Small VM, $x_2$ = Large VM, $x_3$ = GPU VM).
 Let $c_i$ be the hourly cost of server type $i$.
 The objective is to minimize the total cost:
-$$ \text{Minimize} \sum c_i x_i $$
+
+$$
+\text{Minimize} \sum c_i x_i
+$$
 
 Subject to constraints:
 1. **Capacity Constraint**: The total processing power must be greater than the probabilistically forecasted load $L$.
-$$ \sum p_i x_i \ge L $$
+
+$$
+\sum p_i x_i \ge L
+$$
+
 2. **Availability Constraint**: To survive a zone failure, no more than 50% of the servers can be in a single availability zone $Z_1$.
-$$ \sum_{i \in Z_1} x_i \le 0.5 \sum x_i $$
+
+$$
+\sum_{i \in Z_1} x_i \le 0.5 \sum x_i
+$$
 
 The adaptive orchestrator runs a Simplex or Interior Point algorithm on this matrix of equations every few seconds. Because cloud pricing and user load $L$ are constantly shifting, the mathematical "optimum" is a moving target. The system constantly chases this mathematical minimum, adapting the infrastructure shape in real-time.

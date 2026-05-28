@@ -74,5 +74,9 @@ Mathematically, if an item actually appears more than $N/k$ times, it is absolut
 In stream processing (like Apache Flink), generating a watermark $W(t)$ means declaring that no data with an event time $t' < W(t)$ will arrive in the future.
 Because networks are chaotic, this is a probabilistic declaration.
 If the network delay $D$ follows a Gamma or Exponential distribution, the system calculates $W(t) = \text{CurrentTime} - \Delta$, where $\Delta$ is chosen such that:
-$$ P(D > \Delta) < \epsilon $$
+
+$$
+P(D > \Delta) < \epsilon
+$$
+
 Where $\epsilon$ is the acceptable percentage of dropped late data (e.g., 0.001%). The system continuously analyzes the real-time distribution of packet delays and dynamically adjusts $\Delta$ to balance latency (fast analytics) against completeness (accurate analytics).

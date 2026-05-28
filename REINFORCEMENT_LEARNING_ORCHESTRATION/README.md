@@ -72,18 +72,29 @@ Alibaba researchers deployed RL algorithms (like Deep Deterministic Policy Gradi
 ### 1. The Bellman Equation and Q-Learning
 The theoretical foundation of RL is the Bellman Equation.
 The goal of the agent is to maximize the expected cumulative discounted reward $G_t$:
-$$ G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1} $$
+
+$$
+G_t = R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots = \sum_{k=0}^{\infty} \gamma^k R_{t+k+1}
+$$
+
 Where $\gamma \in [0, 1)$ is the discount factor (valuing immediate rewards over distant future rewards).
 
 The Action-Value function $Q(s, a)$ represents the expected return if the agent starts in state $s$, takes action $a$, and follows the optimal policy thereafter. The Bellman optimality equation states:
-$$ Q^*(s, a) = \mathbb{E} \left[ R_{t+1} + \gamma \max_{a'} Q^*(S_{t+1}, a') \mid S_t = s, A_t = a \right] $$
+
+$$
+Q^*(s, a) = \mathbb{E} \left[ R_{t+1} + \gamma \max_{a'} Q^*(S_{t+1}, a') \mid S_t = s, A_t = a \right]
+$$
 
 ### 2. Deep Q-Networks (DQN) for Orchestration
 In a data center, the state space $S$ is continuous and infinite. You cannot store a Q-table.
 Instead, we use a Deep Neural Network parameterized by weights $\theta$ to approximate the Q-function: $Q(s, a; \theta) \approx Q^*(s, a)$.
 
 The network is trained by minimizing the Mean Squared Error (Loss) between the network's current prediction and the target value (the actual reward received plus the network's prediction for the next state):
-$$ L_i(\theta_i) = \mathbb{E} \left[ \left( y_i - Q(s, a; \theta_i) \right)^2 \right] $$
+
+$$
+L_i(\theta_i) = \mathbb{E} \left[ \left( y_i - Q(s, a; \theta_i) \right)^2 \right]
+$$
+
 Where the target $y_i = r + \gamma \max_{a'} Q(s', a'; \theta_{i-1})$.
 
 ### 3. Policy Gradients (PPO)
@@ -91,5 +102,9 @@ Value-based methods (DQN) struggle when the action space is continuous (e.g., "A
 Modern systems use Proximal Policy Optimization (PPO), a Policy Gradient method. Instead of learning the *value* of an action, the network directly outputs the *policy* $\pi_\theta(a \mid s)$ (the probability distribution of actions).
 
 The objective is to maximize the expected reward by adjusting the weights $\theta$ in the direction of the gradient:
-$$ \nabla_\theta J(\theta) = \mathbb{E} \left[ \nabla_\theta \log \pi_\theta(a \mid s) \cdot \hat{A}(s, a) \right] $$
+
+$$
+\nabla_\theta J(\theta) = \mathbb{E} \left[ \nabla_\theta \log \pi_\theta(a \mid s) \cdot \hat{A}(s, a) \right]
+$$
+
 Where $\hat{A}(s, a)$ is the Advantage (how much better action $a$ was compared to the average baseline action in state $s$). If the Advantage is positive, the probability $\pi_\theta$ of that action is mathematically pushed upward.

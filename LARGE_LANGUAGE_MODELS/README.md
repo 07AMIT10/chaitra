@@ -76,14 +76,18 @@ By tweaking how we sample the probabilistic output, the same model acts like a r
 The fundamental goal of an LLM during training is to maximize the likelihood of a sequence of tokens $W = (w_1, w_2, ..., w_T)$.
 By the chain rule of probability, the joint probability of the entire sequence is the product of conditional probabilities:
 
-$$ P(w_1, w_2, ..., w_T) = \prod_{t=1}^{T} P(w_t \mid w_1, w_2, ..., w_{t-1}) $$
+$$
+P(w_1, w_2, ..., w_T) = \prod_{t=1}^{T} P(w_t \mid w_1, w_2, ..., w_{t-1})
+$$
 
 The neural network acts as a function approximator parameterized by weights $\theta$ to estimate $P_\theta(w_t \mid \text{context})$.
 
 ### 2. The Softmax Function
 To convert raw neural network outputs (logits $z_i$) into a valid probability distribution where all probabilities sum to 1, the model uses the Softmax function:
 
-$$ P(y = i) = \frac{e^{z_i / T}}{\sum_{j} e^{z_j / T}} $$
+$$
+P(y = i) = \frac{e^{z_i / T}}{\sum_{j} e^{z_j / T}}
+$$
 
 Where $T$ is the Temperature parameter.
 - If $T=1$, it's the standard distribution.

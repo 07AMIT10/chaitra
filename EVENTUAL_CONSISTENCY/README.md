@@ -88,6 +88,9 @@ If you write to 1 node and read from 1 random node out of $N$, the probability y
 If you hit a stale node, the probability that the replication message has *not* arrived yet at time $\Delta t$ is $1 - F(\Delta t) = e^{-\lambda \Delta t}$.
 
 Therefore, the probability of a stale read after $\Delta t$ is:
-$$ P(\text{stale} \mid \Delta t) = \left(\frac{N-1}{N}\right) e^{-\lambda \Delta t} $$
+
+$$
+P(\text{stale} \mid \Delta t) = \left(\frac{N-1}{N}\right) e^{-\lambda \Delta t}
+$$
 
 As $\Delta t \to \infty$, $P(\text{stale}) \to 0$. The decay is exponential, meaning the "window of inconsistency" is usually incredibly narrow (a few milliseconds), making it practically invisible to humans.

@@ -78,8 +78,14 @@ Let $p$ be the probability that a single commodity server fails in a given day (
 If your job requires 1 server and takes 1 day, the probability of job success is $1 - 0.001 = 99.9\%$.
 
 If your job requires $N = 5,000$ servers, what is the probability that *none* of them fail?
-$$ P(\text{No Failures}) = (1 - p)^N $$
-$$ P(\text{No Failures}) = (0.999)^{5000} \approx 0.0067 \text{ (or } 0.67\% \text{)} $$
+
+$$
+P(\text{No Failures}) = (1 - p)^N
+$$
+
+$$
+P(\text{No Failures}) = (0.999)^{5000} \approx 0.0067 \text{ (or } 0.67\% \text{)}
+$$
 
 In a massive cluster, hardware failure is not an anomaly; it is a statistical certainty. A job will almost never finish without at least one machine dying. MapReduce treats hardware failure as a software engineering parameter rather than an IT emergency.
 
@@ -87,7 +93,10 @@ In a massive cluster, hardware failure is not an anomaly; it is a statistical ce
 Let the execution time of a task follow an exponential distribution with rate $\lambda$.
 If a job consists of $N$ parallel tasks, the total job completion time is the *maximum* of all $N$ variables.
 The expected value of the maximum of $N$ exponential variables grows logarithmically:
-$$ E[\text{Max}(T_1, \dots, T_N)] \approx \frac{\ln(N)}{\lambda} $$
+
+$$
+E[\text{Max}(T_1, \dots, T_N)] \approx \frac{\ln(N)}{\lambda}
+$$
 
 As $N$ grows, the tail latency (the time waiting for the slowest task) dominates the entire job.
 By launching redundant backup tasks (changing the math from finding the maximum to finding the minimum of the redundant pairs), MapReduce mathematically truncates the tail of the probability distribution, forcing the overall job completion time back toward the median.

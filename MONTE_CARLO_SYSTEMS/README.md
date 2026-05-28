@@ -73,13 +73,17 @@ If randomly playing out Move A resulted in a win 60% of the time, and Move B res
 The entire foundation of Monte Carlo methods rests on the Strong Law of Large Numbers.
 If $X$ is a random variable with expected value $\mu$, and we take $N$ independent, identically distributed samples $x_1, x_2, \dots, x_N$, the sample average $\bar{x}_N$ converges to the true expected value as $N$ goes to infinity:
 
-$$ \lim_{N \to \infty} \frac{1}{N} \sum_{i=1}^{N} x_i = \mu $$
+$$
+\lim_{N \to \infty} \frac{1}{N} \sum_{i=1}^{N} x_i = \mu
+$$
 
 ### 2. Error Rate and Convergence
 How many "darts" do we need to throw to get an accurate answer?
 The accuracy of a Monte Carlo estimate is determined by its variance. According to the Central Limit Theorem, the standard error of the estimate $\bar{x}_N$ is:
 
-$$ \text{Error} \approx \frac{\sigma}{\sqrt{N}} $$
+$$
+\text{Error} \approx \frac{\sigma}{\sqrt{N}}
+$$
 
 Where $\sigma$ is the standard deviation of the underlying function.
 

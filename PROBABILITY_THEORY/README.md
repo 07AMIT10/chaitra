@@ -61,22 +61,39 @@ Engineers use this budget mathematically. If a new deployment has a 5% chance of
 
 ### 1. Expected Value and Variance
 The Expected Value (mean) $\mu$ of a discrete random variable $X$ is the probability-weighted sum of all possible values:
-$$ \mathbb{E}[X] = \sum x_i P(x_i) $$
+
+$$
+\mathbb{E}[X] = \sum x_i P(x_i)
+$$
 
 The Variance $\sigma^2$ measures how "spread out" the system is. In software, high variance is lethal (it causes massive tail latency).
-$$ \text{Var}(X) = \mathbb{E}[(X - \mu)^2] $$
+
+$$
+\text{Var}(X) = \mathbb{E}[(X - \mu)^2]
+$$
 
 ### 2. The Law of Large Numbers (LLN)
 The Weak Law of Large Numbers states that the sample average converges in probability towards the expected value as the sample size $N$ goes to infinity.
-$$ \lim_{N \to \infty} P\left( \left| \frac{1}{N} \sum_{i=1}^{N} X_i - \mu \right| > \epsilon \right) = 0 $$
+
+$$
+\lim_{N \to \infty} P\left( \left| \frac{1}{N} \sum_{i=1}^{N} X_i - \mu \right| > \epsilon \right) = 0
+$$
+
 This is why massive clusters are easier to load balance than small clusters. The aggregate load becomes perfectly predictable.
 
 ### 3. Markov's and Chebyshev's Inequalities
 When building distributed systems, we often don't know the exact probability distribution of the data, but we can bound the worst-case scenario.
 
 **Markov's Inequality**: If $X$ is a non-negative random variable (like CPU load), the probability that it exceeds a massive spike $a$ is strictly bounded by its mean:
-$$ P(X \ge a) \le \frac{\mathbb{E}[X]}{a} $$
+
+$$
+P(X \ge a) \le \frac{\mathbb{E}[X]}{a}
+$$
 
 **Chebyshev's Inequality**: Bounding the tail latency. The probability that a request takes longer than $k$ standard deviations from the mean is:
-$$ P(|X - \mu| \ge k\sigma) \le \frac{1}{k^2} $$
+
+$$
+P(|X - \mu| \ge k\sigma) \le \frac{1}{k^2}
+$$
+
 If the mean latency is 50ms and standard deviation is 10ms, the probability of a request taking longer than 150ms ($k=10$) is at most $1/100$, or 1%, *regardless of the underlying distribution*.

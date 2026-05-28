@@ -62,7 +62,11 @@ If they ran the system at 90% CPU to save money, a tiny 5% burst in traffic push
 
 ### 1. Little's Law
 The most famous theorem in Queueing Theory.
-$$ L = \lambda \cdot W $$
+
+$$
+L = \lambda \cdot W
+$$
+
 - $L$: Average number of items in the system.
 - $\lambda$: Average arrival rate.
 - $W$: Average time spent in the system.
@@ -75,7 +79,10 @@ Let $\mu$ be the service rate (capacity).
 Utilization $\rho = \frac{\lambda}{\mu}$.
 
 The average number of items in the queue (waiting to be processed) is:
-$$ L_q = \frac{\rho^2}{1 - \rho} $$
+
+$$
+L_q = \frac{\rho^2}{1 - \rho}
+$$
 
 Look at the denominator: $1 - \rho$.
 If $\rho = 0.50$ (50% loaded), $L_q = 0.25 / 0.5 = 0.5$ items waiting.
@@ -88,7 +95,9 @@ Moving from 90% to 99% utilization is only a 10% increase in load, but it causes
 Real-world systems are rarely perfect M/M/1 queues. The Kingman formula provides a heavy-traffic approximation for any G/G/1 queue (General arrivals, General service).
 Let $c_a$ be the coefficient of variation for arrival times, and $c_s$ be the coefficient of variation for service times.
 
-$$ \mathbb{E}[W_q] \approx \left( \frac{\rho}{1-\rho} \right) \left( \frac{c_a^2 + c_s^2}{2} \right) \frac{1}{\mu} $$
+$$
+\mathbb{E}[W_q] \approx \left( \frac{\rho}{1-\rho} \right) \left( \frac{c_a^2 + c_s^2}{2} \right) \frac{1}{\mu}
+$$
 
 This formula isolates the three mathematical causes of latency:
 1. **Capacity** ($\frac{\rho}{1-\rho}$): Running too close to 100% utilization.

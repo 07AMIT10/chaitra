@@ -77,7 +77,10 @@ In Raft, the time to commit a transaction (Time to Finality) is exactly 1 Round 
 
 In Gossip, the time for a message to reach all $N$ nodes is probabilistic. It follows the mathematics of epidemiology (the Susceptible-Infected model).
 The expected time to infect the entire cluster scales logarithmically with the size of the cluster:
-$$ E[\text{Time}] \approx O(\log N) $$
+
+$$
+E[\text{Time}] \approx O(\log N)
+$$
 
 ### 3. Fault Tolerance Equations
 In Raft, the system can tolerate $f$ failures, where the total cluster size $N = 2f + 1$.

@@ -75,7 +75,10 @@ Let $N$ be the total number of pages on the internet.
 Let $d$ be the damping factor.
 
 The PageRank of page $u$ is calculated iteratively:
-$$ PR(u) = \frac{1-d}{N} + d \sum_{v \in B_u} \frac{PR(v)}{L(v)} $$
+
+$$
+PR(u) = \frac{1-d}{N} + d \sum_{v \in B_u} \frac{PR(v)}{L(v)}
+$$
 
 **Explanation of the terms:**
 - $\frac{1-d}{N}$: The probability that the surfer teleported directly to page $u$ out of boredom.
@@ -87,7 +90,11 @@ Mathematically, the Random Surfer model is a **Markov Chain**.
 The internet is represented as an $N \times N$ transition probability matrix $M$, where $M_{ij}$ is the probability of moving from page $j$ to page $i$.
 
 The PageRank vector $R$ (containing the scores for all $N$ pages) is the solution to the equation:
-$$ R = \left( \frac{1-d}{N} \mathbf{E} + d M \right) R $$
+
+$$
+R = \left( \frac{1-d}{N} \mathbf{E} + d M \right) R
+$$
+
 (where $\mathbf{E}$ is a matrix of all ones).
 
 Because this forms a stochastic matrix, by the Perron-Frobenius theorem, the PageRank vector $R$ is exactly the **principal eigenvector** of the modified matrix, corresponding to the eigenvalue 1.

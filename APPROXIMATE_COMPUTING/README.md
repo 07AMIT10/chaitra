@@ -56,7 +56,10 @@ This introduces massive mathematical rounding errors into the model's brain. How
 
 ### 1. The Energy-Error Tradeoff
 In hardware, the power $P$ consumed by a digital CMOS circuit is proportional to the switching frequency $f$, the capacitance $C$, and the square of the voltage $V$:
-$$ P \propto f C V^2 $$
+
+$$
+P \propto f C V^2
+$$
 
 To save energy, you want to lower the voltage $V$. However, lowering the voltage increases the propagation delay of the electrical signals through the silicon gates. If the voltage drops too low, the signal won't reach the end of the adder circuit before the next clock cycle ($f$) hits, resulting in a timing error (the math is wrong).
 
@@ -71,6 +74,9 @@ The quantization function is $x_q = \text{Round}\left(\frac{x}{S}\right) \cdot S
 The quantization error is the difference $\epsilon = x - x_q$.
 Under the assumption that $x$ is uniformly distributed, the error $\epsilon$ is uniformly distributed in $[-S/2, S/2]$.
 The variance (power) of this quantization noise is:
-$$ \text{Var}(\epsilon) = \frac{S^2}{12} $$
+
+$$
+\text{Var}(\epsilon) = \frac{S^2}{12}
+$$
 
 As we drop the number of bits $b$, the step size $S$ increases exponentially ($S \propto 2^{-b}$), meaning the noise variance $\text{Var}(\epsilon)$ explodes exponentially. Approximate computing relies on advanced stochastic rounding and neural network robustness to absorb this massive variance without catastrophic failure of the overall algorithm.

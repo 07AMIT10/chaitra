@@ -70,7 +70,10 @@ By shifting from reactive thermostats to probabilistic AI control, Google reduce
 To predict future load, systems often use ARIMA (AutoRegressive Integrated Moving Average) or LSTMs (Long Short-Term Memory neural networks).
 
 In an AutoRegressive model, the future value $Y_t$ is a linear combination of past values, plus a probabilistic error term $\epsilon_t$ (white noise):
-$$ Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + \epsilon_t $$
+
+$$
+Y_t = c + \phi_1 Y_{t-1} + \phi_2 Y_{t-2} + \dots + \phi_p Y_{t-p} + \epsilon_t
+$$
 
 The AI fits the parameters $\phi$ to historical data. It doesn't output a single deterministic number for tomorrow's traffic; it outputs a mean and a variance (a confidence interval). If the variance is too high (the prediction is highly uncertain), the orchestrator can fall back to standard reactive scaling.
 
@@ -82,7 +85,9 @@ In an RL-driven orchestrator, the system models the data center as a Markov Deci
 
 The AI's goal is to learn the optimal Policy $\pi$ that maximizes the expected cumulative future reward. It does this by estimating the Q-value (Quality) of taking a specific action in a specific state using the Bellman Equation:
 
-$$ Q^{new}(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \left[ R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t) \right] $$
+$$
+Q^{new}(S_t, A_t) \leftarrow Q(S_t, A_t) + \alpha \left[ R_{t+1} + \gamma \max_a Q(S_{t+1}, a) - Q(S_t, A_t) \right]
+$$
 
 Where $\alpha$ is the learning rate and $\gamma$ is the discount factor (how much it cares about long-term vs short-term rewards).
 In deep reinforcement learning, a massive neural network is used to approximate the $Q$ function, allowing the infrastructure to autonomously navigate state spaces (millions of possible server configurations) that are impossibly large for deterministic algorithms.

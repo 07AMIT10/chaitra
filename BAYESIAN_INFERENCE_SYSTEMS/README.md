@@ -69,7 +69,9 @@ If the probability crosses 99% on Day 2, the system can automatically and proact
 ### 1. Bayes' Theorem for Distributions
 The continuous form of Bayes' theorem deals with probability density functions. Let $\theta$ be the unknown parameters of our model, and $X$ be the observed data.
 
-$$ P(\theta \mid X) = \frac{P(X \mid \theta) \cdot P(\theta)}{P(X)} $$
+$$
+P(\theta \mid X) = \frac{P(X \mid \theta) \cdot P(\theta)}{P(X)}
+$$
 
 - $P(\theta \mid X)$ is the **Posterior** distribution.
 - $P(X \mid \theta)$ is the **Likelihood** of the data.
@@ -79,7 +81,10 @@ $$ P(\theta \mid X) = \frac{P(X \mid \theta) \cdot P(\theta)}{P(X)} $$
 ### 2. The Intractable Denominator (MCMC)
 The mathematical nightmare of Bayesian Inference lies in the denominator, $P(X)$.
 To calculate the absolute probability of the data occurring under *any* possible circumstance, you have to integrate the numerator over all possible values of $\theta$:
-$$ P(X) = \int P(X \mid \theta) P(\theta) d\theta $$
+
+$$
+P(X) = \int P(X \mid \theta) P(\theta) d\theta
+$$
 
 If your neural network has 10,000 parameters, this is a 10,000-dimensional integral. It is mathematically impossible to compute exactly.
 
