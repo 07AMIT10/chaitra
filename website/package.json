@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "catalog": "node scripts/generate-catalog.mjs",
     "sync:readme": "node scripts/sync-readme.mjs",
     "build:wasm": "cd wasm/bloom_filter && wasm-pack build --target web --out-dir ../../public/wasm/bloom_filter"
   },

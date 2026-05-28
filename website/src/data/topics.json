@@ -1,12 +1,412 @@
 [
   {
+    "slug": "adaptive-cloud-orchestration",
+    "title": "ADAPTIVE CLOUD ORCHESTRATION",
+    "folder": "ADAPTIVE_CLOUD_ORCHESTRATION",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "ai-probabilistic-infrastructure",
+    "title": "AI PROBABILISTIC INFRASTRUCTURE",
+    "folder": "AI_PROBABILISTIC_INFRASTRUCTURE",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "approximate-computing",
+    "title": "APPROXIMATE COMPUTING",
+    "folder": "APPROXIMATE_COMPUTING",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "approximate-memory-cache-systems",
+    "title": "APPROXIMATE MEMORY CACHE SYSTEMS",
+    "folder": "APPROXIMATE_MEMORY_CACHE_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "autonomous-infrastructure",
+    "title": "AUTONOMOUS INFRASTRUCTURE",
+    "folder": "AUTONOMOUS_INFRASTRUCTURE",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "bayesian-distributed-systems",
+    "title": "BAYESIAN DISTRIBUTED SYSTEMS",
+    "folder": "BAYESIAN_DISTRIBUTED_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "bayesian-inference-systems",
+    "title": "BAYESIAN INFERENCE SYSTEMS",
+    "folder": "BAYESIAN_INFERENCE_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
     "slug": "bloom-filters",
     "title": "Bloom Filters",
     "folder": "BLOOM_FILTERS",
     "phase": 1,
+    "prerequisites": [],
     "status": "golden",
     "hasPython": true,
-    "hasRust": true,
-    "prerequisites": []
+    "hasRust": true
+  },
+  {
+    "slug": "consensus-systems",
+    "title": "CONSENSUS SYSTEMS",
+    "folder": "CONSENSUS_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "consistent-hashing",
+    "title": "CONSISTENT HASHING",
+    "folder": "CONSISTENT_HASHING",
+    "status": "coded",
+    "hasPython": true,
+    "hasRust": true
+  },
+  {
+    "slug": "count-min-sketch",
+    "title": "COUNT MIN SKETCH",
+    "folder": "COUNT_MIN_SKETCH",
+    "status": "coded",
+    "hasPython": true,
+    "hasRust": true
+  },
+  {
+    "slug": "crdts-plus-probability",
+    "title": "CRDTS PLUS PROBABILITY",
+    "folder": "CRDTS_PLUS_PROBABILITY",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "distributed-queues",
+    "title": "DISTRIBUTED QUEUES",
+    "folder": "DISTRIBUTED_QUEUES",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "distributed-systems",
+    "title": "DISTRIBUTED SYSTEMS",
+    "folder": "DISTRIBUTED_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "event-prediction-systems",
+    "title": "EVENT PREDICTION SYSTEMS",
+    "folder": "EVENT_PREDICTION_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "eventual-consistency",
+    "title": "EVENTUAL CONSISTENCY",
+    "folder": "EVENTUAL_CONSISTENCY",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "go-backend-systems",
+    "title": "GO BACKEND SYSTEMS",
+    "folder": "GO_BACKEND_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "gossip-protocols",
+    "title": "GOSSIP PROTOCOLS",
+    "folder": "GOSSIP_PROTOCOLS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "hyperloglog",
+    "title": "HYPERLOGLOG",
+    "folder": "HYPERLOGLOG",
+    "status": "coded",
+    "hasPython": true,
+    "hasRust": true
+  },
+  {
+    "slug": "information-theory",
+    "title": "INFORMATION THEORY",
+    "folder": "INFORMATION_THEORY",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "intelligent-realtime-platforms",
+    "title": "INTELLIGENT REALTIME PLATFORMS",
+    "folder": "INTELLIGENT_REALTIME_PLATFORMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "large-language-models",
+    "title": "LARGE LANGUAGE MODELS",
+    "folder": "LARGE_LANGUAGE_MODELS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "large-scale-ml-infrastructure",
+    "title": "LARGE SCALE ML INFRASTRUCTURE",
+    "folder": "LARGE_SCALE_ML_INFRASTRUCTURE",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "large-scale-multi-agent-systems",
+    "title": "LARGE SCALE MULTI AGENT SYSTEMS",
+    "folder": "LARGE_SCALE_MULTI_AGENT_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "llm-infrastructure",
+    "title": "LLM INFRASTRUCTURE",
+    "folder": "LLM_INFRASTRUCTURE",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "mapreduce",
+    "title": "MAPREDUCE",
+    "folder": "MAPREDUCE",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "mixture-of-experts",
+    "title": "MIXTURE OF EXPERTS",
+    "folder": "MIXTURE_OF_EXPERTS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "monte-carlo-systems",
+    "title": "MONTE CARLO SYSTEMS",
+    "folder": "MONTE_CARLO_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "monte-carlo-tree-search",
+    "title": "MONTE CARLO TREE SEARCH",
+    "folder": "MONTE_CARLO_TREE_SEARCH",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "next-gen-ai-agents",
+    "title": "NEXT GEN AI AGENTS",
+    "folder": "NEXT_GEN_AI_AGENTS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "pagerank",
+    "title": "PAGERANK",
+    "folder": "PAGERANK",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "power-of-two-choices",
+    "title": "POWER OF TWO CHOICES",
+    "folder": "POWER_OF_TWO_CHOICES",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "proactive-ai-systems",
+    "title": "PROACTIVE AI SYSTEMS",
+    "folder": "PROACTIVE_AI_SYSTEMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "probabilistic-consensus",
+    "title": "PROBABILISTIC CONSENSUS",
+    "folder": "PROBABILISTIC_CONSENSUS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "probabilistic-databases",
+    "title": "PROBABILISTIC DATABASES",
+    "folder": "PROBABILISTIC_DATABASES",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "probabilistic-scheduling",
+    "title": "PROBABILISTIC SCHEDULING",
+    "folder": "PROBABILISTIC_SCHEDULING",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "probability-theory",
+    "title": "PROBABILITY THEORY",
+    "folder": "PROBABILITY_THEORY",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "queueing-theory",
+    "title": "QUEUEING THEORY",
+    "folder": "QUEUEING_THEORY",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "raft-vs-gossip",
+    "title": "RAFT VS GOSSIP",
+    "folder": "RAFT_VS_GOSSIP",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "random-early-detection",
+    "title": "RANDOM EARLY DETECTION",
+    "folder": "RANDOM_EARLY_DETECTION",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "randomized-algorithms",
+    "title": "RANDOMIZED ALGORITHMS",
+    "folder": "RANDOMIZED_ALGORITHMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "rate-limiting",
+    "title": "RATE LIMITING",
+    "folder": "RATE_LIMITING",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "reinforcement-learning-orchestration",
+    "title": "REINFORCEMENT LEARNING ORCHESTRATION",
+    "folder": "REINFORCEMENT_LEARNING_ORCHESTRATION",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "scalable-architectures",
+    "title": "SCALABLE ARCHITECTURES",
+    "folder": "SCALABLE_ARCHITECTURES",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "spam-detection",
+    "title": "SPAM DETECTION",
+    "folder": "SPAM_DETECTION",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "statistical-learning",
+    "title": "STATISTICAL LEARNING",
+    "folder": "STATISTICAL_LEARNING",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "streaming-algorithms",
+    "title": "STREAMING ALGORITHMS",
+    "folder": "STREAMING_ALGORITHMS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "streaming-analytics",
+    "title": "STREAMING ANALYTICS",
+    "folder": "STREAMING_ANALYTICS",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "tinylfu",
+    "title": "TINYLFU",
+    "folder": "TINYLFU",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "token-routing",
+    "title": "TOKEN ROUTING",
+    "folder": "TOKEN_ROUTING",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
+  },
+  {
+    "slug": "transformer-attention",
+    "title": "TRANSFORMER ATTENTION",
+    "folder": "TRANSFORMER_ATTENTION",
+    "status": "readme-only",
+    "hasPython": false,
+    "hasRust": false
   }
 ]
