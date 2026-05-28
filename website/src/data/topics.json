@@ -1,0 +1,12 @@
+[
+  {
+    "slug": "bloom-filters",
+    "title": "Bloom Filters",
+    "folder": "BLOOM_FILTERS",
+    "phase": 1,
+    "status": "golden",
+    "hasPython": true,
+    "hasRust": true,
+    "prerequisites": []
+  }
+]

@@ -1,0 +1,48 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+
+const { title, repoFolder } = Astro.props;
+---
+<BaseLayout title={title}>
+  <article class="topic">
+    <nav aria-label="Topic sections">
+      <a href="#narrative">Story</a> · <a href="#lab">Lab</a> · <a href="#code">Code</a>
+    </nav>
+    <slot name="hero" />
+    <section id="prerequisites"><slot name="prerequisites" /></section>
+    <section id="narrative"><slot name="narrative" /></section>
+    <section id="lab"><slot name="lab" /></section>
+    <section id="code"><slot name="code" /></section>
+    <footer>
+      <a href={`https://github.com/07AMIT10/chaitra/tree/main/${repoFolder}`}>View on GitHub</a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style>
+  .topic {
+    color: var(--color-text);
+    max-width: 72ch;
+  }
+
+  .topic nav a {
+    color: var(--color-accent);
+  }
+
+  .topic nav a:hover {
+    color: var(--color-accent-hover);
+  }
+
+  .topic section {
+    margin-block: var(--space-6);
+  }
+
+  .topic footer {
+    margin-block-start: var(--space-6);
+    color: var(--color-muted);
+  }
+
+  .topic footer a {
+    color: var(--color-accent);
+  }
+</style>

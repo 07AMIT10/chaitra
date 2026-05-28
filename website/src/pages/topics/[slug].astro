@@ -1,0 +1,16 @@
+---
+import TopicLayout from "../../layouts/TopicLayout.astro";
+import topics from "../../data/topics.json";
+
+export function getStaticPaths() {
+  return topics
+    .filter((t) => t.status === "golden" || t.status === "live")
+    .map((t) => ({ params: { slug: t.slug }, props: { topic: t } }));
+}
+
+const { topic } = Astro.props;
+const Content = (await import(`../../content/topics/${topic.slug}/index.mdx`)).default;
+---
+<TopicLayout title={topic.title} repoFolder={topic.folder}>
+  <Content slot="narrative" />
+</TopicLayout>
