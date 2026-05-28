@@ -74,11 +74,19 @@ With consistent hashing, only a tiny fraction of the cached files (the ones that
 
 ### 1. Data Movement on Resizing
 In traditional modulo hashing (`hash(key) % N`), changing $N$ to $N+1$ changes the result for almost all keys. The fraction of keys that must move is:
-$$ \frac{N}{N+1} $$
+
+$$
+\frac{N}{N+1}
+$$
+
 If you have 100 servers and add 1, roughly 99% of data must move.
 
 In Consistent Hashing, when moving from $N$ to $N+1$ servers, the new server takes over an average arc length of $1/(N+1)$ of the ring. Therefore, the fraction of keys that must move is only:
-$$ \frac{1}{N+1} $$
+
+$$
+\frac{1}{N+1}
+$$
+
 If you have 100 servers and add 1, only ~1% of the data moves. This is the optimal minimum amount of movement required to balance the cluster.
 
 ### 2. Load Variance and Virtual Nodes
@@ -87,6 +95,9 @@ If we map $N$ physical servers directly to the ring, the variance in load is ext
 
 By introducing $V$ virtual nodes per physical server, the load distribution approaches a uniform distribution. The standard deviation of the load drops relative to $\sqrt{V}$.
 To achieve a max load within $(1 + \epsilon)$ of the average load with high probability, the number of virtual nodes needed is:
-$$ V = O\left( \frac{\log N}{\epsilon^2} \right) $$
+
+$$
+V = O\left( \frac{\log N}{\epsilon^2} \right)
+$$
 
 This is why systems like Amazon Dynamo or Riak typically default to 128 or 256 virtual nodes per physical server. It provides tight probabilistic guarantees on load balancing without overloading the routing tables.

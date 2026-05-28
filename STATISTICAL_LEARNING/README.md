@@ -75,10 +75,16 @@ The algorithm learns latent statistical features. It figures out probabilistical
 
 ### 1. Risk Minimization
 The theoretical goal is to minimize the Expected Risk $R(f)$, which is the expected loss over the *entire true distribution* of data $P(X,Y)$:
-$$ R(f) = \mathbb{E}_{X,Y} [ L(Y, f(X)) ] $$
+
+$$
+R(f) = \mathbb{E}_{X,Y} [ L(Y, f(X)) ]
+$$
 
 However, we don't have the true distribution of the entire universe. We only have our training dataset of $n$ samples. So we calculate the **Empirical Risk** $\hat{R}(f)$:
-$$ \hat{R}(f) = \frac{1}{n} \sum_{i=1}^{n} L(y_i, f(x_i)) $$
+
+$$
+\hat{R}(f) = \frac{1}{n} \sum_{i=1}^{n} L(y_i, f(x_i))
+$$
 
 The core problem of ML is that minimizing Empirical Risk (making the loss 0 on your training data) leads directly to Overfitting.
 
@@ -87,7 +93,10 @@ How do we mathematically guarantee that a model trained on $n$ samples will actu
 Vapnik and Chervonenkis introduced the VC Dimension $h$, which measures the "capacity" or complexity of a model (how squiggly the line is allowed to be).
 
 The VC Generalization Bound states that with probability $1 - \delta$, the true Expected Risk is bounded by the Empirical Risk plus a complexity penalty:
-$$ R(f) \le \hat{R}(f) + \sqrt{\frac{h \left(\ln(\frac{2n}{h}) + 1\right) - \ln(\frac{\delta}{4})}{n}} $$
+
+$$
+R(f) \le \hat{R}(f) + \sqrt{\frac{h \left(\ln(\frac{2n}{h}) + 1\right) - \ln(\frac{\delta}{4})}{n}}
+$$
 
 **What this math means:**
 - As you add more data $n$, the penalty term shrinks. Big data makes the model more reliable.

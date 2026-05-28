@@ -78,7 +78,9 @@ No matter if you insert 10 thousand or 100 million users, the memory footprint r
 Let $m$ be the number of buckets, and $M[j]$ be the maximum number of leading zeros recorded in bucket $j$.
 The raw estimate $E$ using the harmonic mean is:
 
-$$ E = \alpha_m \cdot m^2 \cdot \left( \sum_{j=1}^{m} 2^{-M[j]} \right)^{-1} $$
+$$
+E = \alpha_m \cdot m^2 \cdot \left( \sum_{j=1}^{m} 2^{-M[j]} \right)^{-1}
+$$
 
 Where:
 - $\alpha_m$ is a constant correction factor used to correct systematic multiplicative bias. It depends on the number of buckets $m$. For large $m$ (e.g., $m \ge 128$), $\alpha_m \approx \frac{0.7213}{1 + 1.079/m}$.
@@ -89,12 +91,18 @@ If we expect up to $N$ unique items, the hash needs to be at least $\log_2(N)$ b
 To store this maximum value, each bucket needs to be large enough to hold the number $\log_2(N)$, which requires $\log_2(\log_2(N))$ bits.
 
 Thus, to store $m$ buckets, the total memory required is:
-$$ O(m \log_2(\log_2(N))) $$
+
+$$
+O(m \log_2(\log_2(N)))
+$$
 
 This $\log \log$ factor is where "HyperLogLog" gets its name, and why it requires so little memory.
 
 ### 3. Error Rate
 The standard error of the HyperLogLog estimate is strictly bounded by:
-$$ \text{Error} \approx \frac{1.04}{\sqrt{m}} $$
+
+$$
+\text{Error} \approx \frac{1.04}{\sqrt{m}}
+$$
 
 If you want a ~1% error rate, you set $1.04 / \sqrt{m} = 0.01$, which means you need $m \approx 10,816$ buckets. At 6 bits per bucket, that's just ~8 KB of memory.

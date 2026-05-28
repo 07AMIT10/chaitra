@@ -68,7 +68,10 @@ When a request arrives, the system intentionally pauses it for a tiny fraction o
 
 Let $\lambda$ be the arrival rate. The expected batch size $B$ is $\lambda \cdot W$.
 The total latency for a request is the wait time plus the inference time $I(B)$:
-$$ \text{Total Latency} = W + I(B) $$
+
+$$
+\text{Total Latency} = W + I(B)
+$$
 
 Because inference time $I(B)$ grows extremely slowly relative to $B$ on a GPU, engineers mathematically optimize the wait window $W$ to find the exact sweet spot that maximizes cluster throughput while strictly guaranteeing that Total Latency never exceeds the business SLA (e.g., 50ms).
 

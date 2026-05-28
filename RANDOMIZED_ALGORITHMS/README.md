@@ -63,7 +63,11 @@ For a randomized Las Vegas algorithm, let $T(x)$ be the random variable represen
 In Randomized Quicksort, the probability of comparing two elements $i$ and $j$ (where $j > i$) depends entirely on whether $i$ or $j$ is chosen as the pivot before any element between them.
 There are $j - i + 1$ elements in that range. The probability is exactly $\frac{2}{j - i + 1}$.
 The expected total number of comparisons is the sum over all pairs:
-$$ \mathbb{E}[X] = \sum_{i=1}^{n-1} \sum_{j=i+1}^{n} \frac{2}{j - i + 1} $$
+
+$$
+\mathbb{E}[X] = \sum_{i=1}^{n-1} \sum_{j=i+1}^{n} \frac{2}{j - i + 1}
+$$
+
 Using harmonic series approximations, this sums cleanly to $O(N \log N)$. The math proves that a random pivot naturally and predictably balances the recursion tree.
 
 ### 2. Error Amplification (Monte Carlo)
@@ -72,7 +76,10 @@ If a Monte Carlo algorithm has a high error rate, we can mathematically crush th
 Let an algorithm have a probability of success $p = 0.51$ (only slightly better than a coin flip).
 We run the algorithm $n$ times. What is the probability that the majority vote is correct?
 We use the Chernoff Bound, which bounds the tail of the binomial distribution. The probability that the number of correct answers $X$ is less than $n/2$ is bounded by:
-$$ P(X \le n/2) \le e^{-2 n (p - 0.5)^2} $$
+
+$$
+P(X \le n/2) \le e^{-2 n (p - 0.5)^2}
+$$
 
 If we run the algorithm $n=10,000$ times, the exponent is $-2(10000)(0.01)^2 = -2$. The error drops to $\sim 13\%$.
 If we run it $n=1,000,000$ times, the error drops to $e^{-200}$, which is practically zero.

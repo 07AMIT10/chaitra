@@ -83,7 +83,10 @@ This is modeled as a Gambler's Ruin problem.
 If $q \ge p$, the attacker will eventually win (Probability = 1).
 If $q < p$, the probability $P_z$ of the attacker catching up from $z$ blocks behind is:
 
-$$ P_z = 1 - \sum_{k=0}^{z} \frac{\lambda^k e^{-\lambda}}{k!} \left( 1 - (q/p)^{z-k} \right) $$
+$$
+P_z = 1 - \sum_{k=0}^{z} \frac{\lambda^k e^{-\lambda}}{k!} \left( 1 - (q/p)^{z-k} \right)
+$$
+
 *(Where $\lambda = z \frac{q}{p}$ is the expected number of blocks the attacker mines while the honest network mines $z$ blocks).*
 
 Satoshi Nakamoto provided a simpler approximation in the original whitepaper. For a 10% attacker ($q=0.1$):

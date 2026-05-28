@@ -64,14 +64,24 @@ The simplest foundational model for proactive forecasting is Double Exponential 
 
 When a new telemetry metric $x_t$ arrives, the system updates its internal state:
 1. Update the Level (Baseline):
-$$ L_t = \alpha x_t + (1 - \alpha)(L_{t-1} + T_{t-1}) $$
+
+$$
+L_t = \alpha x_t + (1 - \alpha)(L_{t-1} + T_{t-1})
+$$
+
 2. Update the Trend (Momentum):
-$$ T_t = \beta (L_t - L_{t-1}) + (1 - \beta)T_{t-1} $$
+
+$$
+T_t = \beta (L_t - L_{t-1}) + (1 - \beta)T_{t-1}
+$$
 
 Where $\alpha$ and $\beta$ are parameters between $0$ and $1$ that determine how much the system "cares" about recent events versus historical events.
 
 To proactively forecast the value of the metric $m$ steps into the future (the Horizon):
-$$ \hat{x}_{t+m} = L_t + m \cdot T_t $$
+
+$$
+\hat{x}_{t+m} = L_t + m \cdot T_t
+$$
 
 ### The Loss Function of Proactivity (Asymmetric Costs)
 In a reactive system, an error is just an error. In a proactive system, the cost of being wrong is asymmetrical.

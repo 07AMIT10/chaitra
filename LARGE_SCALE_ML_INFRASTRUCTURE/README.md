@@ -68,7 +68,10 @@ The core of ML training is Stochastic Gradient Descent (SGD).
 Let $w_t$ be the model weights at step $t$. Let $\eta$ be the learning rate. Let $\nabla L(w_t, x_i)$ be the gradient of the Loss function with respect to the weights, calculated on a mini-batch of data $x_i$.
 
 In a distributed Data Parallel system with $K$ GPUs, each GPU calculates a local gradient $g_k$. The global synchronous update rule requires calculating the true average gradient across all GPUs:
-$$ w_{t+1} = w_t - \eta \left( \frac{1}{K} \sum_{k=1}^{K} g_k \right) $$
+
+$$
+w_{t+1} = w_t - \eta \left( \frac{1}{K} \sum_{k=1}^{K} g_k \right)
+$$
 
 ### 2. The Communication Bottleneck (All-Reduce)
 To compute $\frac{1}{K} \sum g_k$, all $K$ GPUs must send their massive gradient arrays over the network. If the model is 100GB, this means broadcasting 100GB $\times K$ across the switch. This takes minutes per step, halting training.
@@ -76,7 +79,11 @@ To compute $\frac{1}{K} \sum g_k$, all $K$ GPUs must send their massive gradient
 Infrastructure uses the **Ring All-Reduce** algorithm.
 Instead of sending 100GB to a central master node, the GPUs form a logical ring. GPU $k$ sends a small chunk $c$ of its gradient to GPU $k+1$, while simultaneously receiving a chunk from GPU $k-1$.
 The total amount of data transmitted by any single node in a Ring All-Reduce is independent of the number of nodes!
-$$ \text{Data Transmitted} = 2 \times \frac{K-1}{K} \times \text{Model Size} $$
+
+$$
+\text{Data Transmitted} = 2 \times \frac{K-1}{K} \times \text{Model Size}
+$$
+
 As $K \to \infty$, the data transmitted per node approaches exactly $2 \times \text{Model Size}$. This mathematical property is what makes distributed training on 10,000 GPUs physically possible.
 
 ### 3. Asynchronous SGD (Hogwild!)

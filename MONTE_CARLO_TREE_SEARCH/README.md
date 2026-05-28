@@ -70,7 +70,9 @@ The absolute core of MCTS is the mathematical equation used during the **Selecti
 
 The most famous formula is UCT. For a given node, the AI selects the child node $i$ that maximizes:
 
-$$ UCT = \frac{W_i}{N_i} + c \sqrt{\frac{\ln(N)}{N_i}} $$
+$$
+UCT = \frac{W_i}{N_i} + c \sqrt{\frac{\ln(N)}{N_i}}
+$$
 
 **Explanation of the terms:**
 1. **Exploitation Term ($\frac{W_i}{N_i}$)**:

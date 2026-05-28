@@ -71,7 +71,10 @@ Lamport clocks provide a total ordering, but they cannot definitively prove if t
 Vector Clocks solve this. An event is timestamped with an array of counters, one for each node in the system: $V = [v_1, v_2, \dots, v_n]$.
 
 Event A happened before Event B (denoted $A \to B$) if and only if:
-$$ \forall i, V_A[i] \le V_B[i] \text{ and } \exists j, V_A[j] < V_B[j] $$
+
+$$
+\forall i, V_A[i] \le V_B[i] \text{ and } \exists j, V_A[j] < V_B[j]
+$$
 
 If neither $A \to B$ nor $B \to A$ is true, the events are mathematically proven to be concurrent, and the system must handle the conflict (e.g., using a CRDT or Last-Write-Wins).
 

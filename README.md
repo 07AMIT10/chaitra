@@ -1,8 +1,6 @@
 # chaitra
 about probabilistic systems 
 
-
-
 Scalable probabilistic systems are systems that intentionally use probability, randomness, statistical inference, or uncertainty modeling to achieve scalability, robustness, adaptability, or efficiency at massive scale.
 
 They show up everywhere:
@@ -27,19 +25,13 @@ robotics
 
 large-scale automation
 
-
 Instead of asking:
 
 > “Can we know the exact answer?”
 
-
-
 they ask:
 
 > “Can we get a high-confidence answer much faster and cheaper?”
-
-
-
 
 ---
 
@@ -66,8 +58,6 @@ fault tolerance
 
 adaptive behavior
 
-
-
 ---
 
 Why They Matter at Scale
@@ -82,14 +72,11 @@ storing everything is impossible
 
 perfect consistency slows systems down
 
-
 Probability becomes a weapon.
-
 
 ---
 
 Categories of Scalable Probabilistic Systems
-
 
 ---
 
@@ -103,8 +90,6 @@ huge speedups
 
 tiny memory usage
 
-
-
 ---
 
 Bloom Filters
@@ -113,8 +98,6 @@ Used to answer:
 
 > “Have I probably seen this item before?”
 
-
-
 Fast membership testing.
 
 Properties
@@ -122,8 +105,6 @@ Properties
 no false negatives
 
 possible false positives
-
-
 
 ---
 
@@ -139,8 +120,6 @@ n = inserted items
 
 k = hash functions
 
-
-
 ---
 
 Used In
@@ -155,8 +134,6 @@ CDNs
 
 web caches
 
-
-
 ---
 
 Why It Scales
@@ -166,7 +143,6 @@ Instead of storing billions of keys:
 Store compressed probabilistic signatures
 
 Memory drops from GBs → MBs.
-
 
 ---
 
@@ -180,14 +156,11 @@ Example:
 
 “How many unique users visited today?”
 
-
-
 ---
 
 Insane Fact
 
 Can estimate billions of unique values using ~1.5KB memory.
-
 
 ---
 
@@ -200,8 +173,6 @@ Google
 analytics systems
 
 telemetry platforms
-
-
 
 ---
 
@@ -219,8 +190,6 @@ DDoS detection
 
 hot cache entries
 
-
-
 ---
 
 2. Distributed Consensus with Probabilistic Behavior
@@ -229,7 +198,6 @@ At massive scale, strict coordination is expensive.
 
 Probabilistic systems reduce coordination.
 
-
 ---
 
 Gossip Protocols
@@ -237,7 +205,6 @@ Gossip Protocols
 Nodes randomly talk to other nodes.
 
 Like epidemic spread.
-
 
 ---
 
@@ -251,14 +218,11 @@ F
 
 X
 
-
 Those nodes inform others.
 
 Eventually:
 
 entire cluster converges
-
-
 
 ---
 
@@ -271,8 +235,6 @@ HashiCorp Serf
 blockchain systems
 
 large clusters
-
-
 
 ---
 
@@ -288,7 +250,6 @@ O(log n)
 
 spread behavior.
 
-
 ---
 
 Eventual Consistency
@@ -298,7 +259,6 @@ Huge distributed systems often avoid strict consistency.
 Instead:
 
 Nodes converge probabilistically over time
-
 
 ---
 
@@ -312,14 +272,11 @@ temporary inconsistency
 
 probabilistic convergence
 
-
 to gain:
 
 extreme availability
 
 global scalability
-
-
 
 ---
 
@@ -329,9 +286,7 @@ Instead of perfect balancing:
 
 use randomness
 
-
 Surprisingly optimal.
-
 
 ---
 
@@ -343,9 +298,7 @@ two random servers
 
 choose less loaded one
 
-
 This dramatically reduces imbalance.
-
 
 ---
 
@@ -361,7 +314,6 @@ Max load ≈ log log n
 
 Massive improvement.
 
-
 ---
 
 Used In
@@ -374,8 +326,6 @@ cloud schedulers
 
 modern load balancers
 
-
-
 ---
 
 4. Probabilistic Caching
@@ -386,9 +336,7 @@ randomized eviction
 
 probabilistic admission
 
-
 instead of exact global coordination.
-
 
 ---
 
@@ -400,10 +348,7 @@ Asks:
 
 > “Is this item likely to be useful again?”
 
-
-
 Uses frequency sketches.
-
 
 ---
 
@@ -413,14 +358,11 @@ Caffeine cache
 
 high-performance JVM systems
 
-
-
 ---
 
 5. Probabilistic AI Systems
 
 This is where LLMs live.
-
 
 ---
 
@@ -434,13 +376,11 @@ They estimate:
 
 P(next_token | previous_tokens)
 
-
 ---
 
 Core Formula
 
 P(w_t \mid w_1, w_2, \dots, w_{t-1})
-
 
 ---
 
@@ -454,8 +394,6 @@ inference becomes matrix multiplication
 
 distributed GPU parallelism works beautifully
 
-
-
 ---
 
 Probabilistic Routing in Mixture-of-Experts
@@ -466,21 +404,17 @@ activate only some subnetworks
 
 probabilistically route tokens
 
-
 This reduces compute massively.
-
 
 ---
 
 6. Probabilistic Networking
-
 
 ---
 
 Random Early Detection (RED)
 
 Routers probabilistically drop packets before congestion becomes catastrophic.
-
 
 ---
 
@@ -496,8 +430,6 @@ distributed caches
 
 sharded databases
 
-
-
 ---
 
 Used By
@@ -508,12 +440,9 @@ Cloudflare
 
 Akamai Technologies
 
-
-
 ---
 
 7. Probabilistic Security Systems
-
 
 ---
 
@@ -527,9 +456,7 @@ attack probability
 
 anomaly likelihood
 
-
 rather than exact detection.
-
 
 ---
 
@@ -540,7 +467,6 @@ Mostly Bayesian/statistical.
 Example:
 
 P(\text{spam}\mid \text{words}) = \frac{P(\text{words}\mid \text{spam})P(\text{spam})}{P(\text{words})}
-
 
 ---
 
@@ -554,7 +480,6 @@ confidence scores
 
 approximate queries
 
-
 Useful for:
 
 analytics
@@ -563,14 +488,11 @@ sensor systems
 
 AI pipelines
 
-
-
 ---
 
 9. Monte Carlo Systems
 
 Use repeated random simulation.
-
 
 ---
 
@@ -588,8 +510,6 @@ procedural generation
 
 game AI
 
-
-
 ---
 
 Example
@@ -597,7 +517,6 @@ Example
 Estimate π randomly.
 
 \pi \approx 4 \times \frac{\text{points inside circle}}{\text{total points}}
-
 
 ---
 
@@ -613,14 +532,11 @@ reinforcement learning
 
 randomized placement
 
-
 instead of brute-force optimization.
-
 
 ---
 
 Key Design Principles
-
 
 ---
 
@@ -632,9 +548,7 @@ At scale:
 
 at 1% cost
 
-
 wins.
-
 
 ---
 
@@ -648,8 +562,6 @@ prevent synchronization storms
 
 improve resilience
 
-
-
 ---
 
 C. Local Decisions Create Global Order
@@ -657,7 +569,6 @@ C. Local Decisions Create Global Order
 Gossip protocols are a perfect example.
 
 No central controller. Yet clusters converge.
-
 
 ---
 
@@ -670,7 +581,6 @@ Always correct
 systems aim for:
 
 Correct with extremely high probability
-
 
 ---
 
@@ -688,12 +598,9 @@ blockchains	probabilistic consensus
 ad systems	click-through prediction
 fraud detection	anomaly probabilities
 
-
-
 ---
 
 Advanced Concepts
-
 
 ---
 
@@ -707,8 +614,6 @@ Nakamoto consensus
 
 stochastic leader election
 
-
-
 ---
 
 CRDTs + Probability
@@ -719,9 +624,7 @@ probabilistic synchronization
 
 eventual convergence
 
-
 for ultra-large distributed systems.
-
 
 ---
 
@@ -737,8 +640,6 @@ self-healing clusters
 
 probabilistic orchestration
 
-
-
 ---
 
 AI + Probabilistic Infrastructure
@@ -752,8 +653,6 @@ probabilistically autoscale
 infer workload patterns
 
 self-optimize
-
-
 
 ---
 
@@ -771,7 +670,6 @@ decentralized
 
 efficient
 
-
 Nature itself uses probabilistic systems:
 
 brains
@@ -782,9 +680,7 @@ evolution
 
 swarm intelligence
 
-
 Modern distributed computing is increasingly copying biology.
-
 
 ---
 
@@ -794,35 +690,23 @@ Study these areas in order:
 
 1. Probability theory
 
-
 2. Information theory
-
 
 3. Distributed systems
 
-
 4. Randomized algorithms
-
 
 5. Streaming algorithms
 
-
 6. Statistical learning
-
 
 7. Queueing theory
 
-
 8. Consensus systems
-
 
 9. Approximate computing
 
-
 10. Large-scale ML infrastructure
-
-
-
 
 ---
 
@@ -848,8 +732,6 @@ Transformer attention scaling
 
 Mixture-of-Experts routing
 
-
-
 ---
 
 Especially Relevant To Your Interests
@@ -863,7 +745,6 @@ LLM infrastructure
 proactive AI systems
 
 scalable architectures
-
 
 you should deeply study:
 
@@ -884,7 +765,6 @@ token routing
 Bayesian inference systems
 
 reinforcement-learning-based orchestration
-
 
 These are foundational for:
 

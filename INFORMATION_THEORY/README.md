@@ -50,14 +50,20 @@ Cross-Entropy measures the number of bits required to transmit an event from the
 
 ### 1. Information Content (Surprisal)
 The information content $I$ of an event $x$ is inversely proportional to its probability $P(x)$. It is measured in bits (base 2 logarithm):
-$$ I(x) = -\log_2(P(x)) $$
+
+$$
+I(x) = -\log_2(P(x))
+$$
 
 If $P(\text{Heads}) = 0.5$, $I = -\log_2(0.5) = 1$ bit.
 If $P(\text{Tails}) = 0.01$, $I = -\log_2(0.01) \approx 6.64$ bits.
 
 ### 2. Shannon Entropy ($H$)
 The entropy $H(X)$ of a random variable $X$ is the expected value (average) of the information content of all possible outcomes.
-$$ H(X) = -\sum_{i} P(x_i) \log_2(P(x_i)) $$
+
+$$
+H(X) = -\sum_{i} P(x_i) \log_2(P(x_i))
+$$
 
 If a coin is fair ($P=0.5$), $H = -(0.5 \log_2 0.5 + 0.5 \log_2 0.5) = 1.0$.
 If a coin is biased ($P=0.99$), $H = -(0.99 \log_2 0.99 + 0.01 \log_2 0.01) \approx 0.08$.
@@ -65,6 +71,9 @@ A highly biased system has almost zero entropy (uncertainty).
 
 ### 3. Kullback-Leibler (KL) Divergence
 KL Divergence measures how one probability distribution $Q$ (e.g., our AI's prediction) diverges from a second, expected probability distribution $P$ (e.g., the true labels).
-$$ D_{KL}(P \parallel Q) = \sum_{x} P(x) \log_2 \left( \frac{P(x)}{Q(x)} \right) $$
+
+$$
+D_{KL}(P \parallel Q) = \sum_{x} P(x) \log_2 \left( \frac{P(x)}{Q(x)} \right)
+$$
 
 KL Divergence is literally the extra number of bits you are forced to transmit if you encode the data using the wrong assumption ($Q$) instead of the true distribution ($P$). It is the foundational loss function for Variational Autoencoders (VAEs) and Generative AI.

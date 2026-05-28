@@ -75,7 +75,10 @@ Under normal conditions, $requests == accepts$.
 Under overload, the backend starts returning HTTP 503 or 429, so $requests > accepts$.
 
 The client calculates the probability of dropping a new request locally:
-$$ P_{\text{drop}} = \max\left(0, \frac{requests - K \cdot accepts}{requests + 1}\right) $$
+
+$$
+P_{\text{drop}} = \max\left(0, \frac{requests - K \cdot accepts}{requests + 1}\right)
+$$
 
 Where $K$ is a multiplier (usually $K=2$).
 

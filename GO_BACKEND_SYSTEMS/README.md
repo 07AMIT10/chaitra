@@ -67,11 +67,17 @@ Let $S$ be the proportion that must remain strictly sequential (so $S + P = 1$).
 Let $N$ be the number of processing cores (or Goroutines).
 
 The theoretical speedup of the system is:
-$$ \text{Speedup}(N) = \frac{1}{(1-P) + \frac{P}{N}} $$
+
+$$
+\text{Speedup}(N) = \frac{1}{(1-P) + \frac{P}{N}}
+$$
 
 **The Brutal Reality of Scale:**
 If your backend code is 95% highly parallel Go code, but 5% of it requires a sequential Mutex lock to update a shared counter, $P = 0.95$ and $S = 0.05$.
 Even if you throw an infinite number of servers ($N \to \infty$) at the problem:
-$$ \text{Maximum Speedup} = \frac{1}{0.05 + 0} = 20 $$
+
+$$
+\text{Maximum Speedup} = \frac{1}{0.05 + 0} = 20
+$$
 
 No matter how many millions of Goroutines you spawn, your entire system will never run more than 20x faster than a single thread. This mathematical law proves why Go's paradigm of *Channels* (which avoid shared locks and minimize $S$) is vastly superior for extreme-scale backend architectures compared to traditional lock-based multi-threading.

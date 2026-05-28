@@ -70,19 +70,27 @@ If RED reacted to the instantaneous queue size, a momentary micro-burst of traff
 
 Let $q$ be the instantaneous queue size. Let $w_q$ be the weight parameter (e.g., 0.002).
 The average queue size $\text{avg}$ is calculated on every packet arrival:
-$$ \text{avg} \leftarrow (1 - w_q) \cdot \text{avg} + w_q \cdot q $$
+
+$$
+\text{avg} \leftarrow (1 - w_q) \cdot \text{avg} + w_q \cdot q
+$$
 
 This low-pass filter ensures RED only reacts to sustained, long-term congestion.
 
 ### 2. Calculating the Drop Probability
 If $\text{avg}$ falls between $min_{th}$ and $max_{th}$, the base probability $P_b$ grows linearly from 0 to a maximum probability $P_{max}$ (often 0.1, or 10%).
 
-$$ P_b = P_{max} \cdot \frac{\text{avg} - min_{th}}{max_{th} - min_{th}} $$
+$$
+P_b = P_{max} \cdot \frac{\text{avg} - min_{th}}{max_{th} - min_{th}}
+$$
 
 ### 3. The Count Variable Optimization
 If we just drop packets with probability $P_b$, we might accidentally drop two packets in a row, or go a long time without dropping any. To space out the drops evenly, RED keeps a variable `count`, which tracks how many packets have arrived since the last drop.
 
 The actual drop probability $P_a$ applied to the packet is:
-$$ P_a = \frac{P_b}{1 - \text{count} \cdot P_b} $$
+
+$$
+P_a = \frac{P_b}{1 - \text{count} \cdot P_b}
+$$
 
 As `count` increases, the denominator gets smaller, causing $P_a$ to rapidly increase toward 1. This guarantees that a packet will be dropped soon, ensuring the congestion signal is sent promptly and uniformly, maximizing the efficiency of the TCP backoff algorithm.

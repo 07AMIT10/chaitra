@@ -70,7 +70,11 @@ The algorithm randomly selects a feature (e.g., Memory Usage) and randomly selec
 The mathematical intuition: Anomalies (weird servers) are "few and different." Because they are different, they will be isolated very quickly (near the root of the tree). Normal servers are clustered together and will require many random splits to isolate (deep in the tree).
 
 The anomaly score $s(x, n)$ for a data point $x$ in a dataset of size $n$ is:
-$$ s(x, n) = 2^{-\frac{\mathbb{E}[h(x)]}{c(n)}} $$
+
+$$
+s(x, n) = 2^{-\frac{\mathbb{E}[h(x)]}{c(n)}}
+$$
+
 Where $\mathbb{E}[h(x)]$ is the average path length to isolate $x$ across all trees, and $c(n)$ is the average path length of unsuccessful searches in a Binary Search Tree.
 If the path length is very short, the exponent approaches $-0$ (which is $1$), resulting in a score near 1 (Highly Anomalous). The autonomous system instantly quarantines any server with a score $> 0.95$.
 
@@ -78,7 +82,10 @@ If the path length is very short, the exponent approaches $-0$ (which is $1$), r
 Before reaching for deep neural networks, autonomous systems often use Proportional-Integral-Derivative (PID) controllers to maintain a setpoint (e.g., keeping CPU at exactly 70%).
 
 The control action $u(t)$ (e.g., how many servers to add or remove) is calculated based on the error $e(t)$ (the difference between the desired CPU and current CPU):
-$$ u(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de(t)}{dt} $$
+
+$$
+u(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de(t)}{dt}
+$$
 
 - **Proportional ($K_p$)**: Reacts to the current error. If CPU is way too high, add lots of servers.
 - **Integral ($K_i$)**: Reacts to the accumulation of past errors. If CPU has been slightly too high for an hour, slowly add a server.

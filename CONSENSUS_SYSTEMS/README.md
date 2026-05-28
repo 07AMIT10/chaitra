@@ -71,14 +71,21 @@ When the failover happens, the script asks ZooKeeper to update the IP. ZooKeeper
 Let $V$ be the set of all nodes in the system, where $|V| = N$.
 A quorum system is a collection of subsets of $V$, called quorums, such that every two quorums intersect.
 If we define a quorum as any set containing $Q$ nodes, the intersection property requires:
-$$ Q + Q > N \implies Q > \frac{N}{2} $$
+
+$$
+Q + Q > N \implies Q > \frac{N}{2}
+$$
 
 This simple inequality is the bedrock of safety in Paxos and Raft. Because any two quorums must overlap by at least one node, and nodes can only vote for one value per term, it is mathematically impossible for the system to achieve a quorum for Value A and a separate quorum for Value B in the same term.
 
 ### 2. Fault Tolerance Bounds
 How many failures $f$ can the system tolerate?
 Because $Q = f + 1$ (you need the failures plus one honest node to make a majority), and $N = Q + f$ (the quorum plus the remaining failed nodes), we substitute:
-$$ N = (f + 1) + f = 2f + 1 $$
+
+$$
+N = (f + 1) + f = 2f + 1
+$$
+
 Therefore, to tolerate $f$ crash-fault failures, you need exactly $2f + 1$ nodes.
 - Tolerate 1 failure $\rightarrow$ Need 3 nodes.
 - Tolerate 2 failures $\rightarrow$ Need 5 nodes.
@@ -89,5 +96,9 @@ To reach consensus, the honest nodes must outnumber the traitors not just by a s
 
 The math shifts drastically. The intersection of two honest quorums must be large enough to drown out the traitors.
 The mathematical proof shows that a deterministic BFT system requires:
-$$ N \ge 3f + 1 $$
+
+$$
+N \ge 3f + 1
+$$
+
 To tolerate $f=1$ traitor, you need 4 nodes. To tolerate $f=33$ traitors, you need 100 nodes. The required supermajority makes BFT incredibly slow compared to CFT.

@@ -74,7 +74,9 @@ Let $C(N)$ be the relative capacity of a system with $N$ nodes.
 Let $\sigma$ be the contention factor (time wasted waiting for sequential locks).
 Let $\kappa$ be the coherency factor (time wasted exchanging data to keep caches in sync).
 
-$$ C(N) = \frac{N}{1 + \sigma(N - 1) + \kappa N(N - 1)} $$
+$$
+C(N) = \frac{N}{1 + \sigma(N - 1) + \kappa N(N - 1)}
+$$
 
 **The Brutal Reality:**
 Look at the $\kappa N(N - 1)$ term. This is $O(N^2)$.

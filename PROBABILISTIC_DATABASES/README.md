@@ -82,13 +82,18 @@ This allows decision-makers to act on highly confident data and ignore the noisy
 Let $\mathcal{D}$ be a probabilistic database. The semantics of $\mathcal{D}$ is defined as a finite set of deterministic database instances $W = \{W_1, W_2, \dots, W_n\}$ called *possible worlds*.
 
 Each possible world $W_i$ has an associated probability $P(W_i)$, such that:
-$$ \sum_{W_i \in W} P(W_i) = 1 $$
+
+$$
+\sum_{W_i \in W} P(W_i) = 1
+$$
 
 ### 2. Querying Possible Worlds
 Let $Q$ be a boolean SQL query (e.g., "Is Bob in the table?").
 The probability that $Q$ is true on the probabilistic database $\mathcal{D}$ is the sum of the probabilities of all possible worlds where $Q$ evaluates to true:
 
-$$ P(Q(\mathcal{D}) = \text{True}) = \sum_{W_i \in W : Q(W_i) = \text{True}} P(W_i) $$
+$$
+P(Q(\mathcal{D}) = \text{True}) = \sum_{W_i \in W : Q(W_i) = \text{True}} P(W_i)
+$$
 
 ### 3. The Complexity Problem (#P-Hardness)
 The math above is beautiful but computationally catastrophic. If a table has 100 uncertain rows, there are $2^{100}$ possible worlds. Iterating over them takes longer than the lifespan of the universe.

@@ -63,13 +63,19 @@ Assume we have $N$ servers and $N$ requests arriving sequentially.
 ### 1. Pure Random (1 Choice)
 If we assign each request to a purely random server, this is equivalent to throwing $N$ balls into $N$ bins.
 The maximum number of balls in any single bin (the maximum load on the most stressed server) is expected to be:
-$$ \text{Max Load} \approx \frac{\ln N}{\ln \ln N} $$
+
+$$
+\text{Max Load} \approx \frac{\ln N}{\ln \ln N}
+$$
 
 For $N = 1,000,000$, the max load is roughly 4.3.
 
 ### 2. The Power of Two Choices (2 Choices)
 If we pick $d$ bins at random and place the ball in the least full bin, the expected maximum load drops exponentially. For $d=2$:
-$$ \text{Max Load} \approx \frac{\ln \ln N}{\ln 2} + O(1) $$
+
+$$
+\text{Max Load} \approx \frac{\ln \ln N}{\ln 2} + O(1)
+$$
 
 For $N = 1,000,000$, the max load is roughly 2.5. The difference grows massive as $N$ increases.
 

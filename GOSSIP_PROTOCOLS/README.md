@@ -74,15 +74,24 @@ Let $S_t = N - I_t$ be the number of "susceptible" (ignorant) nodes.
 
 In a purely Push-based model with a fanout of $f=1$ (each infected node contacts 1 random peer per tick), the probability that a specific susceptible node is NOT contacted by a specific infected node is $1 - \frac{1}{N}$.
 The probability it is not contacted by *any* of the $I_t$ infected nodes is:
-$$ \left( 1 - \frac{1}{N} \right)^{I_t} $$
+
+$$
+\left( 1 - \frac{1}{N} \right)^{I_t}
+$$
 
 Thus, the expected number of newly infected nodes in the next tick is:
-$$ E[\Delta I] = S_t \left( 1 - \left( 1 - \frac{1}{N} \right)^{I_t} \right) $$
+
+$$
+E[\Delta I] = S_t \left( 1 - \left( 1 - \frac{1}{N} \right)^{I_t} \right)
+$$
 
 ### 2. Time to Convergence
 Using approximation, the dynamics follow a logistic growth curve.
 The time required for the gossip to spread to $N$ nodes scales logarithmically:
-$$ O(\log N) $$
+
+$$
+O(\log N)
+$$
 
 This is the magic of gossip. If it takes 10 ticks to update 1,000 nodes, it only takes roughly 20 ticks to update 1,000,000 nodes. It scales brilliantly.
 

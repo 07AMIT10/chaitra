@@ -69,7 +69,9 @@ Furthermore, because Attention is just giant matrix multiplications, it can be c
 Let $Q$ be the matrix of queries, $K$ be the matrix of keys, and $V$ be the matrix of values.
 The Scaled Dot-Product Attention is defined as:
 
-$$ \text{Attention}(Q, K, V) = \text{Softmax}\left( \frac{Q K^T}{\sqrt{d_k}} \right) V $$
+$$
+\text{Attention}(Q, K, V) = \text{Softmax}\left( \frac{Q K^T}{\sqrt{d_k}} \right) V
+$$
 
 **Explanation of terms:**
 - $Q K^T$: The dot product of every query with every key. This produces an $N \times N$ matrix of raw compatibility scores (where $N$ is the sequence length).
@@ -81,8 +83,13 @@ $$ \text{Attention}(Q, K, V) = \text{Softmax}\left( \frac{Q K^T}{\sqrt{d_k}} \ri
 Instead of performing a single attention function, Transformers use Multi-Head Attention. The $Q, K, V$ vectors are linearly projected into $h$ different smaller subspaces (heads).
 Attention is computed for each head in parallel, and the results are concatenated.
 
-$$ \text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \dots, \text{head}_h) W^O $$
-$$ \text{where head}_i = \text{Attention}(Q W_i^Q, K W_i^K, V W_i^V) $$
+$$
+\text{MultiHead}(Q, K, V) = \text{Concat}(\text{head}_1, \dots, \text{head}_h) W^O
+$$
+
+$$
+\text{where head}_i = \text{Attention}(Q W_i^Q, K W_i^K, V W_i^V)
+$$
 
 Why? It allows the model to probabilistically attend to different *types* of relationships simultaneously. Head 1 might learn to attend to grammar (verbs pointing to nouns). Head 2 might learn to attend to historical facts. Head 3 might attend to emotional sentiment.
 

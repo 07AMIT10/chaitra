@@ -64,7 +64,10 @@ Let $R_m$ be the cost of reading the Bloom filter from RAM (e.g., 1 microsecond)
 Let $P$ be the false positive rate of the Bloom filter.
 
 The expected cost of a query for a key that does *not* exist in the file is:
-$$ E[\text{Cost}] = R_m + P \cdot R_d $$
+
+$$
+E[\text{Cost}] = R_m + P \cdot R_d
+$$
 
 We know from Bloom Filter theory that $P \approx (0.6185)^{m/n}$, where $m/n$ is the number of bits allocated per item.
 
