@@ -1,9 +1,13 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 
-const { title, repoFolder } = Astro.props;
+const { title, repoFolder, pyodide = false } = Astro.props;
+const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
 ---
 <BaseLayout title={title}>
+  {pyodide && (
+    <script slot="head" src={PYODIDE_SCRIPT} defer></script>
+  )}
   <article class="topic">
     <nav aria-label="Topic sections">
       <a href="#narrative">Story</a> · <a href="#lab">Lab</a> · <a href="#code">Code</a>

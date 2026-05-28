@@ -1,0 +1,20 @@
+import PyodideRunner from "../../../components/PyodideRunner.tsx";
+import bloomPy from "../../../assets/code/bloom_filter.py.txt?raw";
+
+## Run Python in the browser
+
+<p>
+  This editor loads the same <code>BloomFilter</code> API as{" "}
+  <a href="https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.py">
+    <code>bloom_filter.py</code>
+  </a>{" "}
+  in the repo — sizing formulas, MD5-based hashes, <code>add</code>, and <code>check</code>. Pyodide
+  uses the CPython stdlib only (no pip).
+</p>
+
+<PyodideRunner
+  client:visible
+  defaultCode={bloomPy}
+  sourceUrl="https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.py"
+  sourceLabel="bloom_filter.py on GitHub"
+/>
