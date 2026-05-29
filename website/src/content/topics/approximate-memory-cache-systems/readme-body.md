@@ -1,4 +1,3 @@
-# Approximate Memory/Cache Systems: Trading Accuracy for Scale
 
 ## Simple Fundamental Explanation
 Imagine you are a security guard checking ID badges at a massive concert.

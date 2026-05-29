@@ -1,4 +1,3 @@
-# Randomized Algorithms: Solving the Unsolvable
 
 ## Simple Fundamental Explanation
 Imagine you need to find a specific needle in a giant haystack.

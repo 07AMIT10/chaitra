@@ -1,4 +1,3 @@
-# Proactive AI Systems: Computing the Future
 
 ## Simple Fundamental Explanation
 Imagine a chess computer.
@@ -27,7 +26,8 @@ The AI continuously adjusts its probability thresholds based on a mathematically
 
 ### Visual Diagram: The Proactive Control Loop
 
-```text
+<!-- diagram -->
+```diagram
 [ Real-Time Telemetry ] ----> [ Probabilistic Forecast Engine ]
       (e.g., CPU=40%)                 (e.g., LSTM Model)
                                               |

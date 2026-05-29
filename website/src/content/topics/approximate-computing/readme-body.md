@@ -1,4 +1,3 @@
-# Approximate Computing: Efficiency through Imperfection
 
 ## Simple Fundamental Explanation
 Imagine you are rendering a massive 3D explosion for a blockbuster movie.
@@ -25,7 +24,8 @@ Standard floats are 32-bit or 64-bit. Approximate computing aggressively down-sc
 
 ### Visual Diagram: Precision Scaling
 
-```text
+<!-- diagram -->
+```diagram
 Value: 3.14159265
 
 FP64 (Exact Computing):

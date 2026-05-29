@@ -1,4 +1,3 @@
-# Power of Two Choices: Probabilistic Load Balancing
 
 ## Simple Fundamental Explanation
 Imagine you manage 100 checkout lanes at a massive supermarket. Customers are constantly arriving. How do you assign them to lanes so that no lane gets too backed up?
@@ -23,7 +22,8 @@ By picking two servers at random and routing the request to the less-loaded one,
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Servers: [ S1 (Load: 1) ] [ S2 (Load: 4) ] [ S3 (Load: 0) ] [ S4 (Load: 2) ]
 
 Request 1 arrives:

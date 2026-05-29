@@ -1,4 +1,3 @@
-# Probabilistic Databases: Querying Uncertainty
 
 ## Simple Fundamental Explanation
 Imagine you are a detective trying to build a timeline of a crime. You have witnesses, but they are unreliable.

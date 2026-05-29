@@ -1,4 +1,3 @@
-# Adaptive Cloud Orchestration: The Living Network
 
 ## Simple Fundamental Explanation
 Imagine a standard cruise control on a car. You set it to 65 mph. It stays at 65 mph.
@@ -22,7 +21,8 @@ The orchestrator monitors the latency of users in real-time. If users in Tokyo a
 
 ### Visual Diagram: The OODA Loop
 
-```text
+<!-- diagram -->
+```diagram
 The military OODA Loop (Observe, Orient, Decide, Act) applied to Cloud Orchestration.
 
 [ Observe ]

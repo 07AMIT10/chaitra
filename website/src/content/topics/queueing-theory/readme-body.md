@@ -1,4 +1,3 @@
-# Queueing Theory: The Math of Waiting
 
 ## Simple Fundamental Explanation
 Imagine you manage a bank with 3 tellers. Customers arrive randomly.

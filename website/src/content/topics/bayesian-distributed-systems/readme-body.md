@@ -1,4 +1,3 @@
-# Bayesian Distributed Systems: Reasoning Under Uncertainty
 
 ## Simple Fundamental Explanation
 Imagine you are the captain of a submarine. You are looking at a sonar screen. You see a blurry blip.
@@ -31,7 +30,8 @@ This prevents the cascading failures ("thundering herds") that plague determinis
 
 ### Visual Diagram: The Causal Network
 
-```text
+<!-- diagram -->
+```diagram
      [Root Cause: Switch Faulty?] (Hidden State)
            /              \
           /                \

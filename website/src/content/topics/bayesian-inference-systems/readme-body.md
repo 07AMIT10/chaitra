@@ -1,4 +1,3 @@
-# Bayesian Inference Systems: The Math of Belief
 
 ## Simple Fundamental Explanation
 Imagine you feel sick and take a rare disease test. The test is 99% accurate. It comes back Positive.

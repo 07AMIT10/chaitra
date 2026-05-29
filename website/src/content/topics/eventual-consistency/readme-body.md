@@ -1,4 +1,3 @@
-# Eventual Consistency: Embracing the Probabilistic Sync
 
 ## Simple Fundamental Explanation
 Imagine you have three friends keeping track of a shared bank account balance on three separate ledgers. You live in different cities and only communicate by writing letters.

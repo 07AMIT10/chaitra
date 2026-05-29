@@ -1,4 +1,3 @@
-# HyperLogLog: The Probabilistic Counter
 
 ## Simple Fundamental Explanation
 Imagine you are standing outside a massive stadium, and you want to estimate how many *unique* people walked inside.
@@ -41,7 +40,8 @@ To fix the variance, HyperLogLog divides the data into multiple "buckets" (regis
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Input Stream: ["userA", "userB", "userC", ...]
 
 1. Hash the inputs into 32-bit integers:

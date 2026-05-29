@@ -1,4 +1,3 @@
-# RL Orchestration: Autonomous Cluster Management
 
 ## Simple Fundamental Explanation
 Imagine training a dog.
@@ -34,7 +33,8 @@ The Actor takes an action. The environment changes to a new State. The Critic ev
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 State (S_t): Node 1 (95% CPU), Node 2 (10% CPU). User latency: 500ms.
 
 [ Deep Neural Network (Actor) ]

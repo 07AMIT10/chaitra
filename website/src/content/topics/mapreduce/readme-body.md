@@ -1,4 +1,3 @@
-# Google MapReduce: Probabilistic Resiliency at Scale
 
 ## Simple Fundamental Explanation
 Imagine you want to count the number of times the word "the" appears in an entire physical library of 10,000 books.
@@ -34,7 +33,8 @@ When a MapReduce operation is close to completion, the Master probabilistically 
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Input Data: [A, B, A, C] | [B, C, B, A] | [C, C, A, B]
 (Split into 3 blocks)
 

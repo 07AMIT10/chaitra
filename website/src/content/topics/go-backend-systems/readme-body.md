@@ -1,4 +1,3 @@
-# Go Backend Systems: Concurrency at Scale
 
 ## Simple Fundamental Explanation
 Imagine a restaurant kitchen.
@@ -30,7 +29,8 @@ Goroutines pass data through `Channels` (typed, thread-safe pipes). This elimina
 
 ### Visual Diagram: The M:N Scheduler
 
-```text
+<!-- diagram -->
+```diagram
 [ CPU Core 1 ]          [ CPU Core 2 ]
       |                       |
 [ OS Thread 1 ]         [ OS Thread 2 ]

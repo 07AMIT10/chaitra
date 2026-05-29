@@ -1,4 +1,3 @@
-# LLM Infrastructure: Powering the AI Revolution
 
 ## Simple Fundamental Explanation
 Imagine a normal web server (like a WordPress blog). When a user clicks "Load Page", the server reads a few kilobytes of text from a database and sends it back. It takes 50 milliseconds. A cheap $10/month server can handle thousands of users.
@@ -29,7 +28,8 @@ In traditional ML, if 4 users asked a question, the server waited until all 4 an
 
 ### Visual Diagram: PagedAttention
 
-```text
+<!-- diagram -->
+```diagram
 [ User A: "Write a poem about a cat." ] (Generates 50 tokens)
 [ User B: "Translate this 500-page book." ] (Generates 50,000 tokens)
 

@@ -1,4 +1,3 @@
-# Probabilistic Scheduling: Randomized Orchestration
 
 ## Simple Fundamental Explanation
 Imagine you are the manager of a massive shipping port. 1,000 ships arrive every hour, and you have to assign them to 10,000 different docks based on their size, cargo, and required cranes.
@@ -37,7 +36,8 @@ This is a variant of the "Power of Two Choices" applied to cluster orchestration
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Cluster: 1,000 Servers
 Task: Needs 4GB RAM.
 

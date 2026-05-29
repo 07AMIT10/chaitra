@@ -1,4 +1,3 @@
-# Intelligent Real-Time Platforms: Sub-Millisecond AI
 
 ## Simple Fundamental Explanation
 Imagine you are applying for a mortgage at a bank.
@@ -24,7 +23,8 @@ Platforms use ultra-low-latency Feature Stores (like Redis). Background jobs pre
 
 ### Visual Diagram: The Real-Time ML Pipeline
 
-```text
+<!-- diagram -->
+```diagram
 [ User Swipes Credit Card ]
            | (< 10ms network transit)
            v

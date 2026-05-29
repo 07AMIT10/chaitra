@@ -1,4 +1,3 @@
-# Random Early Detection: Probabilistic Networking
 
 ## Simple Fundamental Explanation
 Imagine a popular highway exit ramp. It can only hold 50 cars.
@@ -34,7 +33,8 @@ Because RED drops packets randomly, the probability that a specific user's packe
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Queue Size:
 [ 0% ] ------------ [ min_th ] ------------ [ max_th ] ------------ [ 100% ]
       No Drops                Probabilistic Drops         100% Drops

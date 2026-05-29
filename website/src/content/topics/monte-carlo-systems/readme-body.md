@@ -1,4 +1,3 @@
-# Monte Carlo Systems: Power in Randomness
 
 ## Simple Fundamental Explanation
 Imagine you want to calculate the area of an irregularly shaped lake. You could try to use complex calculus and geometry to measure every tiny curve of the shoreline. This would take months of painstaking survey work.
@@ -30,7 +29,8 @@ A typical Monte Carlo simulation follows this pattern:
 
 ### Visual Diagram: Estimating Pi ($\pi$)
 
-```text
+<!-- diagram -->
+```diagram
 Draw a 2x2 square (Area = 4).
 Draw a circle inside it with radius r=1. (Area = pi * r^2 = pi).
 

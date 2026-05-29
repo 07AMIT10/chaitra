@@ -1,4 +1,3 @@
-# Large-Scale Multi-Agent Systems: Swarm Intelligence
 
 ## Simple Fundamental Explanation
 Imagine a single ant trying to build a giant anthill. It is weak, lacks a blueprint, and eventually dies of exhaustion. The anthill never gets built.
@@ -26,7 +25,8 @@ In an MAS, if 500 agents randomly crash, the system doesn't stop. The remaining 
 
 ### Visual Diagram: Supply Chain Swarm
 
-```text
+<!-- diagram -->
+```diagram
 Goal: Deliver a package from LA to Tokyo.
 
 [ Agent 1: Truck Driver ]  <-- Only knows LA roads.

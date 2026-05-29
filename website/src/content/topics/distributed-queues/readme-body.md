@@ -1,4 +1,3 @@
-# Distributed Queues: Probabilistic Message Passing
 
 ## Simple Fundamental Explanation
 Imagine a wildly popular pizza restaurant.
@@ -27,7 +26,8 @@ Distributed queues explicitly force architects to choose between:
 
 ### Visual Diagram: The Kafka Model
 
-```text
+<!-- diagram -->
+```diagram
 [ Producers ] (Web Servers generating logs)
      |
      | (Probabilistically routes to random partitions for load balancing)

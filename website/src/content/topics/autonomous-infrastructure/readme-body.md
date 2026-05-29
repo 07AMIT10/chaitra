@@ -1,4 +1,3 @@
-# Autonomous Infrastructure: Self-Driving Servers
 
 ## Simple Fundamental Explanation
 Imagine a human network engineer managing a city's traffic lights. They watch cameras all day, manually turning lights green or red to prevent traffic jams. They are slow, get tired, and can only watch one intersection at a time.
@@ -25,7 +24,8 @@ Autonomous infrastructure relies on a closed-loop system:
 
 ### Visual Diagram: The Autonomous Healing Cycle
 
-```text
+<!-- diagram -->
+```diagram
 [ User Traffic Spikes 500% ]
            |
 [ Metric: DB Latency Triples ] ---> [ Log: Deadlock Exception ] ---> [ Metric: CPU Spikes ]

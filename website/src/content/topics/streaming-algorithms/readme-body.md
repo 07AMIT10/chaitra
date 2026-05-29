@@ -1,4 +1,3 @@
-# Streaming Algorithms: Computing on the Fly
 
 ## Simple Fundamental Explanation
 Imagine you are a highway toll operator. You want to know the most common color of car driving past.
@@ -29,7 +28,8 @@ This mathematically guarantees that when the stream eventually stops, every item
 
 ### Visual Diagram: Flajolet-Martin Algorithm (Frequency)
 
-```text
+<!-- diagram -->
+```diagram
 Stream of items: A, B, A, C, C, A, D, E, A
 Memory limit: Only 2 counters allowed!
 

@@ -1,4 +1,3 @@
-# Bayesian Spam Detection: Statistical Security
 
 ## Simple Fundamental Explanation
 Imagine you are trying to guess if an unmarked envelope contains a bill or a birthday card.

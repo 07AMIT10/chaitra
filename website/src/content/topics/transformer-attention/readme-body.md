@@ -1,4 +1,3 @@
-# Transformer Attention: Probabilistic Context Mapping
 
 ## Simple Fundamental Explanation
 Imagine you are reading a long legal contract.

@@ -1,4 +1,3 @@
-# Consensus Systems: The Math of Agreement
 
 ## Simple Fundamental Explanation
 Imagine 5 generals surrounding a city. They can only communicate via messengers on horseback. They must all attack at dawn, or all retreat. If only 2 attack, they will be slaughtered.

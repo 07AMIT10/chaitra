@@ -1,4 +1,3 @@
-# Event Prediction Systems: Probabilistic Foresight
 
 ## Simple Fundamental Explanation
 Imagine you are managing a fleet of delivery trucks.
@@ -33,7 +32,8 @@ The system must have an action threshold. If the cost of a false positive (accid
 
 ### Visual Diagram: Hidden Markov Model (HMM)
 
-```text
+<!-- diagram -->
+```diagram
 We cannot directly see if a server's hard drive is physically failing.
 We can only see the "Symptoms" (Latency, IOPS).
 

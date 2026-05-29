@@ -1,4 +1,3 @@
-# Statistical Learning: Probability into Prediction
 
 ## Simple Fundamental Explanation
 Imagine you are trying to guess if a house will sell for more than $500,000.
@@ -34,7 +33,8 @@ Statistical learning is the art of finding the mathematical sweet spot where the
 
 ### Visual Diagram: Overfitting
 
-```text
+<!-- diagram -->
+```diagram
 House Prices vs Square Feet
 
 (X = Data point)

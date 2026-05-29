@@ -1,4 +1,3 @@
-# Count-Min Sketch: The Probabilistic Frequency Tracker
 
 ## Simple Fundamental Explanation
 Imagine you manage a massive highway toll booth, and you want to know which car license plates pass through the most frequently.
@@ -38,7 +37,8 @@ When you want to estimate the frequency of item $x$:
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Initialization (d=3 rows, w=5 columns):
 Row 1 (Hash 1): [ 0 | 0 | 0 | 0 | 0 ]
 Row 2 (Hash 2): [ 0 | 0 | 0 | 0 | 0 ]

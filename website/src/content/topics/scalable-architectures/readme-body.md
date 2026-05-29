@@ -1,4 +1,3 @@
-# Scalable Architectures: Designing for the Infinite
 
 ## Simple Fundamental Explanation
 Imagine you own a small lemonade stand.
@@ -30,7 +29,8 @@ Scalable architectures decouple services using Distributed Queues (see `DISTRIBU
 
 ### Visual Diagram: The Standard Scalable Cloud
 
-```text
+<!-- diagram -->
+```diagram
 [ Users ] (Millions of mobile apps)
     |
     v

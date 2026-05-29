@@ -1,4 +1,3 @@
-# Information Theory: The Mathematics of Data
 
 ## Simple Fundamental Explanation
 Imagine you have a biased coin that lands on Heads 99% of the time, and Tails 1% of the time.

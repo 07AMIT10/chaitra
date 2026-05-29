@@ -1,4 +1,3 @@
-# Probabilistic Rate Limiting: Security at Scale
 
 ## Simple Fundamental Explanation
 Imagine you run a very popular bakery. You allow customers to take a maximum of 5 free samples per day.

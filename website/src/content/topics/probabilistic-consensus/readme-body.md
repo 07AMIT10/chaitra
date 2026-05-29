@@ -1,4 +1,3 @@
-# Probabilistic Consensus: Reaching Agreement with Uncertainty
 
 ## Simple Fundamental Explanation
 Imagine 100 people in a massive stadium trying to agree on what color to paint the walls: Red or Blue. They cannot all talk at once.
@@ -36,7 +35,8 @@ The system acts like a ball resting on the peak of a hill (a metastable state). 
 
 ### Visual Diagram: Avalanche Subsampling
 
-```text
+<!-- diagram -->
+```diagram
 Network of 1,000 nodes.
 Node X is undecided between Red and Blue.
 

@@ -1,4 +1,3 @@
-# Large Language Models: Probabilistic AI Systems
 
 ## Simple Fundamental Explanation
 Imagine you have a highly advanced autocomplete on your phone. If you type "I want to eat a", your phone suggests "pizza", "burger", or "sandwich".
@@ -34,7 +33,8 @@ The final layer outputs a giant list of scores (logits), one for every possible 
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Input Context: "The capital of France is"
 
 Layer 1: Tokenize

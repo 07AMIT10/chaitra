@@ -1,4 +1,3 @@
-# Token Routing: Navigating the Neural Pathways
 
 ## Simple Fundamental Explanation
 Imagine a massive post office sorting facility.
@@ -24,7 +23,8 @@ The Router outputs a probability distribution across all available experts (e.g.
 
 ### Visual Diagram: Top-1 Token Routing
 
-```text
+<!-- diagram -->
+```diagram
 Sentence: "The cat sat."
 Tokens: [T1:"The", T2:"cat", T3:"sat"]
 

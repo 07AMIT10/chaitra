@@ -1,4 +1,3 @@
-# Consistent Hashing: Probabilistic Distribution
 
 ## Simple Fundamental Explanation
 Imagine you run a massive online library with 4 identical warehouses (servers) to store millions of books. To find a book quickly, you hash the book's title and use the modulo operator based on the number of warehouses:
@@ -38,7 +37,8 @@ By having hundreds of "Virtual Nodes" for every physical server scattered random
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 The Hash Ring (0 to 360 degrees)
 
       [Server A]

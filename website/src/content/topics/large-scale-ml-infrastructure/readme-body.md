@@ -1,4 +1,3 @@
-# Large-Scale ML Infrastructure: Training the Titans
 
 ## Simple Fundamental Explanation
 Imagine you have to read 10 million books and memorize every fact inside them.
@@ -32,7 +31,8 @@ The matrix multiplication itself is mathematically sliced in half. GPU 1 multipl
 
 ### Visual Diagram: The 3D Parallelism Grid
 
-```text
+<!-- diagram -->
+```diagram
 [ GPU 1 ]  [ GPU 2 ]  <-- (Tensor Parallelism: Splitting a single layer)
     |          |
  (Network) (Network)  <-- (Pipeline Parallelism: Passing data to next layers)

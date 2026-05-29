@@ -1,4 +1,3 @@
-# CRDTs + Probability: Scaling Conflict-Free Data
 
 ## Simple Fundamental Explanation
 Imagine you and your friend are both editing a shared grocery list on your phones, but you are both in a tunnel with no cell service.
@@ -34,7 +33,8 @@ To scale CRDTs to massive sizes, researchers introduce probabilistic boundaries.
 
 ### Visual Diagram: Probabilistic Deletion
 
-```text
+<!-- diagram -->
+```diagram
 Node A (Online)                       Node B (Offline for a week)
 
 List: [Apple, Banana, Cherry]         List: [Apple, Banana, Cherry]

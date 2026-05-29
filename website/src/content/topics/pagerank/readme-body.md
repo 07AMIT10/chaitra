@@ -1,4 +1,3 @@
-# PageRank: Probabilistic Importance
 
 ## Simple Fundamental Explanation
 Imagine you arrive in a new city and want to find the best pizza place.

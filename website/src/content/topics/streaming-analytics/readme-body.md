@@ -1,4 +1,3 @@
-# Streaming Analytics: Real-Time Probabilistic Insights
 
 ## Simple Fundamental Explanation
 Imagine you are standing next to a massive river, and your boss asks you: "Exactly how many gallons of water flowed past you today?"

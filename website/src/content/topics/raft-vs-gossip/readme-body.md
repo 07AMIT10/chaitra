@@ -1,4 +1,3 @@
-# Raft vs Gossip: The Architect's Dilemma
 
 ## Simple Fundamental Explanation
 Imagine you need to keep a group of 5 generals perfectly in sync about a battle plan.
@@ -32,7 +31,8 @@ Gossip protocols (Epidemic Broadcasts) have no leaders. All nodes are equal (pee
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 [ RAFT (5 Nodes) ]
 Client -> [ LEADER ]
              |---> [Follower 1] (ACK)

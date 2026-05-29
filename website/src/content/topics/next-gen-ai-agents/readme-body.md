@@ -1,4 +1,3 @@
-# Next-Gen AI Agents: Autonomous Digital Workers
 
 ## Simple Fundamental Explanation
 Imagine a traditional search engine. You type "Book a flight to Paris." It gives you a list of links to airline websites. You have to click the links, find the flight, enter your credit card, and click "Buy." The computer was just an index.
@@ -31,7 +30,8 @@ The surrounding Python/Go infrastructure parses the JSON, executes the real-worl
 
 ### Visual Diagram: The Agent Loop
 
-```text
+<!-- diagram -->
+```diagram
 Goal: "How much is Apple's stock worth, times 10?"
 
 [ Agent Brain (LLM) ]

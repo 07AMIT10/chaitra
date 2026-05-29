@@ -1,4 +1,3 @@
-# Monte Carlo Tree Search (MCTS): Probabilistic Planning
 
 ## Simple Fundamental Explanation
 Imagine you are playing Chess. You want to look 10 moves ahead.
@@ -28,7 +27,8 @@ The result of the simulation (e.g., +1 for a win, -1 for a loss) is passed back 
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 [ Root Node: Current Board ]
 Visits: 100, Wins: 60
 

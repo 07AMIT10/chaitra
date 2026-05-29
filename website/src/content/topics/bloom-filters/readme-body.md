@@ -1,4 +1,3 @@
-# Bloom Filters: The Probabilistic Bouncer
 
 ## Prerequisites
 
@@ -57,7 +56,8 @@ When you want to check if an item exists:
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Initial State (m=10 bits, k=2 hash functions):
 [ 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 ]
 

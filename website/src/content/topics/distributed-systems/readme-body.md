@@ -1,4 +1,3 @@
-# Distributed Systems: Coordination at Scale
 
 ## Simple Fundamental Explanation
 Imagine you run a bank.
@@ -35,7 +34,8 @@ This simple algorithm mathematically guarantees a causal ordering of events acro
 
 ### Visual Diagram: The CAP Theorem
 
-```text
+<!-- diagram -->
+```diagram
           [ Consistency ]
            (Every read receives the most recent write)
              /       \

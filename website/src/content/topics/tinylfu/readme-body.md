@@ -1,4 +1,3 @@
-# TinyLFU: Probabilistic Cache Admission
 
 ## Simple Fundamental Explanation
 Imagine a small, exclusive library with a strict limit on how many books it can keep on the shelves.

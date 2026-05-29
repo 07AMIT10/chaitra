@@ -1,4 +1,3 @@
-# AI + Probabilistic Infrastructure: The Autonomous Cloud
 
 ## Simple Fundamental Explanation
 Imagine driving a car.
@@ -28,7 +27,8 @@ Over millions of probabilistic iterations, the AI learns a complex, highly non-l
 
 ### Visual Diagram: Predictive Scaling vs Reactive Scaling
 
-```text
+<!-- diagram -->
+```diagram
 Traffic Spike at T=10. Server Boot Time = 5 minutes.
 
 [ Reactive Autoscaling ]

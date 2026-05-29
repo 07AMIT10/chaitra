@@ -1,4 +1,3 @@
-# Gossip Protocols: The Probabilistic Spread
 
 ## Simple Fundamental Explanation
 Imagine an office with 1,000 employees. The CEO wants to announce a surprise bonus.
@@ -35,7 +34,8 @@ Nodes push new updates out, and simultaneously exchange summary vectors (hashes 
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Tick 0: Node A gets an update.
 [A*]  [B ]  [C ]  [D ]  [E ]  [F ]  [G ]
 

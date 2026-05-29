@@ -1,4 +1,3 @@
-# Mixture-of-Experts: Probabilistic Routing
 
 ## Simple Fundamental Explanation
 Imagine you are building the ultimate consulting firm. You want to be able to answer questions about medicine, law, physics, and history.
@@ -26,7 +25,8 @@ Only those specific experts are activated. The token passes through them, their 
 
 ### Visual Diagram
 
-```text
+<!-- diagram -->
+```diagram
 Input Token: "Quantum"
 
       [ Router Network ]

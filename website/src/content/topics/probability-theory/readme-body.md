@@ -1,4 +1,3 @@
-# Probability Theory: The Language of Scale
 
 ## Simple Fundamental Explanation
 Imagine you flip a coin. You know it will be Heads or Tails.
