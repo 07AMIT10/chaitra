@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import { useMemo, useState } from "react";
 import {
   bitArraySize,
   falsePositiveRate,
@@ -12,30 +12,37 @@ import {
   DEMO_ABSENT,
   DEMO_PRESENT,
 } from "../lib/bloom-sim";
+import {
+  BitGridCanvas,
+  BitGridLegend,
+  LabShell,
+  LabTabPanel,
+  LabTabs,
+  MetricsAside,
+  RangeControl,
+  type LabMetric,
+  type LabTab,
+} from "./lab";
 import "./BloomFilterLab.css";
 
 type ControlMode = "goal" | "manual";
 
-const BIT_OFF = "#2a3544";
-const BIT_ON = "#3d9eff";
-const BIT_PROBE = "#ffb86b";
-
-function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(mq.matches);
-    const onChange = () => setReduced(mq.matches);
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, []);
-  return reduced;
-}
+const MODE_TABS: LabTab[] = [
+  {
+    id: "goal",
+    label: "Size from target FP",
+    panelId: "bloom-panel-goal",
+    tabId: "bloom-tab-goal",
+  },
+  {
+    id: "manual",
+    label: "Manual m & k",
+    panelId: "bloom-panel-manual",
+    tabId: "bloom-tab-manual",
+  },
+];
 
 export default function BloomFilterLab() {
-  const reducedMotion = usePrefersReducedMotion();
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-
   const [mode, setMode] = useState<ControlMode>("manual");
   const [goalItems, setGoalItems] = useState(20);
   const [goalFp, setGoalFp] = useState(0.05);
@@ -74,54 +81,6 @@ export default function BloomFilterLab() {
     testKey.trim() !== "" && probe.present && !exactHas.has(testKey.trim());
   const isDefinitelyNot =
     testKey.trim() !== "" && !probe.present && !exactHas.has(testKey.trim());
-
-  const drawBits = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const cell = effectiveM > 128 ? 5 : effectiveM > 64 ? 6 : 8;
-    const gap = 1;
-    const height = 32;
-    canvas.width = effectiveM * (cell + gap);
-    canvas.height = height;
-
-    const probeSet = new Set(highlightIndices.length ? highlightIndices : probe.indices);
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < effectiveM; i++) {
-      const x = i * (cell + gap);
-      const isProbe = probeSet.has(i) && testKey.trim() !== "";
-      if (isProbe) ctx.fillStyle = BIT_PROBE;
-      else if (bits[i]) ctx.fillStyle = BIT_ON;
-      else ctx.fillStyle = BIT_OFF;
-      ctx.fillRect(x, 2, cell, height - 4);
-    }
-  }, [bits, effectiveM, highlightIndices, probe.indices, testKey]);
-
-  useEffect(() => {
-    drawBits();
-  }, [drawBits, reducedMotion]);
-
-  const modeTabs: ControlMode[] = ["goal", "manual"];
-
-  const onModeTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    const idx = modeTabs.indexOf(mode);
-    if (e.key === "ArrowRight" || e.key === "ArrowDown") {
-      e.preventDefault();
-      setMode(modeTabs[(idx + 1) % modeTabs.length]);
-    } else if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
-      e.preventDefault();
-      setMode(modeTabs[(idx - 1 + modeTabs.length) % modeTabs.length]);
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      setMode(modeTabs[0]);
-    } else if (e.key === "End") {
-      e.preventDefault();
-      setMode(modeTabs[modeTabs.length - 1]);
-    }
-  };
 
   const loadDemo = () => {
     setKeys([...DEMO_PRESENT]);
@@ -177,224 +136,152 @@ export default function BloomFilterLab() {
   const fpPct = (fpEst * 100).toFixed(2);
   const targetPct = targetFp != null ? (targetFp * 100).toFixed(1) : null;
 
+  const probeIndices =
+    highlightIndices.length > 0 ? highlightIndices : probe.indices;
+
+  const metrics: LabMetric[] = [
+    { id: "fill", label: "Fill ratio", value: `${fillPct}%` },
+    {
+      id: "fp",
+      label: "Estimated FP rate",
+      value: `${fpPct}%`,
+      tone: fpEst > 0.15 ? "warn" : "default",
+    },
+  ];
+  if (targetPct != null) {
+    metrics.push({ id: "target", label: "Target FP (design)", value: `${targetPct}%` });
+  }
+  metrics.push({
+    id: "kopt",
+    label: `Optimal k (n = ${Math.max(n, 1)})`,
+    value: String(kOpt),
+  });
+  if (isFalsePositive) {
+    metrics.push({
+      id: "aha",
+      label: "Aha — false positive",
+      value: `Bloom says maybe for "${testKey.trim()}", but it was never inserted.`,
+      tone: "aha",
+    });
+  }
+
   return (
-    <div className="bloom-lab">
-      <p className="bloom-lab__intro">
-        A Bloom filter can say <strong>definitely not</strong> or <strong>maybe yes</strong> — never
-        a false negative. Crank fill or use too few bits and absent keys start looking present.
-      </p>
+    <LabShell
+      intro={
+        <>
+          A Bloom filter can say <strong>definitely not</strong> or <strong>maybe yes</strong> —
+          never a false negative. Crank fill or use too few bits and absent keys start looking
+          present.
+        </>
+      }
+    >
+      <LabTabs
+        tabs={MODE_TABS}
+        activeId={mode}
+        onChange={(id) => setMode(id as ControlMode)}
+        ariaLabel="Parameter mode"
+      />
 
-      <div className="bloom-lab__tabs" role="tablist" aria-label="Parameter mode">
-        <button
-          type="button"
-          role="tab"
-          id="bloom-tab-goal"
-          className="bloom-lab__tab"
-          aria-selected={mode === "goal"}
-          aria-controls="bloom-panel-goal"
-          tabIndex={mode === "goal" ? 0 : -1}
-          onClick={() => setMode("goal")}
-          onKeyDown={onModeTabKeyDown}
-        >
-          Size from target FP
-        </button>
-        <button
-          type="button"
-          role="tab"
-          id="bloom-tab-manual"
-          className="bloom-lab__tab"
-          aria-selected={mode === "manual"}
-          aria-controls="bloom-panel-manual"
-          tabIndex={mode === "manual" ? 0 : -1}
-          onClick={() => setMode("manual")}
-          onKeyDown={onModeTabKeyDown}
-        >
-          Manual m &amp; k
-        </button>
-      </div>
-
-      <div className="bloom-lab__grid">
+      <div className="lab__grid">
         <div>
-          <div
-            id="bloom-panel-goal"
-            role="tabpanel"
-            aria-labelledby="bloom-tab-goal"
-            hidden={mode !== "goal"}
-            className="bloom-lab__controls"
-          >
-            {mode === "goal" && (
-              <>
-                <div className="bloom-lab__control">
-                  <label htmlFor="goal-n">
-                    Expected items (n)
-                    <input
-                      id="goal-n"
-                      type="range"
-                      min={5}
-                      max={80}
-                      value={goalItems}
-                      onChange={(e) => setGoalItems(Number(e.target.value))}
-                      aria-valuemin={5}
-                      aria-valuemax={80}
-                      aria-valuenow={goalItems}
-                      aria-valuetext={`${goalItems} items`}
-                    />
-                    <span className="bloom-lab__value">{goalItems}</span>
-                  </label>
-                </div>
-                <div className="bloom-lab__control">
-                  <label htmlFor="goal-p">
-                    Target false positive rate (p)
-                    <input
-                      id="goal-p"
-                      type="range"
-                      min={1}
-                      max={20}
-                      value={Math.round(goalFp * 100)}
-                      onChange={(e) => setGoalFp(Number(e.target.value) / 100)}
-                      aria-valuemin={1}
-                      aria-valuemax={20}
-                      aria-valuenow={Math.round(goalFp * 100)}
-                      aria-valuetext={`${(goalFp * 100).toFixed(0)} percent`}
-                    />
-                    <span className="bloom-lab__value">{(goalFp * 100).toFixed(0)}%</span>
-                  </label>
-                  <span className="hint">Formulas from bloom_filter.py — m ≈ {effectiveM} bits, k ≈ {effectiveK}</span>
-                </div>
-              </>
-            )}
-          </div>
-          <div
-            id="bloom-panel-manual"
-            role="tabpanel"
-            aria-labelledby="bloom-tab-manual"
-            hidden={mode !== "manual"}
-            className="bloom-lab__controls"
-          >
-            {mode === "manual" && (
-              <>
-                <div className="bloom-lab__control">
-                  <label htmlFor="lab-m">
-                    m — bit array size
-                    <input
-                      id="lab-m"
-                      type="range"
-                      min={16}
-                      max={256}
-                      step={8}
-                      value={m}
-                      onChange={(e) => setM(Number(e.target.value))}
-                      aria-valuemin={16}
-                      aria-valuemax={256}
-                      aria-valuenow={m}
-                      aria-valuetext={`${m} bits`}
-                    />
-                    <span className="bloom-lab__value">{m}</span>
-                  </label>
-                </div>
-                <div className="bloom-lab__control">
-                  <label htmlFor="lab-k">
-                    k — hash functions
-                    <input
-                      id="lab-k"
-                      type="range"
-                      min={1}
-                      max={12}
-                      value={k}
-                      onChange={(e) => setK(Number(e.target.value))}
-                      aria-valuemin={1}
-                      aria-valuemax={12}
-                      aria-valuenow={k}
-                      aria-valuetext={`${k} hashes`}
-                    />
-                    <span className="bloom-lab__value">{k}</span>
-                    {k !== kOpt && n > 0 && (
-                      <span className="hint">Optimal k for current fill ≈ {kOpt} — try matching it.</span>
-                    )}
-                  </label>
-                </div>
-              </>
-            )}
-          </div>
-          <div className="bloom-lab__controls bloom-lab__controls--keys">
-            <div className="bloom-lab__control">
-              <span id="lab-inserted-label">
-                Inserted keys (n = {n})
-              </span>
-              <span className="hint" id="lab-inserted-hint">
+          <LabTabPanel tab={MODE_TABS[0]} active={mode === "goal"}>
+            <RangeControl
+              id="goal-n"
+              label="Expected items (n)"
+              min={5}
+              max={80}
+              value={goalItems}
+              valueText={`${goalItems}`}
+              onChange={setGoalItems}
+            />
+            <RangeControl
+              id="goal-p"
+              label="Target false positive rate (p)"
+              min={1}
+              max={20}
+              value={Math.round(goalFp * 100)}
+              valueText={`${(goalFp * 100).toFixed(0)}%`}
+              onChange={(v) => setGoalFp(v / 100)}
+              hint={
+                <>
+                  Formulas from bloom_filter.py — m ≈ {effectiveM} bits, k ≈ {effectiveK}
+                </>
+              }
+            />
+          </LabTabPanel>
+
+          <LabTabPanel tab={MODE_TABS[1]} active={mode === "manual"}>
+            <RangeControl
+              id="lab-m"
+              label="m — bit array size"
+              min={16}
+              max={256}
+              step={8}
+              value={m}
+              valueText={`${m}`}
+              onChange={setM}
+            />
+            <RangeControl
+              id="lab-k"
+              label="k — hash functions"
+              min={1}
+              max={12}
+              value={k}
+              valueText={`${k}`}
+              onChange={setK}
+              hint={
+                k !== kOpt && n > 0 ? (
+                  <>Optimal k for current fill ≈ {kOpt} — try matching it.</>
+                ) : undefined
+              }
+            />
+          </LabTabPanel>
+
+          <div className="lab__controls bloom-lab__controls--keys">
+            <div className="lab__control">
+              <span id="lab-inserted-label">Inserted keys (n = {n})</span>
+              <span className="lab__hint" id="lab-inserted-hint">
                 MD5-based hashes, same recipe as the Python topic code.
               </span>
               <div
-                className="bloom-lab__probe-row"
+                className="lab__row bloom-lab__probe-row"
                 role="group"
                 aria-labelledby="lab-inserted-label"
                 aria-describedby="lab-inserted-hint"
               >
-                <button type="button" className="bloom-lab__btn bloom-lab__btn--ghost" onClick={loadDemo}>
+                <button type="button" className="lab__btn lab__btn--ghost" onClick={loadDemo}>
                   Demo set
                 </button>
-                <button type="button" className="bloom-lab__btn bloom-lab__btn--ghost" onClick={cramFilter}>
+                <button type="button" className="lab__btn lab__btn--ghost" onClick={cramFilter}>
                   Overfill (mistake)
                 </button>
-                <button type="button" className="bloom-lab__btn bloom-lab__btn--ghost" onClick={resetKeys}>
+                <button type="button" className="lab__btn lab__btn--ghost" onClick={resetKeys}>
                   Clear
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="bloom-lab__viz-wrap">
-            <canvas
-              ref={canvasRef}
-              className="bloom-lab__canvas"
-              role="img"
-              aria-label={`Bloom filter bit array: ${n} keys, ${fillPct} percent of ${effectiveM} bits set`}
-            />
-            <div className="bloom-lab__legend">
-              <span className="bloom-lab__swatch bloom-lab__swatch--set">
-                <i aria-hidden /> bit set
-              </span>
-              <span className="bloom-lab__swatch bloom-lab__swatch--probe">
-                <i aria-hidden /> probe path
-              </span>
-              <span className="bloom-lab__swatch bloom-lab__swatch--empty">
-                <i aria-hidden /> empty
-              </span>
-            </div>
-          </div>
+          <BitGridCanvas
+            length={effectiveM}
+            bits={bits}
+            probeIndices={probeIndices}
+            highlightProbes={testKey.trim() !== ""}
+            ariaLabel={`Bloom filter bit array: ${n} keys, ${fillPct} percent of ${effectiveM} bits set`}
+          />
+          <BitGridLegend
+            items={[
+              { id: "set", label: "bit set", swatchClass: "lab__swatch--set" },
+              { id: "probe", label: "probe path", swatchClass: "lab__swatch--probe" },
+              { id: "empty", label: "empty", swatchClass: "lab__swatch--empty" },
+            ]}
+          />
         </div>
 
-        <aside className="bloom-lab__metrics" aria-label="Live metrics">
-          <dl className="bloom-lab__metric">
-            <dt>Fill ratio</dt>
-            <dd>{fillPct}%</dd>
-          </dl>
-          <dl className={`bloom-lab__metric${fpEst > 0.15 ? " bloom-lab__metric--warn" : ""}`}>
-            <dt>Estimated FP rate</dt>
-            <dd>{fpPct}%</dd>
-          </dl>
-          {targetPct != null && (
-            <dl className="bloom-lab__metric">
-              <dt>Target FP (design)</dt>
-              <dd>{targetPct}%</dd>
-            </dl>
-          )}
-          <dl className="bloom-lab__metric">
-            <dt>Optimal k (n = {Math.max(n, 1)})</dt>
-            <dd>{kOpt}</dd>
-          </dl>
-          {isFalsePositive && (
-            <dl className="bloom-lab__metric bloom-lab__metric--aha">
-              <dt>Aha — false positive</dt>
-              <dd>
-                Bloom says maybe for &quot;{testKey.trim()}&quot;, but it was never inserted.
-              </dd>
-            </dl>
-          )}
-        </aside>
+        <MetricsAside metrics={metrics} />
       </div>
 
-      <p className="bloom-lab__status" role="status" aria-live="polite" aria-atomic="true">
+      <p className="lab__status" role="status" aria-live="polite" aria-atomic="true">
         {n === 0
           ? "Insert keys to light up the bit array."
           : `With ${n} keys in ${effectiveM} bits and k = ${effectiveK}, estimated false positive rate is ${fpPct}%.`}
@@ -410,7 +297,7 @@ export default function BloomFilterLab() {
 
       <section className="bloom-lab__probe" aria-labelledby="probe-heading">
         <h3 id="probe-heading">Probe a key</h3>
-        <div className="bloom-lab__probe-row">
+        <div className="lab__row bloom-lab__probe-row">
           <input
             id="probe-key"
             type="text"
@@ -430,13 +317,13 @@ export default function BloomFilterLab() {
             autoComplete="off"
             spellCheck={false}
           />
-          <button type="button" className="bloom-lab__btn" onClick={() => onProbeKey(testKey)}>
+          <button type="button" className="lab__btn" onClick={() => onProbeKey(testKey)}>
             Test
           </button>
-          <button type="button" className="bloom-lab__btn" onClick={addKey}>
+          <button type="button" className="lab__btn" onClick={addKey}>
             Insert
           </button>
-          <button type="button" className="bloom-lab__btn bloom-lab__btn--ghost" onClick={huntFalsePositive}>
+          <button type="button" className="lab__btn lab__btn--ghost" onClick={huntFalsePositive}>
             Find FP
           </button>
         </div>
@@ -454,7 +341,7 @@ export default function BloomFilterLab() {
           ))}
         </div>
 
-        <div className="bloom-lab__compare">
+        <div className="lab__compare">
           <div>
             <strong>Bloom filter</strong>
             {testKey.trim() === ""
@@ -473,11 +360,11 @@ export default function BloomFilterLab() {
           </div>
         </div>
         {isDefinitelyNot && (
-          <p className="bloom-lab__status" role="note">
+          <p className="lab__status" role="note">
             One bit at zero is enough — Bloom guarantees no false negatives.
           </p>
         )}
       </section>
-    </div>
+    </LabShell>
   );
 }
