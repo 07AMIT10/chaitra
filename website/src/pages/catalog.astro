@@ -11,7 +11,7 @@ const GITHUB_REPO = "https://github.com/07AMIT10/chaitra/tree/main";
   <ul>
     {topics.map((t) => (
       <li>
-        {t.status === "golden" || t.status === "live" ? (
+        {t.status === "golden" || t.status === "live" || t.status === "preview" ? (
           <a href={`/topics/${t.slug}`}>{t.title}</a>
         ) : (
           <a href={`${GITHUB_REPO}/${t.folder}`}>{t.title}</a>

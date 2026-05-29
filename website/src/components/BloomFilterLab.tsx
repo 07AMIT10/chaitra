@@ -191,7 +191,7 @@ export default function BloomFilterLab() {
               min={5}
               max={80}
               value={goalItems}
-              valueText={`${goalItems}`}
+              valueText={`${goalItems} items`}
               onChange={setGoalItems}
             />
             <RangeControl
@@ -218,7 +218,7 @@ export default function BloomFilterLab() {
               max={256}
               step={8}
               value={m}
-              valueText={`${m}`}
+              valueText={`${m} bits`}
               onChange={setM}
             />
             <RangeControl
@@ -227,7 +227,7 @@ export default function BloomFilterLab() {
               min={1}
               max={12}
               value={k}
-              valueText={`${k}`}
+              valueText={`${k} hash functions`}
               onChange={setK}
               hint={
                 k !== kOpt && n > 0 ? (

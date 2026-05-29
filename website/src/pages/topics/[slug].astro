@@ -4,7 +4,7 @@ import topics from "../../data/topics.json";
 
 export function getStaticPaths() {
   return topics
-    .filter((t) => t.status === "golden" || t.status === "live")
+    .filter((t) => t.status === "golden" || t.status === "live" || t.status === "preview")
     .map((t) => ({ params: { slug: t.slug }, props: { topic: t } }));
 }
 
@@ -16,8 +16,16 @@ const codeModules = import.meta.glob<{ default: import("astro").MDXContent }>(
 );
 const loadCode = codeModules[`../../content/topics/${topic.slug}/code.mdx`];
 const Code = loadCode ? (await loadCode()).default : null;
+const hasCode = Code != null;
+const hasLab = topic.hasLab === true;
 ---
-<TopicLayout title={topic.title} repoFolder={topic.folder} pyodide={topic.hasPython === true}>
+<TopicLayout
+  title={topic.title}
+  repoFolder={topic.folder}
+  pyodide={hasCode}
+  hasLab={hasLab}
+  hasCode={hasCode}
+>
   <Content slot="narrative" />
   {Code && <Code slot="code" />}
 </TopicLayout>
