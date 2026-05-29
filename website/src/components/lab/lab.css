@@ -1,11 +1,14 @@
 .lab {
   --lab-surface: var(--color-surface);
   --lab-border: color-mix(in srgb, var(--color-muted) 35%, transparent);
+  --lab-control-max: 22rem;
   background: var(--lab-surface);
   border: 1px solid var(--lab-border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
   font-family: var(--font-sans);
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .lab__intro {
@@ -59,8 +62,12 @@
 
 @media (min-width: 52rem) {
   .lab__grid {
-    grid-template-columns: 1fr minmax(14rem, 18rem);
+    grid-template-columns: minmax(0, 1fr) minmax(14rem, 18rem);
   }
+}
+
+.lab__grid > * {
+  min-width: 0;
 }
 
 .lab__controls {
@@ -69,16 +76,36 @@
   gap: var(--space-4);
 }
 
+.lab__controls-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: var(--lab-control-max);
+}
+
 .lab__controls[hidden] {
   display: none;
 }
 
-.lab__control label {
+.lab__control {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+  max-width: var(--lab-control-max);
+}
+
+.lab__control-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
   font-size: 0.875rem;
   color: var(--color-text);
+}
+
+.lab__control-head label {
+  font-weight: 500;
 }
 
 .lab__control .lab__hint {
@@ -88,6 +115,7 @@
 
 .lab__control input[type="range"] {
   width: 100%;
+  max-width: var(--lab-control-max);
   min-height: 44px;
   accent-color: var(--color-accent);
   cursor: pointer;

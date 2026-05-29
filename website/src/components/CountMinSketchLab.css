@@ -1,21 +1,41 @@
-.cms-lab__heatmap {
+.cms-lab__main {
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  margin: var(--space-3) 0;
-  overflow-x: auto;
+  gap: var(--space-4);
+  min-width: 0;
 }
 
-.cms-lab__row {
+.cms-heatmap {
+  width: 100%;
+  max-width: 100%;
+}
+
+.cms-heatmap__caption {
+  margin: 0 0 var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.cms-heatmap__grid {
   display: flex;
-  gap: 1px;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
 }
 
-.cms-lab__cell {
-  width: 4px;
-  height: 12px;
+.cms-heatmap__row {
+  display: grid;
+  gap: 2px;
+  grid-template-columns: repeat(var(--cms-cols, 64), minmax(0, 1fr));
+}
+
+.cms-heatmap__cell {
+  min-height: 10px;
+  border-radius: 2px;
   background: var(--color-accent);
-  border-radius: 1px;
 }
 
 .cms-lab__chips {

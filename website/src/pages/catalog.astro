@@ -1,26 +1,39 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import topics from "../data/topics.json";
+import "../styles/catalog.css";
 
 const GITHUB_REPO = "https://github.com/07AMIT10/chaitra/tree/main";
+
+function statusClass(status: string): string {
+  if (status === "golden" || status === "live") return "catalog__status--live";
+  if (status === "preview") return "catalog__status--preview";
+  return "catalog__status--narrative";
+}
 ---
 
 <BaseLayout title="Catalog">
-  <h1>Topic catalog</h1>
-  <p>{topics.length} topics from the Chaitra curriculum.</p>
-  <ul>
-    {topics.map((t) => (
-      <li>
-        {t.status === "golden" || t.status === "live" || t.status === "preview" ? (
-          <a href={`/topics/${t.slug}`}>{t.title}</a>
-        ) : (
-          <a href={`${GITHUB_REPO}/${t.folder}`}>{t.title}</a>
-        )}
-        {" "}
-        <span class="status">({t.status})</span>
-        {t.hasPython ? " Py" : ""}
-        {t.hasRust ? " Rs" : ""}
-      </li>
-    ))}
-  </ul>
+  <div class="catalog">
+    <h1>Topic catalog</h1>
+    <p class="catalog__lead">{topics.length} topics from the Chaitra curriculum.</p>
+    <ul class="catalog__grid">
+      {topics.map((t) => {
+        const href =
+          t.status === "golden" || t.status === "live" || t.status === "preview"
+            ? `/topics/${t.slug}`
+            : `${GITHUB_REPO}/${t.folder}`;
+        const langs = [t.hasPython && "Py", t.hasRust && "Rs"].filter(Boolean).join(" · ");
+        return (
+          <li class="catalog__card">
+            <a href={href}>{t.title}</a>
+            <div class="catalog__meta">
+              <span class={`catalog__status ${statusClass(t.status)}`}>{t.status}</span>
+              {t.hasLab && <span>Lab</span>}
+              {langs && <span class="catalog__langs">{langs}</span>}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  </div>
 </BaseLayout>

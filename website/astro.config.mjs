@@ -19,6 +19,6 @@ export default defineConfig({
   output: "static",
   markdown: {
     remarkPlugins: [remarkMath, remarkMermaidClient],
-    rehypePlugins: [rehypeKatex],
+    rehypePlugins: [[rehypeKatex, { output: "html", strict: "ignore" }]],
   },
 });

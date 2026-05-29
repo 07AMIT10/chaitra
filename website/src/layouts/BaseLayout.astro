@@ -47,4 +47,22 @@ const { title = "Chaitra" } = Astro.props;
     box-shadow: var(--focus-ring);
     border-radius: 2px;
   }
+
+  main a:link {
+    color: var(--color-accent);
+  }
+
+  main a:visited {
+    color: color-mix(in srgb, var(--color-accent) 78%, var(--color-text));
+  }
+
+  main a:hover {
+    color: var(--color-accent-hover);
+  }
+
+  main a:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+    border-radius: 2px;
+  }
 </style>

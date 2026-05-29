@@ -7,6 +7,7 @@ import {
   shuffleStream,
   truthFromStream,
 } from "../lib/sketches";
+import { CmsHeatmap } from "./lab/CmsHeatmap";
 import {
   LabShell,
   MetricsAside,
@@ -60,8 +61,6 @@ export default function CountMinSketchLab() {
     });
   }
 
-  const maxCell = sketch.maxCell() || 1;
-
   return (
     <LabShell
       intro={
@@ -73,40 +72,29 @@ export default function CountMinSketchLab() {
       }
     >
       <div className="lab__grid">
-        <div>
-          <RangeControl
-            id="cms-epsilon"
-            label="Error margin ε"
-            min={1}
-            max={10}
-            value={epsilonPct}
-            valueText={`${epsilonPct}%`}
-            onChange={setEpsilonPct}
-            hint={errorBound(epsilon)}
-          />
-          <RangeControl
-            id="cms-stream"
-            label="Stream position"
-            min={0}
-            max={STREAM.length - 1}
-            value={streamIdx}
-            valueText={`${streamIdx + 1} of ${STREAM.length} events`}
-            onChange={setStreamIdx}
-          />
-          <div className="cms-lab__heatmap" role="img" aria-label={`CMS matrix ${depth} by ${width}`}>
-            {sketch.table.map((row, ri) => (
-              <div key={ri} className="cms-lab__row">
-                {row.map((cell, ci) => (
-                  <div
-                    key={ci}
-                    className="cms-lab__cell"
-                    style={{ opacity: 0.15 + (cell / maxCell) * 0.85 }}
-                    title={`row ${ri}, col ${ci}: ${cell}`}
-                  />
-                ))}
-              </div>
-            ))}
+        <div className="cms-lab__main">
+          <div className="lab__controls-panel">
+            <RangeControl
+              id="cms-epsilon"
+              label="Error margin ε"
+              min={1}
+              max={10}
+              value={epsilonPct}
+              valueText={`${epsilonPct}%`}
+              onChange={setEpsilonPct}
+              hint={errorBound(epsilon)}
+            />
+            <RangeControl
+              id="cms-stream"
+              label="Stream position"
+              min={0}
+              max={STREAM.length - 1}
+              value={streamIdx}
+              valueText={`${streamIdx + 1} / ${STREAM.length}`}
+              onChange={setStreamIdx}
+            />
           </div>
+          <CmsHeatmap table={sketch.table} width={width} depth={depth} />
           <div className="cms-lab__chips" role="group" aria-label="Query keys">
             {QUERY_KEYS.map((k) => (
               <button

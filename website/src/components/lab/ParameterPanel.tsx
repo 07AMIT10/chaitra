@@ -124,23 +124,23 @@ export function RangeControl({
 }: RangeControlProps) {
   return (
     <div className="lab__control">
-      <label htmlFor={id}>
-        {label}
-        <input
-          id={id}
-          type="range"
-          min={min}
-          max={max}
-          step={step}
-          value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
-          aria-valuemin={min}
-          aria-valuemax={max}
-          aria-valuenow={value}
-          aria-valuetext={valueText}
-        />
+      <div className="lab__control-head">
+        <label htmlFor={id}>{label}</label>
         <span className="lab__value">{valueText}</span>
-      </label>
+      </div>
+      <input
+        id={id}
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(e) => onChange(Number(e.target.value))}
+        aria-valuemin={min}
+        aria-valuemax={max}
+        aria-valuenow={value}
+        aria-valuetext={valueText}
+      />
       {hint != null && <span className="lab__hint">{hint}</span>}
     </div>
   );

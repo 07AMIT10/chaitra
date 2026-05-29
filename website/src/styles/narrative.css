@@ -53,7 +53,36 @@
   overflow-x: auto;
 }
 
+/* KaTeX: HTML-only output; hide MathML duplicate that caused visible "mm" / "nn" */
+.topic__narrative .katex .katex-mathml {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 .topic__narrative .katex-display {
   margin-block: var(--space-4);
   overflow-x: auto;
+}
+
+.topic__narrative pre.mermaid {
+  min-height: 4rem;
+}
+
+.topic__narrative pre.mermaid svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+
+.topic__narrative pre.mermaid.mermaid--failed {
+  padding: var(--space-4);
+  color: var(--color-muted);
+  font-size: 0.875rem;
 }
