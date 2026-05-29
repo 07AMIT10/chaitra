@@ -11,6 +11,13 @@ const codedFolders = new Set([
   "HYPERLOGLOG",
 ]);
 
+const TITLE_OVERRIDES = {
+  "bloom-filters": "Bloom Filters",
+  "count-min-sketch": "Count-Min Sketch",
+  "consistent-hashing": "Consistent Hashing",
+  "hyperloglog": "HyperLogLog",
+};
+
 const existingByFolder = new Map();
 if (fs.existsSync(topicsJsonPath)) {
   for (const t of JSON.parse(fs.readFileSync(topicsJsonPath, "utf8"))) {
@@ -42,7 +49,7 @@ for (const e of entries) {
   if (prior?.status === "golden" || prior?.status === "live") {
     status = prior.status;
   } else if (hasSitePage) {
-    status = "golden";
+    status = "live";
   } else if (codedFolders.has(e.name)) {
     status = "coded";
   } else {
@@ -51,10 +58,11 @@ for (const e of entries) {
 
   topics.push({
     slug,
-    title: prior?.title ?? e.name.replace(/_/g, " "),
+    title: TITLE_OVERRIDES[slug] ?? prior?.title ?? e.name.replace(/_/g, " "),
     folder: e.name,
     ...(prior?.phase != null ? { phase: prior.phase } : {}),
     ...(prior?.prerequisites ? { prerequisites: prior.prerequisites } : {}),
+    ...(prior?.labTier ? { labTier: prior.labTier } : {}),
     status,
     hasPython: hasPy,
     hasRust: hasRs,

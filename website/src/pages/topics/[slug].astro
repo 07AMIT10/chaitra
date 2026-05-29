@@ -11,10 +11,11 @@ export function getStaticPaths() {
 const { topic } = Astro.props;
 const Content = (await import(`../../content/topics/${topic.slug}/index.mdx`)).default;
 
-const Code =
-  topic.hasPython && topic.slug === "bloom-filters"
-    ? (await import("../../content/topics/bloom-filters/code.mdx")).default
-    : null;
+const codeModules = import.meta.glob<{ default: import("astro").MDXContent }>(
+  "../../content/topics/*/code.mdx"
+);
+const loadCode = codeModules[`../../content/topics/${topic.slug}/code.mdx`];
+const Code = loadCode ? (await loadCode()).default : null;
 ---
 <TopicLayout title={topic.title} repoFolder={topic.folder} pyodide={topic.hasPython === true}>
   <Content slot="narrative" />

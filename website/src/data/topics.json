@@ -75,17 +75,19 @@
   },
   {
     "slug": "consistent-hashing",
-    "title": "CONSISTENT HASHING",
+    "title": "Consistent Hashing",
     "folder": "CONSISTENT_HASHING",
-    "status": "coded",
+    "labTier": "A",
+    "status": "live",
     "hasPython": true,
     "hasRust": true
   },
   {
     "slug": "count-min-sketch",
-    "title": "COUNT MIN SKETCH",
+    "title": "Count-Min Sketch",
     "folder": "COUNT_MIN_SKETCH",
-    "status": "coded",
+    "labTier": "A",
+    "status": "live",
     "hasPython": true,
     "hasRust": true
   },
@@ -147,9 +149,10 @@
   },
   {
     "slug": "hyperloglog",
-    "title": "HYPERLOGLOG",
+    "title": "HyperLogLog",
     "folder": "HYPERLOGLOG",
-    "status": "coded",
+    "labTier": "A",
+    "status": "live",
     "hasPython": true,
     "hasRust": true
   },
