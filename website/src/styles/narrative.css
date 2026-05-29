@@ -51,6 +51,14 @@
   border-radius: var(--radius-md);
   padding: var(--space-4);
   overflow-x: auto;
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  white-space: pre-wrap;
+}
+
+.topic__narrative pre.mermaid[data-processed] {
+  color: inherit;
+  font-size: inherit;
 }
 
 /* KaTeX: HTML-only output; hide MathML duplicate that caused visible "mm" / "nn" */

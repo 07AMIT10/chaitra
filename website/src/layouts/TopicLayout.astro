@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
+import MermaidInit from "../components/MermaidInit.tsx";
 import "../styles/narrative.css";
 
 const { title, repoFolder, pyodide = false, hasLab = false, hasCode = false } = Astro.props;
@@ -31,6 +32,7 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
       <div class="topic__narrative prose">
         <slot name="narrative" />
       </div>
+      <MermaidInit client:load />
     </section>
     {Astro.slots.has("lab") && (
       <section id="lab" aria-label="Interactive lab">
@@ -47,21 +49,6 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
     </footer>
   </article>
 </BaseLayout>
-
-<script>
-  import mermaid from "mermaid";
-
-  mermaid.initialize({ startOnLoad: false, theme: "dark", securityLevel: "loose" });
-  try {
-    await mermaid.run({ querySelector: ".topic__narrative pre.mermaid" });
-  } catch (err) {
-    console.error("Mermaid render failed:", err);
-    document.querySelectorAll(".topic__narrative pre.mermaid").forEach((el) => {
-      if (el.querySelector("svg")) return;
-      el.classList.add("mermaid--failed");
-    });
-  }
-</script>
 
 <style>
   .topic {
