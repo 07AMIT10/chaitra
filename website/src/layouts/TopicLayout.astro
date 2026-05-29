@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
+import "../styles/narrative.css";
 
 const { title, repoFolder, pyodide = false, hasLab = false, hasCode = false } = Astro.props;
 const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
@@ -27,7 +28,9 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
       </section>
     )}
     <section id="narrative" aria-label="Topic narrative" tabindex="-1">
-      <slot name="narrative" />
+      <div class="topic__narrative prose">
+        <slot name="narrative" />
+      </div>
     </section>
     {Astro.slots.has("lab") && (
       <section id="lab" aria-label="Interactive lab">
@@ -44,6 +47,13 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
     </footer>
   </article>
 </BaseLayout>
+
+<script>
+  import mermaid from "mermaid";
+
+  mermaid.initialize({ startOnLoad: false, theme: "dark" });
+  await mermaid.run({ querySelector: ".mermaid" });
+</script>
 
 <style>
   .topic {
