@@ -9,7 +9,8 @@ test("hasSitePage detects index.mdx", () => {
 
 test("hasLabIsland requires Lab import and client:visible", () => {
   assert.equal(hasLabIsland("bloom-filters"), true);
-  assert.equal(hasLabIsland("count-min-sketch"), false);
+  assert.equal(hasLabIsland("count-min-sketch"), true);
+  assert.equal(hasLabIsland("distributed-systems"), false);
 });
 
 test("resolveStatus: golden preserved", () => {
