@@ -1,0 +1,106 @@
+#!/usr/bin/env node
+/** Generate index.mdx for all topics with lab wiring */
+import fs from "node:fs";
+import path from "node:path";
+
+const repoRoot = path.resolve(import.meta.dirname, "../..");
+const contentRoot = path.join(repoRoot, "website/src/content/topics");
+
+const P1_LABS = {
+  "bloom-filters": { component: "BloomFilterLab", path: "../../../components/BloomFilterLab.tsx", heading: "The probabilistic bouncer" },
+  "count-min-sketch": { component: "CountMinSketchLab", path: "../../../components/CountMinSketchLab.tsx", heading: "The probabilistic frequency tracker" },
+  "hyperloglog": { component: "HyperLogLogLab", path: "../../../components/HyperLogLogLab.tsx", heading: "Cardinality in a sketch" },
+  "consistent-hashing": { component: "ConsistentHashingLab", path: "../../../components/ConsistentHashingLab.tsx", heading: "Keys on a ring" },
+  "rate-limiting": { component: "RateLimitingLab", path: "../../../components/RateLimitingLab.tsx", heading: "Rate limiting at scale" },
+  "tinylfu": { component: "TinyLFULab", path: "../../../components/TinyLFULab.tsx", heading: "TinyLFU admission" },
+  "gossip-protocols": { component: "GossipProtocolsLab", path: "../../../components/GossipProtocolsLab.tsx", heading: "Epidemic spread" },
+  "crdts-plus-probability": { component: "CrdtsLab", path: "../../../components/CrdtsLab.tsx", heading: "CRDT merge semantics" },
+  "power-of-two-choices": { component: "PowerOfTwoChoicesLab", path: "../../../components/PowerOfTwoChoicesLab.tsx", heading: "Balls into bins" },
+  "spam-detection": { component: "SpamDetectionLab", path: "../../../components/SpamDetectionLab.tsx", heading: "Naive Bayes classifier" },
+  "queueing-theory": { component: "QueueingTheoryLab", path: "../../../components/QueueingTheoryLab.tsx", heading: "M/M/1 queue intuition" },
+};
+
+const P2_LABS = {
+  "pagerank": { component: "PageRankLab", path: "../../../components/minisim/PageRankLab.tsx", heading: "Random surfer" },
+  "monte-carlo-systems": { component: "MonteCarloLab", path: "../../../components/minisim/MonteCarloLab.tsx", heading: "Monte Carlo estimate" },
+  "information-theory": { component: "EntropyLab", path: "../../../components/minisim/EntropyLab.tsx", heading: "Entropy calculator" },
+  "probability-theory": { component: "DiceLab", path: "../../../components/minisim/DiceLab.tsx", heading: "Dice and LLN" },
+  "random-early-detection": { component: "REDLab", path: "../../../components/minisim/REDLab.tsx", heading: "Early drop probability" },
+  "monte-carlo-tree-search": { component: "MCTSLab", path: "../../../components/minisim/MCTSLab.tsx", heading: "MCTS exploration" },
+  "randomized-algorithms": { component: "RandomizedLab", path: "../../../components/minisim/RandomizedLab.tsx", heading: "Las Vegas vs Monte Carlo" },
+  "mapreduce": { component: "MapReduceLab", path: "../../../components/minisim/MapReduceLab.tsx", heading: "Map shuffle reduce" },
+  "raft-vs-gossip": { component: "RaftGossipLab", path: "../../../components/minisim/RaftGossipLab.tsx", heading: "Raft vs gossip" },
+  "consensus-systems": { component: "ConsensusLab", path: "../../../components/minisim/ConsensusLab.tsx", heading: "Log replication" },
+  "probabilistic-consensus": { component: "ProbConsensusLab", path: "../../../components/minisim/ProbConsensusLab.tsx", heading: "Probabilistic finality" },
+  "eventual-consistency": { component: "EventualConsistencyLab", path: "../../../components/minisim/EventualConsistencyLab.tsx", heading: "Version vectors" },
+  "streaming-algorithms": { component: "StreamingAlgoLab", path: "../../../components/minisim/StreamingAlgoLab.tsx", heading: "Sketch chain demo" },
+  "streaming-analytics": { component: "StreamingAnalyticsLab", path: "../../../components/minisim/StreamingAnalyticsLab.tsx", heading: "Windowed aggregates" },
+  "bayesian-inference-systems": { component: "BayesianLab", path: "../../../components/minisim/BayesianLab.tsx", heading: "Posterior update" },
+  "bayesian-distributed-systems": { component: "BayesianDistLab", path: "../../../components/minisim/BayesianDistLab.tsx", heading: "Belief network" },
+  "approximate-memory-cache-systems": { component: "ApproxCacheLab", path: "../../../components/minisim/ApproxCacheLab.tsx", heading: "Sketch-backed cache" },
+  "mixture-of-experts": { component: "MoELab", path: "../../../components/minisim/MoELab.tsx", heading: "Expert routing" },
+  "token-routing": { component: "TokenRoutingLab", path: "../../../components/minisim/TokenRoutingLab.tsx", heading: "Top-K routing" },
+  "transformer-attention": { component: "AttentionLab", path: "../../../components/minisim/AttentionLab.tsx", heading: "Attention weights" },
+  "distributed-queues": { component: "DistQueuesLab", path: "../../../components/minisim/DistQueuesLab.tsx", heading: "Partition lag" },
+  "probabilistic-scheduling": { component: "ProbSchedulingLab", path: "../../../components/minisim/ProbSchedulingLab.tsx", heading: "Random placement" },
+  "probabilistic-databases": { component: "ProbDBLab", path: "../../../components/minisim/ProbDBLab.tsx", heading: "Uncertain tuples" },
+};
+
+const TITLES = JSON.parse(fs.readFileSync(path.join(repoRoot, "website/src/data/topics.json"), "utf8"))
+  .reduce((acc, t) => ({ ...acc, [t.slug]: t.title }), {});
+
+function titleCase(slug) {
+  return TITLES[slug] ?? slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function generateMdx(slug, lab) {
+  if (lab) {
+    return `---
+title: ${titleCase(slug)}
+---
+
+import ReadmeBody from "./readme-body.md";
+import ${lab.component} from "${lab.path}";
+
+## ${lab.heading}
+
+<ReadmeBody />
+
+<h2 id="lab">Lab</h2>
+
+<${lab.component} client:visible />
+`;
+  }
+  return `---
+title: ${titleCase(slug)}
+---
+
+import ReadmeBody from "./readme-body.md";
+
+## Overview
+
+<ReadmeBody />
+`;
+}
+
+for (const [slug, lab] of Object.entries({ ...P1_LABS, ...P2_LABS })) {
+  const dir = path.join(contentRoot, slug);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "index.mdx"), generateMdx(slug, lab));
+  console.log(`wrote ${slug}/index.mdx (lab)`);
+}
+
+const noneTopics = fs.readdirSync(contentRoot).filter((d) => {
+  const p = path.join(contentRoot, d);
+  return fs.statSync(p).isDirectory() && !P1_LABS[d] && !P2_LABS[d] && d !== "bloom-filters";
+});
+
+for (const slug of noneTopics) {
+  if (!fs.existsSync(path.join(contentRoot, slug, "readme-body.md"))) continue;
+  const dir = path.join(contentRoot, slug);
+  fs.mkdirSync(dir, { recursive: true });
+  fs.writeFileSync(path.join(dir, "index.mdx"), generateMdx(slug, null));
+  console.log(`wrote ${slug}/index.mdx (narrative)`);
+}
+
+console.log("done");
