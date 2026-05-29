@@ -1,0 +1,74 @@
+---
+type Variant = "note" | "warning" | "prereq" | "aha";
+
+interface Props {
+  variant?: Variant;
+  title?: string;
+}
+
+const { variant = "note", title } = Astro.props;
+
+const accents: Record<Variant, string> = {
+  note: "var(--color-accent)",
+  warning: "#e3a008",
+  prereq: "#a78bfa",
+  aha: "#3ecf8e",
+};
+
+const labels: Record<Variant, string> = {
+  note: "Note",
+  warning: "Warning",
+  prereq: "Prerequisite",
+  aha: "Insight",
+};
+
+const accent = accents[variant];
+const label = labels[variant];
+---
+
+<aside
+  class:list={["callout", `callout--${variant}`]}
+  role="note"
+  aria-label={title ?? label}
+  style={`--callout-accent: ${accent}`}
+>
+  <p class="callout__label">{label}</p>
+  {title && <p class="callout__title"><strong>{title}</strong></p>}
+  <div class="callout__body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout {
+    margin: var(--space-6) 0;
+    padding: var(--space-4);
+    padding-left: calc(var(--space-4) + 0.25rem);
+    border-left: 4px solid var(--callout-accent);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  .callout__label {
+    margin: 0 0 var(--space-2);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--callout-accent);
+  }
+
+  .callout__title {
+    margin: 0 0 var(--space-2);
+    font-size: 1rem;
+  }
+
+  .callout__body :global(p:first-child) {
+    margin-top: 0;
+  }
+
+  .callout__body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+</style>

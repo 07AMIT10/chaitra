@@ -7,7 +7,15 @@ import { remarkMermaidClient } from "./src/plugins/remark-mermaid-client.mjs";
 
 export default defineConfig({
   site: process.env.PUBLIC_SITE_URL ?? "https://chaitra.pages.dev",
-  integrations: [mdx(), react()],
+  integrations: [
+    mdx({
+      components: {
+        Callout: "./src/components/mdx/Callout.astro",
+        Details: "./src/components/mdx/Details.astro",
+      },
+    }),
+    react(),
+  ],
   output: "static",
   markdown: {
     remarkPlugins: [remarkMath, remarkMermaidClient],

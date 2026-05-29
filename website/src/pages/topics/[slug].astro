@@ -1,6 +1,10 @@
 ---
 import TopicLayout from "../../layouts/TopicLayout.astro";
+import Callout from "../../components/mdx/Callout.astro";
+import Details from "../../components/mdx/Details.astro";
 import topics from "../../data/topics.json";
+
+const mdxComponents = { Callout, Details };
 
 export function getStaticPaths() {
   return topics
@@ -26,6 +30,6 @@ const hasLab = topic.hasLab === true;
   hasLab={hasLab}
   hasCode={hasCode}
 >
-  <Content slot="narrative" />
-  {Code && <Code slot="code" />}
+  <Content slot="narrative" components={mdxComponents} />
+  {Code && <Code slot="code" components={mdxComponents} />}
 </TopicLayout>

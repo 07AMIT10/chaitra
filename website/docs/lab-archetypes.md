@@ -72,3 +72,30 @@ Use `client:visible` so the island hydrates when scrolled into view (see `websit
 | **29** | Count-Min Sketch Tier A lab |
 | **30** | Consistent hashing ring lab |
 | **31** | HyperLogLog register lab |
+
+## MDX narrative components (Callout & Details)
+
+Registered globally in `astro.config.mjs` — use in golden `index.mdx` or any topic MDX without importing.
+
+```mdx
+<Callout variant="prereq" title="Before you start">
+  Comfort with hash functions and false-positive rates helps.
+</Callout>
+
+<Callout variant="aha">
+  Bloom filters trade exact membership for bounded memory — the lab shows when that bites.
+</Callout>
+
+<Details summary="Full attention equation">
+  $$\text{Attention}(Q,K,V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V$$
+</Details>
+```
+
+| `variant` | Use for |
+|-----------|---------|
+| `note` | General context (default) |
+| `warning` | Sharp edges, misuse, production caveats |
+| `prereq` | Required prior topics or math |
+| `aha` | Key insight or “why this matters” |
+
+`Details` wraps native `<details>` for long math or shell blocks. Prefer markdown inside the slot; avoid raw `<p>` wrappers that nest inside auto-generated paragraphs.
