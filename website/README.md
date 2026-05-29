@@ -17,8 +17,13 @@ Regenerate the topic catalog from repo READMEs, then build the static site:
 
 ```bash
 npm run catalog
+npm run sync:readme   # after changing topic README.md at repo root
 npm run build
 ```
+
+### Math and diagrams
+
+Topic narratives use **remark-math** + **rehype-katex** (KaTeX CSS in `BaseLayout`) and a remark pass that turns ` ```mermaid ` fences into client-rendered diagrams. After editing a topic’s `README.md` outside `website/`, run `npm run sync:readme` before `npm run build` so `readme-body.md` stays in sync (duplicate `#` titles are stripped automatically).
 
 When Rust WASM sources change (`BLOOM_FILTERS/` or `website/wasm/bloom_filter/`), rebuild glue and binaries before the site build:
 
