@@ -1,0 +1,48 @@
+---
+import pathSlugs from "../../data/beginner-path.json";
+import topics from "../../data/topics.json";
+
+interface TopicRow {
+  slug: string;
+  title: string;
+  status: string;
+}
+
+const topicBySlug = new Map(
+  (topics as TopicRow[]).map((t) => [t.slug, t]),
+);
+
+const cards = pathSlugs
+  .map((slug, index) => {
+    const topic = topicBySlug.get(slug);
+    if (!topic) return null;
+    return { ...topic, step: index + 1 };
+  })
+  .filter(Boolean);
+---
+
+<section class="home-section" aria-labelledby="beginner-path-title">
+  <header class="home-section__header">
+    <h2 id="beginner-path-title">Beginner path</h2>
+    <p>Six topics that build intuition for probabilistic data structures and distributed systems.</p>
+  </header>
+  <ol class="beginner-path">
+    {
+      cards.map((card) => (
+        <li class="beginner-path__card">
+          <span class="beginner-path__step" aria-hidden="true">
+            {card.step}
+          </span>
+          <div class="beginner-path__body">
+            <h3>
+              <a href={`/topics/${card.slug}`}>{card.title}</a>
+            </h3>
+            <span class={`beginner-path__status beginner-path__status--${card.status}`}>
+              {card.status}
+            </span>
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>

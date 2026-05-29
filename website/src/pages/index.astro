@@ -1,8 +1,35 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import HomeHero from "../components/home/HomeHero.astro";
+import BeginnerPath from "../components/home/BeginnerPath.astro";
+import FeaturedLabs from "../components/home/FeaturedLabs.astro";
+import topics from "../data/topics.json";
+import "../styles/home.css";
+
+const topicCount = topics.length;
+const liveLabCount = topics.filter((t) => t.hasLab && (t.status === "live" || t.status === "golden")).length;
 ---
+
 <BaseLayout title="Chaitra — Probabilistic systems">
-  <h1>Scalable probabilistic systems</h1>
-  <p>Narrative → visual lab → implementation.</p>
-  <p><a href="/topics/bloom-filters">Start with Bloom filters</a></p>
+  <div class="home">
+    <HomeHero topicCount={topicCount} liveLabCount={liveLabCount} />
+    <BeginnerPath />
+    <FeaturedLabs />
+    <section class="home-section home-explore" aria-labelledby="explore-title">
+      <h2 id="explore-title" class="visually-hidden">Explore the curriculum</h2>
+      <ul class="home-explore__stats">
+        <li>
+          <strong>{topicCount}</strong>
+          <span>curriculum topics</span>
+        </li>
+        <li>
+          <strong>{liveLabCount}</strong>
+          <span>interactive labs</span>
+        </li>
+      </ul>
+      <p>
+        <a class="home-explore__link" href="/catalog">View full topic catalog →</a>
+      </p>
+    </section>
+  </div>
 </BaseLayout>

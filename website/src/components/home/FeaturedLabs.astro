@@ -1,0 +1,42 @@
+---
+import topics from "../../data/topics.json";
+
+const FEATURED_SLUGS = ["bloom-filters", "count-min-sketch", "gossip-protocols"] as const;
+
+interface TopicRow {
+  slug: string;
+  title: string;
+  status: string;
+  hasLab?: boolean;
+}
+
+const topicBySlug = new Map(
+  (topics as TopicRow[]).map((t) => [t.slug, t]),
+);
+
+const featured = FEATURED_SLUGS.map((slug) => topicBySlug.get(slug)).filter(Boolean);
+---
+
+<section class="home-section" aria-labelledby="featured-labs-title">
+  <header class="home-section__header">
+    <h2 id="featured-labs-title">Featured interactives</h2>
+    <p>Hands-on labs with live metrics and presets — scroll in when you are ready to experiment.</p>
+  </header>
+  <ul class="featured-labs">
+    {
+      featured.map((topic) => (
+        <li class="featured-labs__card">
+          <span class="featured-labs__badge">Interactive lab</span>
+          <h3>
+            <a href={`/topics/${topic.slug}#lab`}>{topic.title}</a>
+          </h3>
+          <p class="featured-labs__cta">
+            <a href={`/topics/${topic.slug}`}>Open topic</a>
+            <span aria-hidden="true"> · </span>
+            <a href={`/topics/${topic.slug}#lab`}>Jump to lab</a>
+          </p>
+        </li>
+      ))
+    }
+  </ul>
+</section>

@@ -1,0 +1,30 @@
+---
+interface Props {
+  topicCount: number;
+  liveLabCount: number;
+}
+
+const { topicCount, liveLabCount } = Astro.props;
+---
+
+<section class="home-hero" aria-labelledby="home-hero-title">
+  <div class="home-hero__copy">
+    <p class="home-hero__eyebrow">Chaitra curriculum</p>
+    <h1 id="home-hero-title">Scalable probabilistic systems</h1>
+    <p class="home-hero__tagline">
+      Learn probability, sketches, and distributed algorithms through narrative, interactive labs,
+      and runnable code — from Bloom filters to transformer attention.
+    </p>
+    <div class="home-hero__actions">
+      <a class="home-hero__cta home-hero__cta--primary" href="/topics/bloom-filters">
+        Start learning
+      </a>
+      <a class="home-hero__cta home-hero__cta--secondary" href="/catalog">
+        Browse catalog
+      </a>
+    </div>
+    <p class="home-hero__meta">
+      {topicCount} topics · {liveLabCount} live labs
+    </p>
+  </div>
+</section>
