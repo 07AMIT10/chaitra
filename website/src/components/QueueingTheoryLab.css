@@ -1,0 +1,14 @@
+.queue-lab__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 100px;
+  margin: var(--space-3) 0;
+  overflow-x: auto;
+}
+
+.queue-lab__bar {
+  flex: 1 0 3px;
+  background: var(--color-accent);
+  border-radius: 1px 1px 0 0;
+}

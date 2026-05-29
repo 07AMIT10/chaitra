@@ -1,0 +1,16 @@
+.crdt-lab__panel {
+  padding: var(--space-3);
+  margin-bottom: var(--space-3);
+  border: 1px solid var(--lab-border, color-mix(in srgb, var(--color-muted) 35%, transparent));
+  border-radius: var(--radius-md);
+}
+
+.crdt-lab__panel h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 1rem;
+}
+
+.crdt-lab__panel .lab__btn {
+  margin-right: var(--space-2);
+  margin-bottom: var(--space-2);
+}
