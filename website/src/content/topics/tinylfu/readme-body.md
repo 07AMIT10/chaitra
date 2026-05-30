@@ -1,4 +1,30 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Bloom[Bloom Filters] --> CMS[Count-Min Sketch]
+  CMS --> TinyLFU[TinyLFU admission]
+  LRU[LRU eviction policy] --> TinyLFU
+  Cache[Cache sizing / hit rate] --> TinyLFU
+```
+
+## When to use
+
+- **High-traffic caches** (CDN edges, ORM second-level caches, Caffeine) where one-time scans would evict genuinely hot keys.
+- **Admission control** when you already use LRU for eviction but need a frequency signal without a full LFU ledger.
+- **Sketch-backed frequency** when exact per-key counters are too heavy but Count-Min Sketch estimates are enough to compare newcomer vs victim.
+
+## When not to use
+
+- The working set **fits entirely** in cache — admission adds complexity with little gain.
+- You need **exact LFU** or strict SLA on which keys must stay (use exact counters or a dedicated LFU structure).
+- **Tiny caches** with few keys — a simple LRU or manual pinning is often enough.
+
+## Lab
+
+On the [interactive TinyLFU lab](/topics/tinylfu#lab), replay an **access trace** step by step, watch the **CMS frequency** beside each cached key, and compare **hit ratio with TinyLFU admission vs LRU-only** on the same trace. Try **Cache scan** (one-shot keys flood the cache) or **Hot vs cold** before predicting which policy keeps more hits.
+
 ## Simple Fundamental Explanation
 Imagine a small, exclusive library with a strict limit on how many books it can keep on the shelves.
 When a new shipment of books arrives, the librarian must decide: "Should I throw away an existing book to make room for this new one?"

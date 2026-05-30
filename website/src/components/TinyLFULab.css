@@ -1,3 +1,34 @@
+.tlfu-lab__trace {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin: var(--space-3) 0;
+  max-height: 6rem;
+  overflow-y: auto;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+}
+
+.tlfu-lab__trace-key {
+  padding: 0.125rem 0.35rem;
+  border-radius: var(--radius-sm);
+  opacity: 0.45;
+}
+
+.tlfu-lab__trace-key--past {
+  opacity: 0.7;
+}
+
+.tlfu-lab__trace-key--current {
+  opacity: 1;
+  background: var(--color-accent);
+  color: var(--color-bg, #fff);
+  font-weight: 600;
+}
+
 .tlfu-lab__cache {
   display: flex;
   flex-wrap: wrap;
@@ -7,9 +38,28 @@
 }
 
 .tlfu-lab__key {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
   padding: 0.25rem 0.5rem;
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-md);
   font-size: 0.875rem;
   font-family: var(--font-mono, monospace);
+}
+
+.tlfu-lab__key--victim {
+  border-style: dashed;
+  border-color: var(--color-warn, #f59e0b);
+}
+
+.tlfu-lab__freq {
+  font-size: 0.7rem;
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tlfu-lab__trace-key--current {
+    font-weight: 500;
+  }
 }

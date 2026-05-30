@@ -27,3 +27,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | count-min-sketch | ✓ | ✓ | ✓ (Pyodide; Rust on GitHub) | ✓ | ✓ | yes | 2026-05-30 |
 | hyperloglog | ✓ | ✓ | ✓ (Pyodide; Rust on GitHub) | ✓ | ✓ | yes | 2026-05-30 |
 | consistent-hashing | ✓ | ✓ | ✓ (Pyodide; Rust on GitHub) | ✓ | ✓ | yes | 2026-05-30 |
+| tinylfu | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |

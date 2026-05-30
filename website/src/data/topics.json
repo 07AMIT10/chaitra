@@ -517,7 +517,7 @@
     "title": "TinyLFU",
     "folder": "TINYLFU",
     "labTier": "A",
-    "status": "live",
+    "status": "golden",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
