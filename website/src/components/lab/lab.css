@@ -272,6 +272,10 @@
   font-weight: 600;
 }
 
+.lab__compare--panel {
+  gap: var(--space-3);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lab__canvas {
     transition: none;
