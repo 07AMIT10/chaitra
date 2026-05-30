@@ -46,3 +46,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | bayesian-inference-systems | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | bayesian-distributed-systems | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | probabilistic-databases | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| streaming-algorithms | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |

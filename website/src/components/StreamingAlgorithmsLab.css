@@ -1,0 +1,106 @@
+.stream-algo-lab__tape {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin: var(--space-2) 0 var(--space-3);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  min-height: 2.5rem;
+}
+
+.stream-algo-lab__chip {
+  font-size: 0.65rem;
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-family: var(--font-mono, monospace);
+  border: 1px solid transparent;
+}
+
+.stream-algo-lab__chip--heavy {
+  background: color-mix(in srgb, #c44 22%, transparent);
+  border-color: #c44;
+}
+
+.stream-algo-lab__chip--medium {
+  background: color-mix(in srgb, #c9a227 18%, transparent);
+  border-color: #c9a227;
+}
+
+.stream-algo-lab__chip--light {
+  background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+}
+
+.stream-algo-lab__chip--noise {
+  background: color-mix(in srgb, var(--color-muted) 12%, transparent);
+  color: var(--color-muted);
+}
+
+.stream-algo-lab__sketches {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.stream-algo-lab__sketch {
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.stream-algo-lab__sketch h3 {
+  margin: 0 0 var(--space-2);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.stream-algo-lab__metric-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font-size: 0.8rem;
+  margin-bottom: var(--space-1);
+}
+
+.stream-algo-lab__metric-row span:last-child {
+  font-family: var(--font-mono, monospace);
+  font-weight: 600;
+}
+
+.stream-algo-lab__metric-row--warn span:last-child {
+  color: var(--color-warn, #c9a227);
+}
+
+.stream-algo-lab__metric-row--match span:last-child {
+  color: var(--color-accent);
+}
+
+.stream-algo-lab__keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+}
+
+.stream-algo-lab__key-btn {
+  font-size: 0.75rem;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.stream-algo-lab__key-btn[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stream-algo-lab__chip {
+    transition: none;
+  }
+}

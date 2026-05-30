@@ -1,4 +1,33 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Hash[Hash functions] --> Bloom[Bloom Filters]
+  Hash --> CMS[Count-Min Sketch]
+  Hash --> HLL[HyperLogLog]
+  Bloom --> Chain[Streaming sketch chain]
+  CMS --> Chain
+  HLL --> Chain
+  Chain --> Analytics[Streaming Analytics]
+```
+
+## When to use
+
+- **One-pass telemetry** where the full stream cannot be stored or replayed (router logs, clickstreams, sensor feeds).
+- **Composable summaries** — membership (Bloom), frequencies (CMS), and cardinality (HLL) on the same event stream with fixed RAM.
+- **Edge or L1-cache budgets** where exact hash maps would blow memory but approximate answers are actionable.
+
+## When not to use
+
+- You need **exact counts or exact distinct values** for billing, compliance, or audit — store aggregates in a database or use deterministic structures.
+- The stream is **small enough to fit in RAM** with a plain `Map` — sketches add hash collision risk for little gain.
+- **Per-key deletion or updates** are required — classic sketches are append-only; use counting variants or different structures.
+
+## Lab
+
+On the [interactive streaming algorithms lab](/topics/streaming-algorithms#lab), scrub **Stream position** through a synthetic router trace and pick a **query IP**. Watch **Count-Min**, **HyperLogLog**, and **Bloom** update from the same prefix, compare each sketch to **ground truth**, and try **DDoS heavy hitter**, **Early stream**, or **Long-tail probe** presets. Predict whether CMS will **overestimate** a hot IP and whether Bloom can flag a key that never appeared, then reveal the side-by-side metrics.
+
 ## Simple Fundamental Explanation
 Imagine you are a highway toll operator. You want to know the most common color of car driving past.
 - **Traditional Database**: You take a photo of every single car, store millions of photos in a filing cabinet, and at the end of the day, you count them all. (Requires massive storage).

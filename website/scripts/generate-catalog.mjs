@@ -91,7 +91,7 @@ const LAB_TIER = {
   "probabilistic-consensus": "A",
   "eventual-consistency": "A",
   "random-early-detection": "A",
-  "streaming-algorithms": "B",
+  "streaming-algorithms": "A",
   "streaming-analytics": "B",
   "bayesian-inference-systems": "A",
   "bayesian-distributed-systems": "A",
