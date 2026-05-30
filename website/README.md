@@ -1,156 +1,234 @@
 # Chaitra website
 
-Astro static site for topic discovery and in-browser labs.
+Public learning site for [**Chaitra**](https://github.com/07AMIT10/chaitra) — an open curriculum on **scalable probabilistic systems**: sketches, randomized structures, distributed coordination, and the tradeoffs behind “probably correct, much faster.”
+
+**Live site:** [chaitra.pages.dev](https://chaitra.pages.dev) (Cloudflare Pages)
+
+This folder (`website/`) is the **Astro app** that turns repo topic READMEs, reference code, and interactive labs into static pages. The rest of the repository (`BLOOM_FILTERS/`, `HYPERLOGLOG/`, etc.) is the **source curriculum**; the website is how people read and play with it.
+
+---
+
+## What we are trying to do
+
+Most systems at scale do not compute exact answers for every question. They use **probability** on purpose: Bloom filters, HyperLogLog, gossip, rate limiters, sketches, approximate caches, ML routing, and more.
+
+Chaitra exists to make that mindset learnable in one place:
+
+| Goal | How the site supports it |
+|------|---------------------------|
+| **Build intuition** | Long-form **Story** per topic (math, diagrams, systems context) synced from each folder’s `README.md` |
+| **See mechanisms work** | **Labs** — sliders, simulations, bit grids, play/pause — so parameters are not abstract |
+| **Touch real code** | **Code** workbench — edit Python in the browser (Pyodide), read Rust reference source, run a WASM demo where wired |
+| **Go deeper in the repo** | Every topic links to **GitHub** for full implementations, tests, and local `cargo` / `python` runs |
+
+We are not trying to replace textbooks or papers. We are building a **guided path**: narrative → interaction → code → repository, with a shared catalog and learning path on the homepage.
+
+The parent repo’s [README](../README.md) describes the *subject* (what probabilistic systems are). This document describes the *website* (how we publish and extend it).
+
+---
+
+## How a topic page is structured
+
+Each topic with a site page (for example [/topics/bloom-filters](https://chaitra.pages.dev/topics/bloom-filters)) is assembled from `src/content/topics/<slug>/`:
+
+```
+topics/bloom-filters/
+  index.mdx        → layout slots (hero, lab, imports)
+  readme-body.md   → Story (synced from BLOOM_FILTERS/README.md)
+  code.mdx         → optional Code panel (Python / Rust / GitHub tabs)
+```
+
+On the page you will see:
+
+1. **Story** — Markdown + KaTeX math + Mermaid diagrams (client-rendered).
+2. **Lab** — React island (`client:visible`) when the topic has an interactive lab component.
+3. **Code** — Code workbench when `code.mdx` exists (see below).
+4. **GitHub** — Link to the topic folder in the monorepo.
+
+The left **“On this page”** nav jumps between these sections.
+
+### Code workbench (Python & Rust)
+
+The **Code** section is a vertical **Source → Run → Output** layout:
+
+- **Python** — CodeMirror editor; **Run** loads [Pyodide](https://pyodide.org/) from jsDelivr and executes your edits (stdlib only).
+- **Rust** — Read-only highlighted source (synced from the repo). **Run WASM demo** only on topics that ship a prebuilt binary (today: **Bloom filters**). Output appears **after** you run — not on tab open. Other Rust topics explain how to run locally with `cargo`.
+- **GitHub** — Links to `bloom_filter.py`, `bloom_filter.rs`, and the topic folder.
+
+Snippet files live in `src/assets/code/*.py.txt` and `*.rs.txt`, updated with `npm run sync:code` from repo sources.
+
+### Catalog status (what “ready” means)
+
+`npm run catalog` scans repo folders that contain `README.md` and sets status in `src/data/topics.json`:
+
+| Status | Meaning on the site |
+|--------|---------------------|
+| **golden** | Flagship topic — full lab + high polish |
+| **live** | Interactive lab on the topic page |
+| **preview** | Site page exists (often a small viz or placeholder lab) |
+| **readme-only** | Narrative on-site; catalog links to `/topics/<slug>` (not only GitHub) |
+| **coded** | Repo has code assets; site page may still be minimal |
+
+Filter pills on [/catalog](https://chaitra.pages.dev/catalog) group these for learners.
+
+---
+
+## How the site is built (architecture)
+
+```mermaid
+flowchart LR
+  subgraph repo [Monorepo root]
+    README[Topic README.md]
+    PY[Reference .py / .rs]
+    WASM_SRC[BLOOM_FILTERS Rust]
+  end
+  subgraph scripts [website/scripts]
+    CATALOG[generate-catalog.mjs]
+    SYNC_R[sync-readme.mjs]
+    SYNC_C[sync-code-assets.mjs]
+  end
+  subgraph site [website/ Astro static]
+    MDX[content/topics/*/index.mdx]
+    DATA[topics.json]
+    REACT[React labs + CodePanel]
+    DIST[dist/ → Cloudflare Pages]
+  end
+  README --> SYNC_R --> MDX
+  README --> CATALOG --> DATA
+  PY --> SYNC_C
+  WASM_SRC --> BUILD_WASM[build:wasm]
+  BUILD_WASM --> PUBLIC[public/wasm/]
+  MDX --> DIST
+  REACT --> DIST
+  DATA --> DIST
+```
+
+- **Framework:** [Astro 5](https://astro.build/) static output, [React 19](https://react.dev/) for interactive islands.
+- **Content:** MDX topic shells + synced `readme-body.md` (do not hand-edit Story without syncing from repo README, or run `sync:readme` after edits).
+- **Catalog:** Generated JSON drives homepage stats, catalog search, and learning path.
+- **Labs:** Per-topic components under `src/components/` (e.g. `BloomFilterLab.tsx`).
+- **Code:** `CodePanel` + `code-workbench/` (CodeMirror 6, Pyodide, optional WASM).
+- **Deploy:** Static `dist/` to Cloudflare Pages; CSP and WASM MIME rules in `public/_headers`.
+
+---
+
+## Repository layout (contributors)
+
+| Path | Role |
+|------|------|
+| `../BLOOM_FILTERS/`, `../HYPERLOGLOG/`, … | Canonical topic README + reference implementations |
+| `website/src/content/topics/<slug>/` | Site-specific MDX and synced narrative |
+| `website/src/components/` | Labs, catalog, code workbench, layout |
+| `website/src/data/topics.json` | Generated catalog (run `npm run catalog`) |
+| `website/src/assets/code/` | Python/Rust snippets for the Code tab |
+| `website/public/wasm/bloom_filter/` | Committed WASM artifacts for Bloom demo |
+| `website/wasm/bloom_filter/` | Rust crate source for `npm run build:wasm` |
+
+**Typical flow when improving a topic**
+
+1. Edit `TOPIC_NAME/README.md` (and `.py` / `.rs` if any) at repo root.
+2. From `website/`: `npm run sync:readme` and/or `npm run sync:code`.
+3. If the topic has a lab or new `index.mdx` / `code.mdx`, edit under `src/content/topics/`.
+4. `npm run catalog` then `npm run build` (and `npm run build:wasm` if Bloom WASM changed).
+5. Open PR; Cloudflare preview deploys the branch.
+
+---
 
 ## Local development
 
 ```bash
+cd website
 npm ci
 npm run dev
 ```
 
-Open the Bloom topic at `/topics/bloom-filters`.
+Useful URLs:
 
-## Build
+- Home: http://localhost:4321/
+- Catalog: http://localhost:4321/catalog
+- Bloom filters (lab + code): http://localhost:4321/topics/bloom-filters
 
-Regenerate the topic catalog from repo READMEs, then build the static site:
+---
+
+## Build commands
+
+| Command | When to run |
+|---------|-------------|
+| `npm run catalog` | After adding/renaming topic folders or changing lab/code MDX (updates `topics.json`) |
+| `npm run sync:readme` | After editing any `../TOPIC/README.md` |
+| `npm run sync:code` | After editing reference `.rs` used in Code tabs |
+| `npm run build:wasm` | After changing `BLOOM_FILTERS/` or `wasm/bloom_filter/` (needs [wasm-pack](https://rustwasm.github.io/wasm-pack/)) |
+| `npm run build` | Produce `dist/` for deploy or `astro preview` |
+
+Full local build (matches most CI):
 
 ```bash
-npm run catalog
-npm run sync:readme   # after changing topic README.md at repo root
-npm run sync:code     # after changing topic Rust sources at repo root
-npm run build
+npm ci && npm run catalog && npm run sync:readme && npm run build
 ```
 
-### Code workbench (CodeMirror)
+With WASM rebuild (optional locally; CI uses committed `public/wasm/`):
 
-Topic **Code** tabs use CodeMirror for Python (Pyodide) and Rust. Python snippets live in `src/assets/code/*.py.txt`; Rust reference sources are copied from repo topic folders via `npm run sync:code` into `src/assets/code/*.rs.txt`. Run `sync:code` after editing `BLOOM_FILTERS/bloom_filter.rs`, `HYPERLOGLOG/hyperloglog.rs`, `COUNT_MIN_SKETCH/count_min_sketch.rs`, or `CONSISTENT_HASHING/consistent_hashing.rs`.
-
-- **Bloom filters:** Rust tab runs WASM (`wasmRunner="bloom-filter"`); rebuild with `npm run build:wasm` when WASM sources change.
-- **Other Rust topics:** Rust tab is read/edit in-browser (`RustSourceRunner`); clone the repo to compile and run locally.
+```bash
+npm run build:wasm && npm run build
+```
 
 ### Math and diagrams
 
-Topic narratives use **remark-math** + **rehype-katex** (KaTeX CSS in `BaseLayout`) and a remark pass that turns ` ```mermaid ` fences into client-rendered diagrams. After editing a topic’s `README.md` outside `website/`, run `npm run sync:readme` before `npm run build` so `readme-body.md` stays in sync (duplicate `#` titles are stripped automatically).
+- **Math:** `remark-math` + `rehype-katex` (KaTeX CSS in `BaseLayout`).
+- **Mermaid:** ` ```mermaid ` fences in READMEs are transformed for client render in Story.
 
-When Rust WASM sources change (`BLOOM_FILTERS/` or `website/wasm/bloom_filter/`), rebuild glue and binaries before the site build:
-
-```bash
-npm run build:wasm   # requires wasm-pack: cargo install wasm-pack
-npm run build
-```
-
-Output is `dist/`. WASM assets are copied from `public/wasm/bloom_filter/` (committed artifacts; CI does not rebuild WASM unless you add that step).
-
-Full production-style build from `website/`:
+### Tests
 
 ```bash
-npm ci && npm run catalog && npm run build:wasm && npm run build
+npm run test:catalog
+npm run test:math
+npx tsx --test src/lib/format-stdout.test.mjs
 ```
 
-## Cloudflare Pages
+---
 
-**Deploy checklist and MCP notes:** [DEPLOY-CLOUDFLARE.md](./DEPLOY-CLOUDFLARE.md) (dashboard settings, Wrangler, GitHub `07AMIT10/chaitra`).
+## Deploy and operations
 
-Connect the **chaitra** Git repository in the Cloudflare dashboard (Workers & Pages → Create → Connect to Git). Set the **root directory** to `website` so build commands run inside this folder.
+Production hosting is **Cloudflare Pages** on the `website` root directory.
+
+**Detailed checklist (dashboard, Wrangler, CSP, WASM MIME pitfalls):** [DEPLOY-CLOUDFLARE.md](./DEPLOY-CLOUDFLARE.md)
+
+Quick reference:
 
 | Setting | Value |
 |---------|--------|
-| Production branch | `main` (or your default) |
 | Root directory | `website` |
-| Build command | `npm ci && npm run catalog && npm run build:wasm && npm run build` |
-| Build output directory | `dist` |
-| Node.js version | **20** (Environment variables → `NODE_VERSION=20` if the dashboard offers it) |
+| Build command | `npm ci && npm run catalog && npm run build` |
+| Output directory | `dist` |
+| Node | 20 |
 
-### Environment
+Committed WASM under `public/wasm/bloom_filter/` avoids needing Rust on the Pages build image. Rebuild locally with `npm run build:wasm` when the Bloom Rust code changes, then commit and push.
 
-No secrets are required for Phase 1 static hosting. Optional: `PUBLIC_SITE_URL` for canonical URLs in `astro.config.mjs`.
+**CSP:** Pyodide and WASM require `cdn.jsdelivr.net` and `wasm-unsafe-eval` in `public/_headers`. Apply `Content-Type: application/wasm` only to `*.wasm` files — not all of `/wasm/*` (that breaks the `.js` glue).
 
-### WASM on Pages
+---
 
-The build command above runs `build:wasm`, which needs **wasm-pack** and **Rust** on the build image. Cloudflare Pages does not include them by default. Choose one:
+## CI
 
-1. **Recommended for Phase 1:** Use `npm ci && npm run catalog && npm run build` and rely on committed files under `public/wasm/bloom_filter/`. Run `npm run build:wasm` locally when `BLOOM_FILTERS/` changes, commit the output, then deploy.
-2. **Rebuild WASM on every deploy:** Add a pre-build step or custom build image with Rust + `cargo install wasm-pack`, or use CI to build WASM and deploy via Wrangler (below).
+GitHub Actions: [`.github/workflows/website-ci.yml`](../.github/workflows/website-ci.yml)
 
-### Content-Security-Policy
+On pushes touching `website/**` or `BLOOM_FILTERS/**`: install, `npm run catalog`, `npm run build`.
 
-WebAssembly compilation needs `wasm-unsafe-eval` in `script-src` (and `unsafe-eval` for Safari). Pyodide loads from `cdn.jsdelivr.net`.
+---
 
-Headers are applied via `public/_headers` (copied into `dist/` on build). To change policy, edit that file or set **Headers** in the Cloudflare Pages project settings (dashboard overrides should match the same directives).
+## Accessibility
 
-**Important:** WASM MIME must apply only to `*.wasm` files. A rule like `/wasm/* → application/wasm` breaks `bloom_filter_wasm.js` (browsers refuse to execute the glue as an ES module).
-
-Example policy (also in `_headers`):
-
-```
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net wasm-unsafe-eval; connect-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; ...
-/wasm/**/*.wasm
-  Content-Type: application/wasm
-```
-
-Adjust if you add analytics or other CDNs.
-
-### Custom domain
-
-1. Pages project → **Custom domains** → **Set up a custom domain**.
-2. Enter your hostname (e.g. `chaitra.example.com`).
-3. Add the CNAME (or flattened A/AAAA) records Cloudflare shows at your DNS provider, or use a zone already on Cloudflare for automatic setup.
-4. Wait for **Active** SSL status; enforce HTTPS in **SSL/TLS** if needed.
-
-### Deploy paths
-
-| Path | What happens |
-|------|----------------|
-| **Git integration (default)** | Push to the production branch; Cloudflare runs the build settings above and publishes `dist/`. |
-| **Wrangler CLI** | After a local build: `npx wrangler pages deploy dist --project-name chaitra` (requires `wrangler login`). See `wrangler.toml`. |
-| **Local preview** | `npm run build && npx wrangler pages dev dist` |
-
-Preview deployments are created automatically for pull requests when Git integration is enabled.
-
-## CI (GitHub Actions)
-
-Workflow: [`.github/workflows/website-ci.yml`](../.github/workflows/website-ci.yml)
-
-- **Push** to `website/**` or `BLOOM_FILTERS/**`: `npm ci`, `npm run catalog`, `npm run build` in `website/`.
-- **Pull requests** touching `website/**` only: same build (no deploy).
-
-To verify locally (matches CI):
+Topic pages use skip links, landmarks, and shared focus styles (`src/styles/tokens.css`). After UI changes, audit Bloom filters with Lighthouse (accessibility ≥ 90). See commands in git history or run:
 
 ```bash
-cd website && npm ci && npm run catalog && npm run build
+npm run build && npx --yes serve dist -l 4321
+# lighthouse http://localhost:4321/topics/bloom-filters/ --only-categories=accessibility
 ```
 
-To also test WASM rebuild (not in default CI):
+---
 
-```bash
-cargo install wasm-pack   # once
-cd website && npm run build:wasm && npm run build
-```
+## Where to learn more
 
-## Catalog script
-
-`npm run catalog` scans the **repository root** (parent of `website/`) for topic folders with `README.md` and writes `src/data/topics.json`. Run it after adding or renaming topic directories, even when only READMEs change outside `website/`.
-
-## Accessibility (Lighthouse)
-
-After layout or lab UI changes, run a static build and audit the Bloom topic:
-
-```bash
-cd website
-npm run build
-npx --yes serve dist -l 4321
-```
-
-In another terminal (Chrome required):
-
-```bash
-npx --yes lighthouse http://localhost:4321/topics/bloom-filters/ \
-  --only-categories=accessibility \
-  --chrome-flags="--headless=new" \
-  --output=json --output-path=./lighthouse-a11y.json
-```
-
-Target: **accessibility score ≥ 90**. Manual checks: Tab through Bloom lab sliders and buttons; Enter on **Test** / **Insert**; arrow keys on parameter and code tabs; verify skip link (“Skip to content”) appears on keyboard focus.
-
-Topic pages use `TopicLayout` (skip link, section landmarks) and shared focus rings in `src/styles/tokens.css`.
+- **Curriculum scope:** [../README.md](../README.md)
+- **Deploy:** [DEPLOY-CLOUDFLARE.md](./DEPLOY-CLOUDFLARE.md)
+- **Issues / contributions:** [github.com/07AMIT10/chaitra](https://github.com/07AMIT10/chaitra)
