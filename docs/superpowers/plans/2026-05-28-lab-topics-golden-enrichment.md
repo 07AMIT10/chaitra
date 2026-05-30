@@ -208,24 +208,24 @@ Use this template for **each** non-golden slug. Replace `<slug>`, `<Topic>`, `<T
 
 Execute template above in order:
 
-- [ ] **Task 5:** `count-min-sketch` — extend existing `CountMinSketchLab` + `cms-sim.ts` to full golden (compare, presets, predict-reveal).
-- [ ] **Task 6:** `hyperloglog`
-- [ ] **Task 7:** `consistent-hashing`
-- [ ] **Task 8:** `tinylfu`
+- [x] **Task 5:** `count-min-sketch` — extend existing `CountMinSketchLab` + `cms-sim.ts` to full golden (compare, presets, predict-reveal).
+- [x] **Task 6:** `hyperloglog`
+- [x] **Task 7:** `consistent-hashing`
+- [x] **Task 8:** `tinylfu`
 - [x] **Task 9:** `rate-limiting`
 - [x] **Task 10:** `gossip-protocols`
 - [x] **Task 11:** `spam-detection`
 - [x] **Task 12:** `power-of-two-choices`
-- [ ] **Task 13:** `queueing-theory`
+- [x] **Task 13:** `queueing-theory`
 - [x] **Task 14:** `crdts-plus-probability`
 
-**Wave 1 gate:** All 10 slugs `status: "golden"`; `npm run build`; update homepage `FeaturedLabs` if needed.
+**Wave 1 gate:** ✓ All 10 slugs `status: "golden"`; `npm run build` PASS (2026-05-30); update homepage `FeaturedLabs` if needed.
 
 ---
 
 ## Wave 2 tasks (10 topics)
 
-- [ ] **Task 15:** `pagerank`
+- [x] **Task 15:** `pagerank`
 - [ ] **Task 16:** `mapreduce`
 - [ ] **Task 17:** `raft-vs-gossip`
 - [ ] **Task 18:** `consensus-systems`

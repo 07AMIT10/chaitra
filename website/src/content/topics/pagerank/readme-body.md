@@ -1,4 +1,30 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Markov[Markov chains]
+  Graph[Directed graphs] --> PR[PageRank]
+  Markov --> PR
+  MapReduce[MapReduce / batch jobs] --> PR
+```
+
+## When to use
+
+- **Global importance ranking** over a large hyperlink or citation graph (web search, academic citations, recommendation graphs).
+- **Steady-state visit probability** when a random walk with teleportation models how traffic or attention flows.
+- **Offline batch scoring** where you can iterate until convergence (power method on sparse adjacency).
+
+## When not to use
+
+- You need **fresh, personalized** rankings per user or query — use learning-to-rank or embeddings, not static PageRank alone.
+- The graph is **tiny** — exact eigenvector solvers or direct linear algebra may be simpler than distributed iteration.
+- **Manipulable link farms** dominate without anti-spam — raw PageRank rewards artificial hubs unless you add trust and penalties.
+
+## Lab
+
+On the [interactive PageRank lab](/topics/pagerank#lab), pick a **demo graph** (classic web, hub-and-spoke, or spider trap), tune **damping** and **power-iteration** steps, and watch ranks on the **link diagram** and bar chart stabilize. Compare **PageRank** to the **uniform** \(1/N\) distribution, try **Classic web** or **Spider trap** presets, predict which node ranks highest after enough iterations, then reveal the top node and **L1 distance** from uniform.
+
 ## Simple Fundamental Explanation
 Imagine you arrive in a new city and want to find the best pizza place.
 - **The old way (Keywords)**: You look in the phone book and find the restaurant that wrote the word "Pizza" the most times in their ad. (This is easily manipulated).

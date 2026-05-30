@@ -21,7 +21,7 @@ const P1_LABS = {
 };
 
 const P2_LABS = {
-  "pagerank": { component: "PageRankLab", path: "../../../components/minisim/PageRankLab.tsx", heading: "Random surfer" },
+  "pagerank": { component: "PageRankLab", path: "../../../components/PageRankLab.tsx", heading: "Random surfer" },
   "monte-carlo-systems": { component: "MonteCarloLab", path: "../../../components/minisim/MonteCarloLab.tsx", heading: "Monte Carlo estimate" },
   "information-theory": { component: "EntropyLab", path: "../../../components/minisim/EntropyLab.tsx", heading: "Entropy calculator" },
   "probability-theory": { component: "DiceLab", path: "../../../components/minisim/DiceLab.tsx", heading: "Dice and LLN" },

@@ -27,29 +27,6 @@ export function diceRolls(n: number, sides: number, seed = 42): number[] {
   return hist;
 }
 
-export function pagerankStep(
-  links: number[][],
-  ranks: number[],
-  damping: number
-): number[] {
-  const n = ranks.length;
-  const next = Array(n).fill((1 - damping) / n);
-  for (let i = 0; i < n; i++) {
-    const out = links[i].length || n;
-    for (const j of links[i].length ? links[i] : Array.from({ length: n }, (_, k) => k)) {
-      next[j] += damping * ranks[i] / out;
-    }
-  }
-  return next;
-}
-
-export const DEMO_GRAPH = [
-  [1, 2],
-  [0, 2],
-  [0, 1],
-  [1],
-];
-
 export function redDropProb(queueFill: number, minThresh: number, maxThresh: number): number {
   if (queueFill < minThresh) return 0;
   if (queueFill >= maxThresh) return 1;

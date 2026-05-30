@@ -34,3 +34,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | power-of-two-choices | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | queueing-theory | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | crdts-plus-probability | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| pagerank | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
