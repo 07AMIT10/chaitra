@@ -83,7 +83,7 @@ const LAB_TIER = {
   "monte-carlo-systems": "A",
   "monte-carlo-tree-search": "A",
   "randomized-algorithms": "A",
-  "information-theory": "B",
+  "information-theory": "A",
   "probability-theory": "B",
   "mapreduce": "A",
   "raft-vs-gossip": "A",

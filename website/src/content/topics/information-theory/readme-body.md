@@ -1,4 +1,31 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> IT[Information theory]
+  Log[Logarithms / log₂] --> IT
+  ML[Machine learning loss] --> CE[Cross-entropy]
+  IT --> CE
+  IT --> Compress[Compression bounds]
+```
+
+## When to use
+
+- **Measuring uncertainty** in categorical outcomes (logs, tokens, labels) before compression or modeling.
+- **Designing loss functions** (cross-entropy, KL) when a model’s predicted distribution must match reality.
+- **Sizing channels & codes** — entropy lower-bounds average bits per symbol for lossless compression.
+
+## When not to use
+
+- Outcomes are **not probabilistic** or probabilities are unknown — entropy needs a well-defined distribution.
+- You need **semantic similarity** between texts — use embeddings, not raw Shannon entropy of bytes alone.
+- **Continuous** signals without discretization — differential entropy and sampling issues apply; this topic focuses on discrete symbols.
+
+## Lab
+
+On the [interactive information-theory lab](/topics/information-theory#lab), build a **symbol histogram**, tune **P(symbol)** on coin presets or pick **skewed vs uniform** streams, read **surprisal** per symbol and **H(X)** vs the **uniform baseline**, try **Biased 99/1** or **Uniform ×4** presets, predict whether entropy stays below the uniform ceiling, then reveal **H(P) vs H(P, Q_uniform)** and **D_KL**.
+
 ## Simple Fundamental Explanation
 Imagine you have a biased coin that lands on Heads 99% of the time, and Tails 1% of the time.
 If I flip it and tell you "It was Heads," you learn almost nothing. You already assumed it was going to be Heads.

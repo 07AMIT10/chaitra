@@ -250,7 +250,7 @@ Execute template above in order:
 - [x] **Task 30:** `monte-carlo-systems`
 - [x] **Task 31:** `monte-carlo-tree-search`
 - [x] **Task 32:** `randomized-algorithms`
-- [ ] **Task 33:** `information-theory`
+- [x] **Task 33:** `information-theory`
 - [ ] **Task 34:** `probability-theory`
 
 ---

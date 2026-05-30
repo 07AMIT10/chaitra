@@ -3,12 +3,19 @@ title: Information Theory
 ---
 
 import ReadmeBody from "./readme-body.md";
-import EntropyLab from "../../../components/minisim/EntropyLab.tsx";
+import InformationTheoryLab from "../../../components/InformationTheoryLab.tsx";
 
-## Entropy calculator
+## Entropy, surprisal & uniform baseline
+
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section to shape a **symbol histogram**. Tune
+  **P(first symbol)** on coin presets or pick **Fair**, **Biased 99/1**, **Skewed stream**, or
+  **Uniform ×4**, read per-symbol **surprisal** and **entropy H(X)** vs the **uniform baseline**,
+  predict whether H stays below the uniform ceiling, then reveal **your distribution vs uniform Q**.
+</Callout>
 
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>
 
-<EntropyLab client:visible />
+<InformationTheoryLab client:visible />
