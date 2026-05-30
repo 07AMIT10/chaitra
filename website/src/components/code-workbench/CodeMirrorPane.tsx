@@ -16,7 +16,7 @@ export function CodeMirrorPane({
   extensions,
   editable = true,
   ariaLabel,
-  minHeight = "20rem",
+  minHeight = "16rem",
 }: CodeMirrorPaneProps) {
   return (
     <div className="code-workbench__editor" aria-label={ariaLabel}>
