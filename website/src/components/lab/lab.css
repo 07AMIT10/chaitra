@@ -276,6 +276,13 @@
   gap: var(--space-3);
 }
 
+.lab__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: stretch;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lab__canvas {
     transition: none;
