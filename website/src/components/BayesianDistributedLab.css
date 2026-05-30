@@ -1,0 +1,109 @@
+.bayes-dist-lab__graph {
+  margin: var(--space-3) 0;
+  padding: var(--space-2);
+  border: 1px solid var(--lab-border, color-mix(in srgb, var(--color-muted) 35%, transparent));
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-bg) 92%, var(--color-muted));
+}
+
+.bayes-dist-lab__graph-svg {
+  display: block;
+  width: 100%;
+  max-width: 28rem;
+  margin: 0 auto;
+  height: auto;
+}
+
+.bayes-dist-lab__node {
+  transition: fill 0.25s ease, stroke 0.25s ease;
+}
+
+.bayes-dist-lab__edge {
+  stroke: color-mix(in srgb, var(--color-muted) 55%, transparent);
+  stroke-width: 1.5;
+  fill: none;
+}
+
+.bayes-dist-lab__node-label {
+  font-size: 0.625rem;
+  fill: var(--color-text);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.bayes-dist-lab__node-prob {
+  font-size: 0.5625rem;
+  fill: var(--color-muted);
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.bayes-dist-lab__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+}
+
+.bayes-dist-lab__chip {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--lab-border, color-mix(in srgb, var(--color-muted) 35%, transparent));
+  border-radius: 999px;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.bayes-dist-lab__chip:hover {
+  border-color: var(--color-accent);
+}
+
+.bayes-dist-lab__timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  min-height: 1.75rem;
+}
+
+.bayes-dist-lab__step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.bayes-dist-lab__step-arrow {
+  color: var(--color-muted);
+  font-size: 0.6875rem;
+}
+
+.bayes-dist-lab__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.bayes-dist-lab__reset {
+  padding: 0.35rem 0.75rem;
+  border: 1px solid var(--lab-border, color-mix(in srgb, var(--color-muted) 35%, transparent));
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bayes-dist-lab__node {
+    transition: none;
+  }
+}

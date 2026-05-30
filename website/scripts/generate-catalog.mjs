@@ -94,7 +94,7 @@ const LAB_TIER = {
   "streaming-algorithms": "B",
   "streaming-analytics": "B",
   "bayesian-inference-systems": "A",
-  "bayesian-distributed-systems": "B",
+  "bayesian-distributed-systems": "A",
   "approximate-memory-cache-systems": "A",
   "mixture-of-experts": "B",
   "token-routing": "B",

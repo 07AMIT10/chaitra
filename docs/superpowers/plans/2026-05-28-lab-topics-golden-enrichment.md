@@ -243,7 +243,7 @@ Execute template above in order:
 ## Wave 3 tasks (10 topics)
 
 - [x] **Task 25:** `bayesian-inference-systems`
-- [ ] **Task 26:** `bayesian-distributed-systems`
+- [x] **Task 26:** `bayesian-distributed-systems`
 - [ ] **Task 27:** `probabilistic-databases`
 - [ ] **Task 28:** `streaming-algorithms` — split from meta MiniSim into real multi-sketch or dedicated narrative+lab
 - [ ] **Task 29:** `streaming-analytics`

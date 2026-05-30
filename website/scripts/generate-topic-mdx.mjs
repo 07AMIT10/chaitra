@@ -40,7 +40,11 @@ const P2_LABS = {
     path: "../../../components/BayesianInferenceLab.tsx",
     heading: "Posterior update",
   },
-  "bayesian-distributed-systems": { component: "BayesianDistLab", path: "../../../components/minisim/BayesianDistLab.tsx", heading: "Belief network" },
+  "bayesian-distributed-systems": {
+    component: "BayesianDistributedLab",
+    path: "../../../components/BayesianDistributedLab.tsx",
+    heading: "Cluster belief network",
+  },
   "approximate-memory-cache-systems": {
     component: "ApproximateMemoryCacheLab",
     path: "../../../components/ApproximateMemoryCacheLab.tsx",
