@@ -226,7 +226,7 @@ Execute template above in order:
 ## Wave 2 tasks (10 topics)
 
 - [x] **Task 15:** `pagerank`
-- [ ] **Task 16:** `mapreduce`
+- [x] **Task 16:** `mapreduce`
 - [ ] **Task 17:** `raft-vs-gossip`
 - [ ] **Task 18:** `consensus-systems`
 - [ ] **Task 19:** `probabilistic-consensus`

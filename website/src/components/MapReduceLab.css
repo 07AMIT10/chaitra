@@ -1,0 +1,127 @@
+.mapreduce-lab__pipeline {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+  text-align: center;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+
+.mapreduce-lab__phase {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+.mapreduce-lab__phase--active {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.mapreduce-lab__workers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 var(--space-3);
+}
+
+.mapreduce-lab__worker {
+  flex: 1 1 5rem;
+  min-width: 4.5rem;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+}
+
+.mapreduce-lab__worker--straggler {
+  border-color: var(--color-warn, #c9a227);
+}
+
+.mapreduce-lab__worker--backup {
+  border-color: var(--color-accent);
+  border-style: dashed;
+}
+
+.mapreduce-lab__worker--killed {
+  opacity: 0.45;
+  text-decoration: line-through;
+}
+
+.mapreduce-lab__worker-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mapreduce-lab__shard {
+  font-size: 0.7rem;
+  color: var(--color-muted);
+  font-family: var(--font-mono, monospace);
+}
+
+.mapreduce-lab__bar-wrap {
+  height: 4px;
+  background: var(--color-border);
+  border-radius: 2px;
+  margin-top: var(--space-1);
+  overflow: hidden;
+}
+
+.mapreduce-lab__bar {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: 2px;
+  transition: width 0.15s ease;
+}
+
+.mapreduce-lab__shuffle {
+  height: 6px;
+  background: var(--color-border);
+  border-radius: 3px;
+  margin: var(--space-2) 0 var(--space-3);
+  overflow: hidden;
+}
+
+.mapreduce-lab__shuffle-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--color-accent),
+    color-mix(in srgb, var(--color-accent) 60%, var(--color-muted))
+  );
+  border-radius: 3px;
+  transition: width 0.15s ease;
+}
+
+.mapreduce-lab__reducers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.mapreduce-lab__reducer {
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.mapreduce-lab__reducer-key {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.mapreduce-lab__reducer-sum {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.mapreduce-lab--static .mapreduce-lab__bar,
+.mapreduce-lab--static .mapreduce-lab__shuffle-fill {
+  transition: none;
+}

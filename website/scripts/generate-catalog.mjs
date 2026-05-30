@@ -85,7 +85,7 @@ const LAB_TIER = {
   "randomized-algorithms": "B",
   "information-theory": "B",
   "probability-theory": "B",
-  "mapreduce": "B",
+  "mapreduce": "A",
   "raft-vs-gossip": "B",
   "consensus-systems": "B",
   "probabilistic-consensus": "B",

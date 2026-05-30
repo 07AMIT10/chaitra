@@ -1,5 +1,30 @@
 # Google MapReduce: Probabilistic Resiliency at Scale
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> MR[MapReduce]
+  Dist[Distributed systems overview] --> MR
+  Batch[Batch data pipelines] --> MR
+```
+
+## When to use
+
+- **Offline batch jobs** over terabytes (logs, crawls, ETL) where latency in hours is acceptable.
+- **Embarrassingly parallel map** plus **shuffle/group-by-key** reduce (word count, inverted index, PageRank iterations).
+- **Commodity clusters** where hardware failure and stragglers are expected — framework handles retry and backup tasks.
+
+## When not to use
+
+- **Low-latency or per-record updates** — use streaming (Flink, Kafka) or OLTP instead of batch MapReduce.
+- **Tiny data** that fits one machine — a single process or SQL is simpler.
+- **Complex multi-pass joins** without careful partitioning — consider Spark/Dask or a warehouse with a query optimizer.
+
+## Lab
+
+On the [interactive MapReduce lab](/topics/mapreduce#lab), step through **map → shuffle → reduce** on the README word-count shards (keys A/B/C), enable a **straggler** on one mapper, and toggle **backup tasks** to compare map-phase wall time. Use **Straggler + backup** and **Straggler stalls job** presets, predict whether backup cuts map time by more than 2×, then reveal timings vs the cluster-failure formula \(P(\text{no fail})=(1-p)^N\).
+
 ## Simple Fundamental Explanation
 Imagine you want to count the number of times the word "the" appears in an entire physical library of 10,000 books.
 - **Single-Threaded**: You sit down, pick up the first book, and start reading and counting. It will take you 10 years.

@@ -28,7 +28,7 @@ const P2_LABS = {
   "random-early-detection": { component: "REDLab", path: "../../../components/minisim/REDLab.tsx", heading: "Early drop probability" },
   "monte-carlo-tree-search": { component: "MCTSLab", path: "../../../components/minisim/MCTSLab.tsx", heading: "MCTS exploration" },
   "randomized-algorithms": { component: "RandomizedLab", path: "../../../components/minisim/RandomizedLab.tsx", heading: "Las Vegas vs Monte Carlo" },
-  "mapreduce": { component: "MapReduceLab", path: "../../../components/minisim/MapReduceLab.tsx", heading: "Map shuffle reduce" },
+  "mapreduce": { component: "MapReduceLab", path: "../../../components/MapReduceLab.tsx", heading: "Map shuffle reduce" },
   "raft-vs-gossip": { component: "RaftGossipLab", path: "../../../components/minisim/RaftGossipLab.tsx", heading: "Raft vs gossip" },
   "consensus-systems": { component: "ConsensusLab", path: "../../../components/minisim/ConsensusLab.tsx", heading: "Log replication" },
   "probabilistic-consensus": { component: "ProbConsensusLab", path: "../../../components/minisim/ProbConsensusLab.tsx", heading: "Probabilistic finality" },
