@@ -31,4 +31,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | rate-limiting | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | gossip-protocols | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | spam-detection | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
-| spam-detection | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| power-of-two-choices | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |

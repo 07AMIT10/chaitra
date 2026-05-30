@@ -1,5 +1,32 @@
 # Power of Two Choices: Probabilistic Load Balancing
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Balls[Balls into bins]
+  Hash[Hashing / random sampling] --> LB[Load balancing intuition]
+  LB --> Po2[Power of Two Choices]
+  Balls --> Po2
+  Queue[Queueing theory] --> Po2
+```
+
+## When to use
+
+- **Stateless load balancers** (NGINX `random two`, HAProxy) that must spread millions of requests without polling every backend.
+- **Distributed hash tables and caches** where probing two buckets cuts tail latency vs single random placement.
+- **Job schedulers** assigning tasks to workers when a full cluster scan is too expensive but hotspots are costly.
+
+## When not to use
+
+- You already maintain **accurate global load** cheaply (small clusters, centralized metrics) — shortest-queue may be worth the RPC cost.
+- Workloads need **affinity or stickiness** (session routing) — random two breaks session locality unless layered with consistent hashing.
+- **Three or more probes** rarely pay off: theory gains are linear in $1/\ln d$ after the jump from 1→2 choices.
+
+## Lab
+
+On the [interactive power-of-two lab](/topics/power-of-two-choices#lab), set **bins (N)**, **balls**, and **repeat trials**, then read the **bin load histogram** for Random vs Power-of-two assignment. Try **Many balls, few bins**, **Balanced cluster**, or **Large cluster** presets, predict which strategy has the **lower average max load** over trials, then reveal **random vs power-of-two** compared to the README’s $\ln N / \ln\ln N$ vs $\ln\ln N$ estimates.
+
 ## Simple Fundamental Explanation
 Imagine you manage 100 checkout lanes at a massive supermarket. Customers are constantly arriving. How do you assign them to lanes so that no lane gets too backed up?
 
