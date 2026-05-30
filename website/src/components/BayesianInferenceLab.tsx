@@ -30,11 +30,33 @@ import {
 } from "./lab";
 import "./BayesianInferenceLab.css";
 
-function barHeight(fraction: number): string {
-  const p = Math.min(1, Math.max(0, fraction));
-  if (p <= 0) return "2%";
-  const scaled = Math.sqrt(p);
-  return `${Math.max(4, scaled * 100)}%`;
+function getBetaPath(p: number, width: number, height: number): string {
+  const N = 12;
+  const alpha = 1 + p * N;
+  const beta = 1 + (1 - p) * N;
+  
+  const points: { x: number; y: number }[] = [];
+  const steps = 60;
+  let maxVal = 0.00001;
+  
+  for (let i = 0; i <= steps; i++) {
+    const xVal = i / steps;
+    // Unnormalized Beta PDF: x^(alpha-1) * (1-x)^(beta-1)
+    const yVal = Math.pow(xVal, alpha - 1) * Math.pow(1 - xVal, beta - 1);
+    if (yVal > maxVal) {
+      maxVal = yVal;
+    }
+    points.push({ x: xVal, y: yVal });
+  }
+  
+  const svgPoints = points.map((pt) => {
+    const svgX = 10 + pt.x * (width - 20);
+    const scaledY = pt.y / maxVal;
+    const svgY = height - 15 - scaledY * (height - 30);
+    return `${svgX.toFixed(1)},${svgY.toFixed(1)}`;
+  });
+  
+  return `M 10,${height - 15} L ${svgPoints.join(" L ")} L ${width - 10},${height - 15} Z`;
 }
 
 export default function BayesianInferenceLab() {
@@ -226,32 +248,75 @@ export default function BayesianInferenceLab() {
             />
           </div>
 
-          <div className="bayes-lab__bars" role="img" aria-label="Prior belief vs posterior after evidence">
-            <div className="bayes-lab__bar-col">
-              <div
-                className="bayes-lab__bar bayes-lab__bar--prior"
-                style={{
-                  height: barHeight(
-                    belief.steps.length > 0
-                      ? belief.steps[belief.steps.length - 1].prior
-                      : belief.currentPrior
-                  ),
-                }}
-                title="Prior at start of last step"
+          <div className="bayes-lab__visualization">
+            <svg
+              className="bayes-lab__svg"
+              viewBox="0 0 320 160"
+              aria-label="Prior vs posterior Beta distribution curves"
+            >
+              {/* Grid Lines */}
+              <line x1="10" y1="145" x2="310" y2="145" stroke="var(--color-muted)" opacity="0.3" strokeWidth="1" />
+              <line x1="10" y1="10" x2="10" y2="145" stroke="var(--color-muted)" opacity="0.3" strokeWidth="1" />
+              <line x1="160" y1="10" x2="160" y2="145" stroke="var(--color-muted)" opacity="0.15" strokeDasharray="3,3" />
+              <line x1="310" y1="10" x2="310" y2="145" stroke="var(--color-muted)" opacity="0.3" strokeWidth="1" />
+
+              {/* Prior Curve */}
+              <path
+                d={getBetaPath(
+                  belief.steps.length > 0
+                    ? belief.steps[belief.steps.length - 1].prior
+                    : belief.currentPrior,
+                  320,
+                  160
+                )}
+                fill="rgba(148, 163, 184, 0.12)"
+                stroke="var(--color-muted)"
+                strokeWidth="1.5"
+                opacity="0.85"
+                style={{ transition: "d 0.3s ease" }}
               />
-              <span className="bayes-lab__bar-label">Prior</span>
-            </div>
-            <div className="bayes-lab__bar-col">
-              <div
-                className="bayes-lab__bar"
-                style={{ height: barHeight(belief.currentPrior) }}
-                title="Current posterior"
+
+              {/* Posterior Curve */}
+              <path
+                d={getBetaPath(belief.currentPrior, 320, 160)}
+                fill="color-mix(in srgb, var(--color-accent) 18%, transparent)"
+                stroke="var(--color-accent)"
+                strokeWidth="2"
+                style={{ transition: "d 0.3s ease" }}
               />
-              <span className="bayes-lab__bar-label">Posterior</span>
+
+              {/* Mode indicator dots */}
+              <circle
+                cx={10 + (belief.steps.length > 0 ? belief.steps[belief.steps.length - 1].prior : belief.currentPrior) * 300}
+                cy="145"
+                r="4"
+                fill="var(--color-muted)"
+              />
+              <circle
+                cx={10 + belief.currentPrior * 300}
+                cy="145"
+                r="5"
+                fill="var(--color-accent)"
+              />
+
+              {/* Axis Labels */}
+              <text x="10" y="157" fontSize="10" fill="var(--color-muted)" textAnchor="start">0.0</text>
+              <text x="160" y="157" fontSize="10" fill="var(--color-muted)" textAnchor="middle">0.5</text>
+              <text x="310" y="157" fontSize="10" fill="var(--color-muted)" textAnchor="end">1.0</text>
+            </svg>
+            <div className="bayes-lab__legend-row">
+              <span className="bayes-lab__legend-item">
+                <span className="bayes-lab__legend-swatch bayes-lab__legend-swatch--prior" />
+                Prior ({formatPosterior(belief.steps.length > 0 ? belief.steps[belief.steps.length - 1].prior : belief.currentPrior)})
+              </span>
+              <span className="bayes-lab__legend-item">
+                <span className="bayes-lab__legend-swatch bayes-lab__legend-swatch--posterior" />
+                Posterior ({formatPosterior(belief.currentPrior)})
+              </span>
             </div>
           </div>
 
-          <p className="lab__hint">Gray = belief before last evidence; accent = current P(H).</p>
+          <p className="lab__hint">Muted = belief before last evidence; blue = current posterior density.</p>
 
           <div className="bayes-lab__chips" role="group" aria-label="Evidence chips">
             {EVIDENCE_CHIPS.map((chip) => (

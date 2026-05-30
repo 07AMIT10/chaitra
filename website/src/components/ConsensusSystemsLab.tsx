@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   formatBftBound,
   formatFaultBound,
@@ -44,7 +44,26 @@ export default function ConsensusSystemsLab() {
   const [partitionOn, setPartitionOn] = useState(false);
   const [splitIndex, setSplitIndex] = useState(3);
   const [round, setRound] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    if (round >= 12) {
+      setIsPlaying(false);
+      return;
+    }
+    const interval = setInterval(() => {
+      setRound((r) => {
+        const next = r + 1;
+        if (next >= 12) {
+          setIsPlaying(false);
+        }
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [isPlaying, round]);
 
   const config = useMemo(
     () => configFromState(nodes, partitionOn, splitIndex),
@@ -249,10 +268,30 @@ export default function ConsensusSystemsLab() {
           </div>
 
           <div className="lab__row">
-            <button type="button" className="lab__btn" onClick={stepForward}>
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              disabled={round >= 12}
+            >
+              {isPlaying ? "Pause" : "Play"}
+            </button>
+            <button
+              type="button"
+              className="lab__btn lab__btn--ghost"
+              onClick={stepForward}
+              disabled={isPlaying}
+            >
               Append & replicate
             </button>
-            <button type="button" className="lab__btn lab__btn--ghost" onClick={reset}>
+            <button
+              type="button"
+              className="lab__btn lab__btn--ghost"
+              onClick={() => {
+                reset();
+                setIsPlaying(false);
+              }}
+            >
               Reset log
             </button>
           </div>

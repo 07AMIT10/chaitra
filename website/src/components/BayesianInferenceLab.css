@@ -1,43 +1,52 @@
-.bayes-lab__bars {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: var(--space-4);
-  min-height: 8rem;
-  margin: var(--space-3) 0;
-  padding: var(--space-2);
-  border: 1px solid var(--lab-border, color-mix(in srgb, var(--color-muted) 35%, transparent));
-  border-radius: var(--radius-md);
-}
-
-.bayes-lab__bar-col {
+.bayes-lab__visualization {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-1);
-  flex: 1;
-  max-width: 5rem;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--lab-border, color-mix(in srgb, var(--color-muted) 35%, transparent));
+  border-radius: var(--radius-md);
+  background: var(--color-surface, #1e293b);
 }
 
-.bayes-lab__bar {
+.bayes-lab__svg {
   width: 100%;
-  max-width: 3rem;
-  min-height: 4px;
-  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
-  background: color-mix(in srgb, var(--color-accent) 75%, transparent);
-  transition: height 0.25s ease;
+  max-width: 320px;
+  height: auto;
+  aspect-ratio: 2 / 1;
+  overflow: visible;
 }
 
-.bayes-lab__bar--prior {
-  background: color-mix(in srgb, var(--color-muted) 55%, transparent);
-  opacity: 0.85;
-}
-
-.bayes-lab__bar-label {
-  font-size: 0.6875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.bayes-lab__legend-row {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-4);
+  font-size: 0.8rem;
   color: var(--color-muted);
+}
+
+.bayes-lab__legend-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.bayes-lab__legend-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--radius-sm);
+  display: inline-block;
+}
+
+.bayes-lab__legend-swatch--prior {
+  background: rgba(148, 163, 184, 0.12);
+  border: 1px solid var(--color-muted);
+}
+
+.bayes-lab__legend-swatch--posterior {
+  background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  border: 1.5px solid var(--color-accent);
 }
 
 .bayes-lab__chips {

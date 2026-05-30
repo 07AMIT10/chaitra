@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   expectedNewInfections,
   informedCount,
@@ -20,6 +20,14 @@ import {
 import "./GossipProtocolsLab.css";
 
 const SEED = 42;
+
+function seededRand(seed: number): () => number {
+  let s = seed;
+  return () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
+}
 
 export default function GossipProtocolsLab() {
   const [nodes, setNodes] = useState(16);
@@ -45,6 +53,52 @@ export default function GossipProtocolsLab() {
   );
   const estRounds = logConvergenceRoundsEstimate(nodes, fanout);
   const expectedDelta = expectedNewInfections(nodes, infected, fanout);
+
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    if (converged) {
+      setIsPlaying(false);
+      return;
+    }
+    const interval = setInterval(() => {
+      setRound((r) => {
+        const next = r + 1;
+        let s = initGossip(nodes);
+        for (let ri = 0; ri < next; ri++) {
+          s = gossipStep(s, fanout, SEED).state;
+        }
+        if (s.nodes.every(Boolean)) {
+          setIsPlaying(false);
+        }
+        return next;
+      });
+    }, 800);
+    return () => clearInterval(interval);
+  }, [isPlaying, converged, nodes, fanout]);
+
+  const activeLinks = useMemo(() => {
+    if (round === 0) return [];
+    const prevRound = round - 1;
+    let tempState = initGossip(nodes);
+    for (let r = 0; r < prevRound; r++) {
+      tempState = gossipStep(tempState, fanout, SEED).state;
+    }
+    const rand = seededRand(SEED + prevRound);
+    const n = tempState.nodes.length;
+    const links: { from: number; to: number }[] = [];
+    for (let i = 0; i < n; i++) {
+      if (!tempState.nodes[i]) continue;
+      for (let f = 0; f < fanout; f++) {
+        const target = Math.floor(rand() * n);
+        links.push({ from: i, to: target });
+      }
+    }
+    return links;
+  }, [nodes, fanout, round]);
+
+
 
   const applyFullMeshSlow = () => {
     setNodes(49);
@@ -152,28 +206,87 @@ export default function GossipProtocolsLab() {
             />
           </div>
           <div className="lab__row">
-            <button type="button" className="lab__btn" onClick={stepForward} disabled={converged}>
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              disabled={converged}
+            >
+              {isPlaying ? "Pause" : "Play"}
+            </button>
+            <button
+              type="button"
+              className="lab__btn lab__btn--ghost"
+              onClick={stepForward}
+              disabled={converged || isPlaying}
+            >
               Step round
             </button>
-            <button type="button" className="lab__btn lab__btn--ghost" onClick={reset}>
+            <button
+              type="button"
+              className="lab__btn lab__btn--ghost"
+              onClick={() => {
+                reset();
+                setIsPlaying(false);
+              }}
+            >
               Reset
             </button>
           </div>
-          <div
-            className={`gossip-lab__grid ${reducedMotion ? "gossip-lab__grid--static" : ""}`}
-            role="img"
-            aria-label={`Gossip grid: ${infected} infected, ${susceptible} susceptible`}
-          >
-            {state.nodes.map((informed, i) => (
-              <div
-                key={i}
-                className={`gossip-lab__node ${informed ? "gossip-lab__node--informed" : ""}`}
-                title={informed ? `Node ${i}: infected` : `Node ${i}: susceptible`}
-              />
-            ))}
+
+          <div className="gossip-lab__visualization">
+            <svg
+              className="gossip-lab__svg"
+              viewBox="0 0 320 320"
+              aria-label={`Gossip topology: ${infected} infected, ${susceptible} susceptible`}
+            >
+              {/* Outer ring representation */}
+              <circle cx="160" cy="160" r="120" className="gossip-lab__ring-path" />
+
+              {/* Active Links / Communication lines */}
+              {activeLinks.map((link, idx) => {
+                const angleFrom = (2 * Math.PI * link.from) / nodes;
+                const angleTo = (2 * Math.PI * link.to) / nodes;
+                const x1 = 160 + 120 * Math.cos(angleFrom);
+                const y1 = 160 + 120 * Math.sin(angleFrom);
+                const x2 = 160 + 120 * Math.cos(angleTo);
+                const y2 = 160 + 120 * Math.sin(angleTo);
+                return (
+                  <line
+                    key={idx}
+                    x1={x1.toFixed(1)}
+                    y1={y1.toFixed(1)}
+                    x2={x2.toFixed(1)}
+                    y2={y2.toFixed(1)}
+                    className="gossip-lab__link"
+                  />
+                );
+              })}
+
+              {/* Nodes */}
+              {state.nodes.map((informed, i) => {
+                const angle = (2 * Math.PI * i) / nodes;
+                const cx = 160 + 120 * Math.cos(angle);
+                const cy = 160 + 120 * Math.sin(angle);
+                return (
+                  <circle
+                    key={i}
+                    cx={cx.toFixed(1)}
+                    cy={cy.toFixed(1)}
+                    r="6.5"
+                    className={`gossip-lab__node-circle ${
+                      informed ? "gossip-lab__node-circle--informed" : "gossip-lab__node-circle--susceptible"
+                    }`}
+                  >
+                    <title>{informed ? `Node ${i}: infected` : `Node ${i}: susceptible`}</title>
+                  </circle>
+                );
+              })}
+            </svg>
           </div>
+
           <p className="lab__hint">
-            Accent nodes know the gossip; muted nodes are susceptible. One seed at node 0 each reset.
+            Accent circles know the gossip (pulsing); dark circles are susceptible. One seed at node 0 each reset.
           </p>
         </div>
         <MetricsAside metrics={metrics} />
