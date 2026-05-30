@@ -4,11 +4,15 @@ import MermaidInit from "../components/MermaidInit.tsx";
 import "../styles/narrative.css";
 
 const { title, repoFolder, pyodide = false, hasLab = false, hasCode = false } = Astro.props;
-const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js";
+const PYODIDE_VERSION = "0.26.4";
+const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
 ---
 <BaseLayout title={title}>
   {pyodide && (
-    <script slot="head" src={PYODIDE_SCRIPT} crossorigin="anonymous"></script>
+    <>
+      <link slot="head" rel="preload" href={`${PYODIDE_CDN}pyodide.asm.wasm`} as="fetch" crossorigin="anonymous" />
+      <script slot="head" src={`${PYODIDE_CDN}pyodide.js`} crossorigin="anonymous"></script>
+    </>
   )}
   <a class="skip-link" href="#narrative">Skip to content</a>
   <nav class="topic__breadcrumbs" aria-label="Breadcrumb">

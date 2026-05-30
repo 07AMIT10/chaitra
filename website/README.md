@@ -67,14 +67,18 @@ The build command above runs `build:wasm`, which needs **wasm-pack** and **Rust*
 
 ### Content-Security-Policy
 
-WebAssembly compilation needs `wasm-unsafe-eval` in `script-src`. Pyodide loads from `cdn.jsdelivr.net`.
+WebAssembly compilation needs `wasm-unsafe-eval` in `script-src` (and `unsafe-eval` for Safari). Pyodide loads from `cdn.jsdelivr.net`.
 
 Headers are applied via `public/_headers` (copied into `dist/` on build). To change policy, edit that file or set **Headers** in the Cloudflare Pages project settings (dashboard overrides should match the same directives).
+
+**Important:** WASM MIME must apply only to `*.wasm` files. A rule like `/wasm/* → application/wasm` breaks `bloom_filter_wasm.js` (browsers refuse to execute the glue as an ES module).
 
 Example policy (also in `_headers`):
 
 ```
-Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net wasm-unsafe-eval; connect-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data:;
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net wasm-unsafe-eval; connect-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob: https://cdn.jsdelivr.net; ...
+/wasm/**/*.wasm
+  Content-Type: application/wasm
 ```
 
 Adjust if you add analytics or other CDNs.

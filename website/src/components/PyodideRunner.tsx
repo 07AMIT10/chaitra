@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import "./PyodideRunner.css";
 
 const PYODIDE_VERSION = "0.26.4";
 const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
 const SCRIPT_WAIT_MS = 30_000;
-const LOAD_TIMEOUT_MS = 120_000;
+const LOAD_TIMEOUT_MS = 180_000;
 
 function injectPyodideScript(): Promise<void> {
   if (document.querySelector('script[data-chaitra-pyodide="1"]')) {
@@ -98,19 +98,6 @@ export default function PyodideRunner({
     }
   }, []);
 
-  useEffect(() => {
-    let cancelled = false;
-    void ensurePyodide().catch((err) => {
-      if (!cancelled) {
-        setRuntimeState("idle");
-        setLoadError(err instanceof Error ? err.message : String(err));
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [ensurePyodide]);
-
   const run = useCallback(async () => {
     setOutput("");
     setIsError(false);
@@ -162,7 +149,7 @@ export default function PyodideRunner({
       ? "Downloading Python runtime — first load often takes 10–20 seconds."
       : runtimeState === "ready"
         ? "Python runtime ready."
-        : null;
+        : "Click Run Python to download the in-browser runtime (first run may take 30–60s).";
 
   return (
     <div className="pyodide-runner">

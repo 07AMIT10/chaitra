@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import "./WasmBloomRunner.css";
 
 const WASM_JS = "/wasm/bloom_filter/bloom_filter_wasm.js";
+const WASM_BIN = "/wasm/bloom_filter/bloom_filter_wasm_bg.wasm";
 const RUST_SOURCE =
   "https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.rs";
 
@@ -27,21 +28,25 @@ export default function WasmBloomRunner({
 }: WasmBloomRunnerProps) {
   const [status, setStatus] = useState<"loading" | "ready" | "error">("loading");
   const [output, setOutput] = useState("");
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         const mod = (await import(/* @vite-ignore */ WASM_JS)) as WasmModule;
-        await mod.default();
+        await mod.default(WASM_BIN);
         const demo = mod.run_reference_demo();
         if (!cancelled) {
           setOutput(demo.trimEnd());
           setStatus("ready");
+          setErrorDetail(null);
         }
       } catch (err) {
         if (!cancelled) {
+          const message = err instanceof Error ? err.message : String(err);
           console.error("WASM load failed:", err);
+          setErrorDetail(message);
           setStatus("error");
         }
       }
@@ -57,6 +62,12 @@ export default function WasmBloomRunner({
         <p role="alert">
           Rust WASM failed to load. Rebuild with <code>npm run build:wasm</code>, or open the
           reference implementation on GitHub.
+          {errorDetail && (
+            <>
+              {" "}
+              <span className="wasm-bloom-runner__error-detail">({errorDetail})</span>
+            </>
+          )}
         </p>
         <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
           {sourceLabel}

@@ -49,3 +49,8 @@
 .wasm-bloom-runner--error a {
   color: var(--color-accent);
 }
+
+.wasm-bloom-runner__error-detail {
+  color: var(--color-muted);
+  font-size: 0.9em;
+}

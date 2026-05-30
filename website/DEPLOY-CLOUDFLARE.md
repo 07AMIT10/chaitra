@@ -68,6 +68,8 @@ If a project named `chaitra` exists, production URL is typically **`https://chai
 
 7. **WASM:** Default build does **not** run `build:wasm` (no Rust/wasm-pack on Pages image). Use committed assets under `public/wasm/bloom_filter/`. Rebuild locally with `npm run build:wasm` when `BLOOM_FILTERS/` changes, then commit and push.
 
+   **MIME:** In `public/_headers`, set `Content-Type: application/wasm` only for `*.wasm` (e.g. `/wasm/**/*.wasm`). Never for all of `/wasm/*` — that marks `bloom_filter_wasm.js` as WASM and breaks the Rust tab.
+
 8. **Preview deployments:** Enable for pull requests (default with Git integration).
 
 9. **Custom domain (optional):** Pages → **Custom domains** → add hostname and DNS records.
