@@ -1,4 +1,29 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  MoE[Mixture of Experts] --> TR[Token routing]
+  Prob[Probability / argmax] --> TR
+  Dist[Load balancing] --> TR
+```
+
+## When to use
+
+- **Sparse MoE inference** where each token activates only Top-K experts (Switch, Mixtral-style).
+- **Capacity scaling** with controlled active compute per token.
+- **Studying load imbalance** and auxiliary losses when routers favor a few experts.
+
+## When not to use
+
+- **Dense transformers** where every layer uses all weights — no routing layer exists.
+- **Strict per-expert fairness** without expert-choice routing or balancing loss — naive Top-K can starve experts.
+- **Tiny batches** where routing noise dominates signal.
+
+## Lab
+
+On the [interactive token routing lab](/topics/token-routing#lab), set **experts**, **tokens**, and **Top-K**, watch the **load histogram** vs the **ideal uniform** line, try **Switch Top-1**, **Mixtral Top-2**, or **Hotspot skew** presets, predict whether max load exceeds **1.5× ideal**, then reveal **imbalance**.
+
 ## Simple Fundamental Explanation
 Imagine a massive post office sorting facility.
 - **The Old Way**: Every single letter goes onto a conveyor belt. The belt runs through 100 different sorting machines, one after the other. Every letter goes through every machine, even if the letter just needs to go next door.

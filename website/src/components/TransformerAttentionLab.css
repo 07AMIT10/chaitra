@@ -1,0 +1,43 @@
+.att-lab__heatmap {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+  max-width: 400px;
+  margin: var(--space-3) 0;
+}
+
+.att-lab__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-muted);
+  background: color-mix(in srgb, var(--color-accent) 20%, var(--color-bg));
+  transition: opacity 0.2s ease, border-color 0.2s ease;
+}
+
+.att-lab__heatmap--static .att-lab__cell {
+  transition: none;
+}
+
+.att-lab__cell--top {
+  border-color: var(--color-accent);
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.att-lab__word {
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.att-lab__w {
+  font-family: var(--font-mono, monospace);
+  font-size: var(--text-sm);
+}
+
+.att-lab__score {
+  font-size: var(--text-xs);
+  color: var(--color-muted);
+}

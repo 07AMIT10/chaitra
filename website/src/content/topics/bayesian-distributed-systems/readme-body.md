@@ -1,31 +1,5 @@
 
-## Prerequisites
-
-```mermaid
-graph TD
-  Bayes[Bayesian Inference Systems] --> Dist[Bayesian Distributed Systems]
-  Gossip[Gossip Protocols] --> Dist
-  Queue[Queueing Theory] --> Dist
-```
-
-## When to use
-
-- **Noisy cluster telemetry** — latency spikes, dropped packets, and stale heartbeats where absolute thresholds cause false reboots.
-- **Root-cause inference** — correlated alarms across servers should update belief on shared infrastructure (switches, racks), not each host in isolation.
-- **Self-healing without thundering herds** — route around a congested switch instead of rebooting every server that looks slow.
-
-## When not to use
-
-- You have **deterministic, low-noise signals** — a hard health-check failure with consensus is enough; Bayes adds complexity without gain.
-- **Real-time latency budgets** — full graphical-model inference may be too slow; use lightweight heuristics or precomputed lookup tables.
-- **Adversarial telemetry** — poisoned metrics can manipulate posteriors; you need Byzantine fault tolerance, not belief updating alone.
-
-## Lab
-
-On the [interactive cluster belief network lab](/topics/bayesian-distributed-systems#lab), tune **P(switch faulty)** and server slow likelihoods, stack **telemetry chips** (500ms pings, DB timeout, user request fail), try **Both servers slow**, **DB + user fail**, or **Single server alarm** presets, predict whether you'd **reboot Server A** when both alarms fire, then reveal **P(switch) ≈ 98%** with **P(A dead) low** — route traffic, don't reboot.
-
 ## Simple Fundamental Explanation
-
 Imagine you are the captain of a submarine. You are looking at a sonar screen. You see a blurry blip.
 Is it an enemy submarine, or a whale?
 

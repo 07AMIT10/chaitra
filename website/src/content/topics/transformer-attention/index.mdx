@@ -3,12 +3,18 @@ title: Transformer Attention
 ---
 
 import ReadmeBody from "./readme-body.md";
-import AttentionLab from "../../../components/minisim/AttentionLab.tsx";
+import TransformerAttentionLab from "../../../components/TransformerAttentionLab.tsx";
 
-## Attention weights
+## Scaled dot-product attention
+
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section. Tune **Q** sliders, read the **softmax heatmap**
+  over four keys, compare **attention α** to **uniform**, try **"it" → animal** or **street focus** presets,
+  predict the top key, then reveal the winner.
+</Callout>
 
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>
 
-<AttentionLab client:visible />
+<TransformerAttentionLab client:visible />

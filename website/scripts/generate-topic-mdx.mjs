@@ -74,9 +74,21 @@ const P2_LABS = {
     path: "../../../components/ApproximateMemoryCacheLab.tsx",
     heading: "Sketch-backed cache",
   },
-  "mixture-of-experts": { component: "MoELab", path: "../../../components/minisim/MoELab.tsx", heading: "Expert routing" },
-  "token-routing": { component: "TokenRoutingLab", path: "../../../components/minisim/TokenRoutingLab.tsx", heading: "Top-K routing" },
-  "transformer-attention": { component: "AttentionLab", path: "../../../components/minisim/AttentionLab.tsx", heading: "Attention weights" },
+  "mixture-of-experts": {
+    component: "MixtureOfExpertsLab",
+    path: "../../../components/MixtureOfExpertsLab.tsx",
+    heading: "Expert routing & sparse gates",
+  },
+  "token-routing": {
+    component: "TokenRoutingLab",
+    path: "../../../components/TokenRoutingLab.tsx",
+    heading: "Top-K load balancing",
+  },
+  "transformer-attention": {
+    component: "TransformerAttentionLab",
+    path: "../../../components/TransformerAttentionLab.tsx",
+    heading: "Scaled dot-product attention",
+  },
   "distributed-queues": {
     component: "DistributedQueuesLab",
     path: "../../../components/DistributedQueuesLab.tsx",

@@ -96,9 +96,9 @@ const LAB_TIER = {
   "bayesian-inference-systems": "A",
   "bayesian-distributed-systems": "A",
   "approximate-memory-cache-systems": "A",
-  "mixture-of-experts": "B",
-  "token-routing": "B",
-  "transformer-attention": "B",
+  "mixture-of-experts": "A",
+  "token-routing": "A",
+  "transformer-attention": "A",
   "distributed-queues": "A",
   "probabilistic-scheduling": "A",
   "probabilistic-databases": "A",
@@ -177,6 +177,12 @@ for (const e of entries) {
 }
 
 topics.sort((a, b) => a.title.localeCompare(b.title));
+
+for (const t of topics) {
+  if (t.hasLab && t.status !== "golden") {
+    console.warn(`warn: ${t.slug} has lab but status is "${t.status}" (not golden)`);
+  }
+}
 
 fs.writeFileSync(topicsJsonPath, JSON.stringify(topics, null, 2));
 console.log(`wrote ${topics.length} topics`);

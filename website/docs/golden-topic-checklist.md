@@ -51,3 +51,6 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | monte-carlo-tree-search | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | information-theory | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | probability-theory | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| mixture-of-experts | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| token-routing | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| transformer-attention | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |

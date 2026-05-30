@@ -1,5 +1,30 @@
 # Transformer Attention: Probabilistic Context Mapping
 
+## Prerequisites
+
+```mermaid
+graph TD
+  LinAlg[Vectors / dot product] --> Attn[Scaled dot-product attention]
+  Prob[Softmax / probability] --> Attn
+  IT[Information theory] -.-> Attn
+```
+
+## When to use
+
+- **Long-range dependencies** in language (pronouns, coreference, translation alignment).
+- **Parallel sequence modeling** instead of sequential RNN state bottlenecks.
+- **Context mixing** where each position reweights all keys via softmax attention.
+
+## When not to use
+
+- **Ultra-long contexts** without sparse/linear attention approximations — full $O(n^2)$ attention is costly.
+- **Tasks with fixed local windows only** — simpler convolutions or sliding windows may suffice.
+- **When interpretability of routing** matters more than raw quality — attention maps are hints, not proofs.
+
+## Lab
+
+On the [interactive attention lab](/topics/transformer-attention#lab), tune the 2-D **query** sliders, read the **softmax heatmap** over four toy keys, compare **attention α** to a **uniform** baseline, try **"it" → animal** or **street focus** presets, predict the top key, then reveal **which word wins**.
+
 ## Simple Fundamental Explanation
 Imagine you are reading a long legal contract.
 - **The old way (RNN/LSTM)**: You read it word by word, left to right. By the time you get to page 10, you've mostly forgotten the exact phrasing on page 1. You only have a vague "hidden state" summarizing what you read.

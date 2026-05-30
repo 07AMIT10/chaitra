@@ -1,5 +1,30 @@
 # Mixture-of-Experts: Probabilistic Routing
 
+## Prerequisites
+
+```mermaid
+graph TD
+  NN[Neural nets / transformers] --> MoE[Mixture of Experts]
+  Prob[Probability / softmax] --> MoE
+  TR[Token routing] --> MoE
+```
+
+## When to use
+
+- **Scale model capacity** without running every parameter on every token (sparse feed-forward layers).
+- **Specialize sub-networks** on domains (code, math, multilingual) while sharing attention stacks.
+- **Inference cost control** when Top-K experts keep active FLOPs far below total parameter count.
+
+## When not to use
+
+- **Small models** where routing overhead and load-balancing complexity outweigh savings.
+- **Uniform compute budgets** per token without auxiliary balancing — routers can collapse to one expert.
+- **Tasks needing full dense mixing** on every layer (some fine-grained reasoning paths).
+
+## Lab
+
+On the [interactive MoE lab](/topics/mixture-of-experts#lab), pick a **token embedding**, tune **Top-K**, read **gate scores** on the expert grid, compare **sparse vs dense** expert activation, try **Quantum → physics** or **Top-1 bio** presets, predict how many experts stay idle, then reveal the **active fraction**.
+
 ## Simple Fundamental Explanation
 Imagine you are building the ultimate consulting firm. You want to be able to answer questions about medicine, law, physics, and history.
 
