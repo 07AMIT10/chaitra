@@ -1,0 +1,150 @@
+.prob-consensus-lab__chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: var(--space-2) 0;
+  max-width: 360px;
+}
+
+.prob-consensus-lab__block {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid var(--color-muted);
+  background: color-mix(in srgb, var(--color-muted) 20%, transparent);
+  font-size: 0.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.prob-consensus-lab__chain--static .prob-consensus-lab__block {
+  transition: none;
+}
+
+.prob-consensus-lab__block--active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-bg, #fff);
+  font-weight: 600;
+}
+
+.prob-consensus-lab__block--genesis {
+  opacity: 0.7;
+  border-style: dashed;
+}
+
+.prob-consensus-lab__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+  margin: var(--space-3) 0;
+  padding: 0 2px 20px;
+  position: relative;
+  max-width: 400px;
+  border-bottom: 1px solid var(--color-muted);
+}
+
+.prob-consensus-lab__bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+}
+
+.prob-consensus-lab__bar {
+  width: 100%;
+  max-width: 18px;
+  background: color-mix(in srgb, var(--color-warn, #c9a227) 55%, transparent);
+  border-radius: 2px 2px 0 0;
+  min-height: 2px;
+  transition: height 0.25s ease, background 0.25s ease;
+}
+
+.prob-consensus-lab__chart--static .prob-consensus-lab__bar {
+  transition: none;
+}
+
+.prob-consensus-lab__bar--current {
+  background: var(--color-accent);
+}
+
+.prob-consensus-lab__bar--safe {
+  background: color-mix(in srgb, var(--color-accent) 70%, #2a8f5a);
+}
+
+.prob-consensus-lab__bar-label {
+  font-size: 0.55rem;
+  color: var(--color-muted);
+  margin-top: 4px;
+  font-family: var(--font-mono, monospace);
+}
+
+.prob-consensus-lab__threshold {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--color-accent);
+  pointer-events: none;
+}
+
+.prob-consensus-lab__threshold-label {
+  position: absolute;
+  right: 0;
+  font-size: 0.6rem;
+  color: var(--color-accent);
+  transform: translateY(-100%);
+  padding-bottom: 2px;
+}
+
+.prob-consensus-lab__avalanche {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: var(--space-2) 0;
+  max-width: 360px;
+}
+
+.prob-consensus-lab__streak {
+  height: 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-muted) 25%, transparent);
+  overflow: hidden;
+}
+
+.prob-consensus-lab__streak-fill {
+  height: 100%;
+  background: var(--color-accent);
+  transition: width 0.25s ease;
+}
+
+.prob-consensus-lab__avalanche--static .prob-consensus-lab__streak-fill {
+  transition: none;
+}
+
+.prob-consensus-lab__sample {
+  font-size: 0.75rem;
+  font-family: var(--font-mono, monospace);
+  color: var(--color-muted);
+}
+
+.prob-consensus-lab__legend {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  margin: var(--space-2) 0;
+}
+
+.prob-consensus-lab__dual {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 640px) {
+  .prob-consensus-lab__dual {
+    grid-template-columns: 1fr 1fr;
+  }
+}

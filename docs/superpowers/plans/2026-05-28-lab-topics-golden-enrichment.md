@@ -229,7 +229,7 @@ Execute template above in order:
 - [x] **Task 16:** `mapreduce`
 - [x] **Task 17:** `raft-vs-gossip`
 - [x] **Task 18:** `consensus-systems`
-- [ ] **Task 19:** `probabilistic-consensus`
+- [x] **Task 19:** `probabilistic-consensus`
 - [ ] **Task 20:** `eventual-consistency`
 - [ ] **Task 21:** `random-early-detection`
 - [ ] **Task 22:** `distributed-queues`

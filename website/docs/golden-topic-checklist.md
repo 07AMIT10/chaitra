@@ -38,3 +38,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | mapreduce | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | raft-vs-gossip | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | consensus-systems | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| probabilistic-consensus | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
