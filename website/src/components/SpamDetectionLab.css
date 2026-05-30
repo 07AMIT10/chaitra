@@ -21,15 +21,65 @@
   border-color: var(--color-accent);
 }
 
-.spam-lab__words {
+.spam-lab__likelihoods {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-2);
+  margin-top: var(--space-2);
 }
 
-.spam-lab__word {
-  padding: 0.25rem 0.5rem;
-  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
-  border-radius: var(--radius-md);
-  font-size: 0.875rem;
+.spam-lab__row {
+  display: grid;
+  grid-template-columns: 5rem 1fr 3rem;
+  gap: var(--space-2);
+  align-items: center;
+  font-size: 0.8125rem;
+}
+
+.spam-lab__token {
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.spam-lab__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-height: 1.25rem;
+}
+
+.spam-lab__bar {
+  height: 0.5rem;
+  border-radius: 2px;
+  min-width: 2px;
+  transition: width 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spam-lab__bar {
+    transition: none;
+  }
+}
+
+.spam-lab__bar--spam {
+  background: color-mix(in srgb, #e74c3c 75%, transparent);
+}
+
+.spam-lab__bar--ham {
+  background: color-mix(in srgb, var(--color-accent) 65%, transparent);
+}
+
+.spam-lab__favor {
+  text-align: right;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.spam-lab__favor--spam {
+  color: #e74c3c;
+}
+
+.spam-lab__favor--ham {
+  color: var(--color-accent);
 }

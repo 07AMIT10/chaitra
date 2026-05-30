@@ -1,5 +1,32 @@
 # Bayesian Spam Detection: Statistical Security
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Bayes[Bayes theorem]
+  Bayes --> NB[Naive Bayes]
+  Log[Log odds & underflow] --> NB
+  NB --> Spam[Spam Detection]
+  Text[Tokenization / NLP basics] --> Spam
+```
+
+## When to use
+
+- **High-volume email or message filtering** where hand-written rules cannot keep up with obfuscation (`V1agra`, `F R E E`).
+- **Personalized inboxes** that learn from user “Report spam” feedback — each word’s $P(w \mid \text{spam})$ updates from counts.
+- **Lightweight edge classifiers** that must score thousands of tokens per second without GPU inference.
+
+## When not to use
+
+- You need **semantic understanding** of phishing intent, images, or attachments (use modern transformers + reputation feeds).
+- **Adversarial poisoning** is a first-class threat without top-$k$ word trimming or robust training.
+- **Single-word decisions** must be legally auditable — prefer explicit blocklists and policy engines alongside Bayes scores.
+
+## Lab
+
+On the [interactive spam detection lab](/topics/spam-detection#lab), tune **P(spam) prior**, pick a sample email, and read per-word **$P(w \mid \text{spam})$ vs $P(w \mid \text{ham})$** bars. Try **Spam-heavy corpus**, **Balanced**, or **High prior** presets, predict **spam vs ham** before classification, then reveal **classifier prediction vs ground-truth label**.
+
 ## Simple Fundamental Explanation
 Imagine you are trying to guess if an unmarked envelope contains a bill or a birthday card.
 - If it has a shiny, colorful stamp, the probability it's a birthday card goes up.

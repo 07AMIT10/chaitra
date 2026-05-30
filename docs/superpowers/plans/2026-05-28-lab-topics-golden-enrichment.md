@@ -214,7 +214,7 @@ Execute template above in order:
 - [ ] **Task 8:** `tinylfu`
 - [x] **Task 9:** `rate-limiting`
 - [x] **Task 10:** `gossip-protocols`
-- [ ] **Task 11:** `spam-detection`
+- [x] **Task 11:** `spam-detection`
 - [ ] **Task 12:** `power-of-two-choices`
 - [ ] **Task 13:** `queueing-theory`
 - [ ] **Task 14:** `crdts-plus-probability`
