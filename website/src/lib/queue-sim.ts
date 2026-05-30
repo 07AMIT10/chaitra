@@ -1,4 +1,4 @@
-/** Discrete-event M/M/1 queue simulation */
+/** Discrete-event M/M/1 queue simulation (Poisson arrivals, exponential service). */
 
 export type QueueSimResult = {
   rho: number;
@@ -70,7 +70,28 @@ export function mm1Sim(
   };
 }
 
-export function theoreticalWait(rho: number, mu: number): number {
-  if (rho >= 1) return Infinity;
-  return rho / (mu * (1 - rho));
+/** Average sim wait / queue over independent seeds (reduces single-run noise). */
+export function mm1SimAverage(
+  lambda: number,
+  mu: number,
+  duration: number,
+  trials: number,
+  baseSeed = 42
+): { avgWait: number; avgQueue: number; maxQueue: number; rho: number } {
+  let sumWait = 0;
+  let sumQueue = 0;
+  let maxQueue = 0;
+  const n = Math.max(1, trials);
+  for (let i = 0; i < n; i++) {
+    const r = mm1Sim(lambda, mu, duration, baseSeed + i * 997);
+    sumWait += r.avgWait;
+    sumQueue += r.avgQueue;
+    maxQueue = Math.max(maxQueue, r.maxQueue);
+  }
+  return {
+    rho: lambda / mu,
+    avgWait: sumWait / n,
+    avgQueue: sumQueue / n,
+    maxQueue,
+  };
 }

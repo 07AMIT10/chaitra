@@ -399,7 +399,7 @@
     "title": "Queueing Theory",
     "folder": "QUEUEING_THEORY",
     "labTier": "A",
-    "status": "live",
+    "status": "golden",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
