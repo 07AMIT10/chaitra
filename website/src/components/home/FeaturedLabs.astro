@@ -1,7 +1,14 @@
 ---
 import topics from "../../data/topics.json";
 
-const FEATURED_SLUGS = ["bloom-filters", "count-min-sketch", "gossip-protocols"] as const;
+const FEATURED_SLUGS = [
+  "bloom-filters",
+  "count-min-sketch",
+  "gossip-protocols",
+  "rate-limiting",
+  "queueing-theory",
+  "approximate-memory-cache-systems"
+] as const;
 
 interface TopicRow {
   slug: string;

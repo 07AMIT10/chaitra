@@ -240,6 +240,11 @@ export default function StreamingAlgorithmsLab() {
             never appeared?
           </>
         }
+        storageKey="streaming-algorithms"
+        options={[
+          { id: "both-true", label: "Yes, both statements are true (CMS ≥ true, Bloom can false positive)", isCorrect: true },
+          { id: "one-false", label: "No, CMS can underestimate or Bloom has false negatives", isCorrect: false },
+        ]}
         revealLabel="Show sketch vs ground truth"
       >
         <ComparePanel

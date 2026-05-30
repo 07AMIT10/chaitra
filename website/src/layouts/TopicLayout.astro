@@ -11,6 +11,13 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
     <script slot="head" src={PYODIDE_SCRIPT} defer></script>
   )}
   <a class="skip-link" href="#narrative">Skip to content</a>
+  <nav class="topic__breadcrumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    <span class="topic__separator">/</span>
+    <a href="/catalog">Catalog</a>
+    <span class="topic__separator">/</span>
+    <span class="topic__current">{title}</span>
+  </nav>
   <article class="topic" aria-labelledby="topic-page-title">
     <h1 id="topic-page-title" class="topic__title">{title}</h1>
     <nav aria-label="Topic sections">
@@ -104,5 +111,41 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
     outline: none;
     box-shadow: var(--focus-ring);
     border-radius: 2px;
+  }
+
+  .topic__breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin-block-end: var(--space-4);
+    max-width: min(72ch, 100%);
+    margin-inline: auto;
+  }
+
+  .topic__breadcrumbs a {
+    color: var(--color-accent);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .topic__breadcrumbs a:hover {
+    color: var(--color-accent-hover);
+    text-decoration: underline;
+  }
+
+  .topic__separator {
+    color: var(--color-muted);
+    opacity: 0.6;
+    font-size: 0.75rem;
+  }
+
+  .topic__current {
+    font-weight: 500;
+    color: var(--color-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>

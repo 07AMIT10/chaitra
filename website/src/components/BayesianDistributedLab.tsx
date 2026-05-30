@@ -171,7 +171,12 @@ export default function BayesianDistributedLab() {
   };
 
   const applyPreset = (
-    preset: typeof SWITCH_CONGESTION_PRESET,
+    preset: {
+      priorPct: number;
+      pSlowSwitchPct: number;
+      pSlowHealthyPct: number;
+      chipIds: readonly string[];
+    },
     setSliders: () => void
   ) => {
     setSliders();
@@ -376,6 +381,16 @@ export default function BayesianDistributedLab() {
       <PredictReveal
         key={`${priorPct}-${belief.steps.length}-${current.pSwitch}`}
         prompt={predictPrompt}
+        storageKey="bayesian-distributed"
+        options={
+          bothSlow || symptomPair ? [
+            { id: "no", label: "No — shared switch fault is likely, Server A is probably fine", isCorrect: current.pServerA < 0.5 },
+            { id: "yes", label: "Yes — Server A is highly likely to have failed", isCorrect: current.pServerA >= 0.5 },
+          ] : [
+            { id: "yes", label: "Yes — P(switch faulty) > 50%", isCorrect: current.pSwitch > 0.5 },
+            { id: "no", label: "No — P(switch faulty) is ≤ 50%", isCorrect: current.pSwitch <= 0.5 },
+          ]
+        }
         revealLabel="Show reboot vs route decision"
       >
         <ComparePanel

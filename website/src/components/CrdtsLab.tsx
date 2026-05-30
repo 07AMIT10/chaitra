@@ -294,6 +294,11 @@ export default function CrdtsLab() {
               </>
             )
           }
+          storageKey="crdt-counter"
+          options={[
+            { id: "equal", label: "Yes — they are equal", isCorrect: !mergeDiffersFromNaive },
+            { id: "differ", label: "No — they differ (max avoids double-counting)", isCorrect: mergeDiffersFromNaive },
+          ]}
           revealLabel="Show CRDT merge vs naive sum / LWW"
         >
           <ComparePanel
@@ -380,6 +385,11 @@ export default function CrdtsLab() {
               the stale add?
             </>
           }
+          storageKey="crdt-tombstone"
+          options={[
+            { id: "rejected", label: "No — the Bloom filter detects it and rejects it", isCorrect: !probState.live.has("Banana") },
+            { id: "accepted", label: "Yes — it gets accepted (Bloom false negative or absent tombstone)", isCorrect: probState.live.has("Banana") },
+          ]}
           revealLabel="Show merge vs naive acceptance"
         >
           <ComparePanel

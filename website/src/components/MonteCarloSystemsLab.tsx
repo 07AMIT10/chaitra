@@ -248,6 +248,11 @@ export default function MonteCarloSystemsLab() {
             <strong>σ/√N</strong> be within <strong>2.5×</strong> of |estimate − exact| (CLT band)?
           </>
         }
+        storageKey="mc-systems"
+        options={[
+          { id: "yes", label: "Yes — within CLT band (error < 2.5× SE)", isCorrect: errorShrinks },
+          { id: "no", label: "No — error exceeds CLT band", isCorrect: !errorShrinks },
+        ]}
         revealLabel="Show estimate vs exact"
       >
         <ComparePanel

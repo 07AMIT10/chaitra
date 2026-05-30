@@ -325,6 +325,11 @@ export default function ConsensusSystemsLab() {
       <PredictReveal
         key={`${nodes}-${partitionOn}-${splitIndex}-${round}`}
         prompt={predictPrompt}
+        storageKey="consensus-systems"
+        options={[
+          { id: "yes", label: "Yes — committed within steps threshold", isCorrect: firstCommitRounds >= 0 && firstCommitRounds <= predictThreshold },
+          { id: "no", label: "No — takes longer or never commits (no quorum)", isCorrect: firstCommitRounds < 0 || firstCommitRounds > predictThreshold },
+        ]}
         revealLabel="Show quorum vs replication ground truth"
       >
         <ComparePanel

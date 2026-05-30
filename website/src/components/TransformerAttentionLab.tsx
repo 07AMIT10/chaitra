@@ -169,6 +169,12 @@ export default function TransformerAttentionLab() {
                 For the current query, which key gets the <strong>highest</strong> softmax weight?
               </>
             }
+            storageKey="transformer-attn"
+            options={labels.map((l, i) => ({
+              id: l,
+              label: l,
+              isCorrect: i === topIdx,
+            }))}
             revealLabel="Reveal top key"
           >
             <p>

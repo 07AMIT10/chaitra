@@ -176,6 +176,13 @@ export default function MixtureOfExpertsLab() {
                 idle?
               </>
             }
+            storageKey="mixture-of-experts"
+            options={[
+              { id: "idle-3", label: "3 experts stay idle", isCorrect: denseFLOPs - topK === 3 },
+              { id: "idle-2", label: "2 experts stay idle", isCorrect: denseFLOPs - topK === 2 },
+              { id: "idle-1", label: "1 expert stays idle", isCorrect: denseFLOPs - topK === 1 },
+              { id: "idle-0", label: "0 experts stay idle", isCorrect: denseFLOPs - topK === 0 },
+            ]}
             revealLabel="Reveal active fraction"
           >
             <p>

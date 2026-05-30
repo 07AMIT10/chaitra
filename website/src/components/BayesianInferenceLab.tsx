@@ -298,6 +298,11 @@ export default function BayesianInferenceLab() {
       <PredictReveal
         key={`${priorPct}-${belief.steps.length}-${belief.currentPrior}`}
         prompt={predictPrompt}
+        storageKey="bayesian-inf"
+        options={[
+          { id: "exceed", label: "Yes — posterior will exceed 50%", isCorrect: previewPosterior >= 0.5 },
+          { id: "below", label: "No — posterior stays below 50%", isCorrect: previewPosterior < 0.5 },
+        ]}
         revealLabel="Show posterior vs intuition"
       >
         <ComparePanel

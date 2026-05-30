@@ -176,6 +176,11 @@ export default function RateLimitingLab() {
             (429)?
           </>
         }
+        storageKey="rate-limit"
+        options={[
+          { id: "yes", label: "Yes — more than half dropped", isCorrect: dropped > accepted },
+          { id: "no", label: "No — most requests accepted", isCorrect: dropped <= accepted },
+        ]}
         revealLabel="Show accepted vs dropped"
       >
         <ComparePanel

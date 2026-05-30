@@ -361,6 +361,11 @@ export default function ProbabilisticConsensusLab() {
             {avalancheCommit}.)
           </>
         }
+        storageKey="probabilistic-consensus"
+        options={[
+          { id: "yes", label: "Yes — reversal risk is below threshold", isCorrect: snap.nakamoto.meetsThreshold },
+          { id: "no", label: "No — reversal risk is still above threshold", isCorrect: !snap.nakamoto.meetsThreshold },
+        ]}
         revealLabel="Show probabilistic vs commit-threshold ground truth"
       >
         <ComparePanel

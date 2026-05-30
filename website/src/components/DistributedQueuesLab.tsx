@@ -318,6 +318,11 @@ export default function DistributedQueuesLab() {
             <strong>user-order violations</strong> after round-robin consumption?
           </>
         }
+        storageKey="distributed-queues"
+        options={[
+          { id: "both-true", label: "Yes, both statements are true (hash is hotter, random has order violations)", isCorrect: hashHotter && randomMoreViolations },
+          { id: "one-false", label: "No, one or both are false (low skew or no order violations)", isCorrect: !(hashHotter && randomMoreViolations) },
+        ]}
         revealLabel="Compare hash vs random routing"
       >
         <ComparePanel

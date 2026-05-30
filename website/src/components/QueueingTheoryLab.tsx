@@ -177,6 +177,11 @@ export default function QueueingTheoryLab() {
             <strong>explode</strong> (unbounded growth)?
           </>
         }
+        storageKey="queueing"
+        options={[
+          { id: "explode", label: "Yes — queue grows without bound", isCorrect: unstable },
+          { id: "stable", label: "No — queue is stable", isCorrect: !unstable },
+        ]}
         revealLabel="Show theory vs simulation"
       >
         <ComparePanel

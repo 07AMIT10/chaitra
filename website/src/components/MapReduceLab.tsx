@@ -349,6 +349,11 @@ export default function MapReduceLab() {
             <strong>2×</strong> versus waiting for the straggler alone?
           </>
         }
+        storageKey="mapreduce"
+        options={[
+          { id: "yes", label: "Yes — backup shortens map phase by >2×", isCorrect: mapCompare !== null && mapCompare.speedup > 2.0 },
+          { id: "no", label: "No — speedup is ≤ 2× (or no straggler active)", isCorrect: mapCompare === null || mapCompare.speedup <= 2.0 },
+        ]}
         revealLabel="Compare map phase with vs without backup"
       >
         <ComparePanel

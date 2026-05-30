@@ -154,7 +154,17 @@ const noneTopics = fs.readdirSync(contentRoot).filter((d) => {
   return fs.statSync(p).isDirectory() && !P1_LABS[d] && !P2_LABS[d] && d !== "bloom-filters";
 });
 
+const SPECIAL_NARRATIVES = new Set([
+  "large-language-models",
+  "statistical-learning",
+  "adaptive-cloud-orchestration"
+]);
+
 for (const slug of noneTopics) {
+  if (SPECIAL_NARRATIVES.has(slug)) {
+    console.log(`skipping special narrative ${slug} (preserved custom layout)`);
+    continue;
+  }
   if (!fs.existsSync(path.join(contentRoot, slug, "readme-body.md"))) continue;
   const dir = path.join(contentRoot, slug);
   fs.mkdirSync(dir, { recursive: true });

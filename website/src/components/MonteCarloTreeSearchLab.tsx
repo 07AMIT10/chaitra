@@ -103,7 +103,7 @@ export default function MonteCarloTreeSearchLab() {
         Object.entries(state.nodes).map(([k, v]) => [k, { ...v }])
       ),
     };
-    const trace = runMctsIteration(next, exploration, randRef());
+    const trace = runMctsIteration(next, exploration, randRef);
     setState(next);
     setLastPhase(trace.phase);
     setActivePath(trace.path);
@@ -346,6 +346,11 @@ export default function MonteCarloTreeSearchLab() {
             visits than <strong>Move C</strong> (UCT should favor the 78% leaf over the C→C1 trap)?
           </>
         }
+        storageKey="mcts"
+        options={[
+          { id: "a-wins", label: "Yes — Move A leads in visits", isCorrect: matchesTruth },
+          { id: "c-wins", label: "No — Move C has more visits", isCorrect: !matchesTruth },
+        ]}
         revealLabel="Show MCTS vs ground truth"
       >
         <ComparePanel

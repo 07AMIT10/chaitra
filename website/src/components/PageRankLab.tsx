@@ -258,6 +258,11 @@ export default function PageRankLab() {
             L1 change &lt; 0.05)?
           </>
         }
+        storageKey="pagerank"
+        options={[
+          { id: "yes", label: "Yes — converged (Δ < 0.05)", isCorrect: convergedSoon },
+          { id: "no", label: "No — not converged yet", isCorrect: !convergedSoon },
+        ]}
         revealLabel="Show PageRank vs uniform distribution"
       >
         <ComparePanel

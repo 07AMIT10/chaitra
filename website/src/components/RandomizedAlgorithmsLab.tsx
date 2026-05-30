@@ -285,6 +285,11 @@ export default function RandomizedAlgorithmsLab() {
                 use <em>more</em> comparisons than Las Vegas? (Expected LV ≈ {formatRa(lvTheory)}.)
               </>
             }
+            storageKey="randomized-algorithms"
+            options={[
+              { id: "yes", label: "Yes — deterministic comparisons > Las Vegas", isCorrect: detBeatsLv },
+              { id: "no", label: "No — Las Vegas comparisons ≥ deterministic", isCorrect: !detBeatsLv },
+            ]}
             revealLabel="Reveal comparison counts"
           >
             <p>

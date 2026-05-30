@@ -223,6 +223,11 @@ export default function InformationTheoryLab() {
             <strong>{symbols.length}</strong> symbols?
           </>
         }
+        storageKey="information-theory"
+        options={[
+          { id: "below", label: "Yes — H(X) is strictly below uniform H", isCorrect: stats.gap > 0.005 },
+          { id: "equal", label: "No — H(X) is equal (or almost equal) to uniform H", isCorrect: stats.gap <= 0.005 },
+        ]}
         revealLabel="Show entropy vs uniform baseline"
       >
         <ComparePanel

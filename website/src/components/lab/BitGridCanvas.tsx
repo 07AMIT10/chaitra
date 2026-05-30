@@ -15,7 +15,7 @@ const DEFAULT_COLORS: BitGridColors = {
 
 type BitGridCanvasProps = {
   length: number;
-  bits: readonly boolean[];
+  bits: readonly boolean[] | Uint8Array | readonly number[];
   probeIndices?: readonly number[];
   highlightProbes?: boolean;
   colors?: BitGridColors;

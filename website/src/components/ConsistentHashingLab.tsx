@@ -255,6 +255,11 @@ export default function ConsistentHashingLab() {
             )}
           </>
         }
+        storageKey="consistent-hash"
+        options={remap ? [
+          { id: "close", label: `Close to ideal (~${idealMoved} keys move)`, isCorrect: remap.moved <= idealMoved + 2 },
+          { id: "many", label: "Many more keys move than ideal", isCorrect: remap.moved > idealMoved + 2 },
+        ] : undefined}
         revealLabel="Show remapped vs stable"
       >
         <ComparePanel

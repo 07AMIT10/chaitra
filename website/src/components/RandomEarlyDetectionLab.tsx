@@ -369,6 +369,11 @@ export default function RandomEarlyDetectionLab() {
             <strong>tail-drop</strong> hits 100% capacity?
           </>
         }
+        storageKey="random-early-detection"
+        options={[
+          { id: "yes", label: "Yes — RED avoids full buffer while tail-drop saturates", isCorrect: redAvoidsFull },
+          { id: "no", label: "No — either both saturate or neither does", isCorrect: !redAvoidsFull },
+        ]}
         revealLabel="Compare RED vs tail-drop"
       >
         <ComparePanel

@@ -188,6 +188,11 @@ export default function GossipProtocolsLab() {
             round: {round}, {infected}/{nodes} infected.)
           </>
         }
+        storageKey="gossip"
+        options={[
+          { id: "yes", label: `Yes — converges within ${predictThreshold} rounds`, isCorrect: convergenceRounds <= predictThreshold },
+          { id: "no", label: `No — needs more than ${predictThreshold} rounds`, isCorrect: convergenceRounds > predictThreshold },
+        ]}
         revealLabel="Show infected vs susceptible & convergence"
       >
         <ComparePanel

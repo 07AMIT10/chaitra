@@ -314,6 +314,11 @@ export default function ProbabilisticSchedulingLab() {
             random placement — closer to <strong>greedy optimal</strong> (max {optMax})?
           </>
         }
+        storageKey="probabilistic-scheduling"
+        options={[
+          { id: "yes", label: "Yes — sample-k achieves lower avg max load than random", isCorrect: sampleWins },
+          { id: "no", label: "No — avg max load is similar or random wins (try heavier load)", isCorrect: !sampleWins },
+        ]}
         revealLabel="Compare random vs sample-k vs optimal"
       >
         <ComparePanel

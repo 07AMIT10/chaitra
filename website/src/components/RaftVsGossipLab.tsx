@@ -288,6 +288,11 @@ export default function RaftVsGossipLab() {
       <PredictReveal
         key={`${mode}-${nodes}-${fanout}-${round}`}
         prompt={predictPrompt}
+        storageKey="raft-vs-gossip"
+        options={[
+          { id: "yes", label: "Yes — commit / full spread happens within step threshold", isCorrect: mode === "raft" ? true : gossipFullRounds <= predictThreshold },
+          { id: "no", label: "No — takes longer (or gossip scale is too large)", isCorrect: mode === "raft" ? false : gossipFullRounds > predictThreshold },
+        ]}
         revealLabel="Show protocol vs ground truth"
       >
         <ComparePanel

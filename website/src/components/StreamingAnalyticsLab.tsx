@@ -283,6 +283,11 @@ export default function StreamingAnalyticsLab() {
             events that arrive <strong>after</strong> the watermark closes the window be dropped?
           </>
         }
+        storageKey="streaming-analytics"
+        options={[
+          { id: "match", label: "Yes — the emitted total matches the exact sum (no tunnel events dropped)", isCorrect: !firstMiss },
+          { id: "dropped", label: "No — some tunnel events arrived after watermark close and were dropped", isCorrect: firstMiss },
+        ]}
         revealLabel="Compare emitted vs exact"
       >
         <ComparePanel

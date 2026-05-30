@@ -196,6 +196,11 @@ export default function PowerOfTwoChoicesLab() {
             <strong>lower average max load</strong> than pure random assignment?
           </>
         }
+        storageKey="power-of-two"
+        options={[
+          { id: "yes", label: "Yes — power-of-two max load is lower", isCorrect: pot2Wins },
+          { id: "no", label: "No — they are roughly the same or random wins", isCorrect: !pot2Wins },
+        ]}
         revealLabel="Show random vs power-of-two max load"
       >
         <ComparePanel

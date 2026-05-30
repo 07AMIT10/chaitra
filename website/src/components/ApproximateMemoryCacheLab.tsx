@@ -331,6 +331,11 @@ export default function ApproximateMemoryCacheLab() {
             ratio on the cache-scan trace?
           </>
         }
+        storageKey="approximate-memory-cache"
+        options={[
+          { id: "match", label: "Yes — sketch admission matches exact-frequency hits", isCorrect: admission.sketch.hits === admission.exact.hits },
+          { id: "differ", label: "No — sketch admission loses hits due to CMS error", isCorrect: admission.sketch.hits !== admission.exact.hits },
+        ]}
         revealLabel="Compare oracle vs sketch"
       >
         <ComparePanel

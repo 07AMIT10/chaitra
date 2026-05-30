@@ -345,6 +345,16 @@ export default function ProbabilisticDatabasesLab() {
             </>
           )
         }
+        storageKey="probabilistic-databases"
+        options={
+          isExistsKitchen ? [
+            { id: "yes", label: "Yes — P(high temp) > 95% due to extensional OR", isCorrect: kitchenExpected > 0.95 },
+            { id: "no", label: "No — P(high temp) is ≤ 95% (e.g. capped at max)", isCorrect: kitchenExpected <= 0.95 },
+          ] : [
+            { id: "disagree", label: "Yes — they disagree on the result", isCorrect: ground.rows.length !== result.passingThreshold.length },
+            { id: "agree", label: "No — they agree on which rows to include", isCorrect: ground.rows.length === result.passingThreshold.length },
+          ]
+        }
         revealLabel="Reveal probabilistic vs deterministic"
       >
         <ComparePanel

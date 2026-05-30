@@ -194,6 +194,11 @@ export default function TokenRoutingLab() {
                 {formatLoad(ideal)})?
               </>
             }
+            storageKey="token-routing"
+            options={[
+              { id: "yes", label: "Yes — max load exceeds 1.5× ideal", isCorrect: overloaded },
+              { id: "no", label: "No — max load is within 1.5× ideal", isCorrect: !overloaded },
+            ]}
             revealLabel="Reveal imbalance"
           >
             <p>

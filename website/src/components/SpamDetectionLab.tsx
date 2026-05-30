@@ -174,6 +174,11 @@ export default function SpamDetectionLab() {
             this <strong>spam</strong> (posterior ≥ 50%)?
           </>
         }
+        storageKey="spam-detection"
+        options={[
+          { id: "spam", label: "Yes — classified as spam", isCorrect: result.prediction === "spam" },
+          { id: "ham", label: "No — classified as ham", isCorrect: result.prediction === "ham" },
+        ]}
         revealLabel="Show prediction vs label"
       >
         <ComparePanel

@@ -393,6 +393,11 @@ export default function ProbabilityTheoryLab() {
             compared to a run with only <strong>40</strong> trials?
           </>
         }
+        storageKey="probability-theory"
+        options={[
+          { id: "below", label: "Yes — |x̄ - μ| drops below 0.02", isCorrect: llnTight },
+          { id: "above", label: "No — |x̄ - μ| is ≥ 0.02 (chaos wins)", isCorrect: !llnTight },
+        ]}
         revealLabel="Compare small-N chaos vs large-N LLN"
       >
         <ComparePanel

@@ -292,6 +292,11 @@ export default function EventualConsistencyLab() {
             {formatProbability(pStale)} at Δt = {formatDeltaT(deltaT)}.)
           </>
         }
+        storageKey="eventual-consistency"
+        options={[
+          { id: "stale", label: "Yes — read is likely stale", isCorrect: predictStale },
+          { id: "fresh", label: "No — read is fresh or no read occurred", isCorrect: !predictStale },
+        ]}
         revealLabel="Show read vs authoritative & merge"
       >
         <ComparePanel
