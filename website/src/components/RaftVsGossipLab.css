@@ -1,0 +1,60 @@
+.raft-gossip-lab__mode {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+}
+
+.raft-gossip-lab__mode .lab__btn--active {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+}
+
+.raft-gossip-lab__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(28px, 1fr));
+  gap: 4px;
+  margin: var(--space-3) 0;
+  max-width: 360px;
+}
+
+.raft-gossip-lab__node {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-muted) 30%, transparent);
+  border: 1px solid var(--color-muted);
+  transition: background 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+}
+
+.raft-gossip-lab__grid--static .raft-gossip-lab__node {
+  transition: none;
+}
+
+.raft-gossip-lab__node--leader {
+  background: color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-accent) 35%, transparent);
+}
+
+.raft-gossip-lab__node--replicating {
+  border-color: var(--color-warn, #c9a227);
+  background: color-mix(in srgb, var(--color-warn, #c9a227) 25%, transparent);
+}
+
+.raft-gossip-lab__node--committed,
+.raft-gossip-lab__node--informed {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.raft-gossip-lab__grid--static .raft-gossip-lab__node--committed,
+.raft-gossip-lab__grid--static .raft-gossip-lab__node--informed {
+  transform: none;
+}
+
+.raft-gossip-lab__legend {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin: 0 0 var(--space-2);
+}

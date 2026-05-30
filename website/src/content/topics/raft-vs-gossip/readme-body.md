@@ -1,4 +1,30 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Dist[Distributed systems intuition]
+  Gossip[Gossip Protocols] --> Compare[Raft vs Gossip]
+  Dist --> Compare
+  CAP[CAP theorem intuition] --> Compare
+```
+
+## When to use
+
+- **Raft (or Paxos)** when you need **linearizable** state — Kubernetes etcd, service discovery with strict ordering, financial ledgers.
+- **Gossip** when you need **massive scale** and can accept **eventual consistency** — Cassandra/Scylla membership, metrics fan-out, anti-entropy.
+- **Side-by-side comparison** when architects must justify CP vs AP trade-offs on the same cluster size.
+
+## When not to use
+
+- **Raft** for 100+ node write-heavy clusters — leader fan-out is \(O(N)\) per write and saturates the leader NIC.
+- **Gossip** when every read must see the latest write — use quorum reads on Raft or a primary-replica log instead.
+- **Either alone** when the real requirement is CRDT merge semantics — pair gossip with conflict-free data types (`crdts-plus-probability`).
+
+## Lab
+
+On the [interactive Raft vs gossip lab](/topics/raft-vs-gossip#lab), use the **same N-node grid** and toggle **Raft** vs **Gossip**. Step **replication** or **gossip ticks**, try **Etcd (N=5)**, **Cassandra scale**, or **Raft O(N) load** presets, predict quorum commit or full epidemic spread within the suggested step budget, then reveal **committed vs informed** counts against \(O(N)\) vs \(O(\log N)\) message models.
+
 ## Simple Fundamental Explanation
 Imagine you need to keep a group of 5 generals perfectly in sync about a battle plan.
 - **The Raft Way (Strong Leadership)**: The generals vote to elect one Supreme Commander. The Commander writes the plan in a ledger, makes copies, and forces the other 4 generals to sign a receipt confirming they received the exact copy. If the Commander dies, everything pauses until a new one is elected. Everyone is always 100% in agreement, but it requires massive coordination.

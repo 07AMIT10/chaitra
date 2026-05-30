@@ -86,7 +86,7 @@ const LAB_TIER = {
   "information-theory": "B",
   "probability-theory": "B",
   "mapreduce": "A",
-  "raft-vs-gossip": "B",
+  "raft-vs-gossip": "A",
   "consensus-systems": "B",
   "probabilistic-consensus": "B",
   "eventual-consistency": "B",

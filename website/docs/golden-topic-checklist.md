@@ -36,3 +36,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | crdts-plus-probability | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | pagerank | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | mapreduce | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| raft-vs-gossip | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
