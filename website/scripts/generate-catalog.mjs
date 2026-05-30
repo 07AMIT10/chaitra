@@ -82,7 +82,7 @@ const LAB_TIER = {
   "pagerank": "A",
   "monte-carlo-systems": "A",
   "monte-carlo-tree-search": "A",
-  "randomized-algorithms": "B",
+  "randomized-algorithms": "A",
   "information-theory": "B",
   "probability-theory": "B",
   "mapreduce": "A",

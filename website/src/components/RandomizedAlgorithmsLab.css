@@ -1,0 +1,78 @@
+.ra-lab__array {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.75rem 0;
+}
+
+.ra-lab__cell {
+  min-width: 2rem;
+  padding: 0.35rem 0.45rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+  font-size: 0.85rem;
+}
+
+.ra-lab__cell--target {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface));
+  font-weight: 600;
+}
+
+.ra-lab__bars {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+  align-items: end;
+  min-height: 8rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.ra-lab__bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+}
+
+.ra-lab__bar-track {
+  width: 100%;
+  max-width: 4.5rem;
+  height: 6rem;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.ra-lab__bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.25s ease;
+}
+
+.ra-lab__bar--lv {
+  background: var(--color-accent);
+}
+
+.ra-lab__bar--mc {
+  background: color-mix(in srgb, var(--color-warn, #c90) 75%, var(--color-accent));
+}
+
+.ra-lab__bar--det {
+  background: var(--color-muted);
+}
+
+.ra-lab__scatter--static .ra-lab__bar {
+  transition: none;
+}
+
+.ra-lab__legend {
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  margin: 0 0 0.5rem;
+}

@@ -249,7 +249,7 @@ Execute template above in order:
 - [x] **Task 29:** `streaming-analytics`
 - [x] **Task 30:** `monte-carlo-systems`
 - [x] **Task 31:** `monte-carlo-tree-search`
-- [ ] **Task 32:** `randomized-algorithms`
+- [x] **Task 32:** `randomized-algorithms`
 - [ ] **Task 33:** `information-theory`
 - [ ] **Task 34:** `probability-theory`
 

@@ -35,7 +35,11 @@ const P2_LABS = {
     path: "../../../components/MonteCarloTreeSearchLab.tsx",
     heading: "MCTS selection, expansion & rollouts",
   },
-  "randomized-algorithms": { component: "RandomizedLab", path: "../../../components/minisim/RandomizedLab.tsx", heading: "Las Vegas vs Monte Carlo" },
+  "randomized-algorithms": {
+    component: "RandomizedAlgorithmsLab",
+    path: "../../../components/RandomizedAlgorithmsLab.tsx",
+    heading: "Las Vegas vs Monte Carlo",
+  },
   "mapreduce": { component: "MapReduceLab", path: "../../../components/MapReduceLab.tsx", heading: "Map shuffle reduce" },
   "raft-vs-gossip": { component: "RaftVsGossipLab", path: "../../../components/RaftVsGossipLab.tsx", heading: "Raft vs gossip" },
   "consensus-systems": { component: "ConsensusSystemsLab", path: "../../../components/ConsensusSystemsLab.tsx", heading: "Log replication" },
