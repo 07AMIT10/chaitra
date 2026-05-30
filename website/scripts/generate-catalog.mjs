@@ -101,7 +101,7 @@ const LAB_TIER = {
   "transformer-attention": "B",
   "distributed-queues": "A",
   "probabilistic-scheduling": "A",
-  "probabilistic-databases": "B",
+  "probabilistic-databases": "A",
 };
 
 export function hasSitePage(slug) {

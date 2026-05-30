@@ -45,3 +45,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | probabilistic-scheduling | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | bayesian-inference-systems | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | bayesian-distributed-systems | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| probabilistic-databases | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |

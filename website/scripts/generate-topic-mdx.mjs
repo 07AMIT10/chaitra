@@ -59,7 +59,11 @@ const P2_LABS = {
     heading: "Partition ordering tradeoff",
   },
   "probabilistic-scheduling": { component: "ProbabilisticSchedulingLab", path: "../../../components/ProbabilisticSchedulingLab.tsx", heading: "Random placement" },
-  "probabilistic-databases": { component: "ProbDBLab", path: "../../../components/minisim/ProbDBLab.tsx", heading: "Uncertain tuples" },
+  "probabilistic-databases": {
+    component: "ProbabilisticDatabasesLab",
+    path: "../../../components/ProbabilisticDatabasesLab.tsx",
+    heading: "Uncertain tuples",
+  },
 };
 
 const TITLES = JSON.parse(fs.readFileSync(path.join(repoRoot, "website/src/data/topics.json"), "utf8"))

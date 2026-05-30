@@ -1,0 +1,63 @@
+.prob-db-lab__table-wrap {
+  overflow-x: auto;
+  margin: var(--space-3) 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.prob-db-lab__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.prob-db-lab__table th,
+.prob-db-lab__table td {
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.prob-db-lab__table th {
+  background: var(--color-surface);
+  font-weight: 600;
+}
+
+.prob-db-lab__row--match {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.prob-db-lab__row--pass {
+  background: color-mix(in srgb, #22c55e 10%, transparent);
+}
+
+.prob-db-lab__conf-bar {
+  display: inline-block;
+  height: 0.5rem;
+  border-radius: 2px;
+  background: var(--color-accent);
+  min-width: 2px;
+  vertical-align: middle;
+  margin-right: var(--space-1);
+}
+
+.prob-db-lab__sql {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.8rem;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border-radius: var(--radius-sm);
+  margin: var(--space-2) 0;
+  overflow-x: auto;
+}
+
+.prob-db-lab__answer {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: var(--space-2) 0;
+}
+
+.prob-db-lab__formula {
+  font-size: 0.85rem;
+  color: var(--color-muted, #64748b);
+}

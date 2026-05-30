@@ -3,12 +3,20 @@ title: Probabilistic Databases
 ---
 
 import ReadmeBody from "./readme-body.md";
-import ProbDBLab from "../../../components/minisim/ProbDBLab.tsx";
+import ProbabilisticDatabasesLab from "../../../components/ProbabilisticDatabasesLab.tsx";
 
 ## Uncertain tuples
+
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section for **uncertain tuples with confidence
+  scores**. Browse **Sensors** or **Users** tables, pick an **EXISTS** or **SELECT** query, drag
+  **confidence threshold τ**, read per-row **P(match query)**, try **Kitchen EXISTS**, **Threshold
+  mistake**, or **Users age > 30** presets, predict whether **P(high temp in Kitchen) &gt; 95%**, then
+  reveal **probabilistic OR ≈ 98%** vs **deterministic conf ≥ 50%**.
+</Callout>
 
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>
 
-<ProbDBLab client:visible />
+<ProbabilisticDatabasesLab client:visible />

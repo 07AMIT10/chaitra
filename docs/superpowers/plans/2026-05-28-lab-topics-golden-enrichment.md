@@ -244,7 +244,7 @@ Execute template above in order:
 
 - [x] **Task 25:** `bayesian-inference-systems`
 - [x] **Task 26:** `bayesian-distributed-systems`
-- [ ] **Task 27:** `probabilistic-databases`
+- [x] **Task 27:** `probabilistic-databases`
 - [ ] **Task 28:** `streaming-algorithms` — split from meta MiniSim into real multi-sketch or dedicated narrative+lab
 - [ ] **Task 29:** `streaming-analytics`
 - [ ] **Task 30:** `monte-carlo-systems`

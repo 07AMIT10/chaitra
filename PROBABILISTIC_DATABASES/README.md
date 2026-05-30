@@ -1,5 +1,31 @@
 # Probabilistic Databases: Querying Uncertainty
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Bayes[Bayes theorem]
+  Bayes --> Exists[Independent OR / AND]
+  Exists --> ProbDB[Probabilistic Databases]
+  SQL[SQL / relational queries] --> ProbDB
+```
+
+## When to use
+
+- **Noisy sensors and IoT** — combine readings with confidence instead of hard-filtering spikes in application code.
+- **Incomplete data pipelines** — store extraction or linkage scores with tuples (entity resolution, OCR, LLM extractions).
+- **Decision support with graded answers** — return “District 7 (99%)” vs “District 3 (55%)” instead of a false binary.
+
+## When not to use
+
+- **Strong dependencies between tuples** — independent OR/AND plans are wrong; you need factor graphs, BDDs, or Monte Carlo (#P-hard joins).
+- **Regulatory audit trails** — you often need a single committed fact table, not a distribution over worlds.
+- **Low latency on huge unsafe queries** — exact inference does not scale; approximate engines or deterministic ETL may be cheaper.
+
+## Lab
+
+On the [interactive probabilistic databases lab](/topics/probabilistic-databases#lab), browse **Sensors** or **Users** uncertain tables, pick an **EXISTS** or **SELECT** query, drag **confidence threshold τ**, read per-row **P(match query)**, try **Kitchen EXISTS**, **Threshold mistake**, or **Users age > 30** presets, predict whether **P(high temp in Kitchen) > 95%**, then reveal **probabilistic OR ≈ 98%** vs **deterministic conf ≥ 50%**.
+
 ## Simple Fundamental Explanation
 Imagine you are a detective trying to build a timeline of a crime. You have witnesses, but they are unreliable.
 - Witness 1 says: "The car was red (80% sure) or blue (20% sure)."
