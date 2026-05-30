@@ -3,12 +3,19 @@ title: Probability Theory
 ---
 
 import ReadmeBody from "./readme-body.md";
-import DiceLab from "../../../components/minisim/DiceLab.tsx";
+import ProbabilityTheoryLab from "../../../components/ProbabilityTheoryLab.tsx";
 
-## Dice and LLN
+## LLN, axioms & coin/die experiments
+
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section. Run **coin** or **die** trials, tune **N**
+  and **P(Heads)** (or die sides), read **x̄ vs μ** and **Kolmogorov axiom** checks on empirical
+  frequencies, try **Chaotic (40)** vs **LLN fair coin** presets, predict whether **|x̄−μ|** shrinks
+  when **N** grows, then reveal **small-N vs large-N** compare.
+</Callout>
 
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>
 
-<DiceLab client:visible />
+<ProbabilityTheoryLab client:visible />

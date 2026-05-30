@@ -32,7 +32,11 @@ const P2_LABS = {
     path: "../../../components/InformationTheoryLab.tsx",
     heading: "Entropy, surprisal & uniform baseline",
   },
-  "probability-theory": { component: "DiceLab", path: "../../../components/minisim/DiceLab.tsx", heading: "Dice and LLN" },
+  "probability-theory": {
+    component: "ProbabilityTheoryLab",
+    path: "../../../components/ProbabilityTheoryLab.tsx",
+    heading: "LLN, axioms & coin/die experiments",
+  },
   "random-early-detection": { component: "RandomEarlyDetectionLab", path: "../../../components/RandomEarlyDetectionLab.tsx", heading: "Early drop probability" },
   "monte-carlo-tree-search": {
     component: "MonteCarloTreeSearchLab",

@@ -1,4 +1,30 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Sets[Sets & counting] --> PT[Probability theory]
+  PT --> IT[Information theory]
+  PT --> Stats[Variance & tail bounds]
+  PT --> SRE[SLOs / error budgets]
+```
+
+## When to use
+
+- **Reasoning about aggregates** — load balancers, caches, and clusters where one bad node is noise but thousands of requests form a stable distribution.
+- **Sizing reliability targets** — SLOs, error budgets, and acceptable failure rates are applied probability.
+- **Bounding worst cases** — Markov/Chebyshev when you know means and variances but not the full distribution.
+
+## When not to use
+
+- You need **causal** claims from correlation alone — probability describes uncertainty, not mechanism.
+- **Tiny samples** drive the decision — LLN has not kicked in; use explicit models or more data.
+- Outcomes are **adversarial** or non-stationary — axioms assume a fixed probabilistic model.
+
+## Lab
+
+On the [interactive probability-theory lab](/topics/probability-theory#lab), flip a **coin** or roll a **fair die**, tune **N** and **P(Heads)**, read **sample mean x̄** vs **μ**, check **empirical P ∈ [0,1]** and **ΣP = 1**, try **Chaotic (40)** vs **LLN** presets, predict whether **|x̄−μ|** falls below **0.02** at large **N**, then reveal **small-N vs large-N** compare.
+
 ## Simple Fundamental Explanation
 Imagine you flip a coin. You know it will be Heads or Tails.
 If you flip it 10 times, you might get 8 Heads and 2 Tails. This is chaotic and unpredictable.

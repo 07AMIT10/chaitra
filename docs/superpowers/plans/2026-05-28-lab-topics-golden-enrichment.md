@@ -251,7 +251,9 @@ Execute template above in order:
 - [x] **Task 31:** `monte-carlo-tree-search`
 - [x] **Task 32:** `randomized-algorithms`
 - [x] **Task 33:** `information-theory`
-- [ ] **Task 34:** `probability-theory`
+- [x] **Task 34:** `probability-theory`
+
+**Wave 3 gate:** ✓ All 10 slugs `status: "golden"`; `npm run build` PASS (2026-05-30).
 
 ---
 

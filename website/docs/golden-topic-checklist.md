@@ -50,3 +50,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | streaming-analytics | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | monte-carlo-tree-search | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | information-theory | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| probability-theory | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
