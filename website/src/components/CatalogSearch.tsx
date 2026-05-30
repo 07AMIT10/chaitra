@@ -20,6 +20,7 @@ const GITHUB_REPO = "https://github.com/07AMIT10/chaitra/tree/main";
 function statusClass(status: string): string {
   if (status === "golden" || status === "live") return "catalog__status--live";
   if (status === "preview") return "catalog__status--preview";
+  if (status === "readme-only") return "catalog__status--narrative";
   return "catalog__status--narrative";
 }
 
@@ -58,9 +59,13 @@ export default function CatalogSearch({ topics }: CatalogSearchProps) {
     let previews = 0;
     let readmes = 0;
     topics.forEach((t) => {
-      if (t.hasLab || t.status === "golden" || t.status === "live") labs++;
-      else if (t.status === "preview") previews++;
-      else readmes++;
+      if (t.status === "readme-only" || t.status === "coded" || t.status === "readme") {
+        readmes++;
+      } else if (t.hasLab || t.status === "golden" || t.status === "live") {
+        labs++;
+      } else if (t.status === "preview") {
+        previews++;
+      }
     });
     return { all: topics.length, labs, previews, readmes };
   }, [topics]);
@@ -117,10 +122,12 @@ export default function CatalogSearch({ topics }: CatalogSearchProps) {
       ) : (
         <ul className="catalog__grid">
           {filteredTopics.map((t) => {
-            const href =
-              t.status === "golden" || t.status === "live" || t.status === "preview"
-                ? `/topics/${t.slug}`
-                : `${GITHUB_REPO}/${t.folder}`;
+            const hasSitePage =
+              t.status === "golden" ||
+              t.status === "live" ||
+              t.status === "preview" ||
+              t.status === "readme-only";
+            const href = hasSitePage ? `/topics/${t.slug}` : `${GITHUB_REPO}/${t.folder}`;
             const langs = [t.hasPython && "Py", t.hasRust && "Rs"].filter(Boolean).join(" · ");
             return (
               <li key={t.slug} className="catalog__card">
