@@ -186,7 +186,7 @@
     "title": "Gossip Protocols",
     "folder": "GOSSIP_PROTOCOLS",
     "labTier": "A",
-    "status": "live",
+    "status": "golden",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,

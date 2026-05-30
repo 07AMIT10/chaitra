@@ -1,5 +1,32 @@
 # Gossip Protocols: The Probabilistic Spread
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Gossip[Gossip Protocols]
+  Hash[Hash functions] --> Dist[Distributed systems intuition]
+  Dist --> Gossip
+  Bloom[Bloom Filters] --> Sketch[Approximate membership]
+  Sketch --> Gossip
+```
+
+## When to use
+
+- **Cluster membership & failure detection** — Cassandra, Consul, and similar systems propagate node state without a central registry.
+- **Eventually consistent metadata** — ring changes, health flags, and lightweight config that can tolerate seconds of staleness.
+- **Large-scale fan-out** where multicast trees are brittle and you want probabilistic spread with O(log N) convergence time.
+
+## When not to use
+
+- You need **strong consistency** or a single authoritative ordering of events (use Raft/Paxos or a primary-replica log).
+- **Every message must be delivered exactly once** with no duplicates — gossip is redundant by design; pair with idempotency or CRDTs.
+- **Low-latency point-to-point** between two known peers — direct RPC is simpler than epidemic fan-out.
+
+## Lab
+
+On the [interactive gossip lab](/topics/gossip-protocols#lab), set **Nodes (N)** and **Fanout**, then **Step round** on the peer grid to watch push gossip spread. Compare **infected vs susceptible** counts and reveal **rounds to convergence** against the O(log N) heuristic. Try **Full mesh slow** (large N, fanout 1), **High fanout**, or **Single seed** presets, then predict whether the cluster converges within the suggested round budget.
+
 ## Simple Fundamental Explanation
 Imagine an office with 1,000 employees. The CEO wants to announce a surprise bonus.
 - **Centralized Approach**: The CEO calls all 1,000 employees individually. If the CEO's phone breaks, nobody finds out.
