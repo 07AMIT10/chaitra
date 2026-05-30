@@ -6,6 +6,7 @@ const RUST_SOURCE =
   "https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.rs";
 
 type WasmModule = {
+  default: (input?: RequestInfo | URL) => Promise<unknown>;
   BloomFilter: new (items_count: number, fp_prob: number) => {
     size: number;
     hash_count: number;
@@ -32,13 +33,17 @@ export default function WasmBloomRunner({
     (async () => {
       try {
         const mod = (await import(/* @vite-ignore */ WASM_JS)) as WasmModule;
+        await mod.default();
         const demo = mod.run_reference_demo();
         if (!cancelled) {
           setOutput(demo.trimEnd());
           setStatus("ready");
         }
-      } catch {
-        if (!cancelled) setStatus("error");
+      } catch (err) {
+        if (!cancelled) {
+          console.error("WASM load failed:", err);
+          setStatus("error");
+        }
       }
     })();
     return () => {

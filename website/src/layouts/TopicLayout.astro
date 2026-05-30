@@ -8,7 +8,7 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
 ---
 <BaseLayout title={title}>
   {pyodide && (
-    <script slot="head" src={PYODIDE_SCRIPT} defer></script>
+    <script slot="head" src={PYODIDE_SCRIPT} crossorigin="anonymous"></script>
   )}
   <a class="skip-link" href="#narrative">Skip to content</a>
   <nav class="topic__breadcrumbs" aria-label="Breadcrumb">

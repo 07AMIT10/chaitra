@@ -113,12 +113,17 @@
   transition: background 0.15s ease, color 0.15s ease;
 }
 
-.home-hero__cta--primary {
+/* Beat BaseLayout `main a:link` (blue on blue) */
+main .home-hero__cta--primary,
+main .home-hero__cta--primary:link,
+main .home-hero__cta--primary:visited,
+main .home-hero__cta--primary:hover,
+main .home-hero__cta--primary:active {
   background: var(--color-accent);
   color: var(--color-bg);
 }
 
-.home-hero__cta--primary:hover {
+main .home-hero__cta--primary:hover {
   background: var(--color-accent-hover);
   color: var(--color-bg);
 }
