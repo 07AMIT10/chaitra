@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { cmsDimensions, errorBound } from "../lib/cms-math";
 import { CountMinSketch } from "../lib/cms-sim";
 import {
@@ -27,6 +27,21 @@ export default function CountMinSketchLab() {
   const [streamIdx, setStreamIdx] = useState(STREAM_MAX);
   const [epsilonPct, setEpsilonPct] = useState(1);
   const [queryKey, setQueryKey] = useState("apple");
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = setInterval(() => {
+      setStreamIdx((prev) => {
+        if (prev >= STREAM_MAX) {
+          setIsPlaying(false);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 150);
+    return () => clearInterval(interval);
+  }, [isPlaying]);
 
   const epsilon = epsilonPct / 100;
   const { width, depth } = cmsDimensions(epsilon, 0.05);
@@ -121,8 +136,32 @@ export default function CountMinSketchLab() {
               max={STREAM_MAX}
               value={streamIdx}
               valueText={`${streamIdx + 1} / ${STREAM.length}`}
-              onChange={setStreamIdx}
+              onChange={(val) => {
+                setIsPlaying(false);
+                setStreamIdx(val);
+              }}
             />
+            <div className="lab__media-controls">
+              <button
+                type="button"
+                className="lab__btn lab__btn--ghost"
+                onClick={() => setIsPlaying(!isPlaying)}
+                style={{ flex: 1, minHeight: "36px" }}
+              >
+                {isPlaying ? "⏸ Pause" : "▶ Play"}
+              </button>
+              <button
+                type="button"
+                className="lab__btn lab__btn--ghost"
+                onClick={() => {
+                  setIsPlaying(false);
+                  setStreamIdx(0);
+                }}
+                style={{ minHeight: "36px" }}
+              >
+                ⏮ Reset
+              </button>
+            </div>
             <ScenarioPresets
               aria-label="Stream scenario presets"
               presets={[
@@ -159,10 +198,14 @@ export default function CountMinSketchLab() {
         prompt={
           <>
             Before revealing: for &quot;{queryKey}&quot; after {prefix.length} events, will the CMS
-            estimate <strong>overestimate</strong>, <strong>match</strong>, or only apply if the key
-            appeared?
+            estimate <strong>overestimate</strong> or <strong>match</strong> the ground truth?
           </>
         }
+        storageKey="cms"
+        options={[
+          { id: "match", label: "Match ground truth", isCorrect: matches },
+          { id: "overestimate", label: "Overestimate (due to collision noise)", isCorrect: overestimate },
+        ]}
         revealLabel="Show estimate vs truth"
       >
         <ComparePanel

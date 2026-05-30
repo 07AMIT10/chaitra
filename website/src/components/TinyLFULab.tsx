@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatHitRatio } from "../lib/tinylfu-math";
 import {
   CACHE_SCAN_TRACE,
@@ -39,10 +39,25 @@ export default function TinyLFULab() {
   const [traceId, setTraceId] = useState<TraceId>("scan");
   const [capacity, setCapacity] = useState(8);
   const [step, setStep] = useState(CACHE_SCAN_TRACE.length - 1);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const trace = TRACES[traceId];
   const maxStep = trace.length - 1;
   const safeStep = Math.min(step, maxStep);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const interval = setInterval(() => {
+      setStep((prev) => {
+        if (prev >= maxStep) {
+          setIsPlaying(false);
+          return prev;
+        }
+        return prev + 1;
+      });
+    }, 150);
+    return () => clearInterval(interval);
+  }, [isPlaying, maxStep]);
 
   const withAdmit = useMemo(
     () => replayTrace(trace, capacity, true),
@@ -158,8 +173,32 @@ export default function TinyLFULab() {
               max={maxStep}
               value={safeStep}
               valueText={`${safeStep + 1} of ${trace.length} — key "${currentKey}"`}
-              onChange={setStep}
+              onChange={(val) => {
+                setIsPlaying(false);
+                setStep(val);
+              }}
             />
+            <div className="lab__media-controls">
+              <button
+                type="button"
+                className="lab__btn lab__btn--ghost"
+                onClick={() => setIsPlaying(!isPlaying)}
+                style={{ flex: 1, minHeight: "36px" }}
+              >
+                {isPlaying ? "⏸ Pause" : "▶ Play"}
+              </button>
+              <button
+                type="button"
+                className="lab__btn lab__btn--ghost"
+                onClick={() => {
+                  setIsPlaying(false);
+                  setStep(0);
+                }}
+                style={{ minHeight: "36px" }}
+              >
+                ⏮ Reset
+              </button>
+            </div>
             <ScenarioPresets
               aria-label="Cache trace scenario presets"
               presets={[
@@ -218,6 +257,11 @@ export default function TinyLFULab() {
             <strong>LRU-only</strong>?
           </>
         }
+        storageKey="tinylfu"
+        options={[
+          { id: "tlfu-wins", label: "TinyLFU achieves higher hit ratio", isCorrect: tlfuWins },
+          { id: "lru-ties-wins", label: "LRU ties or beats TinyLFU", isCorrect: !tlfuWins },
+        ]}
         revealLabel="Show hit ratio comparison"
       >
         <ComparePanel

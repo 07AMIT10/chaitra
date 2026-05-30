@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   bitArraySize,
   falsePositiveRate,
@@ -20,6 +20,7 @@ import {
   LabTabPanel,
   LabTabs,
   MetricsAside,
+  PredictReveal,
   RangeControl,
   ScenarioPresets,
   type LabMetric,
@@ -58,6 +59,23 @@ export default function BloomFilterLab() {
   ]);
   const [testKey, setTestKey] = useState("bluff");
   const [highlightIndices, setHighlightIndices] = useState<number[]>([]);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    setKeys([]);
+    let currentIdx = 0;
+    const interval = setInterval(() => {
+      if (currentIdx >= DEMO_PRESENT.length) {
+        setIsPlaying(false);
+        return;
+      }
+      const nextWord = DEMO_PRESENT[currentIdx];
+      setKeys((prev) => [...prev, nextWord]);
+      currentIdx++;
+    }, 600);
+    return () => clearInterval(interval);
+  }, [isPlaying]);
 
   const effectiveM = mode === "goal" ? bitArraySize(goalItems, goalFp) : m;
   const effectiveK =
@@ -248,11 +266,21 @@ export default function BloomFilterLab() {
               <ScenarioPresets
                 aria-label="Inserted keys presets"
                 presets={[
-                  { id: "demo", label: "Demo set", onSelect: loadDemo },
-                  { id: "overfill", label: "Overfill (mistake)", onSelect: cramFilter },
-                  { id: "clear", label: "Clear", onSelect: resetKeys },
+                  { id: "demo", label: "Demo set", onSelect: () => { setIsPlaying(false); loadDemo(); } },
+                  { id: "overfill", label: "Overfill (mistake)", onSelect: () => { setIsPlaying(false); cramFilter(); } },
+                  { id: "clear", label: "Clear", onSelect: () => { setIsPlaying(false); resetKeys(); } },
                 ]}
               />
+              <div className="lab__media-controls" style={{ marginTop: "var(--space-2)" }}>
+                <button
+                  type="button"
+                  className="lab__btn lab__btn--ghost"
+                  onClick={() => setIsPlaying(!isPlaying)}
+                  style={{ flex: 1, minHeight: "36px" }}
+                >
+                  {isPlaying ? "⏸ Pause Stream" : "▶ Play Insertion Stream"}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -335,28 +363,41 @@ export default function BloomFilterLab() {
           ))}
         </div>
 
-        <ComparePanel
-          leftLabel="Bloom filter"
-          rightLabel={`Exact set (${n} keys)`}
-          left={
-            testKey.trim() === ""
-              ? "—"
-              : probe.present
-                ? "Maybe present (all k bits set)"
-                : "Definitely not in set"
-          }
-          right={
-            testKey.trim() === ""
-              ? "—"
-              : exactHas.has(testKey.trim())
-                ? "Member"
-                : "Not stored"
-          }
-        />
-        {isDefinitelyNot && (
-          <p className="lab__status" role="note">
-            One bit at zero is enough — Bloom guarantees no false negatives.
-          </p>
+        {testKey.trim() !== "" ? (
+          <PredictReveal
+            key={testKey}
+            prompt={
+              <>
+                Before checking: for key <strong>&quot;{testKey}&quot;</strong>, will the Bloom Filter
+                report it as <strong>maybe present</strong> or <strong>definitely not present</strong>?
+              </>
+            }
+            storageKey="bloom"
+            options={[
+              { id: "maybe", label: "Maybe present (all k bits set)", isCorrect: probe.present },
+              { id: "not", label: "Definitely not present (at least one bit is 0)", isCorrect: !probe.present },
+            ]}
+            revealLabel="Query Bloom Filter"
+          >
+            <ComparePanel
+              leftLabel="Bloom filter"
+              rightLabel={`Exact set (${n} keys)`}
+              left={probe.present ? "Maybe present (all k bits set)" : "Definitely not in set"}
+              right={exactHas.has(testKey.trim()) ? "Member" : "Not stored"}
+            />
+            {isDefinitelyNot && (
+              <p className="lab__status" role="note">
+                One bit at zero is enough — Bloom guarantees no false negatives.
+              </p>
+            )}
+          </PredictReveal>
+        ) : (
+          <ComparePanel
+            leftLabel="Bloom filter"
+            rightLabel={`Exact set (${n} keys)`}
+            left="—"
+            right="—"
+          />
         )}
       </section>
     </LabShell>

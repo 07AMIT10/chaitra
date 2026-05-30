@@ -151,6 +151,11 @@ export default function HyperLogLogLab() {
             count ({exact}) for this stream?
           </>
         }
+        storageKey="hll"
+        options={[
+          { id: "inside", label: "Yes, within ±σ expected error", isCorrect: withinSigma },
+          { id: "outside", label: "No, outside ±σ expected error", isCorrect: !withinSigma },
+        ]}
         revealLabel="Show estimate vs exact"
       >
         <ComparePanel

@@ -148,6 +148,25 @@ The space required $m$ scales linearly with $n$. If you want to maintain a 1% fa
 
 ---
 
+## Hash Functions under the Hood (Implementation Parity)
+
+There is a subtle, high-performance optimization in how Bloom Filters are built in real-world environments compared to simple simulations:
+
+1. **Independent Salted Hashing (Python & JS Sim):**
+   In the Python code (`bloom_filter.py`), $k$ independent hash functions are simulated by appending a seed integer `i` to the input key string and hashing it with MD5:
+   $$\text{Hash}_i(x) = \text{MD5}(x + \text{str}(i)) \pmod m$$
+   While simple and easy to implement, executing MD5 $k$ times for every single stream event can become a computational bottleneck.
+
+2. **Double Hashing (Rust Port):**
+   In the Rust implementation (`bloom_filter.rs`), we utilize the **Kirsch-Mitzenmacher optimization** (Double Hashing). This technique shows that one can simulate an arbitrary number of independent hash functions using just two base hash values ($h_1$ and $h_2$) by combining them linearly:
+   $$\text{Hash}_i(x) = (h_1(x) + i \times h_2(x)) \pmod m$$
+   In our Rust code, $h_1$ and $h_2$ are generated using standard `DefaultHasher` (SipHash) with two different seeds. This requires only two hashing passes instead of $k$, vastly improving CPU throughput at scale.
+   
+> [!NOTE]
+> Due to this optimization, a key inserted in Python or Javascript will set different bit indices than the same key in Rust. While both filters maintain identical mathematical false-positive rates, their individual bit arrays will differ.
+
+---
+
 ## Benchmarks
 
 | Scenario | m | n | k | Notes |
