@@ -15,11 +15,13 @@ import {
 import {
   BitGridCanvas,
   BitGridLegend,
+  ComparePanel,
   LabShell,
   LabTabPanel,
   LabTabs,
   MetricsAside,
   RangeControl,
+  ScenarioPresets,
   type LabMetric,
   type LabTab,
 } from "./lab";
@@ -243,22 +245,14 @@ export default function BloomFilterLab() {
               <span className="lab__hint" id="lab-inserted-hint">
                 MD5-based hashes, same recipe as the Python topic code.
               </span>
-              <div
-                className="lab__row bloom-lab__probe-row"
-                role="group"
-                aria-labelledby="lab-inserted-label"
-                aria-describedby="lab-inserted-hint"
-              >
-                <button type="button" className="lab__btn lab__btn--ghost" onClick={loadDemo}>
-                  Demo set
-                </button>
-                <button type="button" className="lab__btn lab__btn--ghost" onClick={cramFilter}>
-                  Overfill (mistake)
-                </button>
-                <button type="button" className="lab__btn lab__btn--ghost" onClick={resetKeys}>
-                  Clear
-                </button>
-              </div>
+              <ScenarioPresets
+                aria-label="Inserted keys presets"
+                presets={[
+                  { id: "demo", label: "Demo set", onSelect: loadDemo },
+                  { id: "overfill", label: "Overfill (mistake)", onSelect: cramFilter },
+                  { id: "clear", label: "Clear", onSelect: resetKeys },
+                ]}
+              />
             </div>
           </div>
 
@@ -341,24 +335,24 @@ export default function BloomFilterLab() {
           ))}
         </div>
 
-        <div className="lab__compare">
-          <div>
-            <strong>Bloom filter</strong>
-            {testKey.trim() === ""
+        <ComparePanel
+          leftLabel="Bloom filter"
+          rightLabel={`Exact set (${n} keys)`}
+          left={
+            testKey.trim() === ""
               ? "—"
               : probe.present
                 ? "Maybe present (all k bits set)"
-                : "Definitely not in set"}
-          </div>
-          <div>
-            <strong>Exact set ({n} keys)</strong>
-            {testKey.trim() === ""
+                : "Definitely not in set"
+          }
+          right={
+            testKey.trim() === ""
               ? "—"
               : exactHas.has(testKey.trim())
                 ? "Member"
-                : "Not stored"}
-          </div>
-        </div>
+                : "Not stored"
+          }
+        />
         {isDefinitelyNot && (
           <p className="lab__status" role="note">
             One bit at zero is enough — Bloom guarantees no false negatives.
