@@ -6,6 +6,7 @@ interface PyodideInterface {
     batched?: (msg: string) => void;
     raw?: (charCode: number) => void;
   }): void;
+  setStderr?: (options: { batched: (msg: string) => void }) => void;
 }
 
 interface Window {

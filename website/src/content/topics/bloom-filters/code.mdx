@@ -1,5 +1,6 @@
 import CodePanel from "../../../components/CodePanel.tsx";
 import bloomPy from "../../../assets/code/bloom_filter.py.txt?raw";
+import bloomRs from "../../../assets/code/bloom_filter.rs.txt?raw";
 
 ## Run implementations
 
@@ -11,6 +12,8 @@ reference demo compiled to WASM, or open the full sources on GitHub.
   defaultPythonCode={bloomPy}
   pythonSourceUrl="https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.py"
   pythonSourceLabel="bloom_filter.py on GitHub"
+  rustSourceCode={bloomRs}
+  wasmRunner="bloom-filter"
   rustSourceUrl="https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.rs"
   rustSourceLabel="bloom_filter.rs on GitHub"
   githubTreeUrl="https://github.com/07AMIT10/chaitra/tree/main/BLOOM_FILTERS"

@@ -18,6 +18,7 @@
   color: var(--color-text);
   cursor: pointer;
   font: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
 }
 
 .code-panel__tab:hover {
@@ -28,6 +29,7 @@
   background: color-mix(in srgb, var(--color-accent) 18%, transparent);
   border-color: var(--color-accent);
   color: var(--color-accent-hover);
+  font-weight: 600;
 }
 
 .code-panel__tab:focus-visible {

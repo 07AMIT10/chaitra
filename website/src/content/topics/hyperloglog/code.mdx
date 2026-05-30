@@ -1,16 +1,18 @@
 import CodePanel from "../../../components/CodePanel.tsx";
 import hllPy from "../../../assets/code/hyperloglog.py.txt?raw";
+import hllRs from "../../../assets/code/hyperloglog.rs.txt?raw";
 
 ## Run implementations
 
-Edit and run Python in the browser (Pyodide), or open the full sources on GitHub. Rust reference
-code is in the repo; WASM runner for this topic is not wired yet.
+Edit and run Python in the browser (Pyodide), browse the Rust reference in CodeMirror, or open
+the full sources on GitHub.
 
 <CodePanel
   client:visible
   defaultPythonCode={hllPy}
   pythonSourceUrl="https://github.com/07AMIT10/chaitra/blob/main/HYPERLOGLOG/hyperloglog.py"
   pythonSourceLabel="hyperloglog.py on GitHub"
+  rustSourceCode={hllRs}
   rustSourceUrl="https://github.com/07AMIT10/chaitra/blob/main/HYPERLOGLOG/hyperloglog.rs"
   rustSourceLabel="hyperloglog.rs on GitHub"
   githubTreeUrl="https://github.com/07AMIT10/chaitra/tree/main/HYPERLOGLOG"

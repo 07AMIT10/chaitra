@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from "react";
-import "./PyodideRunner.css";
+import { CodeWorkbench, CodeMirrorPane, RunBar, TerminalPane, WorkbenchNotice } from "./code-workbench";
+import { pythonEditorExtensions } from "./code-workbench/editorExtensions";
+import { appendBatchedLine, formatTerminalOutput } from "../lib/format-stdout";
 
 const PYODIDE_VERSION = "0.26.4";
 const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
@@ -108,16 +110,27 @@ export default function PyodideRunner({
 
       let stdout = "";
       pyodide.setStdout({
-        batched: (msg: string) => {
-          stdout += msg;
+        batched: (line: string) => {
+          stdout = appendBatchedLine(stdout, line);
         },
       });
+      type StdStreamHandler = Parameters<PyodideInterface["setStdout"]>[0];
+      const setStderr = (pyodide as { setStderr?(options: StdStreamHandler): void }).setStderr;
+      if (typeof setStderr === "function") {
+        setStderr({
+          batched: (line: string) => {
+            stdout = appendBatchedLine(stdout, line);
+          },
+        });
+      }
 
       const result = await pyodide.runPythonAsync(code);
       const resultText =
         result !== undefined && result !== null && result !== "" ? String(result) : "";
-      const combined = [stdout.trimEnd(), resultText].filter(Boolean).join("\n");
-      setOutput(combined || "(finished — no printed output)");
+      const combined = formatTerminalOutput(
+        [stdout.trimEnd(), resultText].filter(Boolean).join("\n"),
+      );
+      setOutput(combined);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       if (!pyodideRef.current) {
@@ -132,6 +145,13 @@ export default function PyodideRunner({
       setRuntimeState(pyodideRef.current ? "ready" : "idle");
     }
   }, [code, ensurePyodide]);
+
+  const handleReset = () => {
+    setCode(defaultCode);
+    setOutput("");
+    setIsError(false);
+    setLoadError(null);
+  };
 
   const busy = runtimeState === "loading" || runtimeState === "running";
   const buttonLabel =
@@ -151,48 +171,55 @@ export default function PyodideRunner({
         ? "Python runtime ready."
         : "Click Run Python to download the in-browser runtime (first run may take 30–60s).";
 
+  const terminalPlaceholder =
+    runtimeState === "ready" && !output && !loadError
+      ? "Output appears here after you run your code."
+      : undefined;
+
   return (
-    <div className="pyodide-runner">
-      <div className="pyodide-runner__header">
-        <p>Edit and run the reference <code>BloomFilter</code> class (stdlib only).</p>
-        <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
-          {sourceLabel}
-        </a>
-      </div>
-
-      <textarea
-        className="pyodide-runner__editor"
-        aria-label="Python code"
-        value={code}
-        onChange={(e) => setCode(e.target.value)}
-        rows={18}
-        spellCheck={false}
-        disabled={busy}
-      />
-
-      <div className="pyodide-runner__actions">
-        <button type="button" className="pyodide-runner__btn" onClick={() => void run()} disabled={busy}>
-          {buttonLabel}
-        </button>
-        {statusMessage && (
-          <p
-            className={`pyodide-runner__status${loadError ? " pyodide-runner__status--error" : ""}`}
-            role={loadError ? "alert" : "status"}
-            aria-live="polite"
-          >
-            {statusMessage}
-          </p>
-        )}
-      </div>
-
-      <pre
-        className={`pyodide-runner__output${isError ? " pyodide-runner__output--error" : ""}`}
-        role={isError ? "alert" : "region"}
-        aria-label={isError ? "Python error" : "Program output"}
-        aria-live="polite"
-      >
-        {output}
-      </pre>
-    </div>
+    <CodeWorkbench
+      header={
+        <>
+          <WorkbenchNotice>
+            Edit the reference implementation and click <strong>Run Python</strong>. First run
+            downloads the in-browser runtime from the CDN (about 30–60 seconds).
+          </WorkbenchNotice>
+          <div className="code-workbench__header-row">
+            <p>Python in the browser (stdlib only).</p>
+            <a
+              className="code-workbench__github-link"
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {sourceLabel}
+            </a>
+          </div>
+        </>
+      }
+      editor={
+        <CodeMirrorPane
+          value={code}
+          onChange={setCode}
+          extensions={pythonEditorExtensions()}
+          editable={!busy}
+          ariaLabel="Python code"
+        />
+      }
+      terminal={
+        <TerminalPane output={output} isError={isError} placeholder={terminalPlaceholder} />
+      }
+      runBar={
+        <RunBar
+          onRun={() => void run()}
+          onReset={handleReset}
+          runLabel={buttonLabel}
+          runDisabled={busy}
+          resetDisabled={busy}
+          statusMessage={statusMessage}
+          statusIsError={!!loadError}
+        />
+      }
+    />
   );
 }
