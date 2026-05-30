@@ -1,3 +1,26 @@
+# Python
 __pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+
+# Rust
 target/
+
+# Agent / local research (not used by the site build)
+.research/
+docs/superpowers/
 .worktrees/
+
+# Internal website process docs (not shipped to visitors)
+website/docs/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Env secrets
+.env
+.env.*
