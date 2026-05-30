@@ -233,7 +233,7 @@ Execute template above in order:
 - [ ] **Task 20:** `eventual-consistency`
 - [x] **Task 21:** `random-early-detection`
 - [ ] **Task 22:** `distributed-queues`
-- [ ] **Task 23:** `approximate-memory-cache-systems`
+- [x] **Task 23:** `approximate-memory-cache-systems`
 - [ ] **Task 24:** `probabilistic-scheduling`
 
 ---

@@ -1,0 +1,120 @@
+.approx-lab__lsm {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  min-height: 8rem;
+}
+
+.approx-lab__sst {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-family: var(--font-mono, monospace);
+}
+
+.approx-lab__sst--skip {
+  background: color-mix(in srgb, #10b981 12%, transparent);
+  border: 1px solid color-mix(in srgb, #10b981 40%, var(--color-border));
+}
+
+.approx-lab__sst--fp {
+  background: color-mix(in srgb, #ef4444 10%, transparent);
+  border: 1px solid color-mix(in srgb, #ef4444 35%, var(--color-border));
+}
+
+.approx-lab__sst-label {
+  font-weight: 600;
+  min-width: 4.5rem;
+}
+
+.approx-lab__sst-detail {
+  opacity: 0.85;
+}
+
+.approx-lab__sst-cost {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.approx-lab__bars {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+}
+
+.approx-lab__bar-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.approx-lab__bar-track {
+  width: 100%;
+  max-width: 5rem;
+  height: 120px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: var(--color-surface);
+}
+
+.approx-lab__bar-fill {
+  width: 70%;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transition: height 0.2s ease;
+}
+
+.approx-lab__bar-fill--exact {
+  background: #3b82f6;
+}
+
+.approx-lab__bar-fill--sketch {
+  background: #8b5cf6;
+}
+
+.approx-lab__bar-fill--naive {
+  background: #94a3b8;
+}
+
+.approx-lab__bar-fill--bloom {
+  background: #10b981;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .approx-lab__bar-fill {
+    transition: none;
+  }
+}
+
+.approx-lab__cost-compare {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  font-size: 0.875rem;
+}
+
+.approx-lab__cost-box {
+  padding: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  text-align: center;
+}
+
+.approx-lab__cost-box strong {
+  display: block;
+  font-size: 1.125rem;
+  margin-top: 0.25rem;
+}

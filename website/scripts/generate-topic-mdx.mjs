@@ -37,7 +37,11 @@ const P2_LABS = {
   "streaming-analytics": { component: "StreamingAnalyticsLab", path: "../../../components/minisim/StreamingAnalyticsLab.tsx", heading: "Windowed aggregates" },
   "bayesian-inference-systems": { component: "BayesianLab", path: "../../../components/minisim/BayesianLab.tsx", heading: "Posterior update" },
   "bayesian-distributed-systems": { component: "BayesianDistLab", path: "../../../components/minisim/BayesianDistLab.tsx", heading: "Belief network" },
-  "approximate-memory-cache-systems": { component: "ApproxCacheLab", path: "../../../components/minisim/ApproxCacheLab.tsx", heading: "Sketch-backed cache" },
+  "approximate-memory-cache-systems": {
+    component: "ApproximateMemoryCacheLab",
+    path: "../../../components/ApproximateMemoryCacheLab.tsx",
+    heading: "Sketch-backed cache",
+  },
   "mixture-of-experts": { component: "MoELab", path: "../../../components/minisim/MoELab.tsx", heading: "Expert routing" },
   "token-routing": { component: "TokenRoutingLab", path: "../../../components/minisim/TokenRoutingLab.tsx", heading: "Top-K routing" },
   "transformer-attention": { component: "AttentionLab", path: "../../../components/minisim/AttentionLab.tsx", heading: "Attention weights" },
