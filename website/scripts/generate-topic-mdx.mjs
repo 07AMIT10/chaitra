@@ -30,7 +30,11 @@ const P2_LABS = {
   "information-theory": { component: "EntropyLab", path: "../../../components/minisim/EntropyLab.tsx", heading: "Entropy calculator" },
   "probability-theory": { component: "DiceLab", path: "../../../components/minisim/DiceLab.tsx", heading: "Dice and LLN" },
   "random-early-detection": { component: "RandomEarlyDetectionLab", path: "../../../components/RandomEarlyDetectionLab.tsx", heading: "Early drop probability" },
-  "monte-carlo-tree-search": { component: "MCTSLab", path: "../../../components/minisim/MCTSLab.tsx", heading: "MCTS exploration" },
+  "monte-carlo-tree-search": {
+    component: "MonteCarloTreeSearchLab",
+    path: "../../../components/MonteCarloTreeSearchLab.tsx",
+    heading: "MCTS selection, expansion & rollouts",
+  },
   "randomized-algorithms": { component: "RandomizedLab", path: "../../../components/minisim/RandomizedLab.tsx", heading: "Las Vegas vs Monte Carlo" },
   "mapreduce": { component: "MapReduceLab", path: "../../../components/MapReduceLab.tsx", heading: "Map shuffle reduce" },
   "raft-vs-gossip": { component: "RaftVsGossipLab", path: "../../../components/RaftVsGossipLab.tsx", heading: "Raft vs gossip" },

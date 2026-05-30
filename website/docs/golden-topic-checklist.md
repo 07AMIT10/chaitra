@@ -48,3 +48,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | probabilistic-databases | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | streaming-algorithms | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | streaming-analytics | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| monte-carlo-tree-search | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |

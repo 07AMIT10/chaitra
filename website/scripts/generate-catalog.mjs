@@ -81,7 +81,7 @@ const LAB_TIER = {
   "queueing-theory": "A",
   "pagerank": "A",
   "monte-carlo-systems": "A",
-  "monte-carlo-tree-search": "B",
+  "monte-carlo-tree-search": "A",
   "randomized-algorithms": "B",
   "information-theory": "B",
   "probability-theory": "B",

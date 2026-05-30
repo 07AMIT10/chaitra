@@ -8,7 +8,7 @@
     "preview": "astro preview",
     "catalog": "node scripts/generate-catalog.mjs",
     "test:catalog": "node --test scripts/generate-catalog.test.mjs",
-    "test:math": "node --experimental-strip-types --test src/lib/bayesian-inf-math.test.mjs src/lib/bayesian-dist-math.test.mjs",
+    "test:math": "node --experimental-strip-types --test src/lib/bayesian-inf-math.test.mjs src/lib/bayesian-dist-math.test.mjs src/lib/mcts-math.test.mjs",
     "sync:readme": "node scripts/sync-readme.mjs",
     "build:wasm": "cd wasm/bloom_filter && wasm-pack build --target web --out-dir ../../public/wasm/bloom_filter"
   },
