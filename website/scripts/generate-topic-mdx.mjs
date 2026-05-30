@@ -35,7 +35,11 @@ const P2_LABS = {
   "eventual-consistency": { component: "EventualConsistencyLab", path: "../../../components/EventualConsistencyLab.tsx", heading: "Version vectors & stale reads" },
   "streaming-algorithms": { component: "StreamingAlgoLab", path: "../../../components/minisim/StreamingAlgoLab.tsx", heading: "Sketch chain demo" },
   "streaming-analytics": { component: "StreamingAnalyticsLab", path: "../../../components/minisim/StreamingAnalyticsLab.tsx", heading: "Windowed aggregates" },
-  "bayesian-inference-systems": { component: "BayesianLab", path: "../../../components/minisim/BayesianLab.tsx", heading: "Posterior update" },
+  "bayesian-inference-systems": {
+    component: "BayesianInferenceLab",
+    path: "../../../components/BayesianInferenceLab.tsx",
+    heading: "Posterior update",
+  },
   "bayesian-distributed-systems": { component: "BayesianDistLab", path: "../../../components/minisim/BayesianDistLab.tsx", heading: "Belief network" },
   "approximate-memory-cache-systems": {
     component: "ApproximateMemoryCacheLab",

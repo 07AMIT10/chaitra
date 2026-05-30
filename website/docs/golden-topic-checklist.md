@@ -43,3 +43,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | distributed-queues | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | approximate-memory-cache-systems | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | probabilistic-scheduling | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| bayesian-inference-systems | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |

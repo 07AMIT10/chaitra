@@ -1,4 +1,30 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Bayes[Bayes theorem]
+  Bayes --> Prior[Prior / likelihood / posterior]
+  Prior --> Inf[Bayesian Inference Systems]
+  Spam[Spam Detection] --> Inf
+```
+
+## When to use
+
+- **Rare events with noisy sensors** — medical tests, fraud alerts, anomaly detection where the base rate dominates.
+- **Sequential belief updates** — each posterior becomes tomorrow’s prior (A/B dashboards, monitoring, filtering).
+- **Interpretable uncertainty** — report “87% probability variant B wins” instead of opaque p-values.
+
+## When not to use
+
+- You need **frequentist guarantees** on fixed experiments (regulated clinical trials with pre-registered α).
+- The **prior is unknowable or adversarial** — bad priors swamp data without careful sensitivity analysis.
+- **High-dimensional posteriors** — exact integrals are intractable; you need MCMC/VI infrastructure, not hand Bayes on sliders.
+
+## Lab
+
+On the [interactive Bayesian inference lab](/topics/bayesian-inference-systems#lab), tune **P(H)**, **P(E|H)**, and **P(E|¬H)**, stack **evidence chips** to chain posteriors, try **Rare disease test**, **Server alarm**, or **A/B sequential** presets, predict whether a positive rare-disease test implies P(disease) &gt; 50%, then reveal **intuition (99%) vs Bayes posterior (&lt;0.01%)**.
+
 ## Simple Fundamental Explanation
 Imagine you feel sick and take a rare disease test. The test is 99% accurate. It comes back Positive.
 You panic, assuming you have a 99% chance of dying.
