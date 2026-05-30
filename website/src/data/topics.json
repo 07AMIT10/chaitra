@@ -112,9 +112,9 @@
     "title": "Count-Min Sketch",
     "folder": "COUNT_MIN_SKETCH",
     "labTier": "A",
-    "status": "live",
+    "status": "golden",
     "hasLab": true,
-    "hasCode": false,
+    "hasCode": true,
     "hasPython": true,
     "hasRust": true
   },

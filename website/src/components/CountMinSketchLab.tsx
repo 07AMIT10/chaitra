@@ -9,18 +9,22 @@ import {
 } from "../lib/sketches";
 import { CmsHeatmap } from "./lab/CmsHeatmap";
 import {
+  ComparePanel,
   LabShell,
   MetricsAside,
+  PredictReveal,
   RangeControl,
+  ScenarioPresets,
   type LabMetric,
 } from "./lab";
 import "./CountMinSketchLab.css";
 
 const STREAM = shuffleStream([...DEMO_FRUIT_STREAM, ...DEMO_NOISE_KEYS.map((k) => ({ key: k }))]);
 const QUERY_KEYS = ["apple", "banana", "orange", "grape"];
+const STREAM_MAX = STREAM.length - 1;
 
 export default function CountMinSketchLab() {
-  const [streamIdx, setStreamIdx] = useState(STREAM.length - 1);
+  const [streamIdx, setStreamIdx] = useState(STREAM_MAX);
   const [epsilonPct, setEpsilonPct] = useState(1);
   const [queryKey, setQueryKey] = useState("apple");
 
@@ -39,6 +43,25 @@ export default function CountMinSketchLab() {
   const estimate = sketch.getCount(queryKey);
   const actual = truth.get(queryKey) ?? 0;
   const overestimate = estimate > actual;
+  const matches = estimate === actual;
+
+  const applyStartOfStream = () => {
+    setStreamIdx(0);
+    setEpsilonPct(1);
+    setQueryKey("apple");
+  };
+
+  const applyHeavyTail = () => {
+    setStreamIdx(STREAM_MAX);
+    setEpsilonPct(1);
+    setQueryKey("apple");
+  };
+
+  const applyCollisionHunt = () => {
+    setEpsilonPct(10);
+    setStreamIdx(STREAM_MAX);
+    setQueryKey("apple");
+  };
 
   const metrics: LabMetric[] = [
     { id: "depth", label: "Depth (rows)", value: String(depth) },
@@ -60,6 +83,13 @@ export default function CountMinSketchLab() {
       tone: "aha",
     });
   }
+
+  const compareLeft =
+    estimate === actual
+      ? `${estimate} for "${queryKey}" (matches stream prefix)`
+      : `${estimate} for "${queryKey}"${overestimate ? " — overestimate" : ""}`;
+
+  const compareRight = `${actual} in stream prefix`;
 
   return (
     <LabShell
@@ -88,10 +118,22 @@ export default function CountMinSketchLab() {
               id="cms-stream"
               label="Stream position"
               min={0}
-              max={STREAM.length - 1}
+              max={STREAM_MAX}
               value={streamIdx}
               valueText={`${streamIdx + 1} / ${STREAM.length}`}
               onChange={setStreamIdx}
+            />
+            <ScenarioPresets
+              aria-label="Stream scenario presets"
+              presets={[
+                { id: "start", label: "Start of stream", onSelect: applyStartOfStream },
+                { id: "tail", label: "Heavy tail", onSelect: applyHeavyTail },
+                {
+                  id: "collision",
+                  label: "Collision hunt",
+                  onSelect: applyCollisionHunt,
+                },
+              ]}
             />
           </div>
           <CmsHeatmap table={sketch.table} width={width} depth={depth} />
@@ -111,16 +153,41 @@ export default function CountMinSketchLab() {
         </div>
         <MetricsAside metrics={metrics} />
       </div>
-      <div className="lab__compare">
-        <div>
-          <strong>CMS estimate</strong>
-          {estimate} for &quot;{queryKey}&quot;
-        </div>
-        <div>
-          <strong>Ground truth</strong>
-          {actual} in stream prefix
-        </div>
-      </div>
+
+      <PredictReveal
+        key={`${queryKey}-${streamIdx}-${epsilonPct}`}
+        prompt={
+          <>
+            Before revealing: for &quot;{queryKey}&quot; after {prefix.length} events, will the CMS
+            estimate <strong>overestimate</strong>, <strong>match</strong>, or only apply if the key
+            appeared?
+          </>
+        }
+        revealLabel="Show estimate vs truth"
+      >
+        <ComparePanel
+          leftLabel="CMS estimate"
+          rightLabel="Ground truth"
+          left={compareLeft}
+          right={compareRight}
+        />
+        {matches && actual > 0 && (
+          <p className="lab__status" role="note">
+            Minimum across rows cancels collision noise for this key — estimate matches the prefix.
+          </p>
+        )}
+        {overestimate && actual > 0 && (
+          <p className="lab__status" role="note">
+            Shared buckets inflated at least one row; the min is still ≥ the true count.
+          </p>
+        )}
+        {actual === 0 && (
+          <p className="lab__status" role="note">
+            Key not in prefix — estimate is {estimate} (never below true count).
+          </p>
+        )}
+      </PredictReveal>
+
       <p className="lab__status" role="status" aria-live="polite">
         Processed {prefix.length} events into a {depth}×{width} matrix. Query &quot;{queryKey}&quot;:
         estimate {estimate}, actual {actual}.

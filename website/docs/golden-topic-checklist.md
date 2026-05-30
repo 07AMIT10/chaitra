@@ -24,4 +24,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 
 | Slug | Narrative | Lab | Code | A11y | Build | Promoted golden | Date |
 |------|-----------|-----|------|------|-------|-----------------|------|
-| | | | | | | | |
+| count-min-sketch | ✓ | ✓ | ✓ (Pyodide; Rust on GitHub) | ✓ | ✓ | yes | 2026-05-30 |

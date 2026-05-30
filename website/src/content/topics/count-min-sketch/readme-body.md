@@ -1,4 +1,29 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Bloom[Bloom Filters] --> CMS[Count-Min Sketch]
+  Stream[Streaming / heavy hitters] --> CMS
+  Hash[Hash functions] --> CMS
+```
+
+## When to use
+
+- **High-volume event streams** where you need approximate per-key counts (CDN requests, DDoS IPs, ad impressions) without storing every key.
+- **Top-K / heavy hitter** pipelines that only need frequency estimates bounded by $\epsilon N$.
+- **Memory-bounded analytics** when exact hash maps would blow the heap but a fixed-size matrix is acceptable.
+
+## When not to use
+
+- You need **exact counts** or must detect a count of zero with certainty (use a hash map or a Bloom filter for membership).
+- The stream is **tiny** or keys are few — a `Counter` is simpler and exact.
+- You cannot tolerate **one-sided error** (CMS never underestimates; collisions only inflate estimates).
+
+## Lab
+
+On the [interactive Count-Min Sketch lab](/topics/count-min-sketch#lab), scrub the **Stream position** slider to replay how the matrix fills, tune **Error margin ε** to resize width and depth, and query fruit keys to compare the **CMS estimate** against **ground truth** from the same stream prefix. Try the **Collision hunt** preset after predicting whether the sketch will overestimate or match.
+
 ## Simple Fundamental Explanation
 Imagine you manage a massive highway toll booth, and you want to know which car license plates pass through the most frequently.
 
