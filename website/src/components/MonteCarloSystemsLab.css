@@ -1,0 +1,52 @@
+.mc-lab__scatter {
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 1;
+  margin: var(--space-3) 0;
+  background: color-mix(in srgb, var(--color-muted) 8%, transparent);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-muted);
+}
+
+.mc-lab__scatter--static .mc-lab__dot {
+  transition: none;
+}
+
+.mc-lab__arc {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 0.012;
+  opacity: 0.5;
+}
+
+.mc-lab__dot {
+  transition: opacity 0.2s ease;
+}
+
+.mc-lab__dot--hit {
+  fill: var(--color-accent);
+}
+
+.mc-lab__dot--miss {
+  fill: color-mix(in srgb, var(--color-muted) 60%, transparent);
+}
+
+.mc-lab__conv {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100px;
+  max-width: 360px;
+  margin: var(--space-2) 0;
+}
+
+.mc-lab__conv-bar {
+  flex: 1 0 2px;
+  background: var(--color-accent);
+  border-radius: 1px 1px 0 0;
+  min-height: 2px;
+}
+
+.mc-lab__conv-bar--band {
+  background: color-mix(in srgb, var(--color-muted) 35%, transparent);
+}

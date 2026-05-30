@@ -22,7 +22,11 @@ const P1_LABS = {
 
 const P2_LABS = {
   "pagerank": { component: "PageRankLab", path: "../../../components/PageRankLab.tsx", heading: "Random surfer" },
-  "monte-carlo-systems": { component: "MonteCarloLab", path: "../../../components/minisim/MonteCarloLab.tsx", heading: "Monte Carlo estimate" },
+  "monte-carlo-systems": {
+    component: "MonteCarloSystemsLab",
+    path: "../../../components/MonteCarloSystemsLab.tsx",
+    heading: "Monte Carlo estimate & variance",
+  },
   "information-theory": { component: "EntropyLab", path: "../../../components/minisim/EntropyLab.tsx", heading: "Entropy calculator" },
   "probability-theory": { component: "DiceLab", path: "../../../components/minisim/DiceLab.tsx", heading: "Dice and LLN" },
   "random-early-detection": { component: "RandomEarlyDetectionLab", path: "../../../components/RandomEarlyDetectionLab.tsx", heading: "Early drop probability" },

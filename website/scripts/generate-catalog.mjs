@@ -80,7 +80,7 @@ const LAB_TIER = {
   "spam-detection": "A",
   "queueing-theory": "A",
   "pagerank": "A",
-  "monte-carlo-systems": "B",
+  "monte-carlo-systems": "A",
   "monte-carlo-tree-search": "B",
   "randomized-algorithms": "B",
   "information-theory": "B",

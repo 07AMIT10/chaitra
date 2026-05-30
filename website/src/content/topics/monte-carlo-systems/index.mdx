@@ -3,12 +3,20 @@ title: Monte Carlo Systems
 ---
 
 import ReadmeBody from "./readme-body.md";
-import MonteCarloLab from "../../../components/minisim/MonteCarloLab.tsx";
+import MonteCarloSystemsLab from "../../../components/MonteCarloSystemsLab.tsx";
 
-## Monte Carlo estimate
+## Monte Carlo estimate & variance
+
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section to throw darts at a unit square or
+  integrate x² on [0,1]. Tune **sample count** and **RNG seed**, switch **Estimate π** vs **∫ x²**,
+  watch the **convergence** strip and **σ/√N** standard error, try **Few samples**, **Many samples**,
+  or **∫ x²** presets, predict whether |error| sits inside the CLT band, then reveal **Monte Carlo vs
+  exact**.
+</Callout>
 
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>
 
-<MonteCarloLab client:visible />
+<MonteCarloSystemsLab client:visible />
