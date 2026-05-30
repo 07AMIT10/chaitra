@@ -1,17 +1,22 @@
-import { lazy, Suspense, useCallback, useState, type KeyboardEvent, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useMemo, useState, type KeyboardEvent, type ReactNode } from "react";
 import "./CodePanel.css";
 
 const PyodideRunner = lazy(() => import("./PyodideRunner"));
-const WasmBloomRunner = lazy(() => import("./WasmBloomRunner"));
+const RustWasmRunner = lazy(() => import("./RustWasmRunner"));
+const RustSourceRunner = lazy(() => import("./RustSourceRunner"));
 
 export type CodePanelTab = "python" | "rust" | "github";
+
+export type WasmRunnerId = "bloom-filter";
 
 export type CodePanelProps = {
   defaultPythonCode: string;
   pythonSourceUrl: string;
   pythonSourceLabel?: string;
+  rustSourceCode?: string;
   rustSourceUrl?: string;
   rustSourceLabel?: string;
+  wasmRunner?: WasmRunnerId;
   githubTreeUrl: string;
   githubLabel?: string;
 };
@@ -24,20 +29,29 @@ export default function CodePanel({
   defaultPythonCode,
   pythonSourceUrl,
   pythonSourceLabel,
+  rustSourceCode,
   rustSourceUrl,
   rustSourceLabel,
+  wasmRunner,
   githubTreeUrl,
-  githubLabel = "BLOOM_FILTERS on GitHub",
+  githubLabel = "Topic folder on GitHub",
 }: CodePanelProps) {
+  const showRustTab = Boolean(rustSourceCode || wasmRunner);
+  const tabOrder = useMemo<CodePanelTab[]>(
+    () => (showRustTab ? ["python", "rust", "github"] : ["python", "github"]),
+    [showRustTab],
+  );
+
   const [activeTab, setActiveTab] = useState<CodePanelTab>("python");
   const [mounted, setMounted] = useState({ python: true, rust: false, github: false });
 
-  const tabOrder: CodePanelTab[] = ["python", "rust", "github"];
-
-  const selectTab = useCallback((tab: CodePanelTab) => {
-    setActiveTab(tab);
-    setMounted((prev) => (prev[tab] ? prev : { ...prev, [tab]: true }));
-  }, []);
+  const selectTab = useCallback(
+    (tab: CodePanelTab) => {
+      setActiveTab(tab);
+      setMounted((prev) => (prev[tab] ? prev : { ...prev, [tab]: true }));
+    },
+    [],
+  );
 
   const onTabKeyDown = (e: KeyboardEvent<HTMLButtonElement>, tab: CodePanelTab) => {
     const idx = tabOrder.indexOf(tab);
@@ -56,6 +70,32 @@ export default function CodePanel({
     }
   };
 
+  const rustPanel: ReactNode = (() => {
+    if (wasmRunner === "bloom-filter" && rustSourceCode) {
+      return (
+        <Suspense fallback={<TabPlaceholder message="Loading Rust WASM…" />}>
+          <RustWasmRunner
+            defaultSource={rustSourceCode}
+            sourceUrl={rustSourceUrl ?? githubTreeUrl}
+            sourceLabel={rustSourceLabel}
+          />
+        </Suspense>
+      );
+    }
+    if (rustSourceCode) {
+      return (
+        <Suspense fallback={<TabPlaceholder message="Loading Rust source…" />}>
+          <RustSourceRunner
+            defaultSource={rustSourceCode}
+            sourceUrl={rustSourceUrl ?? githubTreeUrl}
+            sourceLabel={rustSourceLabel}
+          />
+        </Suspense>
+      );
+    }
+    return null;
+  })();
+
   const panels: Record<CodePanelTab, ReactNode> = {
     python: mounted.python ? (
       <Suspense fallback={<TabPlaceholder message="Loading Python runner…" />}>
@@ -66,32 +106,26 @@ export default function CodePanel({
         />
       </Suspense>
     ) : null,
-    rust: mounted.rust ? (
-      <Suspense fallback={<TabPlaceholder message="Loading Rust WASM…" />}>
-        <WasmBloomRunner sourceUrl={rustSourceUrl} sourceLabel={rustSourceLabel} />
-      </Suspense>
-    ) : null,
+    rust: mounted.rust ? rustPanel : null,
     github: mounted.github ? (
       <div className="code-panel__github">
         <p>
-          Full reference implementations, benchmarks, and tests live in the repo. Run locally with{" "}
-          <code>python bloom_filter.py</code> or <code>cargo run</code> on the Rust file.
+          Full reference implementations, benchmarks, and tests live in the repo. Clone locally to
+          run Python or Rust with your own inputs and tooling.
         </p>
         <ul>
           <li>
             <a href={pythonSourceUrl} target="_blank" rel="noopener noreferrer">
-              bloom_filter.py
+              {pythonSourceLabel ?? "Python source on GitHub"}
             </a>
           </li>
-          <li>
-            <a
-              href={rustSourceUrl ?? "https://github.com/07AMIT10/chaitra/blob/main/BLOOM_FILTERS/bloom_filter.rs"}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              bloom_filter.rs
-            </a>
-          </li>
+          {rustSourceUrl && (
+            <li>
+              <a href={rustSourceUrl} target="_blank" rel="noopener noreferrer">
+                {rustSourceLabel ?? "Rust source on GitHub"}
+              </a>
+            </li>
+          )}
           <li>
             <a href={githubTreeUrl} target="_blank" rel="noopener noreferrer">
               {githubLabel}
@@ -102,16 +136,21 @@ export default function CodePanel({
     ) : null,
   };
 
+  const tabs: { id: CodePanelTab; label: string }[] = showRustTab
+    ? [
+        { id: "python", label: "Python" },
+        { id: "rust", label: "Rust (WASM)" },
+        { id: "github", label: "GitHub" },
+      ]
+    : [
+        { id: "python", label: "Python" },
+        { id: "github", label: "GitHub" },
+      ];
+
   return (
     <div className="code-panel">
       <div className="code-panel__tabs" role="tablist" aria-label="Implementation runners">
-        {(
-          [
-            ["python", "Python"],
-            ["rust", "Rust (WASM)"],
-            ["github", "GitHub"],
-          ] as const
-        ).map(([id, label]) => (
+        {tabs.map(({ id, label }) => (
           <button
             key={id}
             type="button"
@@ -129,7 +168,7 @@ export default function CodePanel({
         ))}
       </div>
 
-      {(["python", "rust", "github"] as const).map((id) => (
+      {tabOrder.map((id) => (
         <div
           key={id}
           id={`code-panel-${id}`}
