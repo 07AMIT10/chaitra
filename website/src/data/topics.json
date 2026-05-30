@@ -123,7 +123,7 @@
     "title": "CRDTs + Probability",
     "folder": "CRDTS_PLUS_PROBABILITY",
     "labTier": "A",
-    "status": "live",
+    "status": "golden",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,

@@ -7,6 +7,13 @@ import CrdtsLab from "../../../components/CrdtsLab.tsx";
 
 ## CRDT merge semantics
 
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section. On **G-Counter lattice**, merge replica
+  vectors with ⊔ (per-replica max), try **Concurrent increments**, **Partition heal**, or **LWW
+  conflict**, predict the merged total vs a naive sum, then reveal **CRDT vs naive / LWW**. On
+  **Prob. tombstones**, run **Compaction demo** and a **stale add** after a Bloom-backed delete.
+</Callout>
+
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>

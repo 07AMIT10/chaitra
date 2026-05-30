@@ -1,4 +1,30 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> CRDT[CRDTs + Probability]
+  Bloom[Bloom Filters] --> CRDT
+  Dist[Distributed systems intuition] --> CRDT
+  Gossip[Gossip / eventual consistency] --> CRDT
+```
+
+## When to use
+
+- **Offline-first collaboration** — shared documents, shopping lists, or game state that must merge without a central lock.
+- **Edge and mobile replicas** — phones or IoT devices partition often; you need commutative, associative merge (join ⊔).
+- **Massive scale** where exact tombstones and vector clocks are too heavy — probabilistic Bloom tombstones and compressed clocks trade rare false positives for kilobytes of metadata.
+
+## When not to use
+
+- You need **linearizable** or **strong** consistency on every read (use Raft, primary-replica, or a central DB).
+- **Every write must be preserved** with zero chance of loss — probabilistic tombstones can false-positive and drop a valid stale update.
+- The domain is a simple **counter on one machine** — a SQL `UPDATE` or atomic integer is simpler than a CRDT lattice.
+
+## Lab
+
+On the [interactive CRDT lab](/topics/crdts-plus-probability#lab), use **G-Counter lattice** to merge replica vectors with ⊔ (per-replica max) and compare against a **naive sum** after **Partition heal**. Try **Concurrent increments** or **LWW conflict** presets, predict whether merge matches naive sum, then reveal **CRDT vs naive / LWW**. Switch to **Prob. tombstones** for Bloom-backed deletes, **Compaction demo**, and a **stale add** after partition heal.
+
 ## Simple Fundamental Explanation
 Imagine you and your friend are both editing a shared grocery list on your phones, but you are both in a tunnel with no cell service.
 - You add "Apples".

@@ -217,7 +217,7 @@ Execute template above in order:
 - [x] **Task 11:** `spam-detection`
 - [x] **Task 12:** `power-of-two-choices`
 - [ ] **Task 13:** `queueing-theory`
-- [ ] **Task 14:** `crdts-plus-probability`
+- [x] **Task 14:** `crdts-plus-probability`
 
 **Wave 1 gate:** All 10 slugs `status: "golden"`; `npm run build`; update homepage `FeaturedLabs` if needed.
 
