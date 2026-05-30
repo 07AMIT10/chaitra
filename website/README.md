@@ -18,8 +18,16 @@ Regenerate the topic catalog from repo READMEs, then build the static site:
 ```bash
 npm run catalog
 npm run sync:readme   # after changing topic README.md at repo root
+npm run sync:code     # after changing topic Rust sources at repo root
 npm run build
 ```
+
+### Code workbench (CodeMirror)
+
+Topic **Code** tabs use CodeMirror for Python (Pyodide) and Rust. Python snippets live in `src/assets/code/*.py.txt`; Rust reference sources are copied from repo topic folders via `npm run sync:code` into `src/assets/code/*.rs.txt`. Run `sync:code` after editing `BLOOM_FILTERS/bloom_filter.rs`, `HYPERLOGLOG/hyperloglog.rs`, `COUNT_MIN_SKETCH/count_min_sketch.rs`, or `CONSISTENT_HASHING/consistent_hashing.rs`.
+
+- **Bloom filters:** Rust tab runs WASM (`wasmRunner="bloom-filter"`); rebuild with `npm run build:wasm` when WASM sources change.
+- **Other Rust topics:** Rust tab is read/edit in-browser (`RustSourceRunner`); clone the repo to compile and run locally.
 
 ### Math and diagrams
 

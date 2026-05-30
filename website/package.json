@@ -10,6 +10,7 @@
     "test:catalog": "node --test scripts/generate-catalog.test.mjs",
     "test:math": "tsx --test src/lib/*-math.test.mjs",
     "sync:readme": "node scripts/sync-readme.mjs",
+    "sync:code": "node scripts/sync-code-assets.mjs",
     "build:wasm": "cd wasm/bloom_filter && wasm-pack build --target web --out-dir ../../public/wasm/bloom_filter"
   },
   "dependencies": {
