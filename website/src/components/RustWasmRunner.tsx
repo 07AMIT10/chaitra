@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CodeWorkbench, CodeMirrorPane, RunBar, TerminalPane } from "./code-workbench";
+import { CodeWorkbench, CodeMirrorPane, RunBar, TerminalPane, WorkbenchNotice } from "./code-workbench";
 import { rustReadOnlyEditorExtensions } from "./code-workbench/editorExtensions";
 
 const WASM_JS = "/wasm/bloom_filter/bloom_filter_wasm.js";
 const WASM_BIN = "/wasm/bloom_filter/bloom_filter_wasm_bg.wasm";
+
+const TERMINAL_PLACEHOLDER =
+  "Output appears here after you run the WASM demo. The editor shows reference source only.";
 
 type WasmModule = {
   default: (input?: RequestInfo | URL) => Promise<unknown>;
@@ -16,7 +19,7 @@ export type RustWasmRunnerProps = {
   sourceLabel?: string;
 };
 
-type LoadState = "loading" | "ready" | "error" | "running";
+type LoadState = "idle" | "loading" | "ready" | "error" | "running";
 
 function wasmLoadErrorMessage(detail: string): string {
   return `Rust WASM failed to load. Rebuild with \`npm run build:wasm\`, or open the reference implementation on GitHub.\n(${detail})`;
@@ -40,6 +43,9 @@ export default function RustWasmRunner({
   }, []);
 
   const loadWasm = useCallback(async (): Promise<WasmModule> => {
+    if (wasmRef.current) {
+      return wasmRef.current;
+    }
     const mod = (await import(/* @vite-ignore */ WASM_JS)) as WasmModule;
     await mod.default(WASM_BIN);
     wasmRef.current = mod;
@@ -50,11 +56,12 @@ export default function RustWasmRunner({
     let cancelled = false;
     (async () => {
       try {
-        const mod = await loadWasm();
+        await loadWasm();
         if (!cancelled) {
-          runDemo(mod);
           setLoadState("ready");
           setErrorDetail(null);
+          setOutput("");
+          setIsError(false);
         }
       } catch (err) {
         if (!cancelled) {
@@ -70,15 +77,15 @@ export default function RustWasmRunner({
     return () => {
       cancelled = true;
     };
-  }, [loadWasm, runDemo]);
+  }, [loadWasm]);
 
   const handleRun = useCallback(async () => {
-    setOutput("");
     setIsError(false);
 
     if (loadState === "error" || !wasmRef.current) {
       setLoadState("loading");
       setErrorDetail(null);
+      setOutput("");
       try {
         const mod = await loadWasm();
         runDemo(mod);
@@ -95,6 +102,7 @@ export default function RustWasmRunner({
     }
 
     setLoadState("running");
+    setOutput("");
     try {
       runDemo(wasmRef.current);
       setLoadState("ready");
@@ -120,22 +128,32 @@ export default function RustWasmRunner({
     loadState === "error" && errorDetail
       ? errorDetail
       : loadState === "loading"
-        ? "Loading Rust WASM…"
-        : loadState === "ready"
-          ? "WASM demo ready."
-          : undefined;
+        ? "Loading Rust WASM module…"
+        : loadState === "ready" && !output
+          ? "WASM ready. Click Run WASM demo to see output."
+          : loadState === "ready"
+            ? "Demo finished."
+            : undefined;
 
   return (
     <CodeWorkbench
       header={
         <>
-          <p>
-            Reference source (read-only). Run executes the prebuilt WASM demo — clone the repo to
-            compile Rust locally.
-          </p>
-          <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
-            {sourceLabel}
-          </a>
+          <WorkbenchNotice>
+            Reference source is read-only. <strong>Run</strong> executes the prebuilt WASM demo
+            (not a compile of this file). Clone the repo to build and run Rust locally.
+          </WorkbenchNotice>
+          <div className="code-workbench__header-row">
+            <p>Same demo as <code>bloom_filter.rs</code> (20 items, 5% target FP).</p>
+            <a
+              className="code-workbench__github-link"
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {sourceLabel}
+            </a>
+          </div>
         </>
       }
       editor={
@@ -146,7 +164,13 @@ export default function RustWasmRunner({
           ariaLabel="Rust reference source"
         />
       }
-      terminal={<TerminalPane output={output} isError={isError} />}
+      terminal={
+        <TerminalPane
+          output={output}
+          isError={isError}
+          placeholder={loadState === "error" ? undefined : TERMINAL_PLACEHOLDER}
+        />
+      }
       runBar={
         <RunBar
           onRun={() => void handleRun()}

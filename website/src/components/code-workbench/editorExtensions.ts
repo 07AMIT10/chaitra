@@ -5,8 +5,14 @@ import { python } from "@codemirror/lang-python";
 import { rust } from "@codemirror/lang-rust";
 import { minimalSetup } from "codemirror";
 import { chaitraEditorTheme } from "./chaitraEditorTheme";
+import { chaitraSyntaxHighlighting } from "./chaitraHighlightStyle";
 
-const shared: Extension[] = [minimalSetup, EditorView.lineWrapping, chaitraEditorTheme];
+const shared: Extension[] = [
+  minimalSetup,
+  chaitraSyntaxHighlighting,
+  EditorView.lineWrapping,
+  chaitraEditorTheme,
+];
 
 export function pythonEditorExtensions(): Extension[] {
   return [...shared, python()];

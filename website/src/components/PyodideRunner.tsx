@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from "react";
-import { CodeWorkbench, CodeMirrorPane, RunBar, TerminalPane } from "./code-workbench";
+import { CodeWorkbench, CodeMirrorPane, RunBar, TerminalPane, WorkbenchNotice } from "./code-workbench";
 import { pythonEditorExtensions } from "./code-workbench/editorExtensions";
 import { appendBatchedLine, formatTerminalOutput } from "../lib/format-stdout";
 
@@ -171,14 +171,30 @@ export default function PyodideRunner({
         ? "Python runtime ready."
         : "Click Run Python to download the in-browser runtime (first run may take 30–60s).";
 
+  const terminalPlaceholder =
+    runtimeState === "ready" && !output && !loadError
+      ? "Output appears here after you run your code."
+      : undefined;
+
   return (
     <CodeWorkbench
       header={
         <>
-          <p>Edit and run Python in the browser (stdlib only).</p>
-          <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
-            {sourceLabel}
-          </a>
+          <WorkbenchNotice>
+            Edit the reference implementation and click <strong>Run Python</strong>. First run
+            downloads the in-browser runtime from the CDN (about 30–60 seconds).
+          </WorkbenchNotice>
+          <div className="code-workbench__header-row">
+            <p>Python in the browser (stdlib only).</p>
+            <a
+              className="code-workbench__github-link"
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {sourceLabel}
+            </a>
+          </div>
         </>
       }
       editor={
@@ -190,7 +206,9 @@ export default function PyodideRunner({
           ariaLabel="Python code"
         />
       }
-      terminal={<TerminalPane output={output} isError={isError} />}
+      terminal={
+        <TerminalPane output={output} isError={isError} placeholder={terminalPlaceholder} />
+      }
       runBar={
         <RunBar
           onRun={() => void run()}

@@ -1,4 +1,4 @@
-import { CodeWorkbench, CodeMirrorPane, TerminalPane } from "./code-workbench";
+import { CodeWorkbench, CodeMirrorPane, TerminalPane, WorkbenchNotice } from "./code-workbench";
 import { rustReadOnlyEditorExtensions } from "./code-workbench/editorExtensions";
 
 export type RustSourceRunnerProps = {
@@ -19,13 +19,21 @@ export default function RustSourceRunner({
     <CodeWorkbench
       header={
         <>
-          <p>
-            Reference source (read-only). WASM runner not available for this topic — clone the
-            repo and run with cargo.
-          </p>
-          <a href={sourceUrl} target="_blank" rel="noopener noreferrer">
-            {sourceLabel}
-          </a>
+          <WorkbenchNotice variant="warning">
+            Reference source is read-only. In-browser WASM is not available for this topic —
+            clone the repo and run with <code>cargo run</code>.
+          </WorkbenchNotice>
+          <div className="code-workbench__header-row">
+            <p>Rust reference from the repo.</p>
+            <a
+              className="code-workbench__github-link"
+              href={sourceUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {sourceLabel}
+            </a>
+          </div>
         </>
       }
       editor={

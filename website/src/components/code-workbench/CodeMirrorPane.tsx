@@ -19,14 +19,15 @@ export function CodeMirrorPane({
   minHeight = "20rem",
 }: CodeMirrorPaneProps) {
   return (
-    <div className="code-workbench__editor" style={{ minHeight }} aria-label={ariaLabel}>
+    <div className="code-workbench__editor" aria-label={ariaLabel}>
       <CodeMirror
         value={value}
         extensions={extensions}
         editable={editable}
         onChange={onChange}
         basicSetup={false}
-        height={minHeight}
+        height="100%"
+        style={{ minHeight }}
       />
     </div>
   );

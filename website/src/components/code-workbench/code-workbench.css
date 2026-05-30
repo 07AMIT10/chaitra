@@ -1,10 +1,26 @@
 .code-workbench {
+  --workbench-border: color-mix(in srgb, var(--color-muted) 35%, transparent);
+  --workbench-terminal-bg: color-mix(in srgb, var(--color-surface) 88%, black);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
+.code-workbench--lab {
+  background: var(--color-surface);
+  border: 1px solid var(--workbench-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  max-width: 100%;
+}
+
 .code-workbench__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.code-workbench__header-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -12,34 +28,117 @@
   gap: var(--space-2);
 }
 
+.code-workbench__header-row p {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.code-workbench__github-link {
+  color: var(--color-accent);
+  font-size: 0.9rem;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.code-workbench__github-link:hover {
+  color: var(--color-accent-hover);
+  text-decoration: underline;
+}
+
+.code-workbench__notice {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  padding-left: calc(var(--space-4) + 0.25rem);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-accent) 8%, var(--color-surface));
+  color: var(--color-text);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.code-workbench__notice--warning {
+  border-left-color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-warning) 10%, var(--color-surface));
+}
+
 .code-workbench__panes {
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--space-4);
+  align-items: stretch;
 }
 
 @media (min-width: 960px) {
   .code-workbench__panes {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 }
 
 .code-workbench__pane {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 22rem;
+}
+
+.code-workbench__pane-label {
+  margin: 0 0 var(--space-2);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.code-workbench__pane-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-height: 20rem;
+}
+
+.code-workbench__editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 20rem;
   min-width: 0;
 }
 
 .code-workbench__editor .cm-editor {
-  border: 1px solid var(--color-surface);
+  flex: 1;
+  height: 100% !important;
+  min-height: 20rem;
+  background-color: var(--color-surface) !important;
+  border: 1px solid var(--workbench-border);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
 
+.code-workbench__editor .cm-scroller {
+  background-color: var(--color-surface);
+}
+
+.code-workbench__editor .cm-content {
+  background-color: transparent;
+}
+
+.code-workbench__editor .cm-gutters {
+  background-color: color-mix(in srgb, var(--color-surface) 82%, black);
+  border-right: 1px solid var(--workbench-border);
+}
+
 .code-workbench__terminal {
+  flex: 1;
   margin: 0;
   padding: var(--space-4);
-  border: 1px solid var(--color-surface);
+  border: 1px solid var(--workbench-border);
   border-radius: var(--radius-md);
-  background: var(--color-surface);
+  background: var(--workbench-terminal-bg);
   color: var(--color-text);
   font-family: var(--font-mono);
   font-size: 0.85rem;
@@ -47,10 +146,12 @@
   white-space: pre-wrap;
   word-break: break-word;
   min-height: 20rem;
+  overflow: auto;
 }
 
 .code-workbench__terminal--error {
   color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 40%, transparent);
 }
 
 .code-workbench__terminal--placeholder {
@@ -59,6 +160,8 @@
 
 .code-workbench__runbar-wrap {
   margin-top: 0;
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--workbench-border);
 }
 
 .code-workbench__runbar {
@@ -89,7 +192,7 @@
 .code-workbench__btn--secondary {
   background: transparent;
   color: var(--color-text);
-  border: 1px solid var(--color-surface);
+  border: 1px solid var(--workbench-border);
 }
 
 .code-workbench__btn--secondary:hover:not(:disabled) {
