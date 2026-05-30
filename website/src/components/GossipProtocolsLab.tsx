@@ -210,6 +210,7 @@ export default function GossipProtocolsLab() {
               type="button"
               className="lab__btn"
               onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause gossip simulation" : "Play gossip simulation"}
               disabled={converged}
             >
               {isPlaying ? "Pause" : "Play"}

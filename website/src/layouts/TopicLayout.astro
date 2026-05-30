@@ -18,9 +18,19 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
     <span class="topic__separator">/</span>
     <span class="topic__current">{title}</span>
   </nav>
+  <div class="topic-layout">
+    <aside class="topic__toc" aria-label="On this page">
+      <p class="topic__toc-title">On this page</p>
+      <ul>
+        <li><a href="#narrative">Story</a></li>
+        {hasLab && <li><a href="#lab">Lab</a></li>}
+        {hasCode && <li><a href="#code">Code</a></li>}
+        <li><a href={`https://github.com/07AMIT10/chaitra/tree/main/${repoFolder}`}>GitHub</a></li>
+      </ul>
+    </aside>
   <article class="topic" aria-labelledby="topic-page-title">
     <h1 id="topic-page-title" class="topic__title">{title}</h1>
-    <nav aria-label="Topic sections">
+    <nav class="topic__jump" aria-label="Topic sections">
       <a href="#narrative">Story</a>
       {hasLab && <> · <a href="#lab">Lab</a></>}
       {hasCode && <> · <a href="#code">Code</a></>}
@@ -55,9 +65,68 @@ const PYODIDE_SCRIPT = "https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js
       <a href={`https://github.com/07AMIT10/chaitra/tree/main/${repoFolder}`}>View on GitHub</a>
     </footer>
   </article>
+  </div>
 </BaseLayout>
 
 <style>
+  .topic-layout {
+    display: grid;
+    gap: var(--space-6);
+    max-width: min(90rem, 100%);
+    margin-inline: auto;
+  }
+
+  @media (min-width: 960px) {
+    .topic-layout {
+      grid-template-columns: 12rem minmax(0, 1fr);
+      align-items: start;
+    }
+  }
+
+  .topic__toc {
+    display: none;
+    position: sticky;
+    top: var(--space-4);
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    font-size: var(--font-size-sm);
+  }
+
+  @media (min-width: 960px) {
+    .topic__toc {
+      display: block;
+    }
+  }
+
+  .topic__toc-title {
+    margin: 0 0 var(--space-2);
+    font-weight: 600;
+    color: var(--color-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 0.75rem;
+  }
+
+  .topic__toc ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .topic__toc li + li {
+    margin-top: var(--space-2);
+  }
+
+  .topic__toc a {
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+
+  .topic__toc a:hover {
+    color: var(--color-accent-hover);
+  }
+
   .topic {
     color: var(--color-text);
     max-width: min(72ch, 100%);

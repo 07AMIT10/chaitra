@@ -13,6 +13,8 @@ const DEFAULT_COLORS: BitGridColors = {
   probe: "#ffb86b",
 };
 
+const MAX_VISIBLE_COLS = 128;
+
 type BitGridCanvasProps = {
   length: number;
   bits: readonly boolean[] | Uint8Array | readonly number[];
@@ -43,17 +45,20 @@ export function BitGridCanvas({
     if (!ctx) return;
 
     const m = length;
-    const cell = m > 128 ? 5 : m > 64 ? 6 : 8;
+    const visible = m > MAX_VISIBLE_COLS ? MAX_VISIBLE_COLS : m;
+    const stride = m > MAX_VISIBLE_COLS ? Math.ceil(m / MAX_VISIBLE_COLS) : 1;
+    const cell = visible > 128 ? 5 : visible > 64 ? 6 : 8;
     const gap = 1;
     const height = 32;
-    canvas.width = m * (cell + gap);
+    canvas.width = visible * (cell + gap);
     canvas.height = height;
 
     const probeSet = new Set(highlightProbes ? probeIndices : []);
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < m; i++) {
-      const x = i * (cell + gap);
+    for (let v = 0; v < visible; v++) {
+      const i = v * stride;
+      const x = v * (cell + gap);
       const isProbe = probeSet.has(i);
       if (isProbe) ctx.fillStyle = colors.probe;
       else if (bits[i]) ctx.fillStyle = colors.on;
@@ -66,9 +71,14 @@ export function BitGridCanvas({
     draw();
   }, [draw, reducedMotion]);
 
+  const sampled = length > MAX_VISIBLE_COLS;
+  const label = sampled
+    ? `${ariaLabel} (showing ${MAX_VISIBLE_COLS} sampled columns of ${length})`
+    : ariaLabel;
+
   return (
     <div className="lab__viz-wrap">
-      <canvas ref={canvasRef} className={className} role="img" aria-label={ariaLabel} />
+      <canvas ref={canvasRef} className={className} role="img" aria-label={label} />
     </div>
   );
 }

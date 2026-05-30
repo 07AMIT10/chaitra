@@ -128,6 +128,7 @@ export function hasLabIsland(slug) {
 
 export function resolveStatus({ slug, folder, prior, hasPage, hasLab }) {
   if (prior?.status === "golden") return "golden";
+  if (prior?.status === "readme-only") return "readme-only";
   if (hasLab) return "live";
   if (hasPage) return "preview";
   if (codedFolders.has(folder)) return "coded";

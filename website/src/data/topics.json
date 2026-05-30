@@ -3,31 +3,34 @@
     "slug": "adaptive-cloud-orchestration",
     "title": "Adaptive Cloud Orchestration",
     "folder": "ADAPTIVE_CLOUD_ORCHESTRATION",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "ai-probabilistic-infrastructure",
     "title": "AI Probabilistic Infrastructure",
     "folder": "AI_PROBABILISTIC_INFRASTRUCTURE",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "approximate-computing",
     "title": "Approximate Computing",
     "folder": "APPROXIMATE_COMPUTING",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "approximate-memory-cache-systems",
@@ -44,11 +47,12 @@
     "slug": "autonomous-infrastructure",
     "title": "Autonomous Infrastructure",
     "folder": "AUTONOMOUS_INFRASTRUCTURE",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "bayesian-distributed-systems",
@@ -144,21 +148,23 @@
     "slug": "distributed-systems",
     "title": "Distributed Systems",
     "folder": "DISTRIBUTED_SYSTEMS",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "event-prediction-systems",
     "title": "Event Prediction Systems",
     "folder": "EVENT_PREDICTION_SYSTEMS",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "eventual-consistency",
@@ -175,11 +181,12 @@
     "slug": "go-backend-systems",
     "title": "Go Backend Systems",
     "folder": "GO_BACKEND_SYSTEMS",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "gossip-protocols",
@@ -188,8 +195,8 @@
     "labTier": "A",
     "status": "golden",
     "hasLab": true,
-    "hasCode": false,
-    "hasPython": false,
+    "hasCode": true,
+    "hasPython": true,
     "hasRust": false
   },
   {
@@ -218,51 +225,56 @@
     "slug": "intelligent-realtime-platforms",
     "title": "Intelligent Realtime Platforms",
     "folder": "INTELLIGENT_REALTIME_PLATFORMS",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "large-language-models",
     "title": "Large Language Models",
     "folder": "LARGE_LANGUAGE_MODELS",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "large-scale-ml-infrastructure",
     "title": "Large Scale ML Infrastructure",
     "folder": "LARGE_SCALE_ML_INFRASTRUCTURE",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "large-scale-multi-agent-systems",
     "title": "Large Scale Multi Agent Systems",
     "folder": "LARGE_SCALE_MULTI_AGENT_SYSTEMS",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "llm-infrastructure",
     "title": "LLM Infrastructure",
     "folder": "LLM_INFRASTRUCTURE",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "mapreduce",
@@ -312,11 +324,12 @@
     "slug": "next-gen-ai-agents",
     "title": "Next Gen AI Agents",
     "folder": "NEXT_GEN_AI_AGENTS",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "pagerank",
@@ -325,8 +338,8 @@
     "labTier": "A",
     "status": "golden",
     "hasLab": true,
-    "hasCode": false,
-    "hasPython": false,
+    "hasCode": true,
+    "hasPython": true,
     "hasRust": false
   },
   {
@@ -344,11 +357,12 @@
     "slug": "proactive-ai-systems",
     "title": "Proactive AI Systems",
     "folder": "PROACTIVE_AI_SYSTEMS",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "probabilistic-consensus",
@@ -401,8 +415,8 @@
     "labTier": "A",
     "status": "golden",
     "hasLab": true,
-    "hasCode": false,
-    "hasPython": false,
+    "hasCode": true,
+    "hasPython": true,
     "hasRust": false
   },
   {
@@ -445,29 +459,31 @@
     "labTier": "A",
     "status": "golden",
     "hasLab": true,
-    "hasCode": false,
-    "hasPython": false,
+    "hasCode": true,
+    "hasPython": true,
     "hasRust": false
   },
   {
     "slug": "reinforcement-learning-orchestration",
     "title": "RL Orchestration",
     "folder": "REINFORCEMENT_LEARNING_ORCHESTRATION",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "scalable-architectures",
     "title": "Scalable Architectures",
     "folder": "SCALABLE_ARCHITECTURES",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "spam-detection",
@@ -484,11 +500,12 @@
     "slug": "statistical-learning",
     "title": "Statistical Learning",
     "folder": "STATISTICAL_LEARNING",
-    "status": "preview",
-    "hasLab": false,
+    "status": "readme-only",
+    "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false
+    "hasRust": false,
+    "labTier": "B"
   },
   {
     "slug": "streaming-algorithms",

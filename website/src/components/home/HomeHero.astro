@@ -8,6 +8,24 @@ const { topicCount, liveLabCount } = Astro.props;
 ---
 
 <section class="home-hero" aria-labelledby="home-hero-title">
+  <div class="home-hero__visual" aria-hidden="true">
+    <svg class="home-hero__svg" viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="hero-g" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3d9eff" stop-opacity="0.9" />
+          <stop offset="100%" stop-color="#6bb5ff" stop-opacity="0.35" />
+        </linearGradient>
+      </defs>
+      <circle cx="40" cy="50" r="18" fill="url(#hero-g)" />
+      <circle cx="100" cy="30" r="14" fill="var(--color-surface)" stroke="#3d9eff" stroke-width="2" />
+      <circle cx="160" cy="70" r="22" fill="url(#hero-g)" />
+      <circle cx="80" cy="110" r="16" fill="var(--color-surface)" stroke="#3d9eff" stroke-width="2" />
+      <circle cx="140" cy="120" r="12" fill="#3d9eff" opacity="0.5" />
+      <path d="M40 50 L100 30 L160 70" stroke="#3d9eff" stroke-width="1.5" fill="none" opacity="0.6" />
+      <path d="M100 30 L80 110 L140 120" stroke="#6bb5ff" stroke-width="1.5" fill="none" opacity="0.45" />
+      <path d="M160 70 L140 120" stroke="#3d9eff" stroke-width="1.5" fill="none" opacity="0.5" />
+    </svg>
+  </div>
   <div class="home-hero__copy">
     <p class="home-hero__eyebrow">Chaitra curriculum</p>
     <h1 id="home-hero-title">Scalable probabilistic systems</h1>

@@ -1,0 +1,7 @@
+.preview-lab__chart {
+  width: 100%;
+  max-width: 20rem;
+  margin-top: var(--space-4);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+}

@@ -276,6 +276,7 @@ export default function BloomFilterLab() {
                   type="button"
                   className="lab__btn lab__btn--ghost"
                   onClick={() => setIsPlaying(!isPlaying)}
+                  aria-label={isPlaying ? "Pause Bloom filter insertion stream" : "Play Bloom filter insertion stream"}
                   style={{ flex: 1, minHeight: "36px" }}
                 >
                   {isPlaying ? "⏸ Pause Stream" : "▶ Play Insertion Stream"}

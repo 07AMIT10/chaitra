@@ -1,5 +1,7 @@
 ---
 import "../styles/tokens.css";
+import ThemeToggle from "../components/ThemeToggle.tsx";
+
 const { title = "Chaitra" } = Astro.props;
 const description = "Learn probabilistic data structures and distributed systems through interactive labs, runnable code, and narrative explanations — from Bloom filters to transformer attention.";
 ---
@@ -14,6 +16,7 @@ const description = "Learn probabilistic data structures and distributed systems
     <meta property="og:description" content="51 topics · 34 interactive labs · From Bloom filters to transformer attention." />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#0f1419" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -24,12 +27,21 @@ const description = "Learn probabilistic data structures and distributed systems
     <slot name="head" />
   </head>
   <body>
-    <header role="banner">
+    <header role="banner" class="site-header">
       <nav aria-label="Site">
         <a href="/">Chaitra</a> · <a href="/catalog">Catalog</a>
       </nav>
+      <ThemeToggle client:visible />
     </header>
     <main id="main-content"><slot /></main>
+    <footer class="site-footer" role="contentinfo">
+      <p>
+        <a href="/catalog">Catalog</a>
+        ·
+        <a href="https://github.com/07AMIT10/chaitra">GitHub</a>
+        · MIT-style open curriculum
+      </p>
+    </footer>
   </body>
 </html>
 
@@ -40,21 +52,70 @@ const description = "Learn probabilistic data structures and distributed systems
     background: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
+    font-size: var(--font-size-base);
     line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
-  header nav a {
+  .site-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .site-header nav a {
     color: var(--color-accent);
   }
 
-  header nav a:hover {
+  .site-header nav a:hover {
     color: var(--color-accent-hover);
   }
 
-  header nav a:focus-visible {
+  .site-header nav a:focus-visible {
     outline: none;
     box-shadow: var(--focus-ring);
     border-radius: 2px;
+  }
+
+  .theme-toggle {
+    font: inherit;
+    font-size: var(--font-size-sm);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in srgb, var(--color-muted) 40%, transparent);
+    background: var(--color-surface);
+    color: var(--color-text);
+    cursor: pointer;
+  }
+
+  .theme-toggle:hover {
+    border-color: var(--color-accent);
+  }
+
+  .theme-toggle:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  #main-content {
+    flex: 1;
+  }
+
+  .site-footer {
+    margin-top: var(--space-8);
+    padding-top: var(--space-4);
+    border-top: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+  }
+
+  .site-footer a {
+    color: var(--color-accent);
   }
 
   main a:link {
