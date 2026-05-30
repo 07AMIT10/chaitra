@@ -101,9 +101,9 @@
     "title": "Consistent Hashing",
     "folder": "CONSISTENT_HASHING",
     "labTier": "A",
-    "status": "live",
+    "status": "golden",
     "hasLab": true,
-    "hasCode": false,
+    "hasCode": true,
     "hasPython": true,
     "hasRust": true
   },

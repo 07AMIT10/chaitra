@@ -1,18 +1,41 @@
 import { useMemo, useState } from "react";
 import {
+  idealRemapFractionOnRemove,
+  moduloRemapFractionOnShrink,
+} from "../lib/ring-math";
+import {
   ConsistentHashRing,
   DEMO_KEYS,
   DEMO_SERVERS,
+  moduloRemapCount,
 } from "../lib/ring-sim";
-import { LabShell, MetricsAside, RangeControl, type LabMetric } from "./lab";
+import {
+  ComparePanel,
+  LabShell,
+  MetricsAside,
+  PredictReveal,
+  RangeControl,
+  ScenarioPresets,
+  type LabMetric,
+} from "./lab";
 import "./ConsistentHashingLab.css";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
 
+type LabState = {
+  replicas: number;
+  activeServers: string[];
+  removedServer: string | null;
+};
+
+const INITIAL: LabState = {
+  replicas: 3,
+  activeServers: [...DEMO_SERVERS],
+  removedServer: null,
+};
+
 export default function ConsistentHashingLab() {
-  const [replicas, setReplicas] = useState(3);
-  const [activeServers, setActiveServers] = useState<string[]>([...DEMO_SERVERS]);
-  const [removedServer, setRemovedServer] = useState<string | null>(null);
+  const [{ replicas, activeServers, removedServer }, setLab] = useState<LabState>(INITIAL);
 
   const ring = useMemo(() => {
     const r = new ConsistentHashRing(replicas);
@@ -33,17 +56,50 @@ export default function ConsistentHashingLab() {
       ? ring.remapCount(beforeRing, DEMO_KEYS)
       : null;
 
+  const serversBeforeRemove = removedServer ? activeServers.length + 1 : activeServers.length;
+  const idealFraction = idealRemapFractionOnRemove(serversBeforeRemove);
+  const idealMoved = Math.round(idealFraction * DEMO_KEYS.length);
+  const moduloFraction =
+    removedServer && serversBeforeRemove > 1
+      ? moduloRemapFractionOnShrink(serversBeforeRemove, activeServers.length)
+      : null;
+  const moduloRemap =
+    removedServer && serversBeforeRemove > 1
+      ? moduloRemapCount(DEMO_KEYS, serversBeforeRemove, activeServers.length)
+      : null;
+
   const removeServer = (name: string) => {
-    setRemovedServer(name);
-    setActiveServers((prev) => prev.filter((s) => s !== name));
+    setLab((prev) => ({
+      ...prev,
+      removedServer: name,
+      activeServers: prev.activeServers.filter((s) => s !== name),
+    }));
   };
 
   const restoreServer = () => {
-    if (removedServer) {
-      setActiveServers((prev) => [...prev, removedServer].sort());
-      setRemovedServer(null);
-    }
+    if (!removedServer) return;
+    setLab((prev) => ({
+      ...prev,
+      activeServers: [...prev.activeServers, removedServer].sort(),
+      removedServer: null,
+    }));
   };
+
+  const applyThreeServers = () => setLab(INITIAL);
+
+  const applyRemoveOneNode = () =>
+    setLab({
+      replicas: 3,
+      activeServers: ["Server_A", "Server_C"],
+      removedServer: "Server_B",
+    });
+
+  const applyHighVnodes = () =>
+    setLab({
+      replicas: 20,
+      activeServers: [...DEMO_SERVERS],
+      removedServer: null,
+    });
 
   const metrics: LabMetric[] = [
     { id: "vnodes", label: "Vnodes per server", value: String(replicas) },
@@ -57,9 +113,23 @@ export default function ConsistentHashingLab() {
         id: "moved",
         label: "Keys remapped",
         value: String(remap.moved),
-        tone: remap.moved > 0 ? "warn" : "default",
+        tone: remap.moved > idealMoved + 1 ? "warn" : "default",
+      },
+      {
+        id: "ideal",
+        label: "Ideal ~1/N moved",
+        value: `~${idealMoved} of ${DEMO_KEYS.length}`,
+        tone: "default",
       }
     );
+    if (moduloRemap && moduloFraction != null) {
+      metrics.push({
+        id: "aha",
+        label: "Modulo would move",
+        value: `${moduloRemap.moved}/${DEMO_KEYS.length} (${(moduloFraction * 100).toFixed(0)}%)`,
+        tone: "aha",
+      });
+    }
   }
 
   const serverColor = (name: string | null) => {
@@ -68,26 +138,44 @@ export default function ConsistentHashingLab() {
     return COLORS[idx % COLORS.length];
   };
 
+  const compareLeft = remap
+    ? `${remap.moved} remapped, ${remap.stayed} stable (consistent hash ring)`
+    : "Remove a server to measure remapping";
+
+  const compareRight = remap
+    ? `Ideal ~${idealMoved} move; modulo resize would move ${moduloRemap?.moved ?? "—"} of ${DEMO_KEYS.length}`
+    : `With ${activeServers.length} servers, expect ~${Math.round((1 / Math.max(activeServers.length, 1)) * DEMO_KEYS.length)} keys to move per removal`;
+
   return (
     <LabShell
       intro={
         <>
-          Keys and servers sit on an MD5 hash ring. Adding or removing a node only remaps keys
-          between its neighbors — same recipe as <code>consistent_hashing.py</code>.
+          Keys and servers sit on an MD5 hash ring. Removing a node only reassigns keys that
+          belonged to it — same recipe as <code>consistent_hashing.py</code>.
         </>
       }
     >
       <div className="lab__grid">
         <div>
-          <RangeControl
-            id="ring-replicas"
-            label="Virtual nodes (replicas)"
-            min={1}
-            max={20}
-            value={replicas}
-            valueText={`${replicas} vnodes per server`}
-            onChange={setReplicas}
-          />
+          <div className="lab__controls-panel">
+            <RangeControl
+              id="ring-replicas"
+              label="Virtual nodes (replicas)"
+              min={1}
+              max={20}
+              value={replicas}
+              valueText={`${replicas} vnodes per server`}
+              onChange={(v) => setLab((prev) => ({ ...prev, replicas: v }))}
+            />
+            <ScenarioPresets
+              aria-label="Hash ring scenario presets"
+              presets={[
+                { id: "three", label: "3 servers", onSelect: applyThreeServers },
+                { id: "remove", label: "Remove one node", onSelect: applyRemoveOneNode },
+                { id: "vnodes", label: "High vnodes", onSelect: applyHighVnodes },
+              ]}
+            />
+          </div>
           <div className="ring-lab__servers" role="group" aria-label="Servers">
             {activeServers.map((s) => (
               <button
@@ -112,7 +200,7 @@ export default function ConsistentHashingLab() {
             aria-label="Hash ring with key assignments"
           >
             <circle cx="100" cy="100" r="80" fill="none" stroke="var(--color-muted)" strokeWidth="1" />
-            {assignments.map((a, i) => {
+            {assignments.map((a) => {
               const angle = (a.hash / 2 ** 32) * 2 * Math.PI - Math.PI / 2;
               const x = 100 + 80 * Math.cos(angle);
               const y = 100 + 80 * Math.sin(angle);
@@ -149,6 +237,41 @@ export default function ConsistentHashingLab() {
         </div>
         <MetricsAside metrics={metrics} />
       </div>
+
+      <PredictReveal
+        key={`${replicas}-${activeServers.join(",")}-${removedServer ?? "none"}`}
+        prompt={
+          <>
+            {removedServer ? (
+              <>
+                After removing <strong>{removedServer}</strong>, how many of the {DEMO_KEYS.length}{" "}
+                sample keys remap vs stay on the same server? (Ideal bound: ~{idealMoved} move.)
+              </>
+            ) : (
+              <>
+                Remove a server (or use <strong>Remove one node</strong>): how many keys will remap
+                vs stay stable?
+              </>
+            )}
+          </>
+        }
+        revealLabel="Show remapped vs stable"
+      >
+        <ComparePanel
+          leftLabel="Consistent hashing"
+          rightLabel="Ground truth / baseline"
+          left={compareLeft}
+          right={compareRight}
+        />
+        {remap && moduloRemap && (
+          <p className="lab__status" role="note">
+            Only keys owned by the removed node should move (~1/{serversBeforeRemove} of the ring).
+            Naive <code>hash % N</code> would reshuffle {moduloRemap.moved} keys (
+            {(moduloFraction! * 100).toFixed(0)}%).
+          </p>
+        )}
+      </PredictReveal>
+
       <p className="lab__status" role="status" aria-live="polite">
         {activeServers.length} servers, {replicas} vnodes each.
         {remap

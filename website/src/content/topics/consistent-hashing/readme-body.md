@@ -1,4 +1,29 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Hash[Hash functions] --> CH[Consistent Hashing]
+  Bloom[Bloom Filters] --> CH
+  Scale[Scalable architectures] --> CH
+```
+
+## When to use
+
+- **Distributed caches and CDNs** where keys must stick to a stable shard until topology changes.
+- **Cluster resize** (add/remove nodes) when you cannot afford to reshuffle the entire dataset like `hash(key) % N`.
+- **Load balancing** with **virtual nodes** when a few physical machines must own roughly equal ring arcs.
+
+## When not to use
+
+- The cluster is **tiny** or **static** — simple modulo or round-robin may be enough.
+- You need **strict per-key quotas** or **range queries** on keys (use a directory service or range partitioning).
+- **Strong ordering** across the whole keyspace matters more than minimal migration (consider explicit shard maps).
+
+## Lab
+
+On the [interactive consistent hashing lab](/topics/consistent-hashing#lab), tune **Virtual nodes (replicas)** to balance the ring, **Remove** a server to watch keys remap clockwise, and compare **keys remapped vs stable** against the **ideal ~1/N** bound and a **modulo baseline**. Try **3 servers**, **Remove one node**, or **High vnodes** presets, then predict how many sample keys move when a node leaves.
+
 ## Simple Fundamental Explanation
 Imagine you run a massive online library with 4 identical warehouses (servers) to store millions of books. To find a book quickly, you hash the book's title and use the modulo operator based on the number of warehouses:
 `hash("Harry Potter") % 4 = 1` (Store in Warehouse 1).

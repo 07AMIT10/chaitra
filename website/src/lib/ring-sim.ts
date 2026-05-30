@@ -1,6 +1,24 @@
 import { md5KeyHash } from "./sketches/hash";
 import type { RingAssignment } from "./sketches/types";
 
+/** Naive modulo routing — baseline when cluster size changes. */
+export function moduloRemapCount(
+  keys: string[],
+  oldN: number,
+  newN: number
+): { moved: number; stayed: number } {
+  let moved = 0;
+  let stayed = 0;
+  for (const key of keys) {
+    const h = md5KeyHash(key);
+    const a = h % oldN;
+    const b = h % newN;
+    if (a === b) stayed++;
+    else moved++;
+  }
+  return { moved, stayed };
+}
+
 /** Consistent hash ring — parity with consistent_hashing.py */
 export class ConsistentHashRing {
   replicas: number;
