@@ -100,7 +100,7 @@ const LAB_TIER = {
   "token-routing": "B",
   "transformer-attention": "B",
   "distributed-queues": "A",
-  "probabilistic-scheduling": "B",
+  "probabilistic-scheduling": "A",
   "probabilistic-databases": "B",
 };
 

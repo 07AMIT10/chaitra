@@ -234,7 +234,9 @@ Execute template above in order:
 - [x] **Task 21:** `random-early-detection`
 - [ ] **Task 22:** `distributed-queues`
 - [x] **Task 23:** `approximate-memory-cache-systems`
-- [ ] **Task 24:** `probabilistic-scheduling`
+- [x] **Task 24:** `probabilistic-scheduling`
+
+**Wave 2 gate:** ✓ All 10 slugs `status: "golden"`; `npm run build` PASS (2026-05-30).
 
 ---
 

@@ -3,12 +3,20 @@ title: Probabilistic Scheduling
 ---
 
 import ReadmeBody from "./readme-body.md";
-import ProbSchedulingLab from "../../../components/minisim/ProbSchedulingLab.tsx";
+import ProbabilisticSchedulingLab from "../../../components/ProbabilisticSchedulingLab.tsx";
 
 ## Random placement
+
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section for **task placement** on a small worker
+  pool. Tune **tasks**, **workers**, and **sample size k**, read **P_success** on the curve, switch
+  **Random** vs **Sample-k** vs **Optimal** on the histogram, try **Nomad-style**, **Heavy load**, or
+  **High P_success** presets, predict whether sampling lowers **max load** vs one random pick, then
+  reveal **random vs sample-k vs greedy optimal**.
+</Callout>
 
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>
 
-<ProbSchedulingLab client:visible />
+<ProbabilisticSchedulingLab client:visible />

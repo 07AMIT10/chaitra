@@ -50,7 +50,7 @@ const P2_LABS = {
     path: "../../../components/DistributedQueuesLab.tsx",
     heading: "Partition ordering tradeoff",
   },
-  "probabilistic-scheduling": { component: "ProbSchedulingLab", path: "../../../components/minisim/ProbSchedulingLab.tsx", heading: "Random placement" },
+  "probabilistic-scheduling": { component: "ProbabilisticSchedulingLab", path: "../../../components/ProbabilisticSchedulingLab.tsx", heading: "Random placement" },
   "probabilistic-databases": { component: "ProbDBLab", path: "../../../components/minisim/ProbDBLab.tsx", heading: "Uncertain tuples" },
 };
 

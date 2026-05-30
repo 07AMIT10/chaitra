@@ -1,5 +1,30 @@
 # Probabilistic Scheduling: Randomized Orchestration
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Load[Load balancing basics] --> Sched[Probabilistic scheduling]
+  Po2[Power of two choices] --> Sched
+  Queue[Queueing / worker pools] --> Sched
+```
+
+## When to use
+
+- **Large clusters** where scoring every node is O(N) and becomes a scheduling bottleneck (Nomad, Borg-style shortcuts).
+- **Optimistic concurrent placement** — sample a few candidates, pick the best in the sample, retry on conflict.
+- **Throughput over global optimality** — you need sub-millisecond placement decisions at thousands of tasks per second.
+
+## When not to use
+
+- **Tiny fleets (N &lt; 20)** — greedy min-load or full scoring is cheap; probabilistic sampling adds little.
+- **Hard affinity / compliance** — GPU topology, zone rules, or SLA tiers need deterministic filtering before randomness.
+- **Strict optimality proofs** — sampling gives high probability of a good node, not the globally best node every time.
+
+## Lab
+
+On the [interactive probabilistic scheduling lab](/topics/probabilistic-scheduling#lab), tune **tasks**, **workers (small N)**, and **sample size k**, drag **top fraction “good” (p)** to see **P<sub>success</sub> = 1 − (1 − p)<sup>k</sup>**, switch **Random** vs **Sample-k** vs **Optimal** on the worker histogram, try **Nomad-style**, **Heavy load**, or **High P_success** presets, predict whether sample-k beats random on **average max load**, then reveal **random vs sample-k vs greedy optimal**.
+
 ## Simple Fundamental Explanation
 Imagine you are the manager of a massive shipping port. 1,000 ships arrive every hour, and you have to assign them to 10,000 different docks based on their size, cargo, and required cranes.
 
