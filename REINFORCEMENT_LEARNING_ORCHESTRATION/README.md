@@ -1,5 +1,33 @@
 # RL Orchestration: Autonomous Cluster Management
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Stat[Statistical learning] --> RL[Reinforcement learning orchestration]
+  Proactive[Proactive AI systems] --> RL
+  Scale[Scalable architectures] --> RL
+  AIPI[AI probabilistic infrastructure] --> RL
+```
+
+## When to use
+
+- **Non-linear cluster coupling** where scaling one service starves another unpredictably.
+- **Simulation or shadow environments** to train policies before live reward on production.
+- **Multi-objective rewards** balancing latency, cost, energy, and error rate simultaneously.
+
+## When not to use
+
+- **Small static clusters** — Kubernetes defaults plus HPA are easier to reason about.
+- **No safe exploration** — random actions can cause outages without guardrails.
+- **Explainability requirements** — neural policies are harder to audit than explicit rules.
+
+## How to read the diagrams
+
+Follow the **actor–critic step** (state, sampled action, reward, critic update), then the **MDP transition** view of cluster state evolution. The ascii actor diagram below is the same migration example.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine training a dog.
 You don't give the dog a textbook on canine physiology. You say "Sit." If the dog sits, you give it a treat (Positive Reward). If it jumps, you say "No" (Negative Reward). Over time, the dog figures out the complex sequence of muscle movements required to maximize the amount of treats it gets.
@@ -33,6 +61,29 @@ Modern RL orchestrators usually use an Actor-Critic neural network structure.
 The Actor takes an action. The environment changes to a new State. The Critic evaluates the new State. If the new State is better than expected, the Critic tells the Actor to increase the probability of taking that action again in the future.
 
 ### Visual Diagram
+
+### Diagram 1 — Actor–critic orchestration step
+
+```mermaid
+sequenceDiagram
+  participant Env as Cluster
+  participant Act as Actor policy
+  participant Crit as Critic value
+  Env->>Act: state S_t high CPU N1
+  Act->>Env: migrate workload to N2
+  Env->>Crit: state S_t+1 latency down
+  Crit->>Act: advantage positive · reinforce
+```
+
+### Diagram 2 — MDP state transition
+
+```mermaid
+stateDiagram-v2
+  [*] --> HotNode: CPU 95% on N1
+  HotNode --> Balanced: migrate action
+  Balanced --> HotNode: traffic surge
+  Balanced --> [*]: SLO met
+```
 
 ```ascii
 State (S_t): Node 1 (95% CPU), Node 2 (10% CPU). User latency: 500ms.

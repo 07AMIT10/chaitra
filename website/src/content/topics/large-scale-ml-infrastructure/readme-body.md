@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  LLM[Large language models] --> MLInfra[Large-scale ML infrastructure]
+  Dist[Distributed systems] --> MLInfra
+  Scale[Scalable architectures] --> MLInfra
+  Approx[Approximate computing] -.->|ZeRO · mixed precision| MLInfra
+```
+
+## When to use
+
+- **Models that do not fit one GPU** — weights, optimizer state, and activations exceed single-node VRAM.
+- **Internet-scale datasets** requiring synchronized gradients across hundreds or thousands of accelerators.
+- **Training SLOs** where stragglers and network all-reduce dominate step time.
+
+## When not to use
+
+- **Small models on one GPU** — DDP overhead may exceed benefit.
+- **No high-bandwidth interconnect** — tensor parallelism needs NVLink-class links.
+- **Inference-only serving** — see LLM infrastructure; training stacks differ.
+
+## How to read the diagrams
+
+Map the **3D parallelism grid** (data, pipeline, tensor) to which bottleneck each axis solves, then the **ring all-reduce** for why gradient sync scales to thousands of GPUs. The ascii GPU grid below labels the same axes.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine you have to read 10 million books and memorize every fact inside them.
 - **Single Node**: You sit at a desk and read one book at a time. It will take you a lifetime.
@@ -30,6 +58,42 @@ The model is so big that even a *single layer* doesn't fit on one GPU.
 The matrix multiplication itself is mathematically sliced in half. GPU 1 multiplies the left half of the matrix. GPU 2 multiplies the right half. They must synchronize their partial answers over the network literally millions of times per second. This requires ultra-fast physical interconnects (like NVLink), because standard Ethernet is too slow.
 
 ### Visual Diagram: The 3D Parallelism Grid
+
+### Diagram 1 — Data · pipeline · tensor parallelism
+
+```mermaid
+flowchart TB
+  subgraph tensor["Tensor parallel · split one layer"]
+    G1["GPU 1 half matmul"]
+    G2["GPU 2 half matmul"]
+    G1 <--> G2
+  end
+  subgraph pipe["Pipeline parallel · layer stages"]
+    S1["Stages 1–10"] --> S2["Stages 11–20"]
+  end
+  subgraph data["Data parallel · replica + all-reduce"]
+    D1["Replica A · batch A"]
+    D2["Replica B · batch B"]
+    D1 <-.->|grad sync| D2
+  end
+  tensor --> pipe
+  pipe --> data
+```
+
+### Diagram 2 — Ring all-reduce gradient sync
+
+```mermaid
+sequenceDiagram
+  participant G0 as GPU 0
+  participant G1 as GPU 1
+  participant G2 as GPU 2
+  participant G3 as GPU 3
+  Note over G0,G3: Each sends chunk to neighbor; reduce in ring
+  G0->>G1: chunk c0
+  G1->>G2: reduced partial
+  G2->>G3: reduced partial
+  G3->>G0: full average gradient
+```
 
 <!-- diagram -->
 ```diagram

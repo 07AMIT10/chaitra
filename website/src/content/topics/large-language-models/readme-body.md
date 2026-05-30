@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability theory] --> LLM[Large language models]
+  Stat[Statistical learning] --> LLM
+  Attn[Transformer attention] --> LLM
+  Info[Information theory] -.->|entropy · sampling| LLM
+```
+
+## When to use
+
+- **Open-ended language tasks** (dialogue, codegen, summarization) where rules cannot enumerate outputs.
+- **Few-shot adaptation** via prompting instead of retraining per task.
+- **Probabilistic products** that need creativity knobs (temperature) or calibrated uncertainty layers.
+
+## When not to use
+
+- **Hard guarantees** (exact arithmetic, legal determinism) without tool use or symbolic checks.
+- **Tiny domain with perfect tabular data** — classical models may be cheaper and auditable.
+- **Strict freshness** on facts without retrieval — weights are a frozen snapshot of training data.
+
+## How to read the diagrams
+
+The **autoregressive loop** shows tokenize → transformer → softmax → sample → append context; the **attention block** zooms into how context steers the next-token distribution. The ascii layer stack below is the same forward pass.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine you have a highly advanced autocomplete on your phone. If you type "I want to eat a", your phone suggests "pizza", "burger", or "sandwich".
 
@@ -32,6 +60,35 @@ The contextualized data is passed through massive layers of matrix multiplicatio
 The final layer outputs a giant list of scores (logits), one for every possible token in the vocabulary (e.g., 50,000 tokens). These scores are converted into probabilities summing to 100%. The model samples from this distribution to output the next token.
 
 ### Visual Diagram
+
+### Diagram 1 — Autoregressive token loop
+
+```mermaid
+flowchart LR
+  Ctx["Context tokens"]
+  Tok["Tokenize + embed"]
+  Tr["Transformer blocks"]
+  Log["Logits over vocab"]
+  Smp["Softmax + sample<br/>temperature T"]
+  Out["Append token"]
+  Ctx --> Tok --> Tr --> Log --> Smp --> Out
+  Out -.->|extend context| Ctx
+```
+
+### Diagram 2 — Self-attention over context
+
+```mermaid
+flowchart TB
+  Q["Query: next position"]
+  K["Keys: all prior tokens"]
+  V["Values: content vectors"]
+  Attn["Attention weights<br/>river · muddy disambiguate bank"]
+  Out["Contextual hidden state"]
+  Q --> Attn
+  K --> Attn
+  V --> Attn
+  Attn --> Out
+```
 
 <!-- diagram -->
 ```diagram

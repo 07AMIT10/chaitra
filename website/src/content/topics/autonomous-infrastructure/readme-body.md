@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Dist[Distributed systems] --> Auto[Autonomous infrastructure]
+  Event[Event prediction systems] --> Auto
+  AIPI[AI probabilistic infrastructure] --> Auto
+  Proactive[Proactive AI systems] --> Auto
+```
+
+## When to use
+
+- **Fleet scale** where human on-call cannot correlate terabytes of logs per incident.
+- **Intent-based ops** (“keep p99 under 50ms, minimize cost”) instead of hand-maintained YAML playbooks.
+- **Spot and preemptible capacity** when probabilistic termination risk must be managed automatically.
+
+## When not to use
+
+- **Regulated change windows** that forbid autonomous remediation without approval.
+- **Greenfield stacks** with no observability — the loop needs metrics, traces, and safe actuators.
+- **Single server** hobby projects where declarative IaC plus paging is simpler.
+
+## How to read the diagrams
+
+Walk the **AIOps closed loop** (observe → correlate → decide → act), then the **spot arbitrage state machine** for migrate-before-terminate behavior. The ascii healing cycle below shows multi-signal correlation in prose form.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine a human network engineer managing a city's traffic lights. They watch cameras all day, manually turning lights green or red to prevent traffic jams. They are slow, get tired, and can only watch one intersection at a time.
 Now imagine replacing them with an AI system connected to every car's GPS. The system sees 10,000 cars approaching downtown and automatically alters the timing of every traffic light in the city simultaneously to ensure no one ever stops moving.
@@ -23,6 +51,30 @@ Autonomous infrastructure relies on a closed-loop system:
 - **Act**: Automatically execute API calls to the cloud provider to implement the fix (e.g., migrating a database, isolating a hacked container, or buying cheaper spot instances).
 
 ### Visual Diagram: The Autonomous Healing Cycle
+
+### Diagram 1 — AIOps observe–act loop
+
+```mermaid
+flowchart TB
+  Obs["Observe<br/>logs · metrics · traces"]
+  Ana["Analyze<br/>isolation forest · correlation"]
+  Dec["Decide<br/>forecast or RL policy"]
+  Act["Act<br/>scale · migrate · quarantine"]
+  Obs --> Ana --> Dec --> Act
+  Act -.->|telemetry| Obs
+```
+
+### Diagram 2 — Spot instance risk states
+
+```mermaid
+stateDiagram-v2
+  [*] --> OnSpot: bid accepted
+  OnSpot --> Migrating: P terminate rises
+  Migrating --> OnDemand: live migrate workload
+  OnSpot --> Terminated: 2 min warning
+  Terminated --> OnDemand: failover restore
+  OnDemand --> OnSpot: price favorable again
+```
 
 <!-- diagram -->
 ```diagram

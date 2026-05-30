@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Stat[Statistical learning] --> Approx[Approximate computing]
+  LLM[Large language models] --> Approx
+  LLMInfra[LLM infrastructure] --> Approx
+  Info[Information theory] -.->|error budgets| Approx
+```
+
+## When to use
+
+- **ML inference and training** where noise-tolerant models tolerate INT8/INT4 weights and stochastic rounding.
+- **Media and signal pipelines** where human perception masks small numeric error.
+- **Power-constrained edge** hardware that trades controlled error rate for voltage and throughput.
+
+## When not to use
+
+- **Financial ledger or crypto** paths that require exact, reproducible arithmetic.
+- **Safety certification** domains that forbid probabilistic hardware fault rates without formal bounds.
+- **Tiny datasets** where quantization noise dominates signal — full precision may be cheaper to validate.
+
+## How to read the diagrams
+
+Use **precision scaling** to see how bit width trades memory for error, then the **quantization deploy path** from FP16 checkpoint to 4-bit serving. The ascii bit-string comparison below is the same idea in hardware terms.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine you are rendering a massive 3D explosion for a blockbuster movie.
 - **Exact Computing**: The computer calculates the exact physics, light refraction, and heat displacement for every single pixel of smoke and fire, accurate to 16 decimal places. It takes 5 hours to render one frame.
@@ -23,6 +51,31 @@ In software, compilers can be instructed to automatically skip iterations of lar
 Standard floats are 32-bit or 64-bit. Approximate computing aggressively down-scales to 16-bit, 8-bit, or even 4-bit numbers. This inherently introduces massive rounding errors, but allows the CPU/GPU to pack 4x to 8x more data into the cache, wildly accelerating matrix multiplications.
 
 ### Visual Diagram: Precision Scaling
+
+### Diagram 1 — Precision ladder and error budget
+
+```mermaid
+flowchart TB
+  X["High-precision value<br/>many mantissa bits"]
+  FP64["FP64 exact path<br/>large RAM · slow"]
+  FP16["FP16 training default"]
+  INT8["INT8 inference<br/>4x density"]
+  INT4["INT4 quantized serve<br/>controlled rounding"]
+  X --> FP64
+  X --> FP16 --> INT8 --> INT4
+  INT4 --> Y["Downstream model<br/>absorbs Var noise"]
+```
+
+### Diagram 2 — LLM quantization for deployment
+
+```mermaid
+flowchart LR
+  CKPT["FP16 checkpoint<br/>70B params"]
+  CAL["Calibration batches<br/>scale per channel"]
+  Q["Quantize weights<br/>4-bit tables"]
+  ENG["Inference engine<br/>vLLM · TensorRT"]
+  CKPT --> CAL --> Q --> ENG
+```
 
 <!-- diagram -->
 ```diagram

@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Stat[Statistical learning] --> AIPI[AI probabilistic infrastructure]
+  Event[Event prediction systems] --> AIPI
+  Dist[Distributed systems] --> AIPI
+  RL[Reinforcement learning orchestration] --> AIPI
+```
+
+## When to use
+
+- **Lead time dominates** (VM boot, cold containers) and reactive thresholds always arrive too late.
+- **Non-linear cluster dynamics** where hand-written IF/ELSE rules cannot capture coupling between services.
+- **Energy or cost surfaces** with many knobs (cooling, spot mix, placement) that benefit from learned policies.
+
+## When not to use
+
+- **Sparse or non-stationary telemetry** — forecasts and RL need history; fall back to PID/reactive rules.
+- **Safety-critical single-shot actions** without human gates (bad model day can over-provision or drain pools).
+- **Tiny clusters** where ML ops cost exceeds savings from predictive scaling.
+
+## How to read the diagrams
+
+Compare **reactive vs predictive timelines** first (why boot latency creates outage windows), then the **RL control loop** for how actions change cluster state and rewards. The ascii timeline below mirrors the same contrast.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine driving a car.
 - **Traditional Infrastructure**: The car has a cruise control button. You set it to 60 mph. If you start going up a steep hill, the car realizes its speed dropped to 55 mph, so it presses the gas pedal harder to get back to 60. It is *reactive*.
@@ -26,6 +54,33 @@ It observes the reward (e.g., did latency go down? did cost go down?).
 Over millions of probabilistic iterations, the AI learns a complex, highly non-linear strategy for managing the entire data center that drastically outperforms human-written logic.
 
 ### Visual Diagram: Predictive Scaling vs Reactive Scaling
+
+### Diagram 1 — Reactive vs predictive capacity timeline
+
+```mermaid
+flowchart TB
+  subgraph reactive["Reactive threshold at T=10"]
+    R1["T=9 normal"] --> R2["T=10 spike · CPU 100%"]
+    R2 --> R3["T=10 alert · boot VMs"]
+    R3 --> R4["T=15 capacity online · outage window"]
+  end
+  subgraph predictive["Forecast at T=5"]
+    P1["T=5 model: spike at T=10"] --> P2["T=5 proactive boot"]
+    P2 --> P3["T=10 spike · capacity ready"]
+  end
+```
+
+### Diagram 2 — RL orchestrator in the cluster MDP
+
+```mermaid
+flowchart LR
+  S["State vector<br/>CPU · RAM · topology"]
+  A["Action<br/>migrate · scale · throttle"]
+  E["Environment<br/>K8s · cloud APIs"]
+  R["Reward<br/>latency · cost · errors"]
+  S --> A --> E --> R
+  R --> S
+```
 
 <!-- diagram -->
 ```diagram

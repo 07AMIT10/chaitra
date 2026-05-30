@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Stat[Statistical learning] --> RT[Intelligent realtime platforms]
+  LLMInfra[LLM infrastructure] --> RT
+  Scale[Scalable architectures] --> RT
+  Stream[Streaming analytics] --> RT
+```
+
+## When to use
+
+- **Sub-100ms decisions** on live events (fraud, pricing, routing) with ML in the critical path.
+- **Stateful stream processing** where per-user context must live beside the compute, not round-trip to SQL.
+- **Feature stores** that pre-materialize aggregates so inference sees only O(1) lookups.
+
+## When not to use
+
+- **Overnight batch analytics** — MapReduce or warehouse SQL is cheaper and simpler.
+- **Cold-start users** with no precomputed features unless you accept higher latency on first event.
+- **Exact nearest-neighbor over huge catalogs** without ANN — latency budgets will break.
+
+## How to read the diagrams
+
+Follow the **real-time inference sequence** end to end (gateway → stream processor → model → response), then **dynamic batching** for how a short wait window trades latency for GPU throughput. The ascii pipeline below lists the same stages.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine you are applying for a mortgage at a bank.
 - **Batch Processing**: You hand the teller your paperwork. They put it in a pile. Overnight, a massive mainframe processes the pile. You get a letter in the mail 3 days later saying "Approved."
@@ -22,6 +50,33 @@ Machine learning models need "Features" (e.g., "Number of times this user tried 
 Platforms use ultra-low-latency Feature Stores (like Redis). Background jobs pre-calculate all features and push them to Redis. The Real-Time platform instantly fetches the pre-calculated integer and feeds it to the AI.
 
 ### Visual Diagram: The Real-Time ML Pipeline
+
+### Diagram 1 — Sub-100ms inference path
+
+```mermaid
+sequenceDiagram
+  participant U as User event
+  participant GW as API gateway
+  participant F as Flink / stream node
+  participant R as Redis features
+  participant M as Triton / TensorRT
+  U->>GW: swipe · click
+  GW->>F: route < 10ms
+  F->>R: fetch features < 1ms
+  F->>M: batch infer < 5ms
+  M-->>GW: score
+  GW-->>U: approve / deny ~20ms
+```
+
+### Diagram 2 — Dynamic batching wait window
+
+```mermaid
+flowchart LR
+  R1["Request arrives"] --> W["Wait W ms<br/>collect batch"]
+  W --> B["Batch size B grows"]
+  B --> I["GPU inference I B<br/>amortized cost"]
+  I --> Out["Per-request latency<br/>W + I B"]
+```
 
 <!-- diagram -->
 ```diagram

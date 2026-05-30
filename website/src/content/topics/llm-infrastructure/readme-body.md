@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  LLM[Large language models] --> LLMInfra[LLM infrastructure]
+  Approx[Approximate computing] --> LLMInfra
+  Scale[Scalable architectures] --> LLMInfra
+  Attn[Transformer attention] -.->|KV cache| LLMInfra
+```
+
+## When to use
+
+- **Production inference** for chat, agents, or APIs where GPU memory and batching dominate cost.
+- **Many concurrent sessions** needing KV cache management (PagedAttention) and continuous batching.
+- **Split prefill/decode** clusters when prompt encoding and token generation have different bottlenecks.
+
+## When not to use
+
+- **Offline batch scoring** with no latency SLO — simpler batch jobs may suffice.
+- **Models that fit in CPU RAM** at low QPS — full GPU stacks may be overkill.
+- **Training from scratch** — use large-scale ML infrastructure instead.
+
+## How to read the diagrams
+
+**PagedAttention** shows non-contiguous KV pages versus wasted contiguous blocks; **prefill vs decode routing** shows why two GPU fleets optimize different arithmetic intensity regimes. The ascii VRAM layout below matches PagedAttention.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine a normal web server (like a WordPress blog). When a user clicks "Load Page", the server reads a few kilobytes of text from a database and sends it back. It takes 50 milliseconds. A cheap $10/month server can handle thousands of users.
 
@@ -27,6 +55,36 @@ In traditional ML, if 4 users asked a question, the server waited until all 4 an
 **Continuous Batching** (or In-Flight Batching) dynamically inserts new user requests into the GPU's execution batch at the exact microsecond a different user's request finishes. The GPU batch is constantly rolling, operating at near 100% saturation.
 
 ### Visual Diagram: PagedAttention
+
+### Diagram 1 — Paged KV cache vs contiguous waste
+
+```mermaid
+flowchart TB
+  subgraph bad["Contiguous blocks"]
+    A["User A short prompt<br/>huge empty slab"]
+    B["User B long doc<br/>OOM risk"]
+  end
+  subgraph good["PagedAttention"]
+    P["Fixed 16-token pages"]
+    T["Page table<br/>logical → physical"]
+    P --> T
+  end
+```
+
+### Diagram 2 — Prefill cluster vs decode cluster
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant P as Prefill GPUs
+  participant D as Decode GPUs
+  C->>P: long prompt · compute-bound
+  P->>D: transfer KV cache · RDMA
+  loop each token
+    D->>D: memory-bound matmul
+    D-->>C: stream token
+  end
+```
 
 <!-- diagram -->
 ```diagram

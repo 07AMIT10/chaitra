@@ -1,5 +1,33 @@
 # Distributed Systems: Coordination at Scale
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability theory] --> Dist[Distributed systems]
+  Dist --> Cons[Consensus systems]
+  Dist --> EC[Eventual consistency]
+  Dist --> Queue[Queueing theory]
+```
+
+## When to use
+
+- **Scale beyond one machine** with fault isolation and geographic spread.
+- **Always-on services** where single-host failure is unacceptable.
+- **Foundation** for caches, queues, databases, and ML platforms.
+
+## When not to use
+
+- **Single-node** apps with modest traffic — a monolith on one VM is simpler.
+- **Strong global ACID** without engineering investment — distributed transactions are hard.
+- **Ignoring network reality** — the fallacies of distributed computing bite every time.
+
+## How to read the diagrams
+
+Read **CAP** under partition, then **Lamport clocks** for causal order without trusting wall time, then **vector clocks** to detect true concurrency (feeds CRDT / eventual-consistency topics).
+
+---
+
 ## Simple Fundamental Explanation
 Imagine you run a bank.
 - **Single System**: You have one giant ledger on one desk. If two people want to deposit money, they stand in a single line. The ledger is perfectly accurate, but if the building burns down, the bank is destroyed.
@@ -33,7 +61,33 @@ To solve this, Leslie Lamport invented **Logical Clocks**. Instead of using phys
 
 This simple algorithm mathematically guarantees a causal ordering of events across the entire cluster without needing perfectly synchronized physical clocks.
 
+### Diagram 2 — Lamport logical clocks
+
+```mermaid
+sequenceDiagram
+  participant A as Node A
+  participant B as Node B
+  Note over A: local clock 2
+  A->>B: message clock=2
+  Note over B: recv max+1 → 3
+  B->>B: local event clock=4
+```
+
 ### Visual Diagram: The CAP Theorem
+
+### Diagram 1 — CAP theorem (pick two under partition)
+
+```mermaid
+flowchart TB
+  C["Consistency C<br/>latest write visible"]
+  A["Availability A<br/>every request answers"]
+  P["Partition tolerance P<br/>splits happen"]
+  C --- P
+  A --- P
+  C -.->|not all three| A
+  P --> CP["CP: lock · wait"]
+  P --> AP["AP: stale OK · stay up"]
+```
 
 ```ascii
           [ Consistency ]
@@ -77,6 +131,18 @@ $$
 $$
 
 If neither $A \to B$ nor $B \to A$ is true, the events are mathematically proven to be concurrent, and the system must handle the conflict (e.g., using a CRDT or Last-Write-Wins).
+
+### Diagram 3 — Vector clocks: happens-before vs concurrent
+
+```mermaid
+flowchart TB
+  EA["Event A · V=1,0,0"]
+  EB["Event B · V=2,1,0"]
+  EC["Event C · V=1,0,2"]
+  EA -->|happens-before| EB
+  EA -.->|concurrent| EC
+  EB -.->|concurrent| EC
+```
 
 ### 2. The FLP Impossibility Result
 Fischer, Lynch, and Paterson (1985) published one of the most important proofs in distributed systems.

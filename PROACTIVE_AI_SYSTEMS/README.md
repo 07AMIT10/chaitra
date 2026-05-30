@@ -1,5 +1,33 @@
 # Proactive AI Systems: Computing the Future
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Event[Event prediction systems] --> Proactive[Proactive AI systems]
+  AIPI[AI probabilistic infrastructure] --> Proactive
+  RL[Reinforcement learning orchestration] --> Proactive
+  Stream[Streaming analytics] --> Proactive
+```
+
+## When to use
+
+- **Remediation lead time** longer than the prediction horizon (boot VMs, clone disks, warm caches).
+- **Asymmetric failure costs** where acting early on a likely event beats waiting for certainty.
+- **Continuous telemetry** feeding forecasts and policy engines at production cadence.
+
+## When not to use
+
+- **Horizon shorter than actuation** — predictions arrive after you could have reacted anyway.
+- **Flat cost of false positives** — proactive over-provisioning wastes money without benefit.
+- **No historical seasonality** — cold-start forecasts are too noisy to trust.
+
+## How to read the diagrams
+
+The **proactive control loop** moves decisions to T+horizon; the **horizon window** chart shows why H must exceed infrastructure lead time. The ascii loop below names the same blocks.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine a chess computer.
 - **Reactive AI**: The computer waits for you to make a move. Then it looks at the board, calculates its best response, and moves.
@@ -26,6 +54,30 @@ Proactive AI must balance competing desires.
 The AI continuously adjusts its probability thresholds based on a mathematically weighted cost function.
 
 ### Visual Diagram: The Proactive Control Loop
+
+### Diagram 1 — Forecast-driven control loop
+
+```mermaid
+flowchart LR
+  Tel["Telemetry now"]
+  Fc["Forecast at T+H"]
+  Pol["Policy · risk engine"]
+  Orch["Orchestrator act now"]
+  Tel --> Fc --> Pol --> Orch
+  Orch -.->|changes future state| Tel
+```
+
+### Diagram 2 — Horizon vs boot lead time
+
+```mermaid
+flowchart TB
+  Now["T now · CPU 40%"]
+  Hshort["H too short<br/>cannot finish boot"]
+  Hgood["H matches lead time<br/>capacity ready at spike"]
+  Spike["T+H spike expected 95% CPU"]
+  Now --> Hshort
+  Now --> Hgood --> Spike
+```
 
 ```ascii
 [ Real-Time Telemetry ] ----> [ Probabilistic Forecast Engine ]

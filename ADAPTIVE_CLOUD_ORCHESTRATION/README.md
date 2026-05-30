@@ -1,5 +1,34 @@
 # Adaptive Cloud Orchestration: The Living Network
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Dist[Distributed systems] --> Scale[Scalable architectures]
+  Queue[Queueing theory] --> Scale
+  Scale --> ACO[Adaptive cloud orchestration]
+  Event[Event prediction systems] --> ACO
+  AI[AI probabilistic infrastructure] -.->|forecast load| ACO
+```
+
+## When to use
+
+- **Bursty or geo-skewed traffic** where static replica counts cannot keep p99 latency in bounds.
+- **Multi-cloud or spot markets** when you want continuous cost–performance tradeoffs without manual runbooks.
+- **Closed-loop SRE** that must observe metrics, orient with models, and act on infrastructure APIs in seconds.
+
+## When not to use
+
+- **Tiny, predictable workloads** on a single VM — basic cron + one autoscaler rule is enough.
+- **Hard change-control** environments where every scale event needs human approval and audit tickets.
+- **Unknown workload shape** with no telemetry history — models and optimizers need signal to be safe.
+
+## How to read the diagrams
+
+Start with the **OODA control loop** (how observe/orient/decide/act maps to Kubernetes and cloud APIs), then follow the **geo-adaptive sequence** for how read replicas and routing change under regional spikes. The ascii OODA sketch below is the same story in text form.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine a standard cruise control on a car. You set it to 65 mph. It stays at 65 mph.
 Now imagine an **Adaptive** cruise control. If a car cuts in front of you, it slows down. If the speed limit changes, it adjusts. It doesn't just execute a static command; it continuously *adapts* to a changing environment.
@@ -21,6 +50,35 @@ Adaptive Orchestration sits one layer above the basic container scheduler. It re
 The orchestrator monitors the latency of users in real-time. If users in Tokyo are experiencing 200ms latency because the database is in California, the orchestrator proactively spawns a read-replica database in the Tokyo data center, syncs the data, and updates the BGP network routes. When the Tokyo traffic dies down, it destroys the replica to save money.
 
 ### Visual Diagram: The OODA Loop
+
+### Diagram 1 — OODA loop on the control plane
+
+```mermaid
+flowchart LR
+  O["Observe<br/>metrics · traces · prices"]
+  R["Orient<br/>Bayesian spike vs attack"]
+  D["Decide<br/>LP: min cost · meet SLO"]
+  A["Act<br/>HPA · VPA · spot · BGP"]
+  O --> R --> D --> A
+  A -.->|new telemetry| O
+```
+
+### Diagram 2 — Geo-adaptive read replica under Tokyo spike
+
+```mermaid
+sequenceDiagram
+  participant Users as Users APAC
+  participant LB as Global LB
+  participant US as DB primary US-West
+  participant JP as Read replica Tokyo
+
+  Users->>LB: traffic spike
+  LB->>US: p99 latency rising
+  Note over US: Orchestrator observes lag
+  US->>JP: provision replica · sync WAL
+  JP-->>Users: reads local · sub-50ms
+  Note over JP: Replica drained when spike ends
+```
 
 ```ascii
 The military OODA Loop (Observe, Orient, Decide, Act) applied to Cloud Orchestration.

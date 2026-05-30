@@ -1,4 +1,31 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability theory] --> Stat[Statistical learning]
+  Info[Information theory] --> Stat
+  Bayes[Bayesian inference systems] -.->|priors · posteriors| Stat
+```
+
+## When to use
+
+- **Predictive tasks** with labeled historical data and measurable loss (regression, classification, ranking).
+- **Generalization matters** — you care about performance on unseen examples, not training fit alone.
+- **Foundation** before deep learning, RL, and probabilistic infrastructure topics.
+
+## When not to use
+
+- **Pure rule compliance** with no learning signal — explicit logic may be required by regulators.
+- **Causal intervention questions** — correlation-fit models need causal design, not just loss minimization.
+- **Adversarial inputs** without robust training — standard ERM can fail silently.
+
+## How to read the diagrams
+
+**Bias–variance** contrasts underfit, good fit, and overfit hypotheses; **risk decomposition** shows empirical risk plus complexity penalty from finite data. The ascii overfitting sketch below draws the same three curves.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine you are trying to guess if a house will sell for more than $500,000.
 - **Rule-Based Programming**: You write a rule: `IF Square_Feet > 2000 AND Bedrooms > 3 THEN Price > 500k`. This is rigid. It fails if the house is a mansion but located in a ghost town.
@@ -32,6 +59,26 @@ This is the most important concept in all of Machine Learning.
 Statistical learning is the art of finding the mathematical sweet spot where the line captures the true curve, but ignores the random noise.
 
 ### Visual Diagram: Overfitting
+
+### Diagram 1 — Bias–variance model complexity
+
+```mermaid
+flowchart LR
+  U["High bias<br/>straight line · underfit"]
+  G["Sweet spot<br/>captures signal"]
+  O["High variance<br/>wiggly · overfit"]
+  U --> G --> O
+```
+
+### Diagram 2 — Empirical risk and generalization gap
+
+```mermaid
+flowchart TB
+  Train["Minimize empirical risk<br/>on n samples"]
+  Pen["VC complexity penalty<br/>grows with model capacity"]
+  True["Bound true expected risk"]
+  Train --> Pen --> True
+```
 
 <!-- diagram -->
 ```diagram

@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability theory] --> EPS[Event prediction systems]
+  Stat[Statistical learning] --> EPS
+  Stream[Streaming analytics] --> EPS
+  Proactive[Proactive AI systems] -.->|actions on scores| EPS
+```
+
+## When to use
+
+- **Preventable failures** with leading indicators (disk SMART, churn signals, fraud patterns).
+- **Asymmetric costs** where early false positives are cheaper than late misses.
+- **Streaming telemetry** rich enough to build windowed features and label historical outcomes.
+
+## When not to use
+
+- **Rare events with no labels** — models cannot calibrate probability without examples.
+- **Instantaneous decisions** with no time to act before the event (horizon shorter than remediation).
+- **Deterministic rules suffice** — a hard threshold on a single metric may be auditable enough.
+
+## How to read the diagrams
+
+Study the **HMM hidden states** (what you infer vs what you observe), then the **score-to-action pipeline** from features through thresholding. The ascii HMM sketch below uses the same Healthy → Degrading → Failing story.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine you are managing a fleet of delivery trucks.
 - **Reactive Management**: You wait until a truck breaks down on the highway, and then you send a tow truck. The delivery is ruined.
@@ -31,6 +59,31 @@ The model outputs a probability, e.g., $P(\text{Crash}) = 0.85$.
 The system must have an action threshold. If the cost of a false positive (accidentally rebooting a healthy server) is low, the threshold might be set at 0.60. If the cost is high, the threshold might be 0.95.
 
 ### Visual Diagram: Hidden Markov Model (HMM)
+
+### Diagram 1 — Hidden disk health states
+
+```mermaid
+stateDiagram-v2
+  [*] --> Healthy
+  Healthy --> Degrading: wear signals
+  Degrading --> Failing: hazard rises
+  Failing --> [*]: I/O errors
+  note right of Healthy: latency low · IOPS high
+  note right of Degrading: latency jitter
+  note right of Failing: IOPS collapse
+```
+
+### Diagram 2 — From features to remediation
+
+```mermaid
+flowchart LR
+  Raw["Raw metrics stream"]
+  Feat["Window features<br/>mean · variance · slope"]
+  Model["Classifier or survival model<br/>P event in horizon H"]
+  Thr["Threshold policy<br/>cost asymmetric"]
+  Act["Act<br/>failover · offer · block"]
+  Raw --> Feat --> Model --> Thr --> Act
+```
 
 <!-- diagram -->
 ```diagram

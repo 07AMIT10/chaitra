@@ -1,4 +1,32 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Dist[Distributed systems] --> Arch[Scalable architectures]
+  Hash[Consistent hashing] --> Arch
+  Queues[Distributed queues] --> Arch
+  Po2[Power of two choices] -.->|load balance| Arch
+```
+
+## When to use
+
+- **Traffic growth** you expect to outpace vertical scaling of one machine.
+- **Independent scaling** of read-heavy APIs, async workers, and storage tiers.
+- **Fault isolation** so one hot microservice does not take down unrelated paths.
+
+## When not to use
+
+- **Early product** with unknown boundaries — a modular monolith may ship faster.
+- **Strong cross-entity transactions** across many services without saga design.
+- **Tiny teams** that cannot operate dozens of deployables and observability surfaces.
+
+## How to read the diagrams
+
+The **reference cloud topology** shows CDN → stateless API → cache/queue → shards; the **USL scaling curve** explains when adding nodes stops helping. The ascii diagram below is the same layer cake.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine you own a small lemonade stand.
 - **Vertical Scaling (Scaling Up)**: Your stand gets popular. To serve more people, you buy a bigger juicer. Then an industrial juicer. Then a factory-sized juicer. Eventually, there is no juicer on Earth big enough, and if that one giant juicer breaks, your entire business stops.
@@ -28,6 +56,36 @@ If Service A calls Service B synchronously, and Service B is slow, Service A is 
 Scalable architectures decouple services using Distributed Queues (see `DISTRIBUTED_QUEUES.md`). Service A fires a message into Kafka and immediately goes back to work. Service B consumes it when ready.
 
 ### Visual Diagram: The Standard Scalable Cloud
+
+### Diagram 1 — Horizontal scale reference architecture
+
+```mermaid
+flowchart TB
+  Users["Clients"]
+  CDN["CDN · edge cache"]
+  LB["Load balancer<br/>power of two"]
+  API["Stateless API pool"]
+  Redis["Redis sessions · features"]
+  Kafka["Kafka async events"]
+  Router["DB router"]
+  S1["Shard A"]
+  S2["Shard B"]
+  Users --> CDN --> LB --> API
+  API --> Redis
+  API --> Kafka
+  API --> Router --> S1
+  Router --> S2
+```
+
+### Diagram 2 — USL: when more nodes hurt
+
+```mermaid
+flowchart LR
+  N["Add nodes N"]
+  Coh["Coherency cost<br/>kappa N squared term"]
+  Cap["Capacity peaks then falls"]
+  N --> Coh --> Cap
+```
 
 <!-- diagram -->
 ```diagram

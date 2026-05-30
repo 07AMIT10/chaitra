@@ -1,5 +1,32 @@
 # Go Backend Systems: Concurrency at Scale
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Dist[Distributed systems] --> Go[Go backend systems]
+  Scale[Scalable architectures] --> Go
+  Queue[Queueing theory] --> Go
+```
+
+## When to use
+
+- **High fan-out I/O** (RPC gateways, geofencing, connection-heavy APIs) with millions of concurrent waits.
+- **Microservices** where small binaries, fast compile, and simple deployment matter at fleet scale.
+- **CPU-bound parallel sections** you can structure as goroutines plus channels instead of lock soup.
+
+## When not to use
+
+- **Heavy numeric ML training** on the hot path — delegate to Python/C++/GPU stacks.
+- **Ecosystem lock-in** to JVM or .NET libraries your org already standardizes on.
+- **Teams allergic to CSP** — shared-memory patterns in other languages may match existing skillsets.
+
+## How to read the diagrams
+
+The **M:N scheduler** figure shows how blocking I/O never parks an OS thread; the **channel pipeline** contrasts message passing with mutex-heavy designs. The ascii scheduler sketch below is the same scheduling story.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine a restaurant kitchen.
 - **Node.js (Single Thread, Event Loop)**: One extremely fast chef cooks every meal. While waiting for a pizza to bake, they chop onions. It's highly efficient, but if they have to do something mathematically complex (like calculating the restaurant's taxes), the kitchen freezes.
@@ -29,6 +56,37 @@ Go uses Communicating Sequential Processes (CSP).
 Goroutines pass data through `Channels` (typed, thread-safe pipes). This eliminates locks and makes concurrent data flow highly predictable and probabilistic.
 
 ### Visual Diagram: The M:N Scheduler
+
+### Diagram 1 — M goroutines on N OS threads
+
+```mermaid
+flowchart TB
+  subgraph cores["CPU cores"]
+    T1["OS thread 1"]
+    T2["OS thread 2"]
+  end
+  subgraph sched["Go runtime scheduler"]
+    G1["Goroutine active"]
+    G2["Goroutine active"]
+    G3["Goroutine blocked on I/O"]
+    G7["Goroutine queued"]
+  end
+  T1 --- G1
+  T1 --- G2
+  T2 --- G7
+  G3 -.->|park · swap in G7| T1
+```
+
+### Diagram 2 — Channels vs shared memory
+
+```mermaid
+flowchart LR
+  P1["Producer goroutine"] -->|send on ch| Pipe["Channel buffer"]
+  Pipe -->|recv| P2["Consumer goroutine"]
+  subgraph avoid["Avoid at scale"]
+    M["Mutex + shared map<br/>contention · races"]
+  end
+```
 
 ```ascii
 [ CPU Core 1 ]          [ CPU Core 2 ]

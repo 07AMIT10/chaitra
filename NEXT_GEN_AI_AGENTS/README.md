@@ -1,5 +1,33 @@
 # Next-Gen AI Agents: Autonomous Digital Workers
 
+## Prerequisites
+
+```mermaid
+graph TD
+  LLM[Large language models] --> Agents[Next-gen AI agents]
+  LLMInfra[LLM infrastructure] --> Agents
+  MCTS[Monte Carlo tree search] -.->|Tree of Thoughts| Agents
+  MAS[Large-scale multi-agent systems] -.->|swarms · blackboard| Agents
+```
+
+## When to use
+
+- **Multi-step goals** that require tools (browser, APIs, shell) rather than a single chat reply.
+- **Ambiguous tasks** where replanning after tool errors is part of the product (booking, dev automation).
+- **Human-in-the-loop oversight** on high-stakes actions while the agent handles routine steps.
+
+## When not to use
+
+- **Single-shot Q&A** — a plain LLM completion is cheaper and easier to evaluate.
+- **Untrusted tool access** without sandboxing — agents can execute harmful side effects.
+- **Hard real-time loops** — LLM latency and nondeterminism break tight control deadlines.
+
+## How to read the diagrams
+
+Trace the **ReAct sequence** (thought → action → observation) for one tool call cycle, then **Tree of Thoughts** for branching and pruning bad plans. The ascii agent loop below is the same ReAct narrative.
+
+---
+
 ## Simple Fundamental Explanation
 Imagine a traditional search engine. You type "Book a flight to Paris." It gives you a list of links to airline websites. You have to click the links, find the flight, enter your credit card, and click "Buy." The computer was just an index.
 
@@ -30,6 +58,37 @@ The developer provides a JSON schema of available functions. The LLM is trained 
 The surrounding Python/Go infrastructure parses the JSON, executes the real-world Python function, and returns the result as text back to the LLM.
 
 ### Visual Diagram: The Agent Loop
+
+### Diagram 1 — ReAct thought–action–observation
+
+```mermaid
+sequenceDiagram
+  participant U as User goal
+  participant L as LLM brain
+  participant T as Tool runtime
+  U->>L: goal + context
+  L->>L: Thought: need stock price
+  L->>T: Action WebSearch AAPL
+  T-->>L: Observation 150.00
+  L->>T: Action Calculator 150 times 10
+  T-->>L: Observation 1500
+  L-->>U: Final answer 1500
+```
+
+### Diagram 2 — Tree of Thoughts branching
+
+```mermaid
+flowchart TB
+  Root["Root goal"]
+  A1["Branch A · score 0.8"]
+  A2["Branch B · score 0.3"]
+  A1a["Expand A1 · promising"]
+  A2x["Prune B · dead end"]
+  Root --> A1
+  Root --> A2
+  A1 --> A1a
+  A2 --> A2x
+```
 
 ```ascii
 Goal: "How much is Apple's stock worth, times 10?"
