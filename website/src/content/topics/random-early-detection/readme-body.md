@@ -1,4 +1,29 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  TCP[TCP congestion control] --> RED[Random Early Detection]
+  Queues[Queueing theory basics] --> RED
+  Net[Routers and buffers] --> RED
+```
+
+## When to use
+
+- **Core router queues** where many TCP flows share one bottleneck and you want **early congestion signals** without waiting for buffer overflow.
+- **Avoiding global synchronization** — random drops spread TCP backoff across flows instead of everyone halving at once.
+- **Weighted RED (WRED)** when traffic classes differ (VoIP vs bulk) and you need **different drop curves** per class.
+
+## When not to use
+
+- **Shallow buffers or single-flow links** — simple tail-drop or explicit ECN may suffice.
+- **Non-TCP traffic** that does not backoff on random loss — drops may not signal congestion usefully.
+- **Ultra-low-latency switches** with minimal buffering — RED’s EWMA may react too slowly.
+
+## Lab
+
+On the [interactive RED lab](/topics/random-early-detection#lab), drag **min_th** and **max_th** to see the **RED Pb ramp** vs the **tail-drop cliff** at 100% fill, move the **avg fill marker**, and run **Calm link**, **RED gentle**, or **Tail-drop cliff** presets. Toggle **RED** vs **tail-drop** on the packet timeline, predict whether RED avoids a full buffer under burst traffic, then reveal **side-by-side drop counts** and max queue depth.
+
 ## Simple Fundamental Explanation
 Imagine a popular highway exit ramp. It can only hold 50 cars.
 If 100 cars try to exit at once, the ramp fills completely. The 51st car hits a dead stop on the main highway, causing a massive, catastrophic pileup behind it. This is how basic internet routers work ("Tail Drop"): they accept data packets until their memory buffer is 100% full, and then they completely drop every subsequent packet, causing the sender's connection to severe lag or timeout.

@@ -231,7 +231,7 @@ Execute template above in order:
 - [x] **Task 18:** `consensus-systems`
 - [x] **Task 19:** `probabilistic-consensus`
 - [ ] **Task 20:** `eventual-consistency`
-- [ ] **Task 21:** `random-early-detection`
+- [x] **Task 21:** `random-early-detection`
 - [ ] **Task 22:** `distributed-queues`
 - [ ] **Task 23:** `approximate-memory-cache-systems`
 - [ ] **Task 24:** `probabilistic-scheduling`

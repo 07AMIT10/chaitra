@@ -25,7 +25,7 @@ const P2_LABS = {
   "monte-carlo-systems": { component: "MonteCarloLab", path: "../../../components/minisim/MonteCarloLab.tsx", heading: "Monte Carlo estimate" },
   "information-theory": { component: "EntropyLab", path: "../../../components/minisim/EntropyLab.tsx", heading: "Entropy calculator" },
   "probability-theory": { component: "DiceLab", path: "../../../components/minisim/DiceLab.tsx", heading: "Dice and LLN" },
-  "random-early-detection": { component: "REDLab", path: "../../../components/minisim/REDLab.tsx", heading: "Early drop probability" },
+  "random-early-detection": { component: "RandomEarlyDetectionLab", path: "../../../components/RandomEarlyDetectionLab.tsx", heading: "Early drop probability" },
   "monte-carlo-tree-search": { component: "MCTSLab", path: "../../../components/minisim/MCTSLab.tsx", heading: "MCTS exploration" },
   "randomized-algorithms": { component: "RandomizedLab", path: "../../../components/minisim/RandomizedLab.tsx", heading: "Las Vegas vs Monte Carlo" },
   "mapreduce": { component: "MapReduceLab", path: "../../../components/MapReduceLab.tsx", heading: "Map shuffle reduce" },
