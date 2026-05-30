@@ -228,7 +228,7 @@ Execute template above in order:
 - [x] **Task 15:** `pagerank`
 - [x] **Task 16:** `mapreduce`
 - [x] **Task 17:** `raft-vs-gossip`
-- [ ] **Task 18:** `consensus-systems`
+- [x] **Task 18:** `consensus-systems`
 - [ ] **Task 19:** `probabilistic-consensus`
 - [ ] **Task 20:** `eventual-consistency`
 - [ ] **Task 21:** `random-early-detection`

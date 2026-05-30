@@ -1,0 +1,112 @@
+.consensus-lab__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(36px, 1fr));
+  gap: 6px;
+  margin: var(--space-2) 0;
+  max-width: 280px;
+}
+
+.consensus-lab__node {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  border: 1px solid var(--color-muted);
+  font-size: 0.65rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-muted);
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.consensus-lab__grid--static .consensus-lab__node {
+  transition: none;
+}
+
+.consensus-lab__node--leader {
+  background: color-mix(in srgb, var(--color-accent) 50%, transparent);
+  border-color: var(--color-accent);
+  color: var(--color-fg);
+  font-weight: 600;
+}
+
+.consensus-lab__node--replicating {
+  border-color: var(--color-warn, #c9a227);
+  background: color-mix(in srgb, var(--color-warn, #c9a227) 22%, transparent);
+}
+
+.consensus-lab__node--committed {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-bg, #fff);
+}
+
+.consensus-lab__node--isolated,
+.consensus-lab__node--stale {
+  opacity: 0.45;
+  border-style: dashed;
+}
+
+.consensus-lab__log {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: var(--space-3) 0;
+  font-size: 0.75rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+.consensus-lab__log-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.consensus-lab__log-label {
+  width: 2.5rem;
+  flex-shrink: 0;
+  color: var(--color-muted);
+}
+
+.consensus-lab__log-cells {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.consensus-lab__cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1px solid var(--color-muted);
+  background: transparent;
+}
+
+.consensus-lab__cell--pending {
+  border-color: var(--color-warn, #c9a227);
+  background: color-mix(in srgb, var(--color-warn, #c9a227) 35%, transparent);
+}
+
+.consensus-lab__cell--committed {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.consensus-lab__legend {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin: 0 0 var(--space-2);
+}
+
+.consensus-lab__partition {
+  font-size: 0.8rem;
+  padding: var(--space-2);
+  border-radius: var(--radius-sm, 4px);
+  background: color-mix(in srgb, var(--color-muted) 12%, transparent);
+  margin-bottom: var(--space-2);
+}
+
+.consensus-lab__partition--warn {
+  border: 1px solid var(--color-warn, #c9a227);
+  background: color-mix(in srgb, var(--color-warn, #c9a227) 10%, transparent);
+}

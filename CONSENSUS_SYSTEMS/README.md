@@ -1,5 +1,31 @@
 # Consensus Systems: The Math of Agreement
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Dist[Distributed systems overview] --> CS[Consensus Systems]
+  Prob[Probability basics] --> CS
+  RaftVG[Raft vs Gossip] --> CS
+  CAP[CAP / quorum intuition] --> CS
+```
+
+## When to use
+
+- **Replicated state machines** where every node must apply the same ordered log (etcd, Consul, ZooKeeper/ZAB).
+- **Crash-fault-tolerant (CFT)** clusters with honest nodes — Paxos, Raft, or ZAB with majority quorums.
+- **Configuration and coordination** (leader election, distributed locks) rather than high-throughput AP data planes.
+
+## When not to use
+
+- **Byzantine (malicious) peers** on open networks — need BFT (\(N \ge 3f+1\)) or probabilistic chains, not plain Raft alone.
+- **Massive write fan-out** across hundreds of nodes — quorum replication is \(O(N)\) per write; consider gossip or sharded logs.
+- **Eventually consistent caches** where stale reads are acceptable — CRDTs or gossip may be simpler than a full consensus log.
+
+## Lab
+
+On the [interactive consensus systems lab](/topics/consensus-systems#lab), step **Raft log replication**: leader append → **AppendEntries** → quorum commit. Try **ZooKeeper (N=5)**, **Partition inject** (majority commits, minority stale), or **No quorum on A** (split leaves too few nodes on the leader side). Predict whether an entry commits within the suggested steps, then reveal **quorum intersection** \(Q+Q>N\) vs ACK counts.
+
 ## Simple Fundamental Explanation
 Imagine 5 generals surrounding a city. They can only communicate via messengers on horseback. They must all attack at dawn, or all retreat. If only 2 attack, they will be slaughtered.
 

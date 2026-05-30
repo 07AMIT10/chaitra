@@ -3,12 +3,19 @@ title: Consensus Systems
 ---
 
 import ReadmeBody from "./readme-body.md";
-import ConsensusLab from "../../../components/minisim/ConsensusLab.tsx";
+import ConsensusSystemsLab from "../../../components/ConsensusSystemsLab.tsx";
 
 ## Log replication
+
+<Callout variant="note" title="How to read this topic">
+  Read the quorum and fault-tolerance math first, then open the **Lab**. Step **append &
+  replicate** rounds on a toy Raft cluster, enable a **network partition**, and use **ZooKeeper**,
+  **Partition inject**, or **No quorum on A** presets. Predict whether the leader commits within the
+  suggested steps, then reveal committed index vs quorum ACKs and the \(Q+Q&gt;N\) safety property.
+</Callout>
 
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>
 
-<ConsensusLab client:visible />
+<ConsensusSystemsLab client:visible />
