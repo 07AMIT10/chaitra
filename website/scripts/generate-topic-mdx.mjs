@@ -32,7 +32,7 @@ const P2_LABS = {
   "raft-vs-gossip": { component: "RaftVsGossipLab", path: "../../../components/RaftVsGossipLab.tsx", heading: "Raft vs gossip" },
   "consensus-systems": { component: "ConsensusSystemsLab", path: "../../../components/ConsensusSystemsLab.tsx", heading: "Log replication" },
   "probabilistic-consensus": { component: "ProbabilisticConsensusLab", path: "../../../components/ProbabilisticConsensusLab.tsx", heading: "Probabilistic finality" },
-  "eventual-consistency": { component: "EventualConsistencyLab", path: "../../../components/minisim/EventualConsistencyLab.tsx", heading: "Version vectors" },
+  "eventual-consistency": { component: "EventualConsistencyLab", path: "../../../components/EventualConsistencyLab.tsx", heading: "Version vectors & stale reads" },
   "streaming-algorithms": { component: "StreamingAlgoLab", path: "../../../components/minisim/StreamingAlgoLab.tsx", heading: "Sketch chain demo" },
   "streaming-analytics": { component: "StreamingAnalyticsLab", path: "../../../components/minisim/StreamingAnalyticsLab.tsx", heading: "Windowed aggregates" },
   "bayesian-inference-systems": { component: "BayesianLab", path: "../../../components/minisim/BayesianLab.tsx", heading: "Posterior update" },

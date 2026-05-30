@@ -89,7 +89,7 @@ const LAB_TIER = {
   "raft-vs-gossip": "A",
   "consensus-systems": "A",
   "probabilistic-consensus": "A",
-  "eventual-consistency": "B",
+  "eventual-consistency": "A",
   "random-early-detection": "B",
   "streaming-algorithms": "B",
   "streaming-analytics": "B",
