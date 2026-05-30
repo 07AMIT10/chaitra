@@ -212,7 +212,7 @@ Execute template above in order:
 - [ ] **Task 6:** `hyperloglog`
 - [ ] **Task 7:** `consistent-hashing`
 - [ ] **Task 8:** `tinylfu`
-- [ ] **Task 9:** `rate-limiting`
+- [x] **Task 9:** `rate-limiting`
 - [ ] **Task 10:** `gossip-protocols`
 - [ ] **Task 11:** `spam-detection`
 - [ ] **Task 12:** `power-of-two-choices`

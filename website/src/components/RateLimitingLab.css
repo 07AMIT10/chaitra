@@ -21,3 +21,9 @@
 .rl-lab__bar--drop {
   background: #ef4444;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .rl-lab__bar {
+    transition: none;
+  }
+}

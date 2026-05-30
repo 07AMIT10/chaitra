@@ -443,7 +443,7 @@
     "title": "Rate Limiting",
     "folder": "RATE_LIMITING",
     "labTier": "A",
-    "status": "live",
+    "status": "golden",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,

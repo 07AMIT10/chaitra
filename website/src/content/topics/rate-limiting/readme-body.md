@@ -1,4 +1,29 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> RL[Rate Limiting]
+  Queue[Queueing theory] --> RL
+  Scale[Scalable architectures] --> RL
+```
+
+## When to use
+
+- **Public APIs and edge gateways** where you must cap per-client throughput without melting a central counter store.
+- **Overload protection** when backends return 429/503 and clients should **throttle locally** (Google SRE drop formula).
+- **Traffic shaping** when a hard token bucket would create micro-spikes but probabilistic smearing smooths load (Stripe-style).
+
+## When not to use
+
+- You need **legally exact quotas** or billing-grade metering (use durable counters + audit logs).
+- **Per-request fairness** matters more than throughput (use deterministic token bucket or leaky bucket with sync).
+- The cluster is **small** and Redis (or similar) latency is negligible for your QPS.
+
+## Lab
+
+On the [interactive rate limiting lab](/topics/rate-limiting#lab), tune **Bucket capacity**, **Refill rate**, and **Request rate**, then read the **accept vs drop timeline** (green = 200, red = 429). Use **Burst traffic**, **Steady rate**, or **Empty bucket start** presets, predict how many requests survive the token bucket, then reveal **accepted vs dropped** counts.
+
 ## Simple Fundamental Explanation
 Imagine you run a very popular bakery. You allow customers to take a maximum of 5 free samples per day.
 - **Deterministic Approach**: You keep a massive ledger of every person's name and the exact time they took a sample. Every time someone asks for a sample, you search the whole ledger. This is perfectly accurate, but the line out the door stops moving because you are spending all your time checking the ledger.
