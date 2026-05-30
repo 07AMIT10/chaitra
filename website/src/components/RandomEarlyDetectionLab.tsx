@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   baseDropProbability,
   formatFill,
@@ -53,6 +53,20 @@ export default function RandomEarlyDetectionLab() {
   const [avgFillPct, setAvgFillPct] = useState(55);
   const [arrivalBurst, setArrivalBurst] = useState(BURST_ARRIVAL);
   const [mode, setMode] = useState<RouterMode>("red");
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    let dir = 1;
+    const id = setInterval(() => {
+      setAvgFillPct((p) => {
+        if (p >= 92) dir = -1;
+        if (p <= 12) dir = 1;
+        return p + dir * 3;
+      });
+    }, 120);
+    return () => clearInterval(id);
+  }, [isPlaying]);
 
   const config: RedConfig = useMemo(
     () => ({
@@ -255,6 +269,14 @@ export default function RandomEarlyDetectionLab() {
                 { id: "cliff", label: "Tail-drop cliff", onSelect: applyTailDropCliff },
               ]}
             />
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause RED fill sweep playback" : "Play RED fill sweep playback"}
+            >
+              {isPlaying ? "⏸ Pause sweep" : "▶ Play fill sweep"}
+            </button>
           </div>
 
           <div className="lab__row" role="group" aria-label="Router policy for packet timeline">
@@ -336,22 +358,28 @@ export default function RandomEarlyDetectionLab() {
             />
           </div>
 
-          <div
+          <svg
             className="red-lab__timeline"
+            viewBox="0 0 320 80"
             role="img"
             aria-label={`Packet timeline: ${sim.summary.accepted} accepted, ${sim.summary.dropped} dropped`}
           >
-            {sim.steps.slice(-80).map((s) => (
-              <div
-                key={s.index}
-                className={`red-lab__pkt ${s.accepted ? "red-lab__pkt--ok" : "red-lab__pkt--drop"}`}
-                style={{
-                  height: `${Math.max(8, (s.instantQ / config.capacity) * 100)}%`,
-                }}
-                title={`q=${s.instantQ} avg=${s.avgQ.toFixed(1)} ${s.accepted ? "accept" : "drop"}`}
-              />
-            ))}
-          </div>
+            {sim.steps.slice(-80).map((s, i) => {
+              const h = Math.max(8, (s.instantQ / config.capacity) * 72);
+              return (
+                <rect
+                  key={s.index}
+                  x={i * 4}
+                  y={80 - h}
+                  width={3}
+                  height={h}
+                  fill={s.accepted ? "var(--color-success)" : "var(--color-error)"}
+                >
+                  <title>{`q=${s.instantQ} avg=${s.avgQ.toFixed(1)} ${s.accepted ? "accept" : "drop"}`}</title>
+                </rect>
+              );
+            })}
+          </svg>
           <p className="lab__hint">
             Bar height ≈ instant queue after each packet (last 80). Green = accepted, red = dropped.
           </p>

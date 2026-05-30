@@ -161,22 +161,33 @@ export default function TokenRoutingLab() {
               ]}
             />
           </div>
-          <div
+          <svg
             className={`tr-lab__bars${reducedMotion ? " tr-lab__bars--static" : ""}`}
+            viewBox={`0 0 ${loads.length * 36} 100`}
             role="img"
             aria-label={`Expert loads; max ${maxLoad}, ideal ${ideal.toFixed(1)}`}
           >
-            {loads.map((l, i) => (
-              <div key={i} className="tr-lab__bar-wrap">
-                <div
-                  className={`tr-lab__bar${l === maxLoad && overloaded ? " tr-lab__bar--hot" : ""}`}
-                  style={{ height: `${(l / maxLoad) * 100}%` }}
-                  title={`Expert ${i}: ${l} tokens`}
-                />
-                <span className="tr-lab__label">E{i}</span>
-              </div>
-            ))}
-          </div>
+            {loads.map((l, i) => {
+              const h = maxLoad > 0 ? (l / maxLoad) * 72 : 0;
+              const hot = l === maxLoad && overloaded;
+              return (
+                <g key={i}>
+                  <rect
+                    x={i * 36 + 8}
+                    y={88 - h}
+                    width={20}
+                    height={h}
+                    fill={hot ? "var(--color-error)" : "var(--color-accent)"}
+                  >
+                    <title>{`Expert ${i}: ${l} tokens`}</title>
+                  </rect>
+                  <text x={i * 36 + 18} y={96} textAnchor="middle" fontSize="8" fill="var(--color-muted)">
+                    E{i}
+                  </text>
+                </g>
+              );
+            })}
+          </svg>
           <div className="tr-lab__ideal" aria-hidden="true">
             Ideal line: {formatLoad(ideal)}
           </div>

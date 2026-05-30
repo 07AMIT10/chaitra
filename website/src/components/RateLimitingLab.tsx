@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatPercent, tokenBucketAcceptBound } from "../lib/rate-limit-math";
 import { acceptRate, simulateBurst, summarizeResults } from "../lib/rate-limit-sim";
 import {
@@ -19,6 +19,8 @@ export default function RateLimitingLab() {
   const [refillRate, setRefillRate] = useState(5);
   const [requestRate, setRequestRate] = useState(20);
   const [initialTokens, setInitialTokens] = useState<number | undefined>(undefined);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(0);
 
   const effectiveInitial = initialTokens ?? capacity;
 
@@ -31,6 +33,27 @@ export default function RateLimitingLab() {
   );
 
   const { accepted, dropped, total } = summarizeResults(results);
+
+  useEffect(() => {
+    setVisibleCount(results.length);
+  }, [results]);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    setVisibleCount(1);
+    const id = setInterval(() => {
+      setVisibleCount((c) => {
+        if (c >= results.length) {
+          setIsPlaying(false);
+          return results.length;
+        }
+        return c + 2;
+      });
+    }, 70);
+    return () => clearInterval(id);
+  }, [isPlaying, results.length]);
+
+  const visibleResults = results.slice(0, visibleCount);
   const acceptedFrac = acceptRate(results);
   const bound = tokenBucketAcceptBound(capacity, refillRate, requestRate, DURATION_SEC);
   const overload = requestRate > refillRate + 0.5;
@@ -139,21 +162,37 @@ export default function RateLimitingLab() {
                 { id: "empty", label: "Empty bucket start", onSelect: applyEmptyBucket },
               ]}
             />
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause rate limit timeline playback" : "Play rate limit timeline playback"}
+            >
+              {isPlaying ? "⏸ Pause" : "▶ Play timeline"}
+            </button>
           </div>
-          <div
+          <svg
             className="rl-lab__chart"
+            viewBox={`0 0 ${Math.max(visibleResults.length * 4, 40)} 100`}
             role="img"
             aria-label={`Accept vs drop timeline: ${accepted} accepted, ${dropped} dropped over ${DURATION_SEC} seconds`}
           >
-            {results.map((r, i) => (
-              <div
-                key={i}
-                className={`rl-lab__bar ${r.allowed ? "rl-lab__bar--ok" : "rl-lab__bar--drop"}`}
-                style={{ height: `${Math.max(12, (r.tokens / capacity) * 100)}%` }}
-                title={`t=${r.time.toFixed(2)}s ${r.allowed ? "200" : "429"} · ${r.tokens.toFixed(1)} tokens left`}
-              />
-            ))}
-          </div>
+            {visibleResults.map((r, i) => {
+              const h = Math.max(12, (r.tokens / capacity) * 80);
+              return (
+                <rect
+                  key={i}
+                  x={i * 4}
+                  y={100 - h}
+                  width={3}
+                  height={h}
+                  fill={r.allowed ? "var(--color-success)" : "var(--color-error)"}
+                >
+                  <title>{`t=${r.time.toFixed(2)}s ${r.allowed ? "200" : "429"} · ${r.tokens.toFixed(1)} tokens left`}</title>
+                </rect>
+              );
+            })}
+          </svg>
           <p className="lab__hint">
             Bar height ≈ tokens remaining after each request. Green = accepted, red = HTTP 429.
           </p>

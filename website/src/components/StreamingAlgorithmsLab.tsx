@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DEFAULT_CHAIN_CONFIG,
   bloomFpEstimate,
@@ -33,6 +33,21 @@ const STREAM_MAX = ROUTER_TRAFFIC_STREAM.length - 1;
 export default function StreamingAlgorithmsLab() {
   const [streamIdx, setStreamIdx] = useState(STREAM_MAX);
   const [queryKey, setQueryKey] = useState<string>(QUERY_KEYS[0]);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const id = setInterval(() => {
+      setStreamIdx((idx) => {
+        if (idx >= STREAM_MAX) {
+          setIsPlaying(false);
+          return STREAM_MAX;
+        }
+        return idx + 1;
+      });
+    }, 300);
+    return () => clearInterval(id);
+  }, [isPlaying]);
 
   const snap = useMemo(
     () => runSketchChain(streamIdx, queryKey, DEFAULT_CHAIN_CONFIG),
@@ -148,6 +163,14 @@ export default function StreamingAlgorithmsLab() {
                 { id: "tail", label: "Long-tail probe", onSelect: applyLongTail },
               ]}
             />
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause streaming algorithms playback" : "Play streaming algorithms playback"}
+            >
+              {isPlaying ? "⏸ Pause" : "▶ Play"}
+            </button>
           </div>
 
           <p className="lab__hint">Recent packets (newest right):</p>

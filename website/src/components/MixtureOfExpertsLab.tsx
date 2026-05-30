@@ -141,27 +141,34 @@ export default function MixtureOfExpertsLab() {
               ]}
             />
           </div>
-          <div
+          <svg
             className={`moe-lab__grid${reducedMotion ? " moe-lab__grid--static" : ""}`}
+            viewBox={`0 0 ${EXPERT_WEIGHTS.length * 48} 100`}
             role="img"
             aria-label={`Expert gate scores; active experts ${routed.join(", ")}`}
           >
             {EXPERT_WEIGHTS.map((_, i) => {
               const active = routed.includes(i);
-              const h = (scores[i]! / maxScore) * 100;
+              const h = maxScore > 0 ? (scores[i]! / maxScore) * 72 : 0;
               return (
-                <div
-                  key={i}
-                  className={`moe-lab__cell${active ? " moe-lab__cell--on" : ""}`}
-                  title={`${EXPERT_LABELS[i]}: score ${formatScore(scores[i]!)} · P=${formatPercent(probs[i] ?? 0, 1)}`}
-                >
-                  <div className="moe-lab__bar" style={{ height: `${h}%` }} />
-                  <span className="moe-lab__label">E{i}</span>
-                  <span className="moe-lab__score">{formatScore(scores[i]!)}</span>
-                </div>
+                <g key={i}>
+                  <rect
+                    x={i * 48 + 12}
+                    y={88 - h}
+                    width={24}
+                    height={h}
+                    fill={active ? "var(--color-accent)" : "var(--color-muted)"}
+                    opacity={active ? 1 : 0.45}
+                  >
+                    <title>{`${EXPERT_LABELS[i]}: score ${formatScore(scores[i]!)} · P=${formatPercent(probs[i] ?? 0, 1)}`}</title>
+                  </rect>
+                  <text x={i * 48 + 24} y={96} textAnchor="middle" fontSize="8" fill="var(--color-text)">
+                    E{i}
+                  </text>
+                </g>
               );
             })}
-          </div>
+          </svg>
           <ComparePanel
             leftLabel="Sparse Top-K route"
             rightLabel="Dense baseline"

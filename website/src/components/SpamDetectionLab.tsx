@@ -141,18 +141,26 @@ export default function SpamDetectionLab() {
             {wordBars.map(({ word, pSpam, pHam, favors }) => (
               <div key={word} className="spam-lab__row">
                 <span className="spam-lab__token">{word}</span>
-                <div className="spam-lab__bars">
-                  <div
-                    className="spam-lab__bar spam-lab__bar--spam"
-                    style={{ width: `${Math.min(100, pSpam * 400)}%` }}
-                    title={`P(${word} | spam) = ${pSpam.toFixed(3)}`}
-                  />
-                  <div
-                    className="spam-lab__bar spam-lab__bar--ham"
-                    style={{ width: `${Math.min(100, pHam * 400)}%` }}
-                    title={`P(${word} | ham) = ${pHam.toFixed(3)}`}
-                  />
-                </div>
+                <svg className="spam-lab__bars" viewBox="0 0 100 16" role="presentation" aria-hidden="true">
+                  <rect
+                    x={0}
+                    y={0}
+                    width={Math.min(100, pSpam * 400)}
+                    height={7}
+                    fill="var(--color-error)"
+                  >
+                    <title>{`P(${word} | spam) = ${pSpam.toFixed(3)}`}</title>
+                  </rect>
+                  <rect
+                    x={0}
+                    y={9}
+                    width={Math.min(100, pHam * 400)}
+                    height={7}
+                    fill="var(--color-accent)"
+                  >
+                    <title>{`P(${word} | ham) = ${pHam.toFixed(3)}`}</title>
+                  </rect>
+                </svg>
                 <span className={`spam-lab__favor spam-lab__favor--${favors}`}>{favors}</span>
               </div>
             ))}

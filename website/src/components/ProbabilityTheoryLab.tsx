@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import {
   axiomCheck,
@@ -41,7 +41,22 @@ export default function ProbabilityTheoryLab() {
   const [pHeadsPct, setPHeadsPct] = useState(50);
   const [sides, setSides] = useState(6);
   const [seed, setSeed] = useState(42);
+  const [isPlaying, setIsPlaying] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const id = setInterval(() => {
+      setTrials((n) => {
+        if (n >= 8000) {
+          setIsPlaying(false);
+          return 8000;
+        }
+        return n + 200;
+      });
+    }, 300);
+    return () => clearInterval(id);
+  }, [isPlaying]);
 
   const pHeads = pHeadsPct / 100;
 
@@ -282,70 +297,98 @@ export default function ProbabilityTheoryLab() {
                 { id: "many-die", label: "LLN die", onSelect: applyManyDice },
               ]}
             />
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause probability experiment playback" : "Play probability experiment playback"}
+            >
+              {isPlaying ? "⏸ Pause" : "▶ Play trials"}
+            </button>
           </div>
 
           {mode === "coin" && coinRun ? (
-            <div
+            <svg
               className="pt-lab__chart"
+              viewBox="0 0 120 100"
               role="img"
               aria-label={`Coin outcomes: ${coinRun.heads} heads, ${coinRun.tails} tails`}
             >
               {[
                 { label: "H", count: coinRun.heads, expected: trials * pHeads },
                 { label: "T", count: coinRun.tails, expected: trials * (1 - pHeads) },
-              ].map(({ label, count, expected }) => (
-                <div key={label} className="pt-lab__col">
-                  <div
-                    className="pt-lab__bar"
-                    style={{ height: `${(count / maxBar) * 100}%` }}
-                    title={`${label}: ${count} (${formatPercent(count / trials)})`}
-                  />
-                  <span className="pt-lab__label">{label}</span>
-                  <span className="pt-lab__label">E≈{Math.round(expected)}</span>
-                </div>
-              ))}
-            </div>
+              ].map(({ label, count, expected }, i) => {
+                const h = maxBar > 0 ? (count / maxBar) * 72 : 0;
+                return (
+                  <g key={label}>
+                    <rect x={20 + i * 50} y={88 - h} width={30} height={h} fill="var(--color-accent)">
+                      <title>{`${label}: ${count} (${formatPercent(count / trials)})`}</title>
+                    </rect>
+                    <text x={35 + i * 50} y={96} textAnchor="middle" fontSize="10" fill="var(--color-text)">
+                      {label}
+                    </text>
+                    <text x={35 + i * 50} y={88} textAnchor="middle" fontSize="7" fill="var(--color-muted)">
+                      E≈{Math.round(expected)}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
           ) : null}
 
           {mode === "dice" && diceRun ? (
-            <div
+            <svg
               className="pt-lab__chart"
+              viewBox={`0 0 ${sides * 28} 100`}
               role="img"
               aria-label={`Die histogram, sample mean ${sampleMean.toFixed(3)}`}
             >
-              {diceRun.hist.map((h, i) => (
-                <div key={i} className="pt-lab__col">
-                  <div
-                    className={`pt-lab__bar${Math.abs(h - expectedPerFace) < 1 ? " pt-lab__bar--expected" : ""}`}
-                    style={{ height: `${(h / maxBar) * 100}%` }}
-                    title={`Face ${i + 1}: ${h} (E=${expectedPerFace.toFixed(1)})`}
-                  />
-                  <span className="pt-lab__label">{i + 1}</span>
-                </div>
-              ))}
-            </div>
+              {diceRun.hist.map((h, i) => {
+                const hPx = maxBar > 0 ? (h / maxBar) * 72 : 0;
+                const expected = Math.abs(h - expectedPerFace) < 1;
+                return (
+                  <g key={i}>
+                    <rect
+                      x={i * 28 + 6}
+                      y={88 - hPx}
+                      width={16}
+                      height={hPx}
+                      fill={expected ? "var(--color-success)" : "var(--color-accent)"}
+                    >
+                      <title>{`Face ${i + 1}: ${h} (E=${expectedPerFace.toFixed(1)})`}</title>
+                    </rect>
+                    <text x={i * 28 + 14} y={96} textAnchor="middle" fontSize="8" fill="var(--color-text)">
+                      {i + 1}
+                    </text>
+                  </g>
+                );
+              })}
+            </svg>
           ) : null}
 
           <p className="lab__hint">
             Sparkline: running sample mean x̄<sub>N</sub> vs μ={formatMu(mu)} (dashed mental line at μ).
           </p>
-          <div
+          <svg
             className={`pt-lab__spark${reducedMotion ? " pt-lab__spark--static" : ""}`}
+            viewBox={`0 0 ${Math.max(sparkSample.length * 3, 60)} 40`}
             role="img"
             aria-label={`Running sample mean converging toward ${formatMu(mu)}`}
           >
-            {sparkSample.map((v, i) => {
-              const norm = sparkMax > sparkMin ? (v - sparkMin) / (sparkMax - sparkMin) : 0.5;
-              return (
-                <div
-                  key={i}
-                  className="pt-lab__spark-tick"
-                  style={{ height: `${Math.max(4, norm * 100)}%` }}
-                  title={`x̄≈${formatMu(v)}`}
-                />
-              );
-            })}
-          </div>
+            <polyline
+              fill="none"
+              stroke="var(--color-accent)"
+              strokeWidth={1.5}
+              points={sparkSample
+                .map((v, i) => {
+                  const norm = sparkMax > sparkMin ? (v - sparkMin) / (sparkMax - sparkMin) : 0.5;
+                  const x = i * 3;
+                  const y = 36 - norm * 32;
+                  return `${x},${y}`;
+                })
+                .join(" ")}
+            />
+          </svg>
 
           <table className="pt-lab__table">
             <thead>
