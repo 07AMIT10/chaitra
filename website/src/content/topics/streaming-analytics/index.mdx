@@ -3,9 +3,17 @@ title: Streaming Analytics
 ---
 
 import ReadmeBody from "./readme-body.md";
-import StreamingAnalyticsLab from "../../../components/minisim/StreamingAnalyticsLab.tsx";
+import StreamingAnalyticsLab from "../../../components/StreamingAnalyticsLab.tsx";
 
-## Windowed aggregates
+## Windowed aggregates & watermarks
+
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section to scrub **ingest progress** on a synthetic
+  mobile clickstream. Watch **tumbling event-time windows** accumulate totals, the **watermark** close each
+  window when <code>max(event time) − Δ</code> passes its end, and late tunnel events get **dropped** after
+  close. Try **Tunnel late (wide Δ)**, **Tight watermark**, or **Before window close** presets, then predict
+  whether emitted window totals match hindsight ground truth before revealing the compare panel.
+</Callout>
 
 <ReadmeBody />
 

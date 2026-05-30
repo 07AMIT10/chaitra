@@ -1,4 +1,31 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Streams[Unbounded event streams] --> Algo[Streaming Algorithms]
+  Algo --> Analytics[Streaming Analytics]
+  Batch[MapReduce / batch] -.->|contrast| Analytics
+  Windows[Event-time windows] --> Analytics
+  WM[Watermarks & lateness] --> Analytics
+```
+
+## When to use
+
+- **Continuous dashboards** (trending topics, fraud spikes, live revenue) where batch dams are too slow.
+- **Event-time correctness** when mobile or edge devices deliver events **out of order** after tunnels or offline queues.
+- **Composable windowed metrics** backed by probabilistic sketches (HLL, CMS, T-Digest) for fixed RAM per window.
+
+## When not to use
+
+- You can **replay the full stream** into a warehouse hourly — batch may be simpler and exact.
+- **Every late event must count** for billing or compliance — tighten SLAs or use processing-time / correction streams, not a single tight watermark.
+- The workload is **low volume** and fits in a SQL database — streaming ops cost more than you save.
+
+## Lab
+
+On the [interactive streaming analytics lab](/topics/streaming-analytics#lab), scrub **ingest progress** through a synthetic clickstream processed in **receive order**. Tune **allowed lateness Δ** and **tumbling window width**, watch the **watermark** close windows on a scrolling **event-time timeline**, and compare **emitted** window totals to **hindsight exact** sums. Try **Tunnel late (wide Δ)**, **Tight watermark**, or **Before window close** presets, then predict whether tunnel events arriving after close will be dropped.
+
 ## Simple Fundamental Explanation
 Imagine you are standing next to a massive river, and your boss asks you: "Exactly how many gallons of water flowed past you today?"
 - **The Batch Approach**: You build a giant dam, stop the entire river, put all the water into a massive bucket, weigh the bucket, and then release the water. This gives an exact number, but it ruins the ecosystem and takes forever. (This is traditional Hadoop/MapReduce batch processing).

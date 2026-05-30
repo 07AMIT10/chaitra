@@ -34,7 +34,11 @@ const P2_LABS = {
   "probabilistic-consensus": { component: "ProbabilisticConsensusLab", path: "../../../components/ProbabilisticConsensusLab.tsx", heading: "Probabilistic finality" },
   "eventual-consistency": { component: "EventualConsistencyLab", path: "../../../components/EventualConsistencyLab.tsx", heading: "Version vectors & stale reads" },
   "streaming-algorithms": { component: "StreamingAlgorithmsLab", path: "../../../components/StreamingAlgorithmsLab.tsx", heading: "One stream, three sketches" },
-  "streaming-analytics": { component: "StreamingAnalyticsLab", path: "../../../components/minisim/StreamingAnalyticsLab.tsx", heading: "Windowed aggregates" },
+  "streaming-analytics": {
+    component: "StreamingAnalyticsLab",
+    path: "../../../components/StreamingAnalyticsLab.tsx",
+    heading: "Windowed aggregates & watermarks",
+  },
   "bayesian-inference-systems": {
     component: "BayesianInferenceLab",
     path: "../../../components/BayesianInferenceLab.tsx",

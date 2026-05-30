@@ -92,7 +92,7 @@ const LAB_TIER = {
   "eventual-consistency": "A",
   "random-early-detection": "A",
   "streaming-algorithms": "A",
-  "streaming-analytics": "B",
+  "streaming-analytics": "A",
   "bayesian-inference-systems": "A",
   "bayesian-distributed-systems": "A",
   "approximate-memory-cache-systems": "A",
