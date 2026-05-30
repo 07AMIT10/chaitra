@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { hllStandardError } from "../lib/hll-math";
 import { HyperLogLog, exactDistinct } from "../lib/hll-sim";
 import { distinctKeys, shuffleStream } from "../lib/sketches";
@@ -21,6 +21,21 @@ function buildStream(n: number): { key: string }[] {
 export default function HyperLogLogLab() {
   const [b, setB] = useState(8);
   const [streamSize, setStreamSize] = useState(500);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const id = setInterval(() => {
+      setStreamSize((s) => {
+        if (s >= 2000) {
+          setIsPlaying(false);
+          return 2000;
+        }
+        return s + 50;
+      });
+    }, 400);
+    return () => clearInterval(id);
+  }, [isPlaying]);
 
   const stream = useMemo(() => buildStream(streamSize), [streamSize]);
   const hll = useMemo(() => {
@@ -117,24 +132,39 @@ export default function HyperLogLogLab() {
                   label: "High cardinality",
                   onSelect: applyHighCardinality,
                 },
-                { id: "low-b", label: "Low precision", onSelect: applyLowPrecision },
+                { id: "low-b", label: "Low precision", onSelect: () => { setIsPlaying(false); applyLowPrecision(); } },
               ]}
             />
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause HyperLogLog stream playback" : "Play HyperLogLog stream playback"}
+            >
+              {isPlaying ? "⏸ Pause stream" : "▶ Play stream"}
+            </button>
           </div>
-          <div
+          <svg
             className="hll-lab__chart"
+            viewBox={`0 0 ${Math.min(hll.m, 64) * 6} 80`}
             role="img"
             aria-label={`HLL register chart with ${hll.m} buckets`}
           >
-            {hll.registers.map((val, i) => (
-              <div
-                key={i}
-                className="hll-lab__bar"
-                style={{ height: `${(val / maxReg) * 100}%` }}
-                title={`bucket ${i}: ${val}`}
-              />
-            ))}
-          </div>
+            {hll.registers
+              .filter((_, i, arr) => i % Math.ceil(arr.length / 64) === 0)
+              .map((val, i) => (
+                <rect
+                  key={i}
+                  x={i * 6}
+                  y={80 - (val / maxReg) * 72}
+                  width={4}
+                  height={(val / maxReg) * 72}
+                  fill="var(--color-accent)"
+                >
+                  <title>{`bucket ${i}: ${val}`}</title>
+                </rect>
+              ))}
+          </svg>
           <p className="lab__hint">
             Distinct keys in stream: {distinctKeys(stream).slice(0, 5).join(", ")}
             {distinctKeys(stream).length > 5 ? "…" : ""}

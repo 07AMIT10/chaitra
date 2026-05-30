@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { formatWindowLabel, formatWatermark } from "../lib/streaming-analytics-math";
 import {
   CLICKSTREAM,
@@ -31,7 +31,22 @@ export default function StreamingAnalyticsLab() {
   const [streamIdx, setStreamIdx] = useState(STREAM_MAX);
   const [windowSize, setWindowSize] = useState(DEFAULT_STREAM_CONFIG.windowSize);
   const [allowedLateness, setAllowedLateness] = useState(DEFAULT_STREAM_CONFIG.allowedLateness);
+  const [isPlaying, setIsPlaying] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const id = setInterval(() => {
+      setStreamIdx((idx) => {
+        if (idx >= STREAM_MAX) {
+          setIsPlaying(false);
+          return STREAM_MAX;
+        }
+        return idx + 1;
+      });
+    }, 350);
+    return () => clearInterval(id);
+  }, [isPlaying]);
 
   const config: StreamingAnalyticsConfig = useMemo(
     () => ({ windowSize, allowedLateness }),
@@ -162,9 +177,17 @@ export default function StreamingAnalyticsLab() {
               presets={[
                 { id: "tunnel", label: "Tunnel late (wide Δ)", onSelect: applyTunnelLate },
                 { id: "tight", label: "Tight watermark", onSelect: applyTightWatermark },
-                { id: "pre", label: "Before window close", onSelect: applyPreClose },
+                { id: "pre", label: "Before window close", onSelect: () => { setIsPlaying(false); applyPreClose(); } },
               ]}
             />
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause streaming analytics playback" : "Play streaming analytics playback"}
+            >
+              {isPlaying ? "⏸ Pause" : "▶ Play"}
+            </button>
           </div>
 
           <p className="lab__hint">Event-time timeline (dots = processed events; vertical line = watermark):</p>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   expectedMaxExponential,
   formatProbability,
@@ -37,6 +37,7 @@ export default function MapReduceLab() {
   const [withBackup, setWithBackup] = useState(true);
   const [hasStraggler, setHasStraggler] = useState(true);
   const [frame, setFrame] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
 
   const config: MapReduceConfig = useMemo(
@@ -60,6 +61,21 @@ export default function MapReduceLab() {
   );
 
   const maxFrame = Math.max(0, timeline.length - 1);
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const id = setInterval(() => {
+      setFrame((f) => {
+        if (f >= maxFrame) {
+          setIsPlaying(false);
+          return maxFrame;
+        }
+        return f + 1;
+      });
+    }, 500);
+    return () => clearInterval(id);
+  }, [isPlaying, maxFrame]);
+
   const clusterOk = noFailureProbability(DAILY_FAIL_P, CLUSTER_SERVERS);
   const tailMax = expectedMaxExponential(mapTasks);
 
@@ -210,6 +226,14 @@ export default function MapReduceLab() {
             />
           </div>
           <div className="lab__row">
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause MapReduce timeline playback" : "Play MapReduce timeline playback"}
+            >
+              {isPlaying ? "⏸ Pause" : "▶ Play"}
+            </button>
             <button type="button" className="lab__btn" onClick={stepFrame}>
               Step timeline
             </button>

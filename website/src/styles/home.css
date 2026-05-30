@@ -13,6 +13,65 @@
   border-bottom: 1px solid color-mix(in srgb, var(--color-muted) 30%, transparent);
 }
 
+@media (min-width: 768px) {
+  .home-hero {
+    grid-template-columns: minmax(12rem, 1fr) minmax(0, 2fr);
+    align-items: center;
+  }
+}
+
+.home-hero__svg {
+  width: 100%;
+  max-width: 14rem;
+  height: auto;
+}
+
+.learning-path__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.learning-path__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.learning-path__item--done {
+  opacity: 0.85;
+}
+
+.learning-path__step {
+  font-weight: 700;
+  color: var(--color-accent);
+  min-width: 1.5rem;
+}
+
+.learning-path__mark {
+  margin-left: auto;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--color-muted) 35%, transparent);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.learning-path__mark:disabled {
+  color: var(--color-success);
+  cursor: default;
+}
+
 .home-hero__eyebrow {
   margin: 0 0 var(--space-2);
   font-size: 0.875rem;

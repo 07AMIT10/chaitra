@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePrefersReducedMotion } from "../hooks/usePrefersReducedMotion";
 import {
   INTEGRAL_X2_TRUE,
@@ -30,7 +30,22 @@ export default function MonteCarloSystemsLab() {
   const [mode, setMode] = useState<ProblemMode>("pi");
   const [samples, setSamples] = useState(4000);
   const [seed, setSeed] = useState(42);
+  const [isPlaying, setIsPlaying] = useState(false);
   const reducedMotion = usePrefersReducedMotion();
+
+  useEffect(() => {
+    if (!isPlaying) return;
+    const id = setInterval(() => {
+      setSamples((n) => {
+        if (n >= 12000) {
+          setIsPlaying(false);
+          return 12000;
+        }
+        return n + 400;
+      });
+    }, 350);
+    return () => clearInterval(id);
+  }, [isPlaying]);
 
   const piRun = useMemo(() => simulatePi(samples, seed), [samples, seed]);
   const integralRun = useMemo(
@@ -166,6 +181,14 @@ export default function MonteCarloSystemsLab() {
                 { id: "integral", label: "∫ x² on [0,1]", onSelect: applyIntegral },
               ]}
             />
+            <button
+              type="button"
+              className="lab__btn"
+              onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause Monte Carlo sample playback" : "Play Monte Carlo sample playback"}
+            >
+              {isPlaying ? "⏸ Pause" : "▶ Play samples"}
+            </button>
           </div>
           <div className="lab__row" role="group" aria-label="Monte Carlo problem">
             <button
@@ -215,20 +238,28 @@ export default function MonteCarloSystemsLab() {
           {mode === "pi" && convergence.length > 0 && (
             <>
               <p className="lab__hint">|π̂ − π| vs sample count (log-spaced checkpoints, same seed).</p>
-              <div
+              <svg
                 className="mc-lab__conv"
+                viewBox={`0 0 ${Math.max(convergence.length * 8, 40)} 100`}
                 role="img"
                 aria-label="Convergence: absolute error vs number of samples"
               >
-                {convergence.map((pt) => (
-                  <div
-                    key={pt.n}
-                    className="mc-lab__conv-bar"
-                    style={{ height: `${(pt.error / maxConvErr) * 100}%` }}
-                    title={`N=${pt.n}: |error|=${formatMc(pt.error)} SE=${formatMc(pt.stderr)}`}
-                  />
-                ))}
-              </div>
+                {convergence.map((pt, i) => {
+                  const h = maxConvErr > 0 ? (pt.error / maxConvErr) * 88 : 0;
+                  return (
+                    <rect
+                      key={pt.n}
+                      x={i * 8}
+                      y={96 - h}
+                      width={6}
+                      height={h}
+                      fill="var(--color-accent)"
+                    >
+                      <title>{`N=${pt.n}: |error|=${formatMc(pt.error)} SE=${formatMc(pt.stderr)}`}</title>
+                    </rect>
+                  );
+                })}
+              </svg>
             </>
           )}
 

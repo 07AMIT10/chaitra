@@ -8,7 +8,13 @@ const mdxComponents = { Callout, Details };
 
 export function getStaticPaths() {
   return topics
-    .filter((t) => t.status === "golden" || t.status === "live" || t.status === "preview")
+    .filter(
+      (t) =>
+        t.status === "golden" ||
+        t.status === "live" ||
+        t.status === "preview" ||
+        t.status === "readme-only"
+    )
     .map((t) => ({ params: { slug: t.slug }, props: { topic: t } }));
 }
 

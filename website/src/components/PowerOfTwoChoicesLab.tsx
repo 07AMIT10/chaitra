@@ -165,20 +165,21 @@ export default function PowerOfTwoChoicesLab() {
               Power-of-two
             </button>
           </div>
-          <div
+          <svg
             className="pot2-lab__chart"
+            viewBox={`0 0 ${stats.bins.length * 6} 100`}
             role="img"
             aria-label={`Bin load histogram: max ${stats.maxLoad}, ${stats.emptyBins} empty bins, ${strategy} assignment`}
           >
-            {stats.bins.map((load, i) => (
-              <div
-                key={i}
-                className="pot2-lab__bar"
-                style={{ height: `${(load / maxBin) * 100}%` }}
-                title={`bin ${i}: ${load}`}
-              />
-            ))}
-          </div>
+            {stats.bins.map((load, i) => {
+              const h = maxBin > 0 ? (load / maxBin) * 88 : 0;
+              return (
+                <rect key={i} x={i * 6} y={96 - h} width={4} height={h} fill="var(--color-accent)">
+                  <title>{`bin ${i}: ${load}`}</title>
+                </rect>
+              );
+            })}
+          </svg>
           <p className="lab__hint">
             Bar height = balls per bin for the selected strategy (seed 42). Toggle Random vs
             Power-of-two; trial averages below use independent seeds per trial.

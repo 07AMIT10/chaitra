@@ -146,6 +146,7 @@ export default function CountMinSketchLab() {
                 type="button"
                 className="lab__btn lab__btn--ghost"
                 onClick={() => setIsPlaying(!isPlaying)}
+                aria-label={isPlaying ? "Pause Count-Min Sketch stream" : "Play Count-Min Sketch stream"}
                 style={{ flex: 1, minHeight: "36px" }}
               >
                 {isPlaying ? "⏸ Pause" : "▶ Play"}

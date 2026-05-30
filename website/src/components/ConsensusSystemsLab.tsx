@@ -272,6 +272,7 @@ export default function ConsensusSystemsLab() {
               type="button"
               className="lab__btn"
               onClick={() => setIsPlaying(!isPlaying)}
+              aria-label={isPlaying ? "Pause consensus simulation" : "Play consensus simulation"}
               disabled={round >= 12}
             >
               {isPlaying ? "Pause" : "Play"}

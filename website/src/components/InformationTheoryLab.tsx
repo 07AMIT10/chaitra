@@ -154,8 +154,9 @@ export default function InformationTheoryLab() {
               ]}
             />
           </div>
-          <div
+          <svg
             className={`it-lab__chart${reducedMotion ? " it-lab__chart--static" : ""}`}
+            viewBox={`0 0 ${symbols.length * 44} 110`}
             role="img"
             aria-label={`Symbol histogram: entropy ${stats.h.toFixed(3)} bits vs uniform ${stats.uniformH.toFixed(3)}`}
           >
@@ -163,19 +164,29 @@ export default function InformationTheoryLab() {
               const p = probs[i] ?? 0;
               const iSurprise = surprisal(p);
               const isRare = i === rareIdx && p < maxP;
+              const h = maxP > 0 ? (p / maxP) * 72 : 0;
               return (
-                <div key={sym} className="it-lab__col">
-                  <div
-                    className={`it-lab__bar${isRare ? " it-lab__bar--rare" : ""}`}
-                    style={{ height: `${(p / maxP) * 100}%` }}
-                    title={`${sym}: P=${formatPercent(p)} · I=${formatBits(iSurprise, 2)}`}
-                  />
-                  <span className="it-lab__label">{sym}</span>
-                  <span className="it-lab__surprise">{formatBits(iSurprise, 2)}</span>
-                </div>
+                <g key={sym}>
+                  <rect
+                    x={i * 44 + 10}
+                    y={88 - h}
+                    width={24}
+                    height={h}
+                    fill={isRare ? "var(--color-warning)" : "var(--color-accent)"}
+                    opacity={0.9}
+                  >
+                    <title>{`${sym}: P=${formatPercent(p)} · I=${formatBits(iSurprise, 2)}`}</title>
+                  </rect>
+                  <text x={i * 44 + 22} y={100} textAnchor="middle" fontSize="9" fill="var(--color-text)">
+                    {sym}
+                  </text>
+                  <text x={i * 44 + 22} y={108} textAnchor="middle" fontSize="7" fill="var(--color-muted)">
+                    {formatBits(iSurprise, 2)}
+                  </text>
+                </g>
               );
             })}
-          </div>
+          </svg>
           <table className="it-lab__table">
             <thead>
               <tr>

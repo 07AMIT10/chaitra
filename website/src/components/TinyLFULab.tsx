@@ -183,6 +183,7 @@ export default function TinyLFULab() {
                 type="button"
                 className="lab__btn lab__btn--ghost"
                 onClick={() => setIsPlaying(!isPlaying)}
+                aria-label={isPlaying ? "Pause TinyLFU access stream" : "Play TinyLFU access stream"}
                 style={{ flex: 1, minHeight: "36px" }}
               >
                 {isPlaying ? "⏸ Pause" : "▶ Play"}

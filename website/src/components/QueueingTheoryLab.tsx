@@ -146,20 +146,28 @@ export default function QueueingTheoryLab() {
               ]}
             />
           </div>
-          <div
+          <svg
             className="queue-lab__chart"
+            viewBox={`0 0 ${chartSim.events.length * 4} 100`}
             role="img"
             aria-label={`Queue length over ${SIM_DURATION} seconds; max ${chartSim.maxQueue}`}
           >
-            {chartSim.events.map((e, i) => (
-              <div
-                key={i}
-                className="queue-lab__bar"
-                style={{ height: `${(e.queue / maxQ) * 100}%` }}
-                title={`t=${e.time.toFixed(1)}s queue=${e.queue}`}
-              />
-            ))}
-          </div>
+            {chartSim.events.map((e, i) => {
+              const h = maxQ > 0 ? (e.queue / maxQ) * 88 : 0;
+              return (
+                <rect
+                  key={i}
+                  x={i * 4}
+                  y={96 - h}
+                  width={3}
+                  height={h}
+                  fill="var(--color-accent)"
+                >
+                  <title>{`t=${e.time.toFixed(1)}s queue=${e.queue}`}</title>
+                </rect>
+              );
+            })}
+          </svg>
           <p className="lab__hint">
             Bar height = customers waiting. Near ρ→1 the hockey-stick curve steepens; at ρ≥1 the
             system is unstable.
