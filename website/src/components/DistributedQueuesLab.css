@@ -1,0 +1,41 @@
+.distq-lab__chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+  margin: var(--space-3) 0;
+}
+
+.distq-lab__bar {
+  flex: 1;
+  min-width: 6px;
+  border-radius: 2px 2px 0 0;
+  background: var(--color-accent);
+  transition: height 0.2s ease;
+}
+
+.distq-lab__bar--hot {
+  background: #f59e0b;
+}
+
+.distq-lab__strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  max-height: 48px;
+  overflow: hidden;
+  margin: var(--space-2) 0;
+}
+
+.distq-lab__msg {
+  width: 6px;
+  height: 14px;
+  border-radius: 1px;
+  opacity: 0.85;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .distq-lab__bar {
+    transition: none;
+  }
+}

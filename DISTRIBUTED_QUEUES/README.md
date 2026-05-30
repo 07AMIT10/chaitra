@@ -1,5 +1,31 @@
 # Distributed Queues: Probabilistic Message Passing
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Async[Async messaging basics] --> DQ[Distributed queues]
+  Hash[Hashing / partitioning] --> DQ
+  QT[Queueing theory] --> DQ
+  Po2[Power of two choices] --> DQ
+```
+
+## When to use
+
+- **Decoupling producers and consumers** (Kafka, RabbitMQ, SQS) when the producer must not block on slow backends.
+- **Clickstream / telemetry** at very high volume where **probabilistic partition routing** spreads load and **per-key order** is not required globally.
+- **Per-entity ordering** (user, device, shard key) via **hash partitioning** when all events for one key must stay FIFO on one partition.
+
+## When not to use
+
+- **Strict global FIFO** across the whole topic — single-partition bottlenecks or costly cross-partition coordination.
+- **Low-latency RPC** where the caller needs an immediate response — use direct calls or request/reply, not a fire-and-forget queue.
+- **Exactly-once end-to-end semantics** without idempotent consumers and deduplication — queues are usually **at-least-once**.
+
+## Lab
+
+On the [interactive distributed-queues lab](/topics/distributed-queues#lab), set **partitions**, **messages**, and **traffic skew**, then compare **hash (keyed)** vs **random** routing on the **partition load** chart. Try **Hot user (hash)**, **Clickstream (random)**, or **Balanced hash** presets, predict which mode creates a **hot partition** vs **user-order violations** after round-robin consumption, then reveal **hash vs random** side by side. Metrics include **Little’s law** \(L = \lambda W\) and partition **imbalance**.
+
 ## Simple Fundamental Explanation
 Imagine a wildly popular pizza restaurant.
 - **Direct API Call (Synchronous)**: A customer calls the chef directly, orders a pizza, and stays on the phone in silence for 20 minutes until the pizza is ready. If 1,000 people call at once, the chef is overwhelmed, drops the phone, and the restaurant burns down.

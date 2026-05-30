@@ -41,7 +41,11 @@ const P2_LABS = {
   "mixture-of-experts": { component: "MoELab", path: "../../../components/minisim/MoELab.tsx", heading: "Expert routing" },
   "token-routing": { component: "TokenRoutingLab", path: "../../../components/minisim/TokenRoutingLab.tsx", heading: "Top-K routing" },
   "transformer-attention": { component: "AttentionLab", path: "../../../components/minisim/AttentionLab.tsx", heading: "Attention weights" },
-  "distributed-queues": { component: "DistQueuesLab", path: "../../../components/minisim/DistQueuesLab.tsx", heading: "Partition lag" },
+  "distributed-queues": {
+    component: "DistributedQueuesLab",
+    path: "../../../components/DistributedQueuesLab.tsx",
+    heading: "Partition ordering tradeoff",
+  },
   "probabilistic-scheduling": { component: "ProbSchedulingLab", path: "../../../components/minisim/ProbSchedulingLab.tsx", heading: "Random placement" },
   "probabilistic-databases": { component: "ProbDBLab", path: "../../../components/minisim/ProbDBLab.tsx", heading: "Uncertain tuples" },
 };

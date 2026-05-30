@@ -40,3 +40,4 @@ A topic is **`status: "golden"`** only when all applicable rows pass review.
 | consensus-systems | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | probabilistic-consensus | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
 | random-early-detection | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |
+| distributed-queues | ✓ | ✓ | n/a (README only) | ✓ | ✓ | yes | 2026-05-30 |

@@ -3,12 +3,19 @@ title: Distributed Queues
 ---
 
 import ReadmeBody from "./readme-body.md";
-import DistQueuesLab from "../../../components/minisim/DistQueuesLab.tsx";
+import DistributedQueuesLab from "../../../components/DistributedQueuesLab.tsx";
 
-## Partition lag
+## Partition ordering tradeoff
+
+<Callout variant="note" title="How to read this topic">
+  Follow the narrative first, then open the **Lab** section to compare **hash (keyed)** vs **random**
+  partition routing. Tune **partitions**, **messages**, and **traffic skew**, try **Hot user
+  (hash)**, **Clickstream (random)**, or **Balanced hash** presets, predict which mode creates a
+  **hot partition** vs **user-order violations**, then reveal **hash vs random** side by side.
+</Callout>
 
 <ReadmeBody />
 
 <h2 id="lab">Lab</h2>
 
-<DistQueuesLab client:visible />
+<DistributedQueuesLab client:visible />

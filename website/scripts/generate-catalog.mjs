@@ -99,7 +99,7 @@ const LAB_TIER = {
   "mixture-of-experts": "B",
   "token-routing": "B",
   "transformer-attention": "B",
-  "distributed-queues": "B",
+  "distributed-queues": "A",
   "probabilistic-scheduling": "B",
   "probabilistic-databases": "B",
 };
