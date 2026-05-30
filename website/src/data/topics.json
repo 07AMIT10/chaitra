@@ -197,9 +197,9 @@
     "title": "HyperLogLog",
     "folder": "HYPERLOGLOG",
     "labTier": "A",
-    "status": "live",
+    "status": "golden",
     "hasLab": true,
-    "hasCode": false,
+    "hasCode": true,
     "hasPython": true,
     "hasRust": true
   },

@@ -1,4 +1,30 @@
 
+## Prerequisites
+
+```mermaid
+graph TD
+  Prob[Probability basics] --> Bloom[Bloom Filters]
+  Hash[Hash functions] --> HLL[HyperLogLog]
+  Bloom --> HLL
+  Stream[Streaming / cardinality] --> HLL
+```
+
+## When to use
+
+- **Distinct-count analytics** on massive streams (daily active users, unique IPs, ad impressions) where exact `SET` storage is too heavy.
+- **Fixed memory budgets** — Redis `PFADD` / `PFCOUNT` style structures stay ~12 KB regardless of how many uniques you insert.
+- **Mergeable sketches** across shards or time windows when you only need approximate cardinality, not per-key identity.
+
+## When not to use
+
+- You need **exact** distinct counts or must list **which** elements are unique (use a hash set or database).
+- The universe is **tiny** (dozens of keys) — `len(set(stream))` is simpler and exact.
+- You must detect **membership** of a specific element (use a Bloom filter or hash map).
+
+## Lab
+
+On the [interactive HyperLogLog lab](/topics/hyperloglog#lab), tune **Precision (b bits)** to change bucket count and expected error σ, scrub **Stream size** to grow cardinality, and watch the **register bar chart** fill. Compare the **HLL estimate** to the **exact distinct count**, then use **Small stream**, **High cardinality**, or **Low precision** presets before predicting whether the estimate lands within expected σ.
+
 ## Simple Fundamental Explanation
 Imagine you are standing outside a massive stadium, and you want to estimate how many *unique* people walked inside.
 

@@ -2,7 +2,15 @@ import { useMemo, useState } from "react";
 import { hllStandardError } from "../lib/hll-math";
 import { HyperLogLog, exactDistinct } from "../lib/hll-sim";
 import { distinctKeys, shuffleStream } from "../lib/sketches";
-import { LabShell, MetricsAside, RangeControl, type LabMetric } from "./lab";
+import {
+  ComparePanel,
+  LabShell,
+  MetricsAside,
+  PredictReveal,
+  RangeControl,
+  ScenarioPresets,
+  type LabMetric,
+} from "./lab";
 import "./HyperLogLogLab.css";
 
 function buildStream(n: number): { key: string }[] {
@@ -25,6 +33,22 @@ export default function HyperLogLogLab() {
   const estimate = hll.count();
   const errPct = exact > 0 ? (Math.abs(exact - estimate) / exact) * 100 : 0;
   const stdErr = hllStandardError(b) * 100;
+  const withinSigma = errPct <= stdErr;
+
+  const applySmallStream = () => {
+    setStreamSize(50);
+    setB(8);
+  };
+
+  const applyHighCardinality = () => {
+    setStreamSize(2000);
+    setB(8);
+  };
+
+  const applyLowPrecision = () => {
+    setB(4);
+    setStreamSize(500);
+  };
 
   const metrics: LabMetric[] = [
     { id: "b", label: "Register bits (b)", value: String(b) },
@@ -39,8 +63,19 @@ export default function HyperLogLogLab() {
     },
     { id: "stderr", label: "Expected σ", value: `±${stdErr.toFixed(1)}%` },
   ];
+  if (!withinSigma && exact > 0) {
+    metrics.push({
+      id: "aha",
+      label: "Outside σ this run",
+      value: `|error| ${errPct.toFixed(1)}% > ±${stdErr.toFixed(1)}% — variance is normal at this m.`,
+      tone: "aha",
+    });
+  }
 
   const maxReg = Math.max(...hll.registers, 1);
+
+  const compareLeft = `${estimate} distinct (HLL harmonic mean)`;
+  const compareRight = `${exact} distinct (exact set size)`;
 
   return (
     <LabShell
@@ -53,25 +88,39 @@ export default function HyperLogLogLab() {
     >
       <div className="lab__grid">
         <div>
-          <RangeControl
-            id="hll-b"
-            label="Precision (b bits)"
-            min={4}
-            max={12}
-            value={b}
-            valueText={`${b} bits, ${1 << b} buckets`}
-            onChange={setB}
-          />
-          <RangeControl
-            id="hll-stream"
-            label="Stream size"
-            min={50}
-            max={2000}
-            step={50}
-            value={streamSize}
-            valueText={`${streamSize} events, ${exact} distinct keys`}
-            onChange={setStreamSize}
-          />
+          <div className="lab__controls-panel">
+            <RangeControl
+              id="hll-b"
+              label="Precision (b bits)"
+              min={4}
+              max={12}
+              value={b}
+              valueText={`${b} bits, ${1 << b} buckets`}
+              onChange={setB}
+            />
+            <RangeControl
+              id="hll-stream"
+              label="Stream size"
+              min={50}
+              max={2000}
+              step={50}
+              value={streamSize}
+              valueText={`${streamSize} events, ${exact} distinct keys`}
+              onChange={setStreamSize}
+            />
+            <ScenarioPresets
+              aria-label="Cardinality scenario presets"
+              presets={[
+                { id: "small", label: "Small stream", onSelect: applySmallStream },
+                {
+                  id: "high",
+                  label: "High cardinality",
+                  onSelect: applyHighCardinality,
+                },
+                { id: "low-b", label: "Low precision", onSelect: applyLowPrecision },
+              ]}
+            />
+          </div>
           <div
             className="hll-lab__chart"
             role="img"
@@ -93,16 +142,30 @@ export default function HyperLogLogLab() {
         </div>
         <MetricsAside metrics={metrics} />
       </div>
-      <div className="lab__compare">
-        <div>
-          <strong>HLL estimate</strong>
-          {estimate}
-        </div>
-        <div>
-          <strong>Exact distinct count</strong>
-          {exact}
-        </div>
-      </div>
+
+      <PredictReveal
+        key={`${b}-${streamSize}`}
+        prompt={
+          <>
+            Will the HLL estimate be within expected σ (±{stdErr.toFixed(1)}%) of the exact distinct
+            count ({exact}) for this stream?
+          </>
+        }
+        revealLabel="Show estimate vs exact"
+      >
+        <ComparePanel
+          leftLabel="HLL estimate"
+          rightLabel="Exact distinct count"
+          left={compareLeft}
+          right={compareRight}
+        />
+        <p className="lab__status" role="note">
+          {withinSigma
+            ? `Error ${errPct.toFixed(1)}% is within ±${stdErr.toFixed(1)}% σ for m = ${hll.m}.`
+            : `Error ${errPct.toFixed(1)}% exceeds ±${stdErr.toFixed(1)}% σ — try more buckets (higher b) or a larger stream.`}
+        </p>
+      </PredictReveal>
+
       <p className="lab__status" role="status" aria-live="polite">
         {hll.m} registers, {exact} unique keys. Estimate {estimate} (error {errPct.toFixed(1)}%).
       </p>
