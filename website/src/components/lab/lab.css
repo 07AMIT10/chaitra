@@ -283,6 +283,22 @@
   align-items: stretch;
 }
 
+.lab__predict {
+  margin-top: var(--space-4);
+}
+
+.lab__predict-prompt {
+  margin: 0 0 var(--space-2);
+  font-size: 0.9rem;
+}
+
+.lab__predict-result {
+  padding: var(--space-2);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-bg) 50%, transparent);
+  font-size: 0.85rem;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lab__canvas {
     transition: none;
