@@ -1,0 +1,112 @@
+.code-workbench {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.code-workbench__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.code-workbench__panes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-4);
+}
+
+@media (min-width: 960px) {
+  .code-workbench__panes {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.code-workbench__pane {
+  min-width: 0;
+}
+
+.code-workbench__editor .cm-editor {
+  border: 1px solid var(--color-surface);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.code-workbench__terminal {
+  margin: 0;
+  padding: var(--space-4);
+  border: 1px solid var(--color-surface);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 20rem;
+}
+
+.code-workbench__terminal--error {
+  color: var(--color-error);
+}
+
+.code-workbench__terminal--placeholder {
+  color: var(--color-muted);
+}
+
+.code-workbench__runbar-wrap {
+  margin-top: 0;
+}
+
+.code-workbench__runbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.code-workbench__btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.code-workbench__btn--primary {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.code-workbench__btn--primary:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.code-workbench__btn--secondary {
+  background: transparent;
+  color: var(--color-text);
+  border: 1px solid var(--color-surface);
+}
+
+.code-workbench__btn--secondary:hover:not(:disabled) {
+  border-color: var(--color-muted);
+}
+
+.code-workbench__btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.code-workbench__status {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.code-workbench__status--error {
+  color: var(--color-error);
+}
