@@ -12,7 +12,7 @@ graph TD
 ## Quickstart
 
 ```bash
-cd BLOOM_FILTERS
+cd topics/BLOOM_FILTERS
 python bloom_filter.py
 # Optional: pytest test_bloom_parity.py -q
 cargo test --manifest-path ../website/wasm/bloom_filter/Cargo.toml  # after WASM crate exists
@@ -173,7 +173,7 @@ There is a subtle, high-performance optimization in how Bloom Filters are built 
 |----------|---|---|---|-------|
 | Baseline | 1024 | 500 | 7 | 1% target FP |
 
-Reproduce (Python): `pytest BLOOM_FILTERS/test_bloom_parity.py --benchmark-only` (after adding pytest-benchmark).
+Reproduce (Python): `pytest topics/BLOOM_FILTERS/test_bloom_parity.py --benchmark-only` (after adding pytest-benchmark).
 
 ---
 

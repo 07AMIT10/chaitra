@@ -66,7 +66,7 @@ If a project named `chaitra` exists, production URL is typically **`https://chai
 
 6. **Content-Security-Policy:** Policy is in `public/_headers` (copied to `dist/_headers` on build). Required for WASM (`wasm-unsafe-eval`) and Pyodide (`cdn.jsdelivr.net`). Do not strip these in dashboard **Headers** unless you replicate the same directives. See [Pages custom headers](https://developers.cloudflare.com/pages/configuration/headers/).
 
-7. **WASM:** Default build does **not** run `build:wasm` (no Rust/wasm-pack on Pages image). Use committed assets under `public/wasm/bloom_filter/`. Rebuild locally with `npm run build:wasm` when `BLOOM_FILTERS/` changes, then commit and push.
+7. **WASM:** Default build does **not** run `build:wasm` (no Rust/wasm-pack on Pages image). Use committed assets under `public/wasm/bloom_filter/`. Rebuild locally with `npm run build:wasm` when `topics/BLOOM_FILTERS/` changes, then commit and push.
 
    **MIME:** In `public/_headers`, set `Content-Type: application/wasm` only for `*.wasm` (e.g. `/wasm/**/*.wasm`). Never for all of `/wasm/*` — that marks `bloom_filter_wasm.js` as WASM and breaks the Rust tab.
 

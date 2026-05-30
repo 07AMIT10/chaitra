@@ -2,7 +2,7 @@
 /* eslint-disable */
 
 /**
- * Bloom filter aligned with `BLOOM_FILTERS/bloom_filter.rs` (double hashing, optimal m/k).
+ * Bloom filter aligned with `topics/BLOOM_FILTERS/bloom_filter.rs` (double hashing, optimal m/k).
  */
 export class BloomFilter {
     free(): void;

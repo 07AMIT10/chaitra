@@ -5,9 +5,11 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "../..");
+const TOPICS_DIR = "topics";
+const topicsRoot = path.join(repoRoot, TOPICS_DIR);
 const topicsJsonPath = path.join(repoRoot, "website/src/data/topics.json");
 const contentRoot = path.join(repoRoot, "website/src/content/topics");
-const skip = new Set([".git", ".research", "website", "docs", "tests"]);
+const skip = new Set([".git", ".research", "website", "docs", "tests", "scripts"]);
 const codedFolders = new Set([
   "BLOOM_FILTERS",
   "COUNT_MIN_SKETCH",
@@ -142,16 +144,16 @@ if (fs.existsSync(topicsJsonPath)) {
   }
 }
 
-const entries = fs.readdirSync(repoRoot, { withFileTypes: true });
+const entries = fs.readdirSync(topicsRoot, { withFileTypes: true });
 const topics = [];
 
 for (const e of entries) {
-  if (!e.isDirectory() || skip.has(e.name) || e.name.startsWith(".")) continue;
-  const readme = path.join(repoRoot, e.name, "README.md");
+  if (!e.isDirectory() || e.name.startsWith(".")) continue;
+  const readme = path.join(topicsRoot, e.name, "README.md");
   if (!fs.existsSync(readme)) continue;
 
   const slug = e.name.toLowerCase().replace(/_/g, "-");
-  const dir = path.join(repoRoot, e.name);
+  const dir = path.join(topicsRoot, e.name);
   const files = fs.readdirSync(dir);
   const hasPy =
     fs.existsSync(path.join(dir, `${e.name.toLowerCase()}.py`)) ||

@@ -127,7 +127,7 @@ export default function CatalogSearch({ topics }: CatalogSearchProps) {
               t.status === "live" ||
               t.status === "preview" ||
               t.status === "readme-only";
-            const href = hasSitePage ? `/topics/${t.slug}` : `${GITHUB_REPO}/${t.folder}`;
+            const href = hasSitePage ? `/topics/${t.slug}` : `${GITHUB_REPO}/topics/${t.folder}`;
             const langs = [t.hasPython && "Py", t.hasRust && "Rs"].filter(Boolean).join(" · ");
             return (
               <li key={t.slug} className="catalog__card">

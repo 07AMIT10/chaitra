@@ -4,7 +4,7 @@ Public learning site for [**Chaitra**](https://github.com/07AMIT10/chaitra) — 
 
 **Live site:** [chaitra.pages.dev](https://chaitra.pages.dev) (Cloudflare Pages)
 
-This folder (`website/`) is the **Astro app** that turns repo topic READMEs, reference code, and interactive labs into static pages. The rest of the repository (`BLOOM_FILTERS/`, `HYPERLOGLOG/`, etc.) is the **source curriculum**; the website is how people read and play with it.
+This folder (`website/`) is the **Astro app** that turns repo topic READMEs, reference code, and interactive labs into static pages. The rest of the repository lives under [`topics/`](../topics/) (`BLOOM_FILTERS/`, `HYPERLOGLOG/`, etc.) — the **source curriculum**; the website is how people read and play with it.
 
 ---
 
@@ -34,7 +34,7 @@ Each topic with a site page (for example [/topics/bloom-filters](https://chaitra
 ```
 topics/bloom-filters/
   index.mdx        → layout slots (hero, lab, imports)
-  readme-body.md   → Story (synced from BLOOM_FILTERS/README.md)
+  readme-body.md   → Story (synced from topics/BLOOM_FILTERS/README.md)
   code.mdx         → optional Code panel (Python / Rust / GitHub tabs)
 ```
 
@@ -80,7 +80,7 @@ flowchart LR
   subgraph repo [Monorepo root]
     README[Topic README.md]
     PY[Reference .py / .rs]
-    WASM_SRC[BLOOM_FILTERS Rust]
+    WASM_SRC[topics/BLOOM_FILTERS Rust]
   end
   subgraph scripts [website/scripts]
     CATALOG[generate-catalog.mjs]
@@ -116,7 +116,7 @@ flowchart LR
 
 | Path | Role |
 |------|------|
-| `../BLOOM_FILTERS/`, `../HYPERLOGLOG/`, … | Canonical topic README + reference implementations |
+| `../topics/BLOOM_FILTERS/`, `../topics/HYPERLOGLOG/`, … | Canonical topic README + reference implementations |
 | `website/src/content/topics/<slug>/` | Site-specific MDX and synced narrative |
 | `website/src/components/` | Labs, catalog, code workbench, layout |
 | `website/src/data/topics.json` | Generated catalog (run `npm run catalog`) |
@@ -126,7 +126,7 @@ flowchart LR
 
 **Typical flow when improving a topic**
 
-1. Edit `TOPIC_NAME/README.md` (and `.py` / `.rs` if any) at repo root.
+1. Edit `topics/TOPIC_NAME/README.md` (and `.py` / `.rs` if any).
 2. From `website/`: `npm run sync:readme` and/or `npm run sync:code`.
 3. If the topic has a lab or new `index.mdx` / `code.mdx`, edit under `src/content/topics/`.
 4. `npm run catalog` then `npm run build` (and `npm run build:wasm` if Bloom WASM changed).
@@ -155,9 +155,9 @@ Useful URLs:
 | Command | When to run |
 |---------|-------------|
 | `npm run catalog` | After adding/renaming topic folders or changing lab/code MDX (updates `topics.json`) |
-| `npm run sync:readme` | After editing any `../TOPIC/README.md` |
+| `npm run sync:readme` | After editing any `../topics/TOPIC/README.md` |
 | `npm run sync:code` | After editing reference `.rs` used in Code tabs |
-| `npm run build:wasm` | After changing `BLOOM_FILTERS/` or `wasm/bloom_filter/` (needs [wasm-pack](https://rustwasm.github.io/wasm-pack/)) |
+| `npm run build:wasm` | After changing `topics/BLOOM_FILTERS/` or `wasm/bloom_filter/` (needs [wasm-pack](https://rustwasm.github.io/wasm-pack/)) |
 | `npm run build` | Produce `dist/` for deploy or `astro preview` |
 
 Full local build (matches most CI):
@@ -212,7 +212,7 @@ Committed WASM under `public/wasm/bloom_filter/` avoids needing Rust on the Page
 
 GitHub Actions: [`.github/workflows/website-ci.yml`](../.github/workflows/website-ci.yml)
 
-On pushes touching `website/**` or `BLOOM_FILTERS/**`: install, `npm run catalog`, `npm run build`.
+On pushes touching `website/**` or `topics/**`: install, `npm run catalog`, `npm run build`.
 
 ---
 

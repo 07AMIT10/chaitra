@@ -7,10 +7,10 @@ const repoRoot = path.resolve(__dirname, "../..");
 const outDir = path.join(__dirname, "../src/assets/code");
 
 const PAIRS = [
-  ["BLOOM_FILTERS/bloom_filter.rs", "bloom_filter.rs.txt"],
-  ["HYPERLOGLOG/hyperloglog.rs", "hyperloglog.rs.txt"],
-  ["COUNT_MIN_SKETCH/count_min_sketch.rs", "count_min_sketch.rs.txt"],
-  ["CONSISTENT_HASHING/consistent_hashing.rs", "consistent_hashing.rs.txt"],
+  ["topics/BLOOM_FILTERS/bloom_filter.rs", "bloom_filter.rs.txt"],
+  ["topics/HYPERLOGLOG/hyperloglog.rs", "hyperloglog.rs.txt"],
+  ["topics/COUNT_MIN_SKETCH/count_min_sketch.rs", "count_min_sketch.rs.txt"],
+  ["topics/CONSISTENT_HASHING/consistent_hashing.rs", "consistent_hashing.rs.txt"],
 ];
 
 fs.mkdirSync(outDir, { recursive: true });

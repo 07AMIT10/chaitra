@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, "../..");
+const TOPICS_DIR = "topics";
 const topics = JSON.parse(
   fs.readFileSync(path.join(repoRoot, "website/src/data/topics.json"), "utf8")
 );
@@ -35,7 +36,7 @@ function processFences(body) {
 }
 
 for (const t of topics) {
-  const src = path.join(repoRoot, t.folder, "README.md");
+  const src = path.join(repoRoot, TOPICS_DIR, t.folder, "README.md");
   const destDir = path.join(repoRoot, "website/src/content/topics", t.slug);
   const dest = path.join(destDir, "readme-body.md");
   if (!fs.existsSync(src)) {

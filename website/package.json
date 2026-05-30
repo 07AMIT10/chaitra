@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "catalog": "node scripts/generate-catalog.mjs",
     "test:catalog": "node --test scripts/generate-catalog.test.mjs",
+    "test:links": "node scripts/check-github-links.mjs",
     "test:math": "tsx --test src/lib/*-math.test.mjs",
     "sync:readme": "node scripts/sync-readme.mjs",
     "sync:code": "node scripts/sync-code-assets.mjs",

@@ -2,7 +2,7 @@ use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 use wasm_bindgen::prelude::*;
 
-/// Bloom filter aligned with `BLOOM_FILTERS/bloom_filter.rs` (double hashing, optimal m/k).
+/// Bloom filter aligned with `topics/BLOOM_FILTERS/bloom_filter.rs` (double hashing, optimal m/k).
 #[wasm_bindgen]
 pub struct BloomFilter {
     bit_array: Vec<bool>,

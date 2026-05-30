@@ -3,34 +3,34 @@
     "slug": "adaptive-cloud-orchestration",
     "title": "Adaptive Cloud Orchestration",
     "folder": "ADAPTIVE_CLOUD_ORCHESTRATION",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "ai-probabilistic-infrastructure",
     "title": "AI Probabilistic Infrastructure",
     "folder": "AI_PROBABILISTIC_INFRASTRUCTURE",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "approximate-computing",
     "title": "Approximate Computing",
     "folder": "APPROXIMATE_COMPUTING",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "approximate-memory-cache-systems",
@@ -47,12 +47,12 @@
     "slug": "autonomous-infrastructure",
     "title": "Autonomous Infrastructure",
     "folder": "AUTONOMOUS_INFRASTRUCTURE",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "bayesian-distributed-systems",
@@ -148,23 +148,23 @@
     "slug": "distributed-systems",
     "title": "Distributed Systems",
     "folder": "DISTRIBUTED_SYSTEMS",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "event-prediction-systems",
     "title": "Event Prediction Systems",
     "folder": "EVENT_PREDICTION_SYSTEMS",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "eventual-consistency",
@@ -181,12 +181,12 @@
     "slug": "go-backend-systems",
     "title": "Go Backend Systems",
     "folder": "GO_BACKEND_SYSTEMS",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "gossip-protocols",
@@ -225,56 +225,56 @@
     "slug": "intelligent-realtime-platforms",
     "title": "Intelligent Realtime Platforms",
     "folder": "INTELLIGENT_REALTIME_PLATFORMS",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "large-language-models",
     "title": "Large Language Models",
     "folder": "LARGE_LANGUAGE_MODELS",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "large-scale-ml-infrastructure",
     "title": "Large Scale ML Infrastructure",
     "folder": "LARGE_SCALE_ML_INFRASTRUCTURE",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "large-scale-multi-agent-systems",
     "title": "Large Scale Multi Agent Systems",
     "folder": "LARGE_SCALE_MULTI_AGENT_SYSTEMS",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "llm-infrastructure",
     "title": "LLM Infrastructure",
     "folder": "LLM_INFRASTRUCTURE",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "mapreduce",
@@ -324,12 +324,12 @@
     "slug": "next-gen-ai-agents",
     "title": "Next Gen AI Agents",
     "folder": "NEXT_GEN_AI_AGENTS",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "pagerank",
@@ -357,12 +357,12 @@
     "slug": "proactive-ai-systems",
     "title": "Proactive AI Systems",
     "folder": "PROACTIVE_AI_SYSTEMS",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "probabilistic-consensus",
@@ -467,23 +467,23 @@
     "slug": "reinforcement-learning-orchestration",
     "title": "RL Orchestration",
     "folder": "REINFORCEMENT_LEARNING_ORCHESTRATION",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "scalable-architectures",
     "title": "Scalable Architectures",
     "folder": "SCALABLE_ARCHITECTURES",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "spam-detection",
@@ -500,12 +500,12 @@
     "slug": "statistical-learning",
     "title": "Statistical Learning",
     "folder": "STATISTICAL_LEARNING",
+    "labTier": "B",
     "status": "readme-only",
     "hasLab": true,
     "hasCode": false,
     "hasPython": false,
-    "hasRust": false,
-    "labTier": "B"
+    "hasRust": false
   },
   {
     "slug": "streaming-algorithms",
@@ -537,7 +537,7 @@
     "status": "golden",
     "hasLab": true,
     "hasCode": false,
-    "hasPython": false,
+    "hasPython": true,
     "hasRust": false
   },
   {

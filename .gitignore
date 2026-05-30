@@ -24,3 +24,4 @@ website/docs/
 # Env secrets
 .env
 .env.*
+website/.wrangler/

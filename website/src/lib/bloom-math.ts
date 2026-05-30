@@ -5,7 +5,7 @@ export function falsePositiveRate(m: number, n: number, k: number): number {
   return Math.pow(1 - Math.exp(exponent), k);
 }
 
-/** k ≈ (m/n) ln 2 — matches BLOOM_FILTERS/bloom_filter.py get_hash_count */
+/** k ≈ (m/n) ln 2 — matches topics/BLOOM_FILTERS/bloom_filter.py get_hash_count */
 export function optimalK(m: number, n: number): number {
   if (n <= 0) return 1;
   return Math.max(1, Math.round((m / n) * Math.LN2));
