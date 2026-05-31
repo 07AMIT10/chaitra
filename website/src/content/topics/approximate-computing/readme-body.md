@@ -47,12 +47,16 @@ Engineers design ALUs (Arithmetic Logic Units) that occasionally make addition o
 ### 2. Loop Perforation
 In software, compilers can be instructed to automatically skip iterations of large `FOR` loops. If a loop is supposed to run 1,000,000 times to calculate a massive average, the compiler might randomly skip 10% of the iterations (running only 900,000 times). The final average will be slightly off, but the execution time drops by exactly 10%.
 
+Simulate skip rate vs mean error in the **[Lab → Loops](https://chaitra.pages.dev/topics/approximate-computing#lab)** tab.
+
 ### 3. Precision Scaling
 Standard floats are 32-bit or 64-bit. Approximate computing aggressively down-scales to 16-bit, 8-bit, or even 4-bit numbers. This inherently introduces massive rounding errors, but allows the CPU/GPU to pack 4x to 8x more data into the cache, wildly accelerating matrix multiplications.
 
 ### Visual Diagram: Precision Scaling
 
 ### Diagram 1 — Precision ladder and error budget
+
+Try the **[Lab → Precision](https://chaitra.pages.dev/topics/approximate-computing#lab)** tab to see quantization buckets and Var(ε) live.
 
 ```mermaid
 flowchart TB
@@ -118,6 +122,8 @@ To save energy, you want to lower the voltage $V$. However, lowering the voltage
 
 Exact computing mandates keeping $V$ high enough to ensure the worst-case critical path *never* fails.
 Approximate computing mathematically models the probability of failure $P_{err}(V)$. Engineers intentionally lower $V$ into the "danger zone", exponentially slashing power consumption $V^2$, while accepting a statistically controlled error rate (e.g., 1% of additions are wrong).
+
+Explore the tradeoff in the **[Lab → Energy](https://chaitra.pages.dev/topics/approximate-computing#lab)** tab.
 
 ### 2. Quantization Error Modeling
 When mapping a high-precision real number $x \in [\alpha, \beta]$ to a lower-precision $b$-bit integer $x_q$, the domain is divided into $2^b - 1$ discrete buckets.

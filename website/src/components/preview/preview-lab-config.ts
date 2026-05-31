@@ -48,21 +48,6 @@ export const PREVIEW_LAB_CONFIG: Record<string, PreviewLabConfig> = {
     ],
     storageKey: "preview-ai-prob-infra",
   },
-  "approximate-computing": {
-    sliderLabel: "Acceptable error %",
-    sliderMin: 1,
-    sliderMax: 20,
-    sliderStep: 1,
-    defaultValue: 5,
-    metricLabel: "Energy savings (heuristic)",
-    formatMetric: (v) => `~${v * 3}%`,
-    question: "Does relaxing precision usually reduce energy per operation?",
-    options: [
-      { id: "yes", label: "Yes — lower precision → less work", isCorrect: true },
-      { id: "no", label: "No effect", isCorrect: false },
-    ],
-    storageKey: "preview-approx-computing",
-  },
   "autonomous-infrastructure": {
     sliderLabel: "Control loop interval (s)",
     sliderMin: 1,

@@ -1,0 +1,74 @@
+@import "./lab/lab.css";
+
+.ac-lab__chart {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.ac-lab__svg {
+  display: block;
+  width: 100%;
+  min-width: 280px;
+  height: auto;
+}
+
+.ac-lab__number-line {
+  margin: var(--space-3) 0;
+}
+
+.ac-lab__hist {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 100px;
+  margin: var(--space-3) 0;
+}
+
+.ac-lab__hist-bar {
+  flex: 1;
+  min-width: 4px;
+  border-radius: 2px 2px 0 0;
+  background: color-mix(in srgb, var(--color-accent) 55%, transparent);
+}
+
+.ac-lab__hist-bar--q {
+  background: color-mix(in srgb, var(--color-warning) 70%, transparent);
+  opacity: 0.85;
+}
+
+.ac-lab__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+  margin-top: var(--space-2);
+}
+
+.ac-lab__legend i {
+  display: inline-block;
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 2px;
+  margin-right: 0.25rem;
+  vertical-align: middle;
+}
+
+.ac-lab__callout {
+  margin: var(--space-3) 0 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-muted) 12%, transparent);
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.ac-lab__play-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  margin-top: var(--space-2);
+}

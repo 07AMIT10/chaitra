@@ -90,6 +90,7 @@ const LAB_TIER = {
   "randomized-algorithms": "A",
   "information-theory": "A",
   "probability-theory": "A",
+  "approximate-computing": "A",
   "mapreduce": "A",
   "raft-vs-gossip": "A",
   "consensus-systems": "A",
