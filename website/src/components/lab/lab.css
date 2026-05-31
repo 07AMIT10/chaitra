@@ -1,14 +1,27 @@
 .lab {
   --lab-surface: var(--color-surface);
   --lab-border: color-mix(in srgb, var(--color-muted) 35%, transparent);
-  --lab-control-max: 22rem;
+  --lab-control-max: min(22rem, 100%);
   background: var(--lab-surface);
   border: 1px solid var(--lab-border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
   font-family: var(--font-sans);
+  width: 100%;
   max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   overflow-x: clip;
+}
+
+@media (max-width: 39.99rem) {
+  .lab {
+    padding: var(--space-3);
+  }
+
+  .lab__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .lab__intro {

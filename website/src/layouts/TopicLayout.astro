@@ -2,6 +2,7 @@
 import BaseLayout from "./BaseLayout.astro";
 import MermaidInit from "../components/MermaidInit.tsx";
 import "../styles/narrative.css";
+import "../styles/topic-page.css";
 
 const { title, repoFolder, pyodide = false, hasLab = false, hasCode = false } = Astro.props;
 const PYODIDE_VERSION = "0.26.4";
@@ -14,6 +15,7 @@ const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`
       <script slot="head" src={`${PYODIDE_CDN}pyodide.js`} crossorigin="anonymous"></script>
     </>
   )}
+  <div class="topic-page">
   <a class="skip-link" href="#narrative">Skip to content</a>
   <nav class="topic__breadcrumbs" aria-label="Breadcrumb">
     <a href="/">Home</a>
@@ -70,14 +72,13 @@ const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`
     </footer>
   </article>
   </div>
+  </div>
 </BaseLayout>
 
 <style>
   .topic-layout {
     display: grid;
     gap: var(--space-6);
-    max-width: min(90rem, 100%);
-    margin-inline: auto;
   }
 
   @media (min-width: 960px) {
@@ -133,20 +134,16 @@ const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`
 
   .topic {
     color: var(--color-text);
-    max-width: min(72ch, 100%);
     margin-inline: auto;
     position: relative;
   }
 
   #lab {
-    max-width: 100%;
     overflow-x: clip;
   }
 
   .topic__title {
     margin: 0 0 var(--space-4);
-    font-size: 1.75rem;
-    line-height: 1.2;
   }
 
   .topic nav a {
@@ -186,17 +183,6 @@ const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`
     border-radius: 2px;
   }
 
-  .topic__breadcrumbs {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 0.85rem;
-    color: var(--color-muted);
-    margin-block-end: var(--space-4);
-    max-width: min(72ch, 100%);
-    margin-inline: auto;
-  }
-
   .topic__breadcrumbs a {
     color: var(--color-accent);
     text-decoration: none;
@@ -217,8 +203,5 @@ const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`
   .topic__current {
     font-weight: 500;
     color: var(--color-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 </style>

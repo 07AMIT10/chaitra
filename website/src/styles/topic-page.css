@@ -1,0 +1,107 @@
+/* Topic pages: mobile-first layout aligned with probability-theory readability */
+
+.topic-page {
+  --topic-read-max: min(42rem, 100%);
+  width: 100%;
+  max-width: min(90rem, 100%);
+  margin-inline: auto;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.topic-layout {
+  min-width: 0;
+}
+
+.topic-layout > * {
+  min-width: 0;
+}
+
+.topic {
+  width: 100%;
+  max-width: var(--topic-read-max);
+  box-sizing: border-box;
+}
+
+.topic__breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  width: 100%;
+  max-width: var(--topic-read-max);
+  margin-inline: auto;
+  margin-block-end: var(--space-4);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  color: var(--color-muted);
+}
+
+.topic__current {
+  flex: 1 1 8rem;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.topic__title {
+  font-size: clamp(1.375rem, 4.5vw, 1.75rem);
+  line-height: 1.25;
+  overflow-wrap: break-word;
+}
+
+.topic__jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-4);
+  padding: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+.topic__jump a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: 0.15rem;
+}
+
+#narrative,
+#lab,
+#code {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#lab,
+#code {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+#code .code-panel,
+#code .code-workbench {
+  max-width: 100%;
+}
+
+@media (min-width: 40rem) {
+  .topic-page {
+    --topic-read-max: min(72ch, 100%);
+  }
+
+  .topic__breadcrumbs {
+    font-size: 0.85rem;
+  }
+
+  .topic__current {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .topic__jump a {
+    min-height: auto;
+  }
+}

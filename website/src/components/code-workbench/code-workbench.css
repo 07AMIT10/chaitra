@@ -38,8 +38,8 @@
 .code-workbench__github-link {
   color: var(--color-accent);
   font-size: 0.9rem;
-  white-space: nowrap;
   text-decoration: none;
+  overflow-wrap: anywhere;
 }
 
 .code-workbench__github-link:hover {
@@ -214,4 +214,37 @@
 
 .code-workbench__status--error {
   color: var(--color-error);
+}
+
+@media (max-width: 39.99rem) {
+  .code-workbench--lab {
+    padding: var(--space-3);
+  }
+
+  .code-workbench__header-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .code-workbench__pane--source .code-workbench__pane-body,
+  .code-workbench__editor,
+  .code-workbench__editor .cm-editor {
+    min-height: 12rem;
+    max-height: min(22rem, 50vh);
+  }
+
+  .code-workbench__terminal {
+    min-height: 8rem;
+    max-height: min(14rem, 30vh);
+  }
+
+  .code-workbench__runbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .code-workbench__btn {
+    width: 100%;
+    min-height: 44px;
+  }
 }
