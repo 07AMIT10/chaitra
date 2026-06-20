@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   createEmptyPass,
+  ensurePassMirrorFields,
   formatPassSummary,
   getActiveDraft,
   readPassesFromStorage,
@@ -33,6 +34,18 @@ export function DrishtiPassLauncher({ sourceUrl, studySlug, initialLens }: Props
     setHasDraft(!!getActiveDraft(passes));
   }, [panelOpen, showSummary]);
 
+  useEffect(() => {
+    if (!pass || !showSummary || pass.status !== "complete") return;
+    const withMirror = ensurePassMirrorFields(pass);
+    if (withMirror.letter !== pass.letter) {
+      setPass(withMirror);
+      writePassesToStorage(
+        localStorage,
+        upsertPass(readPassesFromStorage(localStorage), withMirror)
+      );
+    }
+  }, [pass, showSummary]);
+
   const openPass = useCallback(() => {
     const passes = readPassesFromStorage(localStorage);
     const draft = getActiveDraft(passes);
@@ -50,13 +63,21 @@ export function DrishtiPassLauncher({ sourceUrl, studySlug, initialLens }: Props
     return () => window.removeEventListener("drishti:open-pass", handler);
   }, [openPass]);
 
+  const persistPass = (updated: DrishtiPassState) => {
+    setPass(updated);
+    writePassesToStorage(
+      localStorage,
+      upsertPass(readPassesFromStorage(localStorage), updated)
+    );
+  };
+
   const finalizePass = (next: DrishtiPassState, depth: "light" | "deep") => {
-    const completed: DrishtiPassState = {
+    const completed = ensurePassMirrorFields({
       ...next,
       depth,
       status: "complete",
       updatedAt: new Date().toISOString(),
-    };
+    });
     const passes = upsertPass(readPassesFromStorage(localStorage), completed);
     const result = writePassesToStorage(localStorage, passes);
     if (!result.ok) setStorageWarning("Could not save — copy your summary before leaving.");
@@ -101,14 +122,16 @@ export function DrishtiPassLauncher({ sourceUrl, studySlug, initialLens }: Props
           <DrishtiPassSummary
             pass={pass}
             storageWarning={storageWarning}
-            onInsightChange={(insight) => {
-              const updated = { ...pass, insight };
-              setPass(updated);
-              writePassesToStorage(
-                localStorage,
-                upsertPass(readPassesFromStorage(localStorage), updated)
-              );
-            }}
+            onInsightChange={(insight) => persistPass({ ...pass, insight })}
+            onNowSentenceChange={(nowSentence) =>
+              persistPass({ ...pass, nowSentence })
+            }
+            onMirrorConfirmed={(confirmed) =>
+              persistPass({
+                ...pass,
+                mirrorConfirmed: confirmed ? true : undefined,
+              })
+            }
             onCopy={handleCopy}
             onNewPass={() => {
               setShowSummary(false);

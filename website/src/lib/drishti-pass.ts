@@ -1,10 +1,12 @@
 import { DRISHTI_LENSES } from "./drishti-lenses";
+import { generateLetter, generateMirror } from "./drishti-mirror";
 
 export const STORAGE_KEY = "chaitra_drishti_pass";
 export const MAX_PASSES = 20;
 export const PHENOMENON_MAX = 120;
 export const LIGHT_NOTE_MAX = 280;
 export const DEEP_NOTE_MAX = 800;
+export const NOW_SENTENCE_MAX = 200;
 
 export type LensSlug =
   | "what-exists"
@@ -37,7 +39,22 @@ export interface DrishtiPassState {
   insight?: string;
   sourceUrl?: string;
   preferredStudy?: StudySlug;
+  nowSentence?: string;
+  letter?: string;
+  mirrorConfirmed?: boolean;
+  gapRetries?: Partial<
+    Record<
+      LensSlug,
+      {
+        note: string;
+        retriedAt: string;
+      }
+    >
+  >;
 }
+
+const IDK_PATTERN =
+  /^(idk|i don't know|i dont know|not sure|\?|—|-+|n\/a|skip)$/i;
 
 function emptyLensNotes(): Record<LensSlug, LensPassNotes> {
   return Object.fromEntries(
@@ -143,7 +160,14 @@ export function writePassesToStorage(
   }
 }
 
-function lensNoteForSummary(
+export function isGapNote(text: string | undefined): boolean {
+  const t = text?.trim() ?? "";
+  if (!t) return true;
+  if (t.length <= 3 && IDK_PATTERN.test(t)) return true;
+  return IDK_PATTERN.test(t);
+}
+
+export function lensNoteForSummary(
   pass: DrishtiPassState,
   slug: LensSlug
 ): string | undefined {
@@ -154,13 +178,43 @@ function lensNoteForSummary(
   return notes.light?.trim();
 }
 
+export function detectGaps(pass: DrishtiPassState): LensSlug[] {
+  return DRISHTI_LENSES.map((l) => l.slug as LensSlug).filter((slug) =>
+    isGapNote(lensNoteForSummary(pass, slug))
+  );
+}
+
+export function ensurePassMirrorFields(pass: DrishtiPassState): DrishtiPassState {
+  if (pass.status !== "complete") return pass;
+  if (pass.letter?.trim()) return pass;
+  return { ...pass, letter: generateLetter(pass) };
+}
+
 /** Plain-text summary for clipboard copy (light or deep pass). */
 export function formatPassSummary(pass: DrishtiPassState): string {
+  const passWithLetter = ensurePassMirrorFields(pass);
+  const { mirrorText } = generateMirror(passWithLetter);
+
   const lines: string[] = [`# Drishti Pass: ${pass.phenomenon}`];
   if (pass.context?.trim()) {
     lines.push(`Context: ${pass.context.trim()}`);
   }
   lines.push("");
+  lines.push("## Before → After");
+  const before = pass.context?.trim()
+    ? `${pass.phenomenon} — ${pass.context.trim()}`
+    : pass.phenomenon;
+  lines.push(`Before: ${before}`);
+  lines.push(`After: ${pass.nowSentence?.trim() || "—"}`);
+  lines.push("");
+  lines.push("## Letter");
+  lines.push(passWithLetter.letter?.trim() || "—");
+  lines.push("");
+  lines.push("## Mirror");
+  lines.push(mirrorText);
+  lines.push("");
+  lines.push("---");
+  lines.push("## Full notes");
   for (const lens of DRISHTI_LENSES) {
     const slug = lens.slug as LensSlug;
     const note = lensNoteForSummary(pass, slug);

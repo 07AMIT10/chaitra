@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
 import {
+  ensurePassMirrorFields,
   formatPassSummary,
   getPassById,
   readPassesFromStorage,
@@ -32,6 +33,18 @@ export function DeepPassWizard({ passId }: Props) {
     setStep(found.currentStep <= 7 ? found.currentStep : 0);
   }, [passId]);
 
+  useEffect(() => {
+    if (!pass || !showSummary || pass.status !== "complete") return;
+    const withMirror = ensurePassMirrorFields(pass);
+    if (withMirror.letter !== pass.letter) {
+      setPass(withMirror);
+      writePassesToStorage(
+        localStorage,
+        upsertPass(readPassesFromStorage(localStorage), withMirror)
+      );
+    }
+  }, [pass, showSummary]);
+
   if (!pass) {
     return <p className="drishti-deep-wizard__loading">Loading pass…</p>;
   }
@@ -44,12 +57,12 @@ export function DeepPassWizard({ passId }: Props) {
   };
 
   const finish = () => {
-    const completed: DrishtiPassState = {
+    const completed = ensurePassMirrorFields({
       ...pass,
       depth: "deep",
       status: "complete",
       currentStep: step,
-    };
+    });
     persist(completed);
     setShowSummary(true);
   };
@@ -60,6 +73,13 @@ export function DeepPassWizard({ passId }: Props) {
         pass={pass}
         storageWarning={storageWarning}
         onInsightChange={(insight) => persist({ ...pass, insight })}
+        onNowSentenceChange={(nowSentence) => persist({ ...pass, nowSentence })}
+        onMirrorConfirmed={(confirmed) =>
+          persist({
+            ...pass,
+            mirrorConfirmed: confirmed ? true : undefined,
+          })
+        }
         onCopy={() => void navigator.clipboard?.writeText(formatPassSummary(pass))}
         onNewPass={() => (window.location.href = "/drishti")}
         onDone={() => (window.location.href = pass.sourceUrl ?? "/drishti")}

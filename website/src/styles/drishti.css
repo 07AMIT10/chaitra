@@ -685,7 +685,8 @@ html.drishti-focus-mode .lens-section-jump {
 .drishti-pass-panel__input,
 .drishti-pass-step__field input,
 .drishti-pass-step__field textarea,
-.drishti-pass-summary textarea {
+.drishti-pass-summary textarea,
+.drishti-mirror-room textarea {
   width: 100%;
   box-sizing: border-box;
   padding: 0.65rem 0.75rem;
@@ -705,7 +706,8 @@ html.drishti-focus-mode .lens-section-jump {
 .drishti-pass-panel__input:focus,
 .drishti-pass-step__field input:focus,
 .drishti-pass-step__field textarea:focus,
-.drishti-pass-summary textarea:focus {
+.drishti-pass-summary textarea:focus,
+.drishti-mirror-room textarea:focus {
   outline: none;
   border-color: var(--color-drishti);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-drishti) 30%, transparent);
@@ -931,6 +933,96 @@ html.drishti-focus-mode .lens-section-jump {
   border: 1px solid color-mix(in srgb, var(--color-drishti) 30%, transparent);
 }
 
+.drishti-mirror-room {
+  max-width: 36rem;
+  width: 100%;
+  max-height: min(90dvh, 720px);
+  overflow-y: auto;
+  padding: var(--space-5);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid color-mix(in srgb, var(--color-drishti) 30%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.drishti-mirror-before-after__grid {
+  display: grid;
+  gap: var(--space-3);
+}
+
+@media (min-width: 40rem) {
+  .drishti-mirror-before-after__grid {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+  }
+}
+
+.drishti-mirror-before-after__col--before {
+  color: var(--color-muted);
+}
+
+.drishti-mirror-before-after__col--after {
+  color: var(--color-text);
+  font-size: 1.05rem;
+}
+
+.drishti-mirror-before-after__connector {
+  margin: 0;
+  align-self: center;
+  color: var(--color-drishti);
+  font-weight: 700;
+}
+
+.drishti-mirror-before-after__placeholder {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.drishti-mirror-gaps__card {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--color-drishti) 25%, transparent);
+  background: var(--color-drishti-subtle);
+}
+
+.drishti-mirror-letter__body,
+.drishti-mirror-reflection p {
+  line-height: 1.6;
+}
+
+.drishti-mirror-confirm__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.drishti-mirror-room__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid color-mix(in srgb, var(--color-muted) 20%, transparent);
+}
+
+.drishti-mirror-receipt__notes {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-3) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.drishti-pass-step__idk-whisper {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-drishti);
+  font-style: italic;
+}
+
 .drishti-toast {
   padding: var(--space-3);
   border-radius: var(--radius-md);
@@ -952,6 +1044,10 @@ html.drishti-focus-mode .lens-section-jump {
 
 @media (prefers-reduced-motion: reduce) {
   .drishti-pass-panel {
+    transition: none;
+  }
+
+  .drishti-pass-step__idk-whisper {
     transition: none;
   }
 }
