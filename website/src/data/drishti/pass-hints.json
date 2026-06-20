@@ -5,7 +5,9 @@
       "What is physical vs informational vs agreed-upon?",
       "What would disappear if everyone stopped believing it?",
       "What measurements prove this exists?"
-    ]
+    ],
+    "gapNudge": "Not sure what exists here? Name one part, layer, or role — that's enough.",
+    "letterAudience": "friend"
   },
   "what-changes": {
     "microExample": "Sleep pressure drifts up all day; your mood may swing hour to hour — separate slow trends from noise.",
@@ -13,7 +15,9 @@
       "What drifts over weeks vs hours?",
       "What looks stable but is slowly shifting?",
       "What would a time series of this phenomenon show?"
-    ]
+    ],
+    "gapNudge": "Not sure what changes? Name one thing that felt different recently — that's enough.",
+    "letterAudience": "friend"
   },
   "what-flows": {
     "microExample": "In a standup, attention flows to whoever speaks loudest — the bottleneck is airtime, not ideas.",
@@ -21,7 +25,9 @@
       "What enters and leaves this system?",
       "Where does work queue up?",
       "What would you throttle first?"
-    ]
+    ],
+    "gapNudge": "Not sure what flows? Name one thing that enters and one that leaves — that's enough.",
+    "letterAudience": "friend"
   },
   "what-learns": {
     "microExample": "A team retrospective updates process; muscle memory updates after reps — both are learning with different timescales.",
@@ -29,7 +35,9 @@
       "What feedback loops update behavior here?",
       "What gets remembered between sessions?",
       "What optimizes toward what metric?"
-    ]
+    ],
+    "gapNudge": "Not sure what learns? Name one feedback loop or habit — that's enough.",
+    "letterAudience": "friend"
   },
   "what-persists": {
     "microExample": "Org chart titles survive reorgs; circadian rhythm survives a late night — find the invariants.",
@@ -37,7 +45,9 @@
       "What survives parameter changes?",
       "What constraints never flex?",
       "What would still be true after a major shock?"
-    ]
+    ],
+    "gapNudge": "Not sure what persists? Name one thing that stayed true through a change — that's enough.",
+    "letterAudience": "friend"
   },
   "what-emerges": {
     "microExample": "Simple meeting rules → complex office politics; local sleep stages → global rested feeling.",
@@ -45,7 +55,9 @@
       "What local rules produce global behavior?",
       "What complexity appears without central control?",
       "What would you see at scale that you miss up close?"
-    ]
+    ],
+    "gapNudge": "Not sure what emerges? Name one local rule and what it might add up to — that's enough.",
+    "letterAudience": "friend"
   },
   "what-will-happen": {
     "microExample": "Three short nights don't guarantee a crash — but they shift the distribution toward debt and irritability.",
@@ -53,6 +65,8 @@
       "Which futures are becoming more likely?",
       "What leading indicators would you watch?",
       "What evidence would update your forecast?"
-    ]
+    ],
+    "gapNudge": "Not sure what will happen? Name one likely near future — that's enough.",
+    "letterAudience": "friend"
   }
 }

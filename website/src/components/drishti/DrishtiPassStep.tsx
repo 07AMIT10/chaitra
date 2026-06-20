@@ -1,12 +1,17 @@
+import { useRef, useState } from "react";
 import hints from "../../data/drishti/pass-hints.json";
 import { LENS_BY_SLUG } from "../../lib/drishti-lenses";
 import {
+  isGapNote,
   LIGHT_NOTE_MAX,
   DEEP_NOTE_MAX,
   type LensSlug,
   type StudySlug,
 } from "../../lib/drishti-pass";
 import { StudyExcerptAccordion } from "./StudyExcerptAccordion";
+
+const IDK_WHISPER = "Not knowing is data — you can leave this and return later.";
+const WHISPER_MS = 2000;
 
 type HintEntry = { microExample: string; deepPrompts: string[] };
 
@@ -31,6 +36,24 @@ export function DrishtiPassStep({
 }: Props) {
   const lens = LENS_BY_SLUG[lensSlug];
   const hint = (hints as Record<string, HintEntry>)[lensSlug];
+  const [whisper, setWhisper] = useState(false);
+  const whisperTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleNoteBlur = (value: string) => {
+    if (!isGapNote(value)) {
+      setWhisper(false);
+      return;
+    }
+    setWhisper(true);
+    if (whisperTimer.current) clearTimeout(whisperTimer.current);
+    whisperTimer.current = setTimeout(() => setWhisper(false), WHISPER_MS);
+  };
+
+  const handleNoteChange = (value: string, onChange: (v: string) => void) => {
+    setWhisper(false);
+    onChange(value);
+  };
+
   if (!lens) return null;
 
   const textareaId = `drishti-pass-note-${lensSlug}-${mode}`;
@@ -58,7 +81,8 @@ export function DrishtiPassStep({
             value={lightNote}
             maxLength={LIGHT_NOTE_MAX}
             rows={4}
-            onChange={(e) => onLightChange(e.target.value)}
+            onChange={(e) => handleNoteChange(e.target.value, onLightChange)}
+            onBlur={(e) => handleNoteBlur(e.target.value)}
             aria-describedby={`${textareaId}-count`}
           />
           <span id={`${textareaId}-count`} className="drishti-pass-step__count">
@@ -90,7 +114,8 @@ export function DrishtiPassStep({
                 value={deepNote}
                 maxLength={DEEP_NOTE_MAX}
                 rows={6}
-                onChange={(e) => onDeepChange(e.target.value)}
+                onChange={(e) => handleNoteChange(e.target.value, onDeepChange)}
+                onBlur={(e) => handleNoteBlur(e.target.value)}
                 aria-describedby={`${textareaId}-count`}
               />
               <span id={`${textareaId}-count`} className="drishti-pass-step__count">
@@ -99,6 +124,12 @@ export function DrishtiPassStep({
             </label>
           )}
         </>
+      )}
+
+      {whisper && (
+        <p className="drishti-pass-step__idk-whisper" role="status">
+          {IDK_WHISPER}
+        </p>
       )}
 
       <StudyExcerptAccordion lensSlug={lensSlug} preferredStudy={preferredStudy} />
