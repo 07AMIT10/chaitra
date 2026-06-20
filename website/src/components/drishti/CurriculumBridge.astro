@@ -1,0 +1,86 @@
+---
+interface TopicCard {
+  slug: string;
+  title: string;
+}
+
+interface Props {
+  topics: TopicCard[];
+  heading?: string;
+}
+
+const { topics, heading = "Learn the mechanisms" } = Astro.props;
+---
+
+{topics.length > 0 && (
+  <section class="curriculum-bridge" aria-labelledby="bridge-heading">
+    <h2 id="bridge-heading">{heading}</h2>
+    <ul class="curriculum-bridge__grid">
+      {topics.map((t) => (
+        <li>
+          <a class="curriculum-bridge__card" href={`/topics/${t.slug}`}>
+            <span class="curriculum-bridge__label">Curriculum</span>
+            <span class="curriculum-bridge__title">{t.title}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .curriculum-bridge {
+    margin-top: var(--space-8);
+    padding-top: var(--space-6);
+    border-top: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
+  }
+
+  .curriculum-bridge h2 {
+    margin: 0 0 var(--space-4);
+    font-size: 1.25rem;
+    color: var(--color-drishti);
+  }
+
+  .curriculum-bridge__grid {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 40rem) {
+    .curriculum-bridge__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .curriculum-bridge__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in srgb, var(--color-accent) 35%, transparent);
+    background: var(--color-surface);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .curriculum-bridge__card:hover {
+    border-color: var(--color-accent);
+  }
+
+  .curriculum-bridge__label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-accent);
+  }
+
+  .curriculum-bridge__title {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+</style>

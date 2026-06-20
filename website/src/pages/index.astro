@@ -3,22 +3,40 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import HomeHero from "../components/home/HomeHero.astro";
 import BeginnerPath from "../components/home/BeginnerPath.astro";
 import FeaturedLabs from "../components/home/FeaturedLabs.astro";
+import DrishtiTeaser from "../components/home/DrishtiTeaser.astro";
 import LearningPathProgress from "../components/LearningPathProgress.tsx";
 import topics from "../data/topics.json";
+import drishti from "../data/drishti.json";
 import "../styles/home.css";
+import "../styles/drishti.css";
 
 const topicCount = topics.length;
 const liveLabCount = topics.filter((t) => t.hasLab && (t.status === "live" || t.status === "golden")).length;
+const lensCount = drishti.lenses.length;
+const studyCount = drishti.studies.length;
 ---
 
-<BaseLayout title="Chaitra — Probabilistic systems">
+<BaseLayout title="Chaitra — Mechanisms + perception">
   <div class="home">
-    <HomeHero topicCount={topicCount} liveLabCount={liveLabCount} />
-    <BeginnerPath />
-    <LearningPathProgress client:visible />
-    <FeaturedLabs />
+    <HomeHero topicCount={topicCount} liveLabCount={liveLabCount} lensCount={lensCount} studyCount={studyCount} />
+
+    <section class="home-pillars" aria-label="Two learning tracks">
+      <div class="home-pillar home-pillar--curriculum">
+        <p class="home-pillar__eyebrow">Curriculum</p>
+        <h2>Learn the mechanisms</h2>
+        <p>
+          Probability, sketches, and distributed systems — narrative, labs, and runnable code.
+        </p>
+        <BeginnerPath />
+        <LearningPathProgress client:visible />
+        <FeaturedLabs />
+        <a class="home-pillar__cta" href="/catalog">Browse catalog →</a>
+      </div>
+      <DrishtiTeaser />
+    </section>
+
     <section class="home-section home-explore" aria-labelledby="explore-title">
-      <h2 id="explore-title" class="visually-hidden">Explore the curriculum</h2>
+      <h2 id="explore-title" class="visually-hidden">Explore Chaitra</h2>
       <ul class="home-explore__stats">
         <li>
           <strong>{topicCount}</strong>
@@ -28,9 +46,19 @@ const liveLabCount = topics.filter((t) => t.hasLab && (t.status === "live" || t.
           <strong>{liveLabCount}</strong>
           <span>interactive labs</span>
         </li>
+        <li>
+          <strong>{lensCount}</strong>
+          <span>Drishti lenses</span>
+        </li>
+        <li>
+          <strong>{studyCount}</strong>
+          <span>case studies</span>
+        </li>
       </ul>
       <p>
-        <a class="home-explore__link" href="/catalog">View full topic catalog →</a>
+        <a class="home-explore__link" href="/catalog">Curriculum catalog →</a>
+        {" · "}
+        <a class="home-explore__link" href="/drishti">Drishti hub →</a>
       </p>
     </section>
   </div>

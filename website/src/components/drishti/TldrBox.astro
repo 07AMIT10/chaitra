@@ -1,0 +1,46 @@
+---
+interface Props {
+  items: string[];
+  title?: string;
+}
+
+const { items, title = "TL;DR" } = Astro.props;
+---
+
+<aside class="tldr-box" aria-label={title}>
+  <p class="tldr-box__label">{title}</p>
+  <ul class="tldr-box__list">
+    {items.map((item) => (
+      <li>{item}</li>
+    ))}
+  </ul>
+</aside>
+
+<style>
+  .tldr-box {
+    margin: 0 0 var(--space-6);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in srgb, var(--color-drishti) 45%, transparent);
+    background: var(--color-drishti-subtle);
+  }
+
+  .tldr-box__label {
+    margin: 0 0 var(--space-3);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-drishti);
+  }
+
+  .tldr-box__list {
+    margin: 0;
+    padding-left: 1.25rem;
+    line-height: 1.55;
+  }
+
+  .tldr-box__list li + li {
+    margin-top: var(--space-2);
+  }
+</style>

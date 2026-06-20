@@ -1,0 +1,57 @@
+---
+import DrishtiLayout from "../../../layouts/DrishtiLayout.astro";
+import TldrBox from "../../../components/drishti/TldrBox.astro";
+import CurriculumBridge from "../../../components/drishti/CurriculumBridge.astro";
+import { BayesianForecastLab } from "../../../components/drishti/BayesianForecastLab.tsx";
+import { getCollection, render } from "astro:content";
+import topics from "../../../data/topics.json";
+
+export async function getStaticPaths() {
+  const lenses = await getCollection("drishtiLenses");
+  return lenses.map((entry) => ({
+    params: { lens: entry.data.slug },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const lens = entry.data.slug;
+const { title, question, tldr, relatedTopics = [], deep } = entry.data;
+const { Content } = await render(entry);
+
+const bridgeTopics = relatedTopics
+  .map((slug) => {
+    const t = topics.find((x) => x.slug === slug);
+    return t ? { slug, title: t.title } : null;
+  })
+  .filter(Boolean);
+---
+
+<DrishtiLayout
+  title={title}
+  tagline={question}
+  activeLens={lens}
+  initialLens={lens}
+  showLensNav={true}
+  crumbs={[
+    { label: "Drishti", href: "/drishti" },
+    { label: "Lenses", href: "/drishti" },
+    { label: title },
+  ]}
+>
+  <TldrBox items={tldr} />
+  <Content />
+
+  {deep && (
+    <section aria-labelledby="forecast-lab-heading">
+      <h2 id="forecast-lab-heading">Interactive: Bayesian updater</h2>
+      <p>
+        <strong>Shift beliefs with evidence.</strong> Drag prior and evidence strength; the posterior
+        is the forecast you should act on.
+      </p>
+      <BayesianForecastLab client:visible />
+    </section>
+  )}
+
+  <CurriculumBridge topics={bridgeTopics} />
+</DrishtiLayout>

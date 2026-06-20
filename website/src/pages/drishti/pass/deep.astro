@@ -1,0 +1,21 @@
+---
+import DrishtiLayout from "../../../layouts/DrishtiLayout.astro";
+import { DeepPassWizard } from "../../../components/drishti/DeepPassWizard.tsx";
+
+const passId = Astro.url.searchParams.get("passId") ?? "";
+---
+
+<DrishtiLayout
+  title="Deep pass"
+  tagline="Seven lenses, elaborated — your light notes carry forward."
+  crumbs={[
+    { label: "Drishti", href: "/drishti" },
+    { label: "Deep pass" },
+  ]}
+>
+  {passId ? (
+    <DeepPassWizard client:load passId={passId} />
+  ) : (
+    <p>Missing pass. <a href="/drishti">Start from Apply Drishti</a>.</p>
+  )}
+</DrishtiLayout>

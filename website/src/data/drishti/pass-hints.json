@@ -1,0 +1,58 @@
+{
+  "what-exists": {
+    "microExample": "Your 'team' is partly people, partly Slack channels, partly shared habits — name which layer you're looking at.",
+    "deepPrompts": [
+      "What is physical vs informational vs agreed-upon?",
+      "What would disappear if everyone stopped believing it?",
+      "What measurements prove this exists?"
+    ]
+  },
+  "what-changes": {
+    "microExample": "Sleep pressure drifts up all day; your mood may swing hour to hour — separate slow trends from noise.",
+    "deepPrompts": [
+      "What drifts over weeks vs hours?",
+      "What looks stable but is slowly shifting?",
+      "What would a time series of this phenomenon show?"
+    ]
+  },
+  "what-flows": {
+    "microExample": "In a standup, attention flows to whoever speaks loudest — the bottleneck is airtime, not ideas.",
+    "deepPrompts": [
+      "What enters and leaves this system?",
+      "Where does work queue up?",
+      "What would you throttle first?"
+    ]
+  },
+  "what-learns": {
+    "microExample": "A team retrospective updates process; muscle memory updates after reps — both are learning with different timescales.",
+    "deepPrompts": [
+      "What feedback loops update behavior here?",
+      "What gets remembered between sessions?",
+      "What optimizes toward what metric?"
+    ]
+  },
+  "what-persists": {
+    "microExample": "Org chart titles survive reorgs; circadian rhythm survives a late night — find the invariants.",
+    "deepPrompts": [
+      "What survives parameter changes?",
+      "What constraints never flex?",
+      "What would still be true after a major shock?"
+    ]
+  },
+  "what-emerges": {
+    "microExample": "Simple meeting rules → complex office politics; local sleep stages → global rested feeling.",
+    "deepPrompts": [
+      "What local rules produce global behavior?",
+      "What complexity appears without central control?",
+      "What would you see at scale that you miss up close?"
+    ]
+  },
+  "what-will-happen": {
+    "microExample": "Three short nights don't guarantee a crash — but they shift the distribution toward debt and irritability.",
+    "deepPrompts": [
+      "Which futures are becoming more likely?",
+      "What leading indicators would you watch?",
+      "What evidence would update your forecast?"
+    ]
+  }
+}

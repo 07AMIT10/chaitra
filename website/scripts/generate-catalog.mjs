@@ -9,7 +9,7 @@ const TOPICS_DIR = "topics";
 const topicsRoot = path.join(repoRoot, TOPICS_DIR);
 const topicsJsonPath = path.join(repoRoot, "website/src/data/topics.json");
 const contentRoot = path.join(repoRoot, "website/src/content/topics");
-const skip = new Set([".git", ".research", "website", "docs", "tests", "scripts"]);
+const skip = new Set([".git", ".research", "website", "docs", "tests", "scripts", "drishti"]);
 const codedFolders = new Set([
   "BLOOM_FILTERS",
   "COUNT_MIN_SKETCH",

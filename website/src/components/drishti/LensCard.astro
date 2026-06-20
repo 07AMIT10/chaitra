@@ -1,0 +1,91 @@
+---
+interface Props {
+  slug: string;
+  title: string;
+  question: string;
+  hook: string;
+  glyph: string;
+}
+
+const { slug, title, question, hook, glyph } = Astro.props;
+---
+
+<a class="lens-card" href={`/drishti/lenses/${slug}`}>
+  <span class="lens-card__glyph" aria-hidden="true">{glyph}</span>
+  <span class="lens-card__body">
+    <span class="lens-card__title">{title}</span>
+    <span class="lens-card__question">{question}</span>
+    <span class="lens-card__hook">{hook}</span>
+  </span>
+</a>
+
+<style>
+  .lens-card {
+    display: flex;
+    gap: var(--space-4);
+    min-height: 44px;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in srgb, var(--color-drishti) 30%, transparent);
+    background: var(--color-surface);
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+  }
+
+  .lens-card:hover {
+    border-color: var(--color-drishti);
+    transform: translateY(-1px);
+  }
+
+  .lens-card:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  .lens-card__glyph {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: var(--color-drishti-subtle);
+    color: var(--color-drishti);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .lens-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .lens-card__title {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .lens-card__question {
+    font-size: var(--font-size-sm);
+    color: var(--color-drishti);
+  }
+
+  .lens-card__hook {
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+    line-height: 1.45;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lens-card {
+      transition: none;
+    }
+    .lens-card:hover {
+      transform: none;
+    }
+  }
+</style>

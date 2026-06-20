@@ -1,0 +1,37 @@
+---
+import LensCard from "../drishti/LensCard.astro";
+import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
+import drishti from "../../data/drishti.json";
+---
+
+<section class="home-pillar home-pillar--drishti" aria-labelledby="drishti-teaser-title">
+  <p class="home-pillar__eyebrow">Drishti · दृष्टि</p>
+  <h2 id="drishti-teaser-title">See reality through seven lenses</h2>
+  <p>
+    The curriculum teaches mechanisms. Drishti teaches perception — the same seven questions for
+    offices, sleep, traffic, or your team.
+  </p>
+  <ul class="drishti-lens-grid">
+    {DRISHTI_LENSES.slice(0, 3).map((lens) => (
+      <li>
+        <LensCard {...lens} />
+      </li>
+    ))}
+  </ul>
+  <p class="home-pillar__meta">
+    {DRISHTI_LENSES.length} lenses · {drishti.studies.length} case studies
+  </p>
+  <a class="home-pillar__cta" href="/drishti">Explore Drishti →</a>
+</section>
+
+<style>
+  .home-pillar .drishti-lens-grid {
+    margin-bottom: var(--space-4);
+  }
+
+  .home-pillar__meta {
+    margin: 0 0 var(--space-4);
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+  }
+</style>

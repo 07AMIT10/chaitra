@@ -1,0 +1,405 @@
+{
+  "lenses": [
+    {
+      "slug": "what-exists",
+      "folder": "WHAT_EXISTS",
+      "order": 1,
+      "title": "What Exists",
+      "question": "What is this, really?",
+      "hook": "Separate objects from patterns and agreements.",
+      "glyph": "◎",
+      "deep": false,
+      "relatedTopics": [
+        "information-theory",
+        "probability-theory"
+      ],
+      "hasPage": true
+    },
+    {
+      "slug": "what-changes",
+      "folder": "WHAT_CHANGES",
+      "order": 2,
+      "title": "What Changes",
+      "question": "What is stationary vs non-stationary?",
+      "hook": "Find what drifts and what stays stable.",
+      "glyph": "↻",
+      "deep": false,
+      "relatedTopics": [
+        "eventual-consistency",
+        "streaming-analytics"
+      ],
+      "hasPage": true
+    },
+    {
+      "slug": "what-flows",
+      "folder": "WHAT_FLOWS",
+      "order": 3,
+      "title": "What Flows",
+      "question": "What moves? Where are bottlenecks?",
+      "hook": "Trace energy, data, and attention through the system.",
+      "glyph": "→",
+      "deep": false,
+      "relatedTopics": [
+        "queueing-theory",
+        "streaming-algorithms"
+      ],
+      "hasPage": true
+    },
+    {
+      "slug": "what-learns",
+      "folder": "WHAT_LEARNS",
+      "order": 4,
+      "title": "What Learns",
+      "question": "What updates, remembers, optimizes?",
+      "hook": "Spot feedback loops and stored state.",
+      "glyph": "◈",
+      "deep": false,
+      "relatedTopics": [
+        "statistical-learning",
+        "reinforcement-learning-orchestration"
+      ],
+      "hasPage": true
+    },
+    {
+      "slug": "what-persists",
+      "folder": "WHAT_PERSISTS",
+      "order": 5,
+      "title": "What Persists",
+      "question": "What survives change?",
+      "hook": "Invariants, constraints, and things that outlast noise.",
+      "glyph": "▣",
+      "deep": false,
+      "relatedTopics": [
+        "crdts-plus-probability",
+        "consensus-systems"
+      ],
+      "hasPage": true
+    },
+    {
+      "slug": "what-emerges",
+      "folder": "WHAT_EMERGES",
+      "order": 6,
+      "title": "What Emerges",
+      "question": "How do simple rules become complexity?",
+      "hook": "Local interactions → global behavior.",
+      "glyph": "✦",
+      "deep": false,
+      "relatedTopics": [
+        "large-scale-multi-agent-systems",
+        "gossip-protocols"
+      ],
+      "hasPage": true
+    },
+    {
+      "slug": "what-will-happen",
+      "folder": "WHAT_WILL_HAPPEN",
+      "order": 7,
+      "title": "What Will Happen",
+      "question": "Which futures are becoming likely?",
+      "hook": "Distributions, momentum, and shiftable probabilities.",
+      "glyph": "?",
+      "deep": true,
+      "relatedTopics": [
+        "event-prediction-systems",
+        "bayesian-inference-systems",
+        "monte-carlo-systems"
+      ],
+      "hasPage": true
+    }
+  ],
+  "studies": [
+    {
+      "slug": "blood-circulation",
+      "folder": "BLOOD_CIRCULATION",
+      "title": "Blood Circulation",
+      "tagline": "A closed-loop delivery network with a central pump",
+      "tldr": [
+        "Blood is a transport layer for O₂, nutrients, and signals.",
+        "The heart schedules work; vessels are queues with capacity limits.",
+        "Blockages are bottlenecks — local failures become global."
+      ],
+      "relatedTopics": [
+        "queueing-theory",
+        "streaming-algorithms",
+        "rate-limiting"
+      ],
+      "atAGlance": {
+        "flows": "Oxygen in, CO₂ out, nutrients everywhere",
+        "optimizes": "Perfusion to demanding organs",
+        "persists": "Closed circuit topology, hemoglobin chemistry",
+        "likelyFuture": "Compensation until decompensation"
+      },
+      "hasPage": true
+    },
+    {
+      "slug": "sleep",
+      "folder": "SLEEP",
+      "title": "Sleep",
+      "tagline": "The brain's nightly maintenance and memory compiler",
+      "tldr": [
+        "Sleep is regulated feedback, not a single switch.",
+        "The brain clears waste, consolidates memory, and resets learning capacity.",
+        "Sleep debt is a queue — you cannot delete it, only drain it."
+      ],
+      "relatedTopics": [
+        "statistical-learning",
+        "queueing-theory",
+        "bayesian-inference-systems"
+      ],
+      "atAGlance": {
+        "flows": "Metabolic waste clearance, glucose, neural activity patterns",
+        "optimizes": "Next-day performance and long-term memory",
+        "persists": "Circadian rhythm, sleep architecture stages",
+        "likelyFuture": "Personalized chronotherapy; wearables as early warning"
+      },
+      "hasPage": true
+    },
+    {
+      "slug": "the-office-as-a-computer",
+      "folder": "THE_OFFICE_AS_A_COMPUTER",
+      "title": "The Office as a Computer",
+      "tagline": "A room that converts energy into information",
+      "tldr": [
+        "The office is an energy→information conversion machine.",
+        "Employees, email, and docs form a distributed computer.",
+        "Most structure is shared agreement, not physical matter."
+      ],
+      "relatedTopics": [
+        "gossip-protocols",
+        "queueing-theory",
+        "information-theory",
+        "large-scale-multi-agent-systems"
+      ],
+      "atAGlance": {
+        "flows": "Electricity, attention, email, Slack, decisions",
+        "optimizes": "Throughput of revenue-generating information",
+        "persists": "Legal entity, brand, API contracts, org chart agreements",
+        "likelyFuture": "AI agents as coworkers; hybrid remote equilibrium"
+      },
+      "hasPage": true
+    }
+  ],
+  "topicIndex": {
+    "queueing-theory": [
+      {
+        "slug": "blood-circulation",
+        "title": "Blood Circulation"
+      },
+      {
+        "slug": "sleep",
+        "title": "Sleep"
+      },
+      {
+        "slug": "the-office-as-a-computer",
+        "title": "The Office as a Computer"
+      },
+      {
+        "slug": "lens:what-flows",
+        "title": "Drishti: What Flows"
+      }
+    ],
+    "streaming-algorithms": [
+      {
+        "slug": "blood-circulation",
+        "title": "Blood Circulation"
+      },
+      {
+        "slug": "lens:what-flows",
+        "title": "Drishti: What Flows"
+      }
+    ],
+    "rate-limiting": [
+      {
+        "slug": "blood-circulation",
+        "title": "Blood Circulation"
+      }
+    ],
+    "statistical-learning": [
+      {
+        "slug": "sleep",
+        "title": "Sleep"
+      },
+      {
+        "slug": "lens:what-learns",
+        "title": "Drishti: What Learns"
+      }
+    ],
+    "bayesian-inference-systems": [
+      {
+        "slug": "sleep",
+        "title": "Sleep"
+      },
+      {
+        "slug": "lens:what-will-happen",
+        "title": "Drishti: What Will Happen"
+      }
+    ],
+    "gossip-protocols": [
+      {
+        "slug": "the-office-as-a-computer",
+        "title": "The Office as a Computer"
+      },
+      {
+        "slug": "lens:what-emerges",
+        "title": "Drishti: What Emerges"
+      }
+    ],
+    "information-theory": [
+      {
+        "slug": "the-office-as-a-computer",
+        "title": "The Office as a Computer"
+      },
+      {
+        "slug": "lens:what-exists",
+        "title": "Drishti: What Exists"
+      }
+    ],
+    "large-scale-multi-agent-systems": [
+      {
+        "slug": "the-office-as-a-computer",
+        "title": "The Office as a Computer"
+      },
+      {
+        "slug": "lens:what-emerges",
+        "title": "Drishti: What Emerges"
+      }
+    ],
+    "probability-theory": [
+      {
+        "slug": "lens:what-exists",
+        "title": "Drishti: What Exists"
+      }
+    ],
+    "eventual-consistency": [
+      {
+        "slug": "lens:what-changes",
+        "title": "Drishti: What Changes"
+      }
+    ],
+    "streaming-analytics": [
+      {
+        "slug": "lens:what-changes",
+        "title": "Drishti: What Changes"
+      }
+    ],
+    "reinforcement-learning-orchestration": [
+      {
+        "slug": "lens:what-learns",
+        "title": "Drishti: What Learns"
+      }
+    ],
+    "crdts-plus-probability": [
+      {
+        "slug": "lens:what-persists",
+        "title": "Drishti: What Persists"
+      }
+    ],
+    "consensus-systems": [
+      {
+        "slug": "lens:what-persists",
+        "title": "Drishti: What Persists"
+      }
+    ],
+    "event-prediction-systems": [
+      {
+        "slug": "lens:what-will-happen",
+        "title": "Drishti: What Will Happen"
+      }
+    ],
+    "monte-carlo-systems": [
+      {
+        "slug": "lens:what-will-happen",
+        "title": "Drishti: What Will Happen"
+      }
+    ]
+  },
+  "topicToStudies": {
+    "queueing-theory": [
+      "blood-circulation",
+      "sleep",
+      "the-office-as-a-computer"
+    ],
+    "streaming-algorithms": [
+      "blood-circulation"
+    ],
+    "rate-limiting": [
+      "blood-circulation"
+    ],
+    "statistical-learning": [
+      "sleep"
+    ],
+    "bayesian-inference-systems": [
+      "sleep"
+    ],
+    "gossip-protocols": [
+      "the-office-as-a-computer"
+    ],
+    "information-theory": [
+      "the-office-as-a-computer"
+    ],
+    "large-scale-multi-agent-systems": [
+      "the-office-as-a-computer"
+    ],
+    "probability-theory": [],
+    "eventual-consistency": [],
+    "streaming-analytics": [],
+    "reinforcement-learning-orchestration": [],
+    "crdts-plus-probability": [],
+    "consensus-systems": [],
+    "event-prediction-systems": [],
+    "monte-carlo-systems": []
+  },
+  "topicTitles": {
+    "adaptive-cloud-orchestration": "Adaptive Cloud Orchestration",
+    "ai-probabilistic-infrastructure": "AI Probabilistic Infrastructure",
+    "approximate-computing": "Approximate Computing",
+    "approximate-memory-cache-systems": "Approximate Memory Cache Systems",
+    "autonomous-infrastructure": "Autonomous Infrastructure",
+    "bayesian-distributed-systems": "Bayesian Distributed Systems",
+    "bayesian-inference-systems": "Bayesian Inference Systems",
+    "bloom-filters": "Bloom Filters",
+    "consensus-systems": "Consensus Systems",
+    "consistent-hashing": "Consistent Hashing",
+    "count-min-sketch": "Count-Min Sketch",
+    "crdts-plus-probability": "CRDTs + Probability",
+    "distributed-queues": "Distributed Queues",
+    "distributed-systems": "Distributed Systems",
+    "event-prediction-systems": "Event Prediction Systems",
+    "eventual-consistency": "Eventual Consistency",
+    "go-backend-systems": "Go Backend Systems",
+    "gossip-protocols": "Gossip Protocols",
+    "hyperloglog": "HyperLogLog",
+    "information-theory": "Information Theory",
+    "intelligent-realtime-platforms": "Intelligent Realtime Platforms",
+    "large-language-models": "Large Language Models",
+    "large-scale-ml-infrastructure": "Large Scale ML Infrastructure",
+    "large-scale-multi-agent-systems": "Large Scale Multi Agent Systems",
+    "llm-infrastructure": "LLM Infrastructure",
+    "mapreduce": "MapReduce",
+    "mixture-of-experts": "Mixture of Experts",
+    "monte-carlo-systems": "Monte Carlo Systems",
+    "monte-carlo-tree-search": "Monte Carlo Tree Search",
+    "next-gen-ai-agents": "Next Gen AI Agents",
+    "pagerank": "PageRank",
+    "power-of-two-choices": "Power of Two Choices",
+    "proactive-ai-systems": "Proactive AI Systems",
+    "probabilistic-consensus": "Probabilistic Consensus",
+    "probabilistic-databases": "Probabilistic Databases",
+    "probabilistic-scheduling": "Probabilistic Scheduling",
+    "probability-theory": "Probability Theory",
+    "queueing-theory": "Queueing Theory",
+    "raft-vs-gossip": "Raft vs Gossip",
+    "random-early-detection": "Random Early Detection",
+    "randomized-algorithms": "Randomized Algorithms",
+    "rate-limiting": "Rate Limiting",
+    "reinforcement-learning-orchestration": "RL Orchestration",
+    "scalable-architectures": "Scalable Architectures",
+    "spam-detection": "Spam Detection",
+    "statistical-learning": "Statistical Learning",
+    "streaming-algorithms": "Streaming Algorithms",
+    "streaming-analytics": "Streaming Analytics",
+    "tinylfu": "TinyLFU",
+    "token-routing": "Token Routing",
+    "transformer-attention": "Transformer Attention"
+  }
+}

@@ -4,10 +4,12 @@ on:
     paths:
       - "website/**"
       - "topics/**"
+      - "drishti/**"
   pull_request:
     paths:
       - "website/**"
       - "topics/**"
+      - "drishti/**"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,5 +25,8 @@ jobs:
           cache-dependency-path: website/package-lock.json
       - run: npm ci
       - run: npm run catalog
+      - run: npm run catalog:drishti
+      - run: npm run sync:drishti
       - run: npm run test:links
+      - run: npm run test:drishti-pass
       - run: npm run build
