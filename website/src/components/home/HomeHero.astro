@@ -2,9 +2,11 @@
 interface Props {
   topicCount: number;
   liveLabCount: number;
+  lensCount: number;
+  studyCount: number;
 }
 
-const { topicCount, liveLabCount } = Astro.props;
+const { topicCount, liveLabCount, lensCount, studyCount } = Astro.props;
 ---
 
 <section class="home-hero" aria-labelledby="home-hero-title">
@@ -13,36 +15,47 @@ const { topicCount, liveLabCount } = Astro.props;
       <defs>
         <linearGradient id="hero-g" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stop-color="#3d9eff" stop-opacity="0.9" />
-          <stop offset="100%" stop-color="#6bb5ff" stop-opacity="0.35" />
+          <stop offset="100%" stop-color="#e3b341" stop-opacity="0.45" />
         </linearGradient>
       </defs>
       <circle cx="40" cy="50" r="18" fill="url(#hero-g)" />
       <circle cx="100" cy="30" r="14" fill="var(--color-surface)" stroke="#3d9eff" stroke-width="2" />
       <circle cx="160" cy="70" r="22" fill="url(#hero-g)" />
-      <circle cx="80" cy="110" r="16" fill="var(--color-surface)" stroke="#3d9eff" stroke-width="2" />
-      <circle cx="140" cy="120" r="12" fill="#3d9eff" opacity="0.5" />
+      <circle cx="80" cy="110" r="16" fill="var(--color-surface)" stroke="#e3b341" stroke-width="2" />
+      <circle cx="140" cy="120" r="12" fill="#e3b341" opacity="0.5" />
       <path d="M40 50 L100 30 L160 70" stroke="#3d9eff" stroke-width="1.5" fill="none" opacity="0.6" />
-      <path d="M100 30 L80 110 L140 120" stroke="#6bb5ff" stroke-width="1.5" fill="none" opacity="0.45" />
+      <path d="M100 30 L80 110 L140 120" stroke="#e3b341" stroke-width="1.5" fill="none" opacity="0.45" />
       <path d="M160 70 L140 120" stroke="#3d9eff" stroke-width="1.5" fill="none" opacity="0.5" />
     </svg>
   </div>
   <div class="home-hero__copy">
-    <p class="home-hero__eyebrow">Chaitra curriculum</p>
-    <h1 id="home-hero-title">Scalable probabilistic systems</h1>
+    <p class="home-hero__eyebrow">Chaitra — mechanisms + perception</p>
+    <h1 id="home-hero-title">Learn systems. Learn to see.</h1>
     <p class="home-hero__tagline">
-      Learn probability, sketches, and distributed algorithms through narrative, interactive labs,
-      and runnable code — from Bloom filters to transformer attention.
+      Two equal tracks: the <strong>curriculum</strong> teaches how scalable probabilistic systems work;
+      <strong>Drishti</strong> teaches how to see any phenomenon through seven universal lenses — then bridge to the math.
     </p>
     <div class="home-hero__actions">
       <a class="home-hero__cta home-hero__cta--primary" href="/topics/bloom-filters">
-        Start learning
+        Start curriculum
       </a>
-      <a class="home-hero__cta home-hero__cta--secondary" href="/catalog">
-        Browse catalog
+      <a class="home-hero__cta home-hero__cta--secondary home-hero__cta--drishti" href="/drishti">
+        Explore Drishti
       </a>
     </div>
     <p class="home-hero__meta">
-      {topicCount} topics · {liveLabCount} live labs
+      {topicCount} topics · {liveLabCount} live labs · {lensCount} lenses · {studyCount} case studies
     </p>
   </div>
 </section>
+
+<style>
+  .home-hero__cta--drishti {
+    border-color: color-mix(in srgb, var(--color-drishti) 55%, transparent);
+    color: var(--color-drishti);
+  }
+
+  .home-hero__cta--drishti:hover {
+    background: color-mix(in srgb, var(--color-drishti) 12%, transparent);
+  }
+</style>

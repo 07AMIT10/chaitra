@@ -1,0 +1,74 @@
+---
+import DrishtiLayout from "../../../layouts/DrishtiLayout.astro";
+import TldrBox from "../../../components/drishti/TldrBox.astro";
+import AtAGlance from "../../../components/drishti/AtAGlance.astro";
+import LensSectionJump from "../../../components/drishti/LensSectionJump.astro";
+import CurriculumBridge from "../../../components/drishti/CurriculumBridge.astro";
+import Details from "../../../components/mdx/Details.astro";
+import { getCollection } from "astro:content";
+import { DRISHTI_LENSES } from "../../../lib/drishti-lenses";
+import topics from "../../../data/topics.json";
+
+export async function getStaticPaths() {
+  const studies = await getCollection("drishtiStudies");
+  return studies.map((study) => ({ params: { slug: study.data.slug } }));
+}
+
+const { slug } = Astro.params;
+const studies = await getCollection("drishtiStudies");
+const studyEntry = studies.find((s) => s.data.slug === slug);
+if (!studyEntry) throw new Error(`Unknown study: ${slug}`);
+
+const study = studyEntry.data;
+
+const lensComponents: Record<string, import("astro").MDXContent> = {};
+for (const lens of DRISHTI_LENSES) {
+  const mod = await import(`../../../content/drishti/studies/${slug}/${lens.slug}.md`);
+  lensComponents[lens.slug] = mod.default;
+}
+
+const bridgeTopics = study.relatedTopics
+  .map((topicSlug) => {
+    const t = topics.find((x) => x.slug === topicSlug);
+    return t ? { slug: topicSlug, title: t.title } : null;
+  })
+  .filter(Boolean);
+---
+
+<DrishtiLayout
+  title={study.title}
+  tagline={study.tagline}
+  studySlug={study.slug}
+  crumbs={[
+    { label: "Drishti", href: "/drishti" },
+    { label: "Studies", href: "/drishti" },
+    { label: study.title },
+  ]}
+>
+  <div class="drishti-study-hero">
+    <TldrBox items={study.tldr} />
+  </div>
+
+  <AtAGlance {...study.atAGlance} />
+
+  <section aria-labelledby="lens-sections-heading">
+    <h2 id="lens-sections-heading">Seven lenses on {study.title}</h2>
+    <p><strong>Same order every time.</strong> Expand the lens you need; first is open by default.</p>
+
+    <LensSectionJump />
+
+    {DRISHTI_LENSES.map((lens, index) => {
+      const LensContent = lensComponents[lens.slug];
+      return (
+        <div class="drishti-lens-section" id={`lens-${lens.slug}`}>
+          <Details summary={`${lens.glyph} ${lens.title} — ${lens.question}`} open={index === 0}>
+            <span class="drishti-lens-chip">{lens.title}</span>
+            <LensContent />
+          </Details>
+        </div>
+      );
+    })}
+  </section>
+
+  <CurriculumBridge topics={bridgeTopics} />
+</DrishtiLayout>

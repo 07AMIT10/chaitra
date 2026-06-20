@@ -1,12 +1,30 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
 import MermaidInit from "../components/MermaidInit.tsx";
+import drishti from "../data/drishti.json";
 import "../styles/narrative.css";
 import "../styles/topic-page.css";
+import "../styles/drishti.css";
 
-const { title, repoFolder, pyodide = false, hasLab = false, hasCode = false } = Astro.props;
+const { title, repoFolder, pyodide = false, hasLab = false, hasCode = false, topicSlug } = Astro.props;
 const PYODIDE_VERSION = "0.26.4";
 const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`;
+
+const topicRefs = topicSlug
+  ? (drishti.topicIndex?.[topicSlug as keyof typeof drishti.topicIndex] ?? [])
+  : [];
+
+const studyMeta = topicRefs
+  .filter((e) => !String(e.slug).startsWith("lens:"))
+  .map((e) => drishti.studies.find((s) => s.slug === e.slug))
+  .filter((s): s is (typeof drishti.studies)[number] => s != null);
+
+const lensRefs = topicRefs
+  .filter((e) => String(e.slug).startsWith("lens:"))
+  .map((e) => ({
+    slug: String(e.slug).replace("lens:", ""),
+    title: e.title,
+  }));
 ---
 <BaseLayout title={title}>
   {pyodide && (
@@ -69,6 +87,23 @@ const PYODIDE_CDN = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/`
     )}
     <footer class="topic__footer">
       <a href={`https://github.com/07AMIT10/chaitra/tree/main/topics/${repoFolder}`}>View on GitHub</a>
+      {(studyMeta.length > 0 || lensRefs.length > 0) && (
+        <aside class="topic-drishti-footer" aria-label="Drishti cross-links">
+          <h2>See this through Drishti</h2>
+          <ul>
+            {studyMeta.map((study) => (
+              <li>
+                <a href={`/drishti/studies/${study.slug}`}>{study.title}</a>
+              </li>
+            ))}
+            {lensRefs.map((lens) => (
+              <li>
+                <a href={`/drishti/lenses/${lens.slug}`}>{lens.title}</a>
+              </li>
+            ))}
+          </ul>
+        </aside>
+      )}
     </footer>
   </article>
   </div>

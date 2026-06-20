@@ -1,0 +1,62 @@
+---
+import DrishtiLayout from "../../layouts/DrishtiLayout.astro";
+import LensCard from "../../components/drishti/LensCard.astro";
+import drishti from "../../data/drishti.json";
+import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
+---
+
+<DrishtiLayout
+  title="दृष्टि — Reality Navigation"
+  tagline="Seven questions to see any phenomenon clearly. Case studies bridge to Chaitra's mechanism curriculum."
+  wide={true}
+  crumbs={[{ label: "Drishti" }]}
+>
+  {Astro.url.searchParams.get("toast") === "pass-not-found" && (
+    <p class="drishti-toast" role="status">
+      Start a pass from Apply Drishti.
+    </p>
+  )}
+
+  <section class="drishti-hub__hero">
+    <p>Perception layer · complements the curriculum</p>
+    <button
+      type="button"
+      class="drishti-hub__cta"
+      data-analytics="hub-apply-drishti"
+      onclick="window.dispatchEvent(new Event('drishti:open-pass'))"
+    >
+      ◎ Apply Drishti to your phenomenon
+    </button>
+  </section>
+
+  <section aria-labelledby="lenses-heading">
+    <h2 id="lenses-heading">The seven lenses</h2>
+    <p>Same order on every page — predictable, scannable.</p>
+    <ul class="drishti-lens-grid">
+      {DRISHTI_LENSES.map((lens) => (
+        <li>
+          <LensCard {...lens} />
+        </li>
+      ))}
+    </ul>
+    <p>
+      <a href="/drishti/framework">Read the universal framework →</a>
+    </p>
+  </section>
+
+  <section aria-labelledby="studies-heading">
+    <h2 id="studies-heading">Featured case studies</h2>
+    <p>One phenomenon, all seven lenses, curriculum bridges included.</p>
+    <ul class="drishti-studies-grid">
+      {drishti.studies.map((study) => (
+        <li>
+          <a class="drishti-study-card" href={`/drishti/studies/${study.slug}`}>
+            <span class="drishti-study-card__badge">Case study</span>
+            <h3>{study.title}</h3>
+            <p>{study.tagline}</p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</DrishtiLayout>

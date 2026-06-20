@@ -1,0 +1,20 @@
+---
+import DrishtiLayout from "../../layouts/DrishtiLayout.astro";
+import TldrBox from "../../components/drishti/TldrBox.astro";
+import { getCollection, render } from "astro:content";
+
+const [entry] = await getCollection("drishtiFramework");
+if (!entry) throw new Error("Drishti framework content missing — run npm run sync:drishti");
+
+const { title, tldr } = entry.data;
+const { Content } = await render(entry);
+---
+
+<DrishtiLayout
+  title={title}
+  tagline="How to apply the seven lenses to anything — plus a Bayesian forecasting sketch."
+  crumbs={[{ label: "Drishti", href: "/drishti" }, { label: "Framework" }]}
+>
+  <TldrBox items={tldr} />
+  <Content />
+</DrishtiLayout>

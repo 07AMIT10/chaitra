@@ -1,0 +1,78 @@
+---
+interface Props {
+  flows: string;
+  optimizes: string;
+  persists: string;
+  likelyFuture: string;
+}
+
+const { flows, optimizes, persists, likelyFuture } = Astro.props;
+---
+
+<section class="at-a-glance" aria-label="At a glance">
+  <h2 class="at-a-glance__title">At a glance</h2>
+  <dl class="at-a-glance__grid">
+    <div class="at-a-glance__cell">
+      <dt>Flows</dt>
+      <dd>{flows}</dd>
+    </div>
+    <div class="at-a-glance__cell">
+      <dt>Optimizes</dt>
+      <dd>{optimizes}</dd>
+    </div>
+    <div class="at-a-glance__cell">
+      <dt>Persists</dt>
+      <dd>{persists}</dd>
+    </div>
+    <div class="at-a-glance__cell">
+      <dt>Likely future</dt>
+      <dd>{likelyFuture}</dd>
+    </div>
+  </dl>
+</section>
+
+<style>
+  .at-a-glance {
+    margin: var(--space-6) 0;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    border: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
+  }
+
+  .at-a-glance__title {
+    margin: 0 0 var(--space-4);
+    font-size: 1rem;
+    color: var(--color-drishti);
+  }
+
+  .at-a-glance__grid {
+    display: grid;
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  @media (min-width: 40rem) {
+    .at-a-glance__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .at-a-glance__cell {
+    margin: 0;
+  }
+
+  .at-a-glance__cell dt {
+    margin: 0 0 var(--space-1);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+  }
+
+  .at-a-glance__cell dd {
+    margin: 0;
+    line-height: 1.5;
+  }
+</style>

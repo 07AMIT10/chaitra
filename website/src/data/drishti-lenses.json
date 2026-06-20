@@ -1,0 +1,58 @@
+[
+  {
+    "slug": "what-exists",
+    "folder": "WHAT_EXISTS",
+    "title": "What Exists",
+    "question": "What is this, really?",
+    "hook": "Separate objects from patterns and agreements.",
+    "glyph": "◎"
+  },
+  {
+    "slug": "what-changes",
+    "folder": "WHAT_CHANGES",
+    "title": "What Changes",
+    "question": "What is stationary vs non-stationary?",
+    "hook": "Find what drifts and what stays stable.",
+    "glyph": "↻"
+  },
+  {
+    "slug": "what-flows",
+    "folder": "WHAT_FLOWS",
+    "title": "What Flows",
+    "question": "What moves? Where are bottlenecks?",
+    "hook": "Trace energy, data, and attention through the system.",
+    "glyph": "→"
+  },
+  {
+    "slug": "what-learns",
+    "folder": "WHAT_LEARNS",
+    "title": "What Learns",
+    "question": "What updates, remembers, optimizes?",
+    "hook": "Spot feedback loops and stored state.",
+    "glyph": "◈"
+  },
+  {
+    "slug": "what-persists",
+    "folder": "WHAT_PERSISTS",
+    "title": "What Persists",
+    "question": "What survives change?",
+    "hook": "Invariants, constraints, and things that outlast noise.",
+    "glyph": "▣"
+  },
+  {
+    "slug": "what-emerges",
+    "folder": "WHAT_EMERGES",
+    "title": "What Emerges",
+    "question": "How do simple rules become complexity?",
+    "hook": "Local interactions → global behavior.",
+    "glyph": "✦"
+  },
+  {
+    "slug": "what-will-happen",
+    "folder": "WHAT_WILL_HAPPEN",
+    "title": "What Will Happen",
+    "question": "Which futures are becoming likely?",
+    "hook": "Distributions, momentum, and shiftable probabilities.",
+    "glyph": "?"
+  }
+]

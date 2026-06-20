@@ -1,0 +1,100 @@
+{
+  "what-exists": {
+    "sleep": {
+      "title": "Sleep",
+      "excerpt": "Sleep exists as behavior, brain state, and measurable physiology — not absence of activity but a distinct mode with its own jobs."
+    },
+    "blood-circulation": {
+      "title": "Blood Circulation",
+      "excerpt": "Blood is a transport layer; the heart is a pump; vessels are queues with capacity limits — a closed-loop delivery network."
+    },
+    "the-office-as-a-computer": {
+      "title": "The Office as a Computer",
+      "excerpt": "The office is mostly agreements wearing furniture — desks are physical; roles, OKRs, and culture are informational and agreed-upon."
+    }
+  },
+  "what-changes": {
+    "sleep": {
+      "title": "Sleep",
+      "excerpt": "Sleep pressure accumulates while awake and drains during sleep — a non-stationary queue you cannot delete, only drain."
+    },
+    "blood-circulation": {
+      "title": "Blood Circulation",
+      "excerpt": "Heart rate and vessel tone shift with demand; blockages change flow patterns — stationary topology, non-stationary throughput."
+    },
+    "the-office-as-a-computer": {
+      "title": "The Office as a Computer",
+      "excerpt": "Headcount, priorities, and remote/hybrid policy drift quarter to quarter while the legal entity persists."
+    }
+  },
+  "what-flows": {
+    "sleep": {
+      "title": "Sleep",
+      "excerpt": "Energy and metabolic waste out; organized memory and repaired tissue in. Bottleneck nights: insufficient deep sleep blocks recovery."
+    },
+    "blood-circulation": {
+      "title": "Blood Circulation",
+      "excerpt": "The heart pumps; arteries and capillaries are a network with queues. Narrow vessels raise residence time; clots starve downstream organs."
+    },
+    "the-office-as-a-computer": {
+      "title": "The Office as a Computer",
+      "excerpt": "Electricity in; decisions and shipped code out. Bottlenecks: meeting load, review queues, unclear ownership — every standup is a scheduler."
+    }
+  },
+  "what-learns": {
+    "sleep": {
+      "title": "Sleep",
+      "excerpt": "Sleep consolidates memory and resets learning capacity — the brain compiles experience overnight via replay and synaptic downscaling."
+    },
+    "blood-circulation": {
+      "title": "Blood Circulation",
+      "excerpt": "Baroreceptors and the autonomic nervous system adjust pump rate and vessel tone — a feedback loop optimizing perfusion."
+    },
+    "the-office-as-a-computer": {
+      "title": "The Office as a Computer",
+      "excerpt": "Retrospectives, postmortems, and OKR cycles update team behavior — organizational learning with stored state in docs and habits."
+    }
+  },
+  "what-persists": {
+    "sleep": {
+      "title": "Sleep",
+      "excerpt": "Circadian rhythm and sleep architecture stages persist across nights — invariants that outlast individual bad evenings."
+    },
+    "blood-circulation": {
+      "title": "Blood Circulation",
+      "excerpt": "Closed circuit topology and hemoglobin chemistry persist; local clots are noise against a durable transport invariant."
+    },
+    "the-office-as-a-computer": {
+      "title": "The Office as a Computer",
+      "excerpt": "Legal entity, brand, and API contracts persist through reorgs — agreements that survive people churn."
+    }
+  },
+  "what-emerges": {
+    "sleep": {
+      "title": "Sleep",
+      "excerpt": "Local neural oscillations produce global rested feeling and next-day performance — simple stage rules, complex cognitive outcomes."
+    },
+    "blood-circulation": {
+      "title": "Blood Circulation",
+      "excerpt": "Local vessel autoregulation produces organ-level perfusion patterns — micro-adjustments yield macro circulation behavior."
+    },
+    "the-office-as-a-computer": {
+      "title": "The Office as a Computer",
+      "excerpt": "Local meeting norms and Slack habits emerge into org culture and shipping velocity without a single culture officer."
+    }
+  },
+  "what-will-happen": {
+    "sleep": {
+      "title": "Sleep",
+      "excerpt": "Branches: recovery, chronic debt, or acute collapse. Leading indicators: time to fall asleep and morning alertness beat guessing from coffee count."
+    },
+    "blood-circulation": {
+      "title": "Blood Circulation",
+      "excerpt": "Compensation until decompensation — the system masks bottlenecks until a threshold shifts the probability of failure sharply."
+    },
+    "the-office-as-a-computer": {
+      "title": "The Office as a Computer",
+      "excerpt": "Likely futures: AI agents as coworkers, hybrid remote equilibrium — watch hiring plans and tool adoption as leading indicators."
+    }
+  }
+}

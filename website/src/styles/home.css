@@ -137,6 +137,15 @@ main .home-hero__cta--primary:hover {
   background: color-mix(in srgb, var(--color-accent) 12%, transparent);
 }
 
+.home-hero__cta--drishti {
+  border-color: color-mix(in srgb, var(--color-drishti) 55%, transparent);
+  color: var(--color-drishti-hover);
+}
+
+.home-hero__cta--drishti:hover {
+  background: color-mix(in srgb, var(--color-drishti) 12%, transparent);
+}
+
 .home-hero__cta:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);

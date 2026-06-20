@@ -93,7 +93,7 @@
   font-size: 0.9em;
 }
 
-.topic__narrative pre.mermaid {
+.prose pre.mermaid {
   background: var(--color-surface);
   border-radius: var(--radius-md);
   padding: var(--space-4);
@@ -103,7 +103,7 @@
   white-space: pre-wrap;
 }
 
-.topic__narrative pre.mermaid[data-processed] {
+.prose pre.mermaid[data-processed] {
   color: inherit;
   font-size: inherit;
 }
@@ -125,18 +125,19 @@
   overflow-x: auto;
 }
 
-.topic__narrative pre.mermaid {
+.prose pre.mermaid {
   min-height: 4rem;
+  max-width: 100%;
 }
 
-.topic__narrative pre.mermaid svg {
+.prose pre.mermaid svg {
   display: block;
   max-width: 100%;
   height: auto;
   margin-inline: auto;
 }
 
-.topic__narrative pre.mermaid.mermaid--failed {
+.prose pre.mermaid.mermaid--failed {
   padding: var(--space-4);
   color: var(--color-muted);
   font-size: 0.875rem;

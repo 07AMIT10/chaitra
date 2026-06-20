@@ -6,6 +6,10 @@
   --color-accent: #3d9eff;
   --color-accent-hover: #6bb5ff;
   --color-accent-subtle: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  --color-drishti: #e3b341;
+  --color-drishti-hover: #f0c85a;
+  --color-drishti-subtle: color-mix(in srgb, var(--color-drishti) 14%, transparent);
+  --color-drishti: #e3b341;
   --color-success: #3fb950;
   --color-warning: #d29922;
   --color-error: #f85149;

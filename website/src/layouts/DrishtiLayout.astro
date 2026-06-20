@@ -1,0 +1,92 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import MermaidInit from "../components/MermaidInit.tsx";
+import LensNavigator from "../components/drishti/LensNavigator.astro";
+import { FocusModeToggle } from "../components/drishti/FocusModeToggle.tsx";
+import { DrishtiPassLauncher } from "../components/drishti/DrishtiPassLauncher.tsx";
+import "../styles/narrative.css";
+import "../styles/drishti.css";
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  title: string;
+  tagline?: string;
+  eyebrow?: string;
+  activeLens?: string;
+  showLensNav?: boolean;
+  wide?: boolean;
+  crumbs?: Crumb[];
+  studySlug?: string;
+  initialLens?: string;
+}
+
+const {
+  title,
+  tagline,
+  eyebrow = "Drishti",
+  activeLens,
+  showLensNav = false,
+  wide = false,
+  crumbs = [{ label: "Drishti", href: "/drishti" }],
+  studySlug,
+  initialLens,
+} = Astro.props;
+
+const passSourceUrl = Astro.url.pathname;
+---
+
+<BaseLayout title={`${title} — Drishti`}>
+  <div class:list={["drishti-page", { "drishti-page--wide": wide }]}>
+    <nav class="drishti-breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      {crumbs.map((c) => (
+        <>
+          <span class="drishti-breadcrumbs__sep">/</span>
+          {c.href ? (
+            <a href={c.href}>{c.label}</a>
+          ) : (
+            <span class="drishti-breadcrumbs__current">{c.label}</span>
+          )}
+        </>
+      ))}
+    </nav>
+
+    <div class="drishti-toolbar">
+      <FocusModeToggle client:visible />
+    </div>
+
+    <div class:list={["drishti-layout", { "drishti-layout--with-nav": showLensNav }]}>
+      {showLensNav && (
+        <aside class="drishti-layout__aside" aria-label="Lens navigation">
+          <LensNavigator activeSlug={activeLens} variant="sidebar" />
+        </aside>
+      )}
+      <article class="drishti-layout__article">
+        <header class="drishti-page__header">
+          <p class="drishti-page__eyebrow">{eyebrow}</p>
+          <h1 class="drishti-page__title">{title}</h1>
+          {tagline && <p class="drishti-page__tagline">{tagline}</p>}
+        </header>
+        {showLensNav && (
+          <div class="drishti-layout__rail" aria-label="Lens navigation">
+            <LensNavigator activeSlug={activeLens} variant="rail" />
+          </div>
+        )}
+        <div class="drishti-page__prose prose">
+          <slot />
+        </div>
+        <MermaidInit client:load />
+      </article>
+    </div>
+  </div>
+  <DrishtiPassLauncher
+    client:load
+    sourceUrl={passSourceUrl}
+    studySlug={studySlug}
+    initialLens={initialLens}
+  />
+</BaseLayout>
