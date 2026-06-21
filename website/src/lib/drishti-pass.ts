@@ -51,6 +51,10 @@ export interface DrishtiPassState {
       }
     >
   >;
+  completedAt?: string;
+  echoDismissed?: boolean;
+  echoAnswer?: "yes" | "changed";
+  relatedStudySlug?: StudySlug;
 }
 
 const IDK_PATTERN =

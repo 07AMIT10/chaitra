@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import hints from "../../data/drishti/pass-hints.json";
 import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
 import { generateLetter, generateMirror } from "../../lib/drishti-mirror";
@@ -9,6 +9,7 @@ import {
   type DrishtiPassState,
   type LensSlug,
 } from "../../lib/drishti-pass";
+import { DrishtiWhatsNext } from "./DrishtiWhatsNext";
 
 type HintEntry = {
   microExample: string;
@@ -26,6 +27,8 @@ type Props = {
   onNewPass: () => void;
   onDone: () => void;
   storageWarning?: string | null;
+  showWhatsNext?: boolean;
+  scrollToBeforeAfter?: boolean;
 };
 
 export function DrishtiPassSummary({
@@ -37,11 +40,20 @@ export function DrishtiPassSummary({
   onNewPass,
   onDone,
   storageWarning,
+  showWhatsNext = true,
+  scrollToBeforeAfter = false,
 }: Props) {
   const [showInsightEdit, setShowInsightEdit] = useState(false);
   const { mirrorText } = generateMirror(pass);
   const letter = pass.letter ?? generateLetter(pass);
   const gaps = detectGaps(pass).slice(0, 2);
+
+  useEffect(() => {
+    if (!scrollToBeforeAfter) return;
+    document
+      .getElementById("drishti-mirror-before-after-heading")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [scrollToBeforeAfter]);
 
   return (
     <div className="drishti-mirror-room" data-depth={pass.depth}>
@@ -229,6 +241,10 @@ export function DrishtiPassSummary({
           Done
         </button>
       </div>
+
+      {showWhatsNext && (
+        <DrishtiWhatsNext pass={pass} onNewPass={onNewPass} />
+      )}
     </div>
   );
 }
