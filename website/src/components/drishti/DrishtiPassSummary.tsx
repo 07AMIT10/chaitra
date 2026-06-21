@@ -198,11 +198,14 @@ export function DrishtiPassSummary({
             const slug = lens.slug as LensSlug;
             const text = lensNoteForSummary(pass, slug);
             return (
-              <li key={slug}>
-                <span className="drishti-mirror-receipt__lens">
-                  {lens.glyph} {lens.title}
-                </span>
-                <span>{text || "—"}</span>
+              <li key={slug} className="drishti-mirror-receipt__row">
+                <p className="drishti-mirror-receipt__lens">
+                  <span className="drishti-mirror-receipt__glyph" aria-hidden="true">
+                    {lens.glyph}
+                  </span>
+                  <span className="drishti-mirror-receipt__label">{lens.title}</span>
+                </p>
+                <p className="drishti-mirror-receipt__note">{text || "—"}</p>
               </li>
             );
           })}

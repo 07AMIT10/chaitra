@@ -1007,6 +1007,13 @@ html.drishti-focus-mode .lens-section-jump {
   border-top: 1px solid color-mix(in srgb, var(--color-muted) 20%, transparent);
 }
 
+.drishti-mirror-receipt summary {
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
 .drishti-mirror-receipt__notes {
   list-style: none;
   padding: 0;
@@ -1014,6 +1021,45 @@ html.drishti-focus-mode .lens-section-jump {
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+}
+
+.drishti-mirror-receipt__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid color-mix(in srgb, var(--color-drishti) 20%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 92%, var(--color-drishti) 8%);
+}
+
+.drishti-mirror-receipt__lens {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.drishti-mirror-receipt__glyph {
+  flex-shrink: 0;
+  color: var(--color-drishti);
+}
+
+.drishti-mirror-receipt__label {
+  color: var(--color-muted);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.drishti-mirror-receipt__note {
+  margin: 0;
+  padding-left: calc(1.5rem + var(--space-2));
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+  color: var(--color-text);
 }
 
 .drishti-pass-step__idk-whisper {
