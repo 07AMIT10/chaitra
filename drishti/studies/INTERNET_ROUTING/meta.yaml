@@ -7,8 +7,8 @@ relatedTopics:
   - scalable-architectures
 tldr:
   - "The Internet has no center; routing is a continuous, decentralized gossip protocol."
-  - "Routers only know their immediate neighbors, building global paths through local agreements."
-  - "BGP (Border Gateway Protocol) relies entirely on trust, making it highly vulnerable to human error."
+  - "Routers only know their immediate neighbors, building global paths through local trust."
+  - "BGP (Border Gateway Protocol) relies entirely on trust, making it highly vulnerable."
 atAGlance:
   flows: "Data packets, BGP update messages, and optical light pulses"
   optimizes: "Path shortest-distance and network reachability"

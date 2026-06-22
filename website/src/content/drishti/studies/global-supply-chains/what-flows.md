@@ -1,3 +1,0 @@
-**Takeaway: Flow depends entirely on clearing bottleneck geographic queues.**
-
-Physical goods flow through a constrained graph where nodes like the Suez Canal, the Port of Long Beach, or semiconductor fabs act as strict rate limiters. When the arrival rate of ships exceeds the service rate of cranes, the queue grows exponentially. If a single critical bottleneck jams, the entire downstream network starves.

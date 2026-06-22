@@ -1,3 +1,0 @@
-**Takeaway: The network optimizes locally, often missing the global picture.**
-
-Procurement algorithms learn to order based on historical lead times and immediate vendor pricing, optimizing for the lowest local cost. This local learning creates the "bullwhip effect," where small spikes in retail demand trigger massive over-ordering at the manufacturing level because each node in the chain adds a safety margin.

@@ -25,3 +25,9 @@ website/docs/
 .env
 .env.*
 website/.wrangler/
+
+# Website outputs
+website/node_modules/
+website/dist/
+website/.astro/
+website/src/content/drishti/studies/

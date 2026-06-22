@@ -137,9 +137,9 @@
       "title": "Global Supply Chains",
       "tagline": "The physical queueing network routing goods across the planet",
       "tldr": [
-        "Supply chains are massive queueing networks where buffers mask latency.",
-        "Just-in-time manufacturing removes buffers, increasing fragility to local shocks.",
-        "The bullwhip effect causes small demand shifts to amplify into massive inventory swings upstream."
+        "Supply chains are massive queueing networks where physical buffers mask deep latency.",
+        "Just-in-time manufacturing removes these buffers, increasing fragility to local shocks.",
+        "The bullwhip effect causes small demand shifts to mathematically amplify upstream."
       ],
       "relatedTopics": [
         "queueing-theory",
@@ -161,8 +161,8 @@
       "tagline": "The decentralized gossip protocol that built the modern world",
       "tldr": [
         "The Internet has no center; routing is a continuous, decentralized gossip protocol.",
-        "Routers only know their immediate neighbors, building global paths through local agreements.",
-        "BGP (Border Gateway Protocol) relies entirely on trust, making it highly vulnerable to human error."
+        "Routers only know their immediate neighbors, building global paths through local trust.",
+        "BGP (Border Gateway Protocol) relies entirely on trust, making it highly vulnerable."
       ],
       "relatedTopics": [
         "gossip-protocols",
@@ -250,11 +250,11 @@
       "slug": "the-immune-system",
       "folder": "THE_IMMUNE_SYSTEM",
       "title": "The Immune System",
-      "tagline": "A decentralized, probablistic defense and spam detection network",
+      "tagline": "A decentralized, probabilistic defense and spam detection network",
       "tldr": [
-        "The immune system is a distributed spam filter that must probabilistically identify self from non-self.",
-        "It uses randomly generated, combinatorial keys (antibodies) to match unknown zero-day attacks.",
-        "Memory cells persist as a cached database of past signatures, enabling rapid secondary responses."
+        "The immune system is a distributed spam filter probabilistically identifying self from non-self.",
+        "It uses randomly generated, combinatorial keys to match unknown zero-day attacks.",
+        "Memory cells persist as a cached database of past signatures for rapid secondary responses."
       ],
       "relatedTopics": [
         "spam-detection",

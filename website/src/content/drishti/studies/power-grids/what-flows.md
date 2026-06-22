@@ -1,3 +1,0 @@
-**Takeaway: Electrons do not flow like water; energy flows as an electromagnetic wave.**
-
-Energy flows through the transmission network dictated strictly by Kirchhoff's laws, choosing the path of least resistance across the entire graph. Bottlenecks manifest as thermal limits on specific transmission lines. If a line gets too hot and sags into a tree, the flow instantly redistributes, risking cascading overloads.
