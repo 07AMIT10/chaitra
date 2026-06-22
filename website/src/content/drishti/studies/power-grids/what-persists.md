@@ -1,0 +1,3 @@
+**Takeaway: The physics of alternating current (AC) frequency remains the ultimate invariant.**
+
+No matter the energy source, the entire interconnected grid must persist at exactly 60 Hz (in North America) or 50 Hz (in Europe). If generation exceeds demand, the frequency spins up; if demand exceeds generation, it drags down. This strict physical invariant dictates every engineering decision made in the system.

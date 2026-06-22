@@ -1,0 +1,3 @@
+**Takeaway: Systemic inflammation and autoimmunity emerge from threshold failures.**
+
+When local signaling loops fail to downregulate, the result is an emergent cytokine storm—a runaway feedback loop that damages the host. Similarly, when the probabilistic filtering fails to correctly classify "self" versus "non-self," autoimmune diseases emerge, turning the defense network against its own infrastructure.

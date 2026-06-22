@@ -1,0 +1,3 @@
+**Takeaway: Power grids are not giant batteries; they are giant synchronized flywheels.**
+
+The grid is fundamentally an interconnected set of spinning magnets operating in lockstep. What truly exists is the real-time balance of kinetic energy, rather than stored electricity waiting in a tank. Every light bulb turned on must immediately be matched by slightly more steam pushing a turbine miles away.

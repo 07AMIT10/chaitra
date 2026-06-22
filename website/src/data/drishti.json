@@ -132,6 +132,98 @@
       "hasPage": true
     },
     {
+      "slug": "global-supply-chains",
+      "folder": "GLOBAL_SUPPLY_CHAINS",
+      "title": "Global Supply Chains",
+      "tagline": "The physical queueing network routing goods across the planet",
+      "tldr": [
+        "Supply chains are massive queueing networks where buffers mask latency.",
+        "Just-in-time manufacturing removes buffers, increasing fragility to local shocks.",
+        "The bullwhip effect causes small demand shifts to amplify into massive inventory swings upstream."
+      ],
+      "relatedTopics": [
+        "queueing-theory",
+        "eventual-consistency",
+        "mapreduce"
+      ],
+      "atAGlance": {
+        "flows": "Raw materials, sub-assemblies, capital, information",
+        "optimizes": "Cost minimization and capital velocity",
+        "persists": "Physical transport latency and geographic choke points",
+        "likelyFuture": "Resilience over efficiency; localized parallel supply graphs"
+      },
+      "hasPage": true
+    },
+    {
+      "slug": "internet-routing",
+      "folder": "INTERNET_ROUTING",
+      "title": "Internet Routing",
+      "tagline": "The decentralized gossip protocol that built the modern world",
+      "tldr": [
+        "The Internet has no center; routing is a continuous, decentralized gossip protocol.",
+        "Routers only know their immediate neighbors, building global paths through local agreements.",
+        "BGP (Border Gateway Protocol) relies entirely on trust, making it highly vulnerable to human error."
+      ],
+      "relatedTopics": [
+        "gossip-protocols",
+        "token-routing",
+        "scalable-architectures"
+      ],
+      "atAGlance": {
+        "flows": "Data packets, BGP update messages, and optical light pulses",
+        "optimizes": "Path shortest-distance and network reachability",
+        "persists": "The core TCP/IP protocol suite and physical fiber lines",
+        "likelyFuture": "Software-defined networking overriding default BGP paths"
+      },
+      "hasPage": true
+    },
+    {
+      "slug": "photosynthesis",
+      "folder": "PHOTOSYNTHESIS",
+      "title": "Photosynthesis",
+      "tagline": "The scalable biological architecture powering the entire planet",
+      "tldr": [
+        "Photosynthesis is an extremely parallelized, solar-powered energy conversion pipeline.",
+        "It trades thermodynamic efficiency for massive, low-cost scale across the Earth's surface.",
+        "The system acts as an atmospheric buffer, absorbing excess carbon through distributed nodes."
+      ],
+      "relatedTopics": [
+        "scalable-architectures",
+        "information-theory",
+        "distributed-systems"
+      ],
+      "atAGlance": {
+        "flows": "Photons, electrons, carbon dioxide, and water",
+        "optimizes": "Energy capture surface area and robust reproduction",
+        "persists": "The fundamental biochemistry of the chloroplast",
+        "likelyFuture": "Engineered crops optimized for higher photosynthetic yield"
+      },
+      "hasPage": true
+    },
+    {
+      "slug": "power-grids",
+      "folder": "POWER_GRIDS",
+      "title": "Power Grids",
+      "tagline": "The real-time synchronization of massive physical energy",
+      "tldr": [
+        "Power grids are extreme distributed systems operating without a central battery buffer.",
+        "Generation must exactly match demand at every second to maintain a stable 60Hz or 50Hz frequency.",
+        "Cascading failures occur when rate limits are exceeded, demonstrating non-linear vulnerability."
+      ],
+      "relatedTopics": [
+        "scalable-architectures",
+        "probability-theory",
+        "distributed-systems"
+      ],
+      "atAGlance": {
+        "flows": "Electricity, phase synchronization signals, reactive power",
+        "optimizes": "Voltage stability, frequency synchronization, load balancing",
+        "persists": "The physical laws of electromagnetism, topological constraints",
+        "likelyFuture": "Decentralized microgrids replacing centralized monolithic plants"
+      },
+      "hasPage": true
+    },
+    {
       "slug": "sleep",
       "folder": "SLEEP",
       "title": "Sleep",
@@ -151,6 +243,29 @@
         "optimizes": "Next-day performance and long-term memory",
         "persists": "Circadian rhythm, sleep architecture stages",
         "likelyFuture": "Personalized chronotherapy; wearables as early warning"
+      },
+      "hasPage": true
+    },
+    {
+      "slug": "the-immune-system",
+      "folder": "THE_IMMUNE_SYSTEM",
+      "title": "The Immune System",
+      "tagline": "A decentralized, probablistic defense and spam detection network",
+      "tldr": [
+        "The immune system is a distributed spam filter that must probabilistically identify self from non-self.",
+        "It uses randomly generated, combinatorial keys (antibodies) to match unknown zero-day attacks.",
+        "Memory cells persist as a cached database of past signatures, enabling rapid secondary responses."
+      ],
+      "relatedTopics": [
+        "spam-detection",
+        "large-scale-multi-agent-systems",
+        "statistical-learning"
+      ],
+      "atAGlance": {
+        "flows": "White blood cells, cytokines, antigens, and antibodies",
+        "optimizes": "Pathogen neutralization while minimizing collateral damage",
+        "persists": "The core genetic blueprint for generating diversity",
+        "likelyFuture": "Engineered immune agents and targeted mRNA programming"
       },
       "hasPage": true
     },
@@ -177,6 +292,29 @@
         "likelyFuture": "AI agents as coworkers; hybrid remote equilibrium"
       },
       "hasPage": true
+    },
+    {
+      "slug": "urban-traffic-networks",
+      "folder": "URBAN_TRAFFIC_NETWORKS",
+      "title": "Urban Traffic Networks",
+      "tagline": "Fluid dynamics and phase transitions on municipal asphalt",
+      "tldr": [
+        "Traffic behaves like a fluid until a critical density, where it undergoes a sudden phase transition into a solid jam.",
+        "Adding more roads often increases congestion due to induced demand (Braess's Paradox).",
+        "Throughput is determined entirely by the clearing rate of bottleneck intersections, not by highway speed limits."
+      ],
+      "relatedTopics": [
+        "queueing-theory",
+        "rate-limiting",
+        "power-of-two-choices"
+      ],
+      "atAGlance": {
+        "flows": "Vehicles, pedestrians, transit, and localized emissions",
+        "optimizes": "Commute times, throughput density, and safety",
+        "persists": "The physical grid layout and maximum roadway capacity limits",
+        "likelyFuture": "Dynamic algorithmic tolling and autonomous vehicle coordination"
+      },
+      "hasPage": true
     }
   ],
   "topicIndex": {
@@ -186,12 +324,20 @@
         "title": "Blood Circulation"
       },
       {
+        "slug": "global-supply-chains",
+        "title": "Global Supply Chains"
+      },
+      {
         "slug": "sleep",
         "title": "Sleep"
       },
       {
         "slug": "the-office-as-a-computer",
         "title": "The Office as a Computer"
+      },
+      {
+        "slug": "urban-traffic-networks",
+        "title": "Urban Traffic Networks"
       },
       {
         "slug": "lens:what-flows",
@@ -212,12 +358,104 @@
       {
         "slug": "blood-circulation",
         "title": "Blood Circulation"
+      },
+      {
+        "slug": "urban-traffic-networks",
+        "title": "Urban Traffic Networks"
+      }
+    ],
+    "eventual-consistency": [
+      {
+        "slug": "global-supply-chains",
+        "title": "Global Supply Chains"
+      },
+      {
+        "slug": "lens:what-changes",
+        "title": "Drishti: What Changes"
+      }
+    ],
+    "mapreduce": [
+      {
+        "slug": "global-supply-chains",
+        "title": "Global Supply Chains"
+      }
+    ],
+    "gossip-protocols": [
+      {
+        "slug": "internet-routing",
+        "title": "Internet Routing"
+      },
+      {
+        "slug": "the-office-as-a-computer",
+        "title": "The Office as a Computer"
+      },
+      {
+        "slug": "lens:what-emerges",
+        "title": "Drishti: What Emerges"
+      }
+    ],
+    "token-routing": [
+      {
+        "slug": "internet-routing",
+        "title": "Internet Routing"
+      }
+    ],
+    "scalable-architectures": [
+      {
+        "slug": "internet-routing",
+        "title": "Internet Routing"
+      },
+      {
+        "slug": "photosynthesis",
+        "title": "Photosynthesis"
+      },
+      {
+        "slug": "power-grids",
+        "title": "Power Grids"
+      }
+    ],
+    "information-theory": [
+      {
+        "slug": "photosynthesis",
+        "title": "Photosynthesis"
+      },
+      {
+        "slug": "the-office-as-a-computer",
+        "title": "The Office as a Computer"
+      },
+      {
+        "slug": "lens:what-exists",
+        "title": "Drishti: What Exists"
+      }
+    ],
+    "distributed-systems": [
+      {
+        "slug": "photosynthesis",
+        "title": "Photosynthesis"
+      },
+      {
+        "slug": "power-grids",
+        "title": "Power Grids"
+      }
+    ],
+    "probability-theory": [
+      {
+        "slug": "power-grids",
+        "title": "Power Grids"
+      },
+      {
+        "slug": "lens:what-exists",
+        "title": "Drishti: What Exists"
       }
     ],
     "statistical-learning": [
       {
         "slug": "sleep",
         "title": "Sleep"
+      },
+      {
+        "slug": "the-immune-system",
+        "title": "The Immune System"
       },
       {
         "slug": "lens:what-learns",
@@ -234,28 +472,18 @@
         "title": "Drishti: What Will Happen"
       }
     ],
-    "gossip-protocols": [
+    "spam-detection": [
       {
-        "slug": "the-office-as-a-computer",
-        "title": "The Office as a Computer"
-      },
-      {
-        "slug": "lens:what-emerges",
-        "title": "Drishti: What Emerges"
-      }
-    ],
-    "information-theory": [
-      {
-        "slug": "the-office-as-a-computer",
-        "title": "The Office as a Computer"
-      },
-      {
-        "slug": "lens:what-exists",
-        "title": "Drishti: What Exists"
+        "slug": "the-immune-system",
+        "title": "The Immune System"
       }
     ],
     "large-scale-multi-agent-systems": [
       {
+        "slug": "the-immune-system",
+        "title": "The Immune System"
+      },
+      {
         "slug": "the-office-as-a-computer",
         "title": "The Office as a Computer"
       },
@@ -264,16 +492,10 @@
         "title": "Drishti: What Emerges"
       }
     ],
-    "probability-theory": [
+    "power-of-two-choices": [
       {
-        "slug": "lens:what-exists",
-        "title": "Drishti: What Exists"
-      }
-    ],
-    "eventual-consistency": [
-      {
-        "slug": "lens:what-changes",
-        "title": "Drishti: What Changes"
+        "slug": "urban-traffic-networks",
+        "title": "Urban Traffic Networks"
       }
     ],
     "streaming-analytics": [
@@ -316,32 +538,64 @@
   "topicToStudies": {
     "queueing-theory": [
       "blood-circulation",
+      "global-supply-chains",
       "sleep",
-      "the-office-as-a-computer"
+      "the-office-as-a-computer",
+      "urban-traffic-networks"
     ],
     "streaming-algorithms": [
       "blood-circulation"
     ],
     "rate-limiting": [
-      "blood-circulation"
+      "blood-circulation",
+      "urban-traffic-networks"
+    ],
+    "eventual-consistency": [
+      "global-supply-chains"
+    ],
+    "mapreduce": [
+      "global-supply-chains"
+    ],
+    "gossip-protocols": [
+      "internet-routing",
+      "the-office-as-a-computer"
+    ],
+    "token-routing": [
+      "internet-routing"
+    ],
+    "scalable-architectures": [
+      "internet-routing",
+      "photosynthesis",
+      "power-grids"
+    ],
+    "information-theory": [
+      "photosynthesis",
+      "the-office-as-a-computer"
+    ],
+    "distributed-systems": [
+      "photosynthesis",
+      "power-grids"
+    ],
+    "probability-theory": [
+      "power-grids"
     ],
     "statistical-learning": [
-      "sleep"
+      "sleep",
+      "the-immune-system"
     ],
     "bayesian-inference-systems": [
       "sleep"
     ],
-    "gossip-protocols": [
-      "the-office-as-a-computer"
-    ],
-    "information-theory": [
-      "the-office-as-a-computer"
+    "spam-detection": [
+      "the-immune-system"
     ],
     "large-scale-multi-agent-systems": [
+      "the-immune-system",
       "the-office-as-a-computer"
     ],
-    "probability-theory": [],
-    "eventual-consistency": [],
+    "power-of-two-choices": [
+      "urban-traffic-networks"
+    ],
     "streaming-analytics": [],
     "reinforcement-learning-orchestration": [],
     "crdts-plus-probability": [],

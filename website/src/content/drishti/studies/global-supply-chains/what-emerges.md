@@ -1,0 +1,3 @@
+**Takeaway: Extreme fragility is an emergent property of extreme efficiency.**
+
+Decades of optimizing for "just-in-time" delivery removed all buffer stock from the system to free up capital. The emergent result of this local optimization is a highly brittle global network. Without buffers, a minor disruption—a factory fire, a stuck ship, a local lockdown—cascades immediately, shutting down assembly lines across the world.

@@ -1,0 +1,3 @@
+**Takeaway: Demand shifts predictably by hour, but generation is becoming stochastic.**
+
+Base load used to be a stationary constant provided by coal and nuclear plants. Now, solar and wind introduce rapid, unpredictable fluctuations in supply that change by the minute with cloud cover and wind gusts. The fundamental challenge has shifted from predicting human behavior to compensating for weather volatility.

@@ -1,0 +1,3 @@
+**Takeaway: The grid learns through localized protection relays and market pricing signals.**
+
+Protection systems (circuit breakers) learn when to defensively trip offline to isolate faults, prioritizing self-preservation over the larger system. Economically, day-ahead and real-time markets learn the cost of generation, incentivizing peaker plants to come online only when demand spikes. There is no single central brain; optimization happens at the edges.

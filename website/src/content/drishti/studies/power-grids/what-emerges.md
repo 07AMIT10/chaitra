@@ -1,0 +1,3 @@
+**Takeaway: Catastrophic blackouts are an emergent property of tightly coupled networks.**
+
+A single downed tree line can cause neighboring lines to take on the redistributed load, overheating them in seconds. This local event triggers a cascade of automated safety shutdowns, emerging as a massive regional blackout. Complexity and tight coupling guarantee that rare, systemic failures will periodically emerge from trivial triggers.

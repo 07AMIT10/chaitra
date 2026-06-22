@@ -1,0 +1,16 @@
+title: "The Immune System"
+slug: the-immune-system
+tagline: "A decentralized, probablistic defense and spam detection network"
+relatedTopics:
+  - spam-detection
+  - large-scale-multi-agent-systems
+  - statistical-learning
+tldr:
+  - "The immune system is a distributed spam filter that must probabilistically identify self from non-self."
+  - "It uses randomly generated, combinatorial keys (antibodies) to match unknown zero-day attacks."
+  - "Memory cells persist as a cached database of past signatures, enabling rapid secondary responses."
+atAGlance:
+  flows: "White blood cells, cytokines, antigens, and antibodies"
+  optimizes: "Pathogen neutralization while minimizing collateral damage"
+  persists: "The core genetic blueprint for generating diversity"
+  likelyFuture: "Engineered immune agents and targeted mRNA programming"

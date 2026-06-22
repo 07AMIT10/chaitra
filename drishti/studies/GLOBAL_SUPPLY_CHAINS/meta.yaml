@@ -1,0 +1,16 @@
+title: "Global Supply Chains"
+slug: global-supply-chains
+tagline: "The physical queueing network routing goods across the planet"
+relatedTopics:
+  - queueing-theory
+  - eventual-consistency
+  - mapreduce
+tldr:
+  - "Supply chains are massive queueing networks where buffers mask latency."
+  - "Just-in-time manufacturing removes buffers, increasing fragility to local shocks."
+  - "The bullwhip effect causes small demand shifts to amplify into massive inventory swings upstream."
+atAGlance:
+  flows: "Raw materials, sub-assemblies, capital, information"
+  optimizes: "Cost minimization and capital velocity"
+  persists: "Physical transport latency and geographic choke points"
+  likelyFuture: "Resilience over efficiency; localized parallel supply graphs"
