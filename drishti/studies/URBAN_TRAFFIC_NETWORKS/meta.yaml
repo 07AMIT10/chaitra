@@ -1,16 +1,20 @@
 title: "Urban Traffic Networks"
 slug: urban-traffic-networks
-tagline: "Fluid dynamics and phase transitions on municipal asphalt"
+tagline: "Asphalt graphs where cars are packets you can't drop"
+phenomenon: "A grid where cars are packets you can't drop when the queue backs up"
+tryIt: "Time one rush-hour light cycle — that's your real throughput cap."
+hooks:
+  what-exists: "a jam is a density wave, not an object"
 relatedTopics:
   - queueing-theory
   - rate-limiting
   - power-of-two-choices
 tldr:
-  - "Traffic behaves like a fluid until a critical density, where it undergoes a sudden phase transition into a solid jam."
-  - "Adding more roads often increases congestion due to induced demand (Braess's Paradox)."
-  - "Throughput is determined entirely by the clearing rate of bottleneck intersections, not by highway speed limits."
+  - "A traffic jam is a wave — you can't point to it, only cars trapped inside it."
+  - "Throughput is set by the slowest intersection, not the fastest highway."
+  - "Watch bottleneck clearing rate and induced-demand studies, not lane-count headlines."
 atAGlance:
-  flows: "Vehicles, pedestrians, transit, and localized emissions"
-  optimizes: "Commute times, throughput density, and safety"
-  persists: "The physical grid layout and maximum roadway capacity limits"
-  likelyFuture: "Dynamic algorithmic tolling and autonomous vehicle coordination"
+  flows: "Vehicles, pedestrians, transit, emissions"
+  optimizes: "Commute time, throughput, safety"
+  persists: "Lane capacity limits and century-old street geometry"
+  likelyFuture: "Dynamic tolling and coordinated autonomous platoons"

@@ -1,0 +1,20 @@
+title: "Your Study Title"
+slug: your-study-slug
+tagline: "One-line hook describing the phenomenon"
+phenomenon: "One sentence, no jargon — what this phenomenon is"
+featured: false
+tryIt: "One 60-second prompt the reader can do right now."
+hooks:
+  what-exists: "quotable hook for this lens"
+relatedTopics:
+  - queueing-theory
+  - information-theory
+tldr:
+  - "First bullet with stakes — why care today?"
+  - "Second insight."
+  - "Third insight."
+atAGlance:
+  flows: "What moves through the system"
+  optimizes: "What the system is trying to improve"
+  persists: "What stays stable across change"
+  likelyFuture: "Plausible near-term trajectory"

@@ -17,7 +17,16 @@ export type LensSlug =
   | "what-emerges"
   | "what-will-happen";
 
-export type StudySlug = "sleep" | "blood-circulation" | "the-office-as-a-computer";
+export type StudySlug =
+  | "sleep"
+  | "blood-circulation"
+  | "the-office-as-a-computer"
+  | "global-supply-chains"
+  | "photosynthesis"
+  | "internet-routing"
+  | "the-immune-system"
+  | "urban-traffic-networks"
+  | "power-grids";
 
 export interface LensPassNotes {
   light?: string;
@@ -51,6 +60,10 @@ export interface DrishtiPassState {
       }
     >
   >;
+  completedAt?: string;
+  echoDismissed?: boolean;
+  echoAnswer?: "yes" | "changed";
+  relatedStudySlug?: StudySlug;
 }
 
 const IDK_PATTERN =

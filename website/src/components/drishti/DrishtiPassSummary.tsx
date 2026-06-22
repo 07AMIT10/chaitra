@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import hints from "../../data/drishti/pass-hints.json";
 import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
 import { generateLetter, generateMirror } from "../../lib/drishti-mirror";
@@ -9,6 +9,8 @@ import {
   type DrishtiPassState,
   type LensSlug,
 } from "../../lib/drishti-pass";
+import { DrishtiWhatsNext } from "./DrishtiWhatsNext";
+import { trackDrishti } from "../../lib/drishti-analytics";
 
 type HintEntry = {
   microExample: string;
@@ -26,6 +28,8 @@ type Props = {
   onNewPass: () => void;
   onDone: () => void;
   storageWarning?: string | null;
+  showWhatsNext?: boolean;
+  scrollToBeforeAfter?: boolean;
 };
 
 export function DrishtiPassSummary({
@@ -37,11 +41,20 @@ export function DrishtiPassSummary({
   onNewPass,
   onDone,
   storageWarning,
+  showWhatsNext = true,
+  scrollToBeforeAfter = false,
 }: Props) {
   const [showInsightEdit, setShowInsightEdit] = useState(false);
   const { mirrorText } = generateMirror(pass);
   const letter = pass.letter ?? generateLetter(pass);
   const gaps = detectGaps(pass).slice(0, 2);
+
+  useEffect(() => {
+    if (!scrollToBeforeAfter) return;
+    document
+      .getElementById("drishti-mirror-before-after-heading")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [scrollToBeforeAfter]);
 
   return (
     <div className="drishti-mirror-room" data-depth={pass.depth}>
@@ -161,7 +174,9 @@ export function DrishtiPassSummary({
         <div className="drishti-mirror-confirm__actions">
           <button
             type="button"
+            data-analytics="mirror-confirmed"
             onClick={() => {
+              trackDrishti("mirror-confirmed");
               onMirrorConfirmed?.(true);
               if (!pass.insight?.trim() && pass.nowSentence?.trim()) {
                 onInsightChange(pass.nowSentence.trim());
@@ -198,11 +213,14 @@ export function DrishtiPassSummary({
             const slug = lens.slug as LensSlug;
             const text = lensNoteForSummary(pass, slug);
             return (
-              <li key={slug}>
-                <span className="drishti-mirror-receipt__lens">
-                  {lens.glyph} {lens.title}
-                </span>
-                <span>{text || "—"}</span>
+              <li key={slug} className="drishti-mirror-receipt__row">
+                <p className="drishti-mirror-receipt__lens">
+                  <span className="drishti-mirror-receipt__glyph" aria-hidden="true">
+                    {lens.glyph}
+                  </span>
+                  <span className="drishti-mirror-receipt__label">{lens.title}</span>
+                </p>
+                <p className="drishti-mirror-receipt__note">{text || "—"}</p>
               </li>
             );
           })}
@@ -226,6 +244,10 @@ export function DrishtiPassSummary({
           Done
         </button>
       </div>
+
+      {showWhatsNext && (
+        <DrishtiWhatsNext pass={pass} onNewPass={onNewPass} />
+      )}
     </div>
   );
 }

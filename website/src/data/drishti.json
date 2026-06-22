@@ -113,6 +113,7 @@
       "folder": "BLOOD_CIRCULATION",
       "title": "Blood Circulation",
       "tagline": "A closed-loop delivery network with a central pump",
+      "phenomenon": "A closed loop where the heart schedules and vessels queue",
       "tldr": [
         "Blood is a transport layer for O₂, nutrients, and signals.",
         "The heart schedules work; vessels are queues with capacity limits.",
@@ -136,10 +137,11 @@
       "folder": "GLOBAL_SUPPLY_CHAINS",
       "title": "Global Supply Chains",
       "tagline": "The physical queueing network routing goods across the planet",
+      "phenomenon": "Atoms routed across the planet behind a Buy Now illusion",
       "tldr": [
-        "Supply chains are massive queueing networks where physical buffers mask deep latency.",
-        "Just-in-time manufacturing removes these buffers, increasing fragility to local shocks.",
-        "The bullwhip effect causes small demand shifts to mathematically amplify upstream."
+        "A container ship is a moving warehouse — lean inventory removed the shock absorbers.",
+        "Canals and ports are rate limiters; one jam starves everything downstream.",
+        "Watch port dwell time, not press releases, to see if resilience is real."
       ],
       "relatedTopics": [
         "queueing-theory",
@@ -147,10 +149,10 @@
         "mapreduce"
       ],
       "atAGlance": {
-        "flows": "Raw materials, sub-assemblies, capital, information",
-        "optimizes": "Cost minimization and capital velocity",
-        "persists": "Physical transport latency and geographic choke points",
-        "likelyFuture": "Resilience over efficiency; localized parallel supply graphs"
+        "flows": "Containers, invoices, raw materials, finished goods",
+        "optimizes": "Cost per unit and capital velocity",
+        "persists": "Ocean transit time, crane physics, geography",
+        "likelyFuture": "Regional buffers return; lean JIT loses another round"
       },
       "hasPage": true
     },
@@ -158,11 +160,12 @@
       "slug": "internet-routing",
       "folder": "INTERNET_ROUTING",
       "title": "Internet Routing",
-      "tagline": "The decentralized gossip protocol that built the modern world",
+      "tagline": "No center — just routers gossiping paths to neighbors",
+      "phenomenon": "The internet is a map nobody owns, rebuilt every time a cable breaks",
       "tldr": [
-        "The Internet has no center; routing is a continuous, decentralized gossip protocol.",
-        "Routers only know their immediate neighbors, building global paths through local trust.",
-        "BGP (Border Gateway Protocol) relies entirely on trust, making it highly vulnerable."
+        "There is no center — routing is routers trusting neighbor gossip.",
+        "A misconfigured BGP announcement can black-hole YouTube for an hour.",
+        "Watch hijack frequency and peering diversity, not press releases about resilience."
       ],
       "relatedTopics": [
         "gossip-protocols",
@@ -170,10 +173,10 @@
         "scalable-architectures"
       ],
       "atAGlance": {
-        "flows": "Data packets, BGP update messages, and optical light pulses",
-        "optimizes": "Path shortest-distance and network reachability",
-        "persists": "The core TCP/IP protocol suite and physical fiber lines",
-        "likelyFuture": "Software-defined networking overriding default BGP paths"
+        "flows": "IP packets, BGP updates, light pulses in fiber",
+        "optimizes": "Reachability at lowest hop count",
+        "persists": "TCP/IP, BGP, and glass under oceans",
+        "likelyFuture": "Private backbones bypass public gossip"
       },
       "hasPage": true
     },
@@ -181,11 +184,12 @@
       "slug": "photosynthesis",
       "folder": "PHOTOSYNTHESIS",
       "title": "Photosynthesis",
-      "tagline": "The scalable biological architecture powering the entire planet",
+      "tagline": "The leaf-scale engine feeding every food chain",
+      "phenomenon": "Sunlight converted to sugar one chloroplast at a time",
       "tldr": [
-        "Photosynthesis is an extremely parallelized, solar-powered energy conversion pipeline.",
-        "It trades thermodynamic efficiency for massive, low-cost scale across the Earth's surface.",
-        "The system acts as an atmospheric buffer, absorbing excess carbon through distributed nodes."
+        "A leaf is a solar panel you can pick — chloroplasts do the conversion.",
+        "Water from roots, not sunshine, is usually the bottleneck.",
+        "Track growing-season water tables to forecast crop stress, not hype cycles."
       ],
       "relatedTopics": [
         "scalable-architectures",
@@ -193,10 +197,10 @@
         "distributed-systems"
       ],
       "atAGlance": {
-        "flows": "Photons, electrons, carbon dioxide, and water",
-        "optimizes": "Energy capture surface area and robust reproduction",
-        "persists": "The fundamental biochemistry of the chloroplast",
-        "likelyFuture": "Engineered crops optimized for higher photosynthetic yield"
+        "flows": "Photons, water, CO₂, glucose, oxygen",
+        "optimizes": "Sugar per acre and reproduction success",
+        "persists": "Chloroplast biochemistry across all green plants",
+        "likelyFuture": "Engineered yield gains vs heat-stress losses"
       },
       "hasPage": true
     },
@@ -204,11 +208,12 @@
       "slug": "power-grids",
       "folder": "POWER_GRIDS",
       "title": "Power Grids",
-      "tagline": "The real-time synchronization of massive physical energy",
+      "tagline": "A continent juggling megawatts with nowhere to stash the spare",
+      "phenomenon": "A continent juggling megawatts with nowhere to store the spare",
       "tldr": [
-        "Power grids are extreme distributed systems operating without a central battery buffer.",
-        "Generation must exactly match demand at every second to maintain a stable 60Hz or 50Hz frequency.",
-        "Cascading failures occur when rate limits are exceeded, demonstrating non-linear vulnerability."
+        "The grid is synchronized spinning metal — not a tank of electricity waiting to pour.",
+        "Generation must match demand every second or frequency drifts off 60 Hz.",
+        "Watch reserve margins and line thermal ratings, not renewable percentage press releases."
       ],
       "relatedTopics": [
         "scalable-architectures",
@@ -216,10 +221,10 @@
         "distributed-systems"
       ],
       "atAGlance": {
-        "flows": "Electricity, phase synchronization signals, reactive power",
-        "optimizes": "Voltage stability, frequency synchronization, load balancing",
-        "persists": "The physical laws of electromagnetism, topological constraints",
-        "likelyFuture": "Decentralized microgrids replacing centralized monolithic plants"
+        "flows": "Electrons as waves, phase signals, reactive power",
+        "optimizes": "Frequency stability and voltage balance",
+        "persists": "60/50 Hz physics and Kirchhoff's laws",
+        "likelyFuture": "Virtual power plants from rooftops and EVs"
       },
       "hasPage": true
     },
@@ -228,6 +233,7 @@
       "folder": "SLEEP",
       "title": "Sleep",
       "tagline": "The brain's nightly maintenance and memory compiler",
+      "phenomenon": "Sleep debt is a queue you can't delete — only drain",
       "tldr": [
         "Sleep is regulated feedback, not a single switch.",
         "The brain clears waste, consolidates memory, and resets learning capacity.",
@@ -250,11 +256,12 @@
       "slug": "the-immune-system",
       "folder": "THE_IMMUNE_SYSTEM",
       "title": "The Immune System",
-      "tagline": "A decentralized, probabilistic defense and spam detection network",
+      "tagline": "Billions of cells with no boss, learning who to attack",
+      "phenomenon": "A body that trains defenders by shuffling DNA and killing mistakes",
       "tldr": [
-        "The immune system is a distributed spam filter probabilistically identifying self from non-self.",
-        "It uses randomly generated, combinatorial keys to match unknown zero-day attacks.",
-        "Memory cells persist as a cached database of past signatures for rapid secondary responses."
+        "No central command — macrophages, T-cells, and B-cells bump and read molecular tags.",
+        "Autoimmune disease is friendly fire when self/non-self classification fails.",
+        "Watch flare frequency and recovery time, not supplement marketing."
       ],
       "relatedTopics": [
         "spam-detection",
@@ -262,10 +269,10 @@
         "statistical-learning"
       ],
       "atAGlance": {
-        "flows": "White blood cells, cytokines, antigens, and antibodies",
-        "optimizes": "Pathogen neutralization while minimizing collateral damage",
-        "persists": "The core genetic blueprint for generating diversity",
-        "likelyFuture": "Engineered immune agents and targeted mRNA programming"
+        "flows": "White blood cells, cytokines, antigens, antibodies",
+        "optimizes": "Neutralize threats without destroying the host",
+        "persists": "V(D)J recombination blueprint and memory cells",
+        "likelyFuture": "Programmable mRNA and CAR-T precision"
       },
       "hasPage": true
     },
@@ -274,6 +281,7 @@
       "folder": "THE_OFFICE_AS_A_COMPUTER",
       "title": "The Office as a Computer",
       "tagline": "A room that converts energy into information",
+      "phenomenon": "A room that converts electricity into decisions",
       "tldr": [
         "The office is an energy→information conversion machine.",
         "Employees, email, and docs form a distributed computer.",
@@ -297,11 +305,12 @@
       "slug": "urban-traffic-networks",
       "folder": "URBAN_TRAFFIC_NETWORKS",
       "title": "Urban Traffic Networks",
-      "tagline": "Fluid dynamics and phase transitions on municipal asphalt",
+      "tagline": "Asphalt graphs where cars are packets you can't drop",
+      "phenomenon": "A grid where cars are packets you can't drop when the queue backs up",
       "tldr": [
-        "Traffic behaves like a fluid until a critical density, where it undergoes a sudden phase transition into a solid jam.",
-        "Adding more roads often increases congestion due to induced demand (Braess's Paradox).",
-        "Throughput is determined entirely by the clearing rate of bottleneck intersections, not by highway speed limits."
+        "A traffic jam is a wave — you can't point to it, only cars trapped inside it.",
+        "Throughput is set by the slowest intersection, not the fastest highway.",
+        "Watch bottleneck clearing rate and induced-demand studies, not lane-count headlines."
       ],
       "relatedTopics": [
         "queueing-theory",
@@ -309,10 +318,10 @@
         "power-of-two-choices"
       ],
       "atAGlance": {
-        "flows": "Vehicles, pedestrians, transit, and localized emissions",
-        "optimizes": "Commute times, throughput density, and safety",
-        "persists": "The physical grid layout and maximum roadway capacity limits",
-        "likelyFuture": "Dynamic algorithmic tolling and autonomous vehicle coordination"
+        "flows": "Vehicles, pedestrians, transit, emissions",
+        "optimizes": "Commute time, throughput, safety",
+        "persists": "Lane capacity limits and century-old street geometry",
+        "likelyFuture": "Dynamic tolling and coordinated autonomous platoons"
       },
       "hasPage": true
     }

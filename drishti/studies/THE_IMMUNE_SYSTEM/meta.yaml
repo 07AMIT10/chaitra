@@ -1,16 +1,20 @@
 title: "The Immune System"
 slug: the-immune-system
-tagline: "A decentralized, probabilistic defense and spam detection network"
+tagline: "Billions of cells with no boss, learning who to attack"
+phenomenon: "A body that trains defenders by shuffling DNA and killing mistakes"
+tryIt: "Notice where a cut reddens first — that's the local chemical alarm."
+hooks:
+  what-exists: "no immune control room"
 relatedTopics:
   - spam-detection
   - large-scale-multi-agent-systems
   - statistical-learning
 tldr:
-  - "The immune system is a distributed spam filter probabilistically identifying self from non-self."
-  - "It uses randomly generated, combinatorial keys to match unknown zero-day attacks."
-  - "Memory cells persist as a cached database of past signatures for rapid secondary responses."
+  - "No central command — macrophages, T-cells, and B-cells bump and read molecular tags."
+  - "Autoimmune disease is friendly fire when self/non-self classification fails."
+  - "Watch flare frequency and recovery time, not supplement marketing."
 atAGlance:
-  flows: "White blood cells, cytokines, antigens, and antibodies"
-  optimizes: "Pathogen neutralization while minimizing collateral damage"
-  persists: "The core genetic blueprint for generating diversity"
-  likelyFuture: "Engineered immune agents and targeted mRNA programming"
+  flows: "White blood cells, cytokines, antigens, antibodies"
+  optimizes: "Neutralize threats without destroying the host"
+  persists: "V(D)J recombination blueprint and memory cells"
+  likelyFuture: "Programmable mRNA and CAR-T precision"

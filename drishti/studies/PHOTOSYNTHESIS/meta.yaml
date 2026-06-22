@@ -1,16 +1,20 @@
 title: "Photosynthesis"
 slug: photosynthesis
-tagline: "The scalable biological architecture powering the entire planet"
+tagline: "The leaf-scale engine feeding every food chain"
+phenomenon: "Sunlight converted to sugar one chloroplast at a time"
+tryIt: "Hold a leaf to the light — the green is the antenna, not the fuel."
+hooks:
+  what-exists: "solar panel you can hold"
 relatedTopics:
   - scalable-architectures
   - information-theory
   - distributed-systems
 tldr:
-  - "Photosynthesis is an extremely parallelized, solar-powered energy conversion pipeline."
-  - "It trades thermodynamic efficiency for massive, low-cost scale across the Earth's surface."
-  - "The system acts as an atmospheric buffer, absorbing excess carbon through distributed nodes."
+  - "A leaf is a solar panel you can pick — chloroplasts do the conversion."
+  - "Water from roots, not sunshine, is usually the bottleneck."
+  - "Track growing-season water tables to forecast crop stress, not hype cycles."
 atAGlance:
-  flows: "Photons, electrons, carbon dioxide, and water"
-  optimizes: "Energy capture surface area and robust reproduction"
-  persists: "The fundamental biochemistry of the chloroplast"
-  likelyFuture: "Engineered crops optimized for higher photosynthetic yield"
+  flows: "Photons, water, CO₂, glucose, oxygen"
+  optimizes: "Sugar per acre and reproduction success"
+  persists: "Chloroplast biochemistry across all green plants"
+  likelyFuture: "Engineered yield gains vs heat-stress losses"

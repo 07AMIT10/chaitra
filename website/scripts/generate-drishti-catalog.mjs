@@ -137,7 +137,7 @@ const topicIndex = {};
 
 const studyDirs = fs
   .readdirSync(path.join(DRISHTI_ROOT, "studies"), { withFileTypes: true })
-  .filter((e) => e.isDirectory());
+  .filter((e) => e.isDirectory() && !e.name.startsWith("_"));
 
 for (const e of studyDirs) {
   const metaPath = path.join(DRISHTI_ROOT, "studies", e.name, "meta.yaml");
@@ -149,6 +149,7 @@ for (const e of studyDirs) {
     folder: e.name,
     title: meta.title,
     tagline: meta.tagline ?? "",
+    phenomenon: meta.phenomenon ?? "",
     tldr: meta.tldr ?? [],
     relatedTopics: meta.relatedTopics ?? [],
     atAGlance: meta.atAGlance ?? {},

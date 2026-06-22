@@ -10,6 +10,7 @@ import {
   type DrishtiPassState,
   type LensSlug,
 } from "../../lib/drishti-pass";
+import { finalizePassState, markSessionComplete } from "../../lib/drishti-return";
 import { DrishtiPassStep } from "./DrishtiPassStep";
 import { DrishtiPassSummary } from "./DrishtiPassSummary";
 
@@ -57,12 +58,12 @@ export function DeepPassWizard({ passId }: Props) {
   };
 
   const finish = () => {
-    const completed = ensurePassMirrorFields({
-      ...pass,
-      depth: "deep",
-      status: "complete",
-      currentStep: step,
-    });
+    const completed = finalizePassState(
+      { ...pass, currentStep: step },
+      "deep"
+    );
+    markSessionComplete(sessionStorage, completed.passId);
+    window.dispatchEvent(new Event("drishti:passes-updated"));
     persist(completed);
     setShowSummary(true);
   };
@@ -72,6 +73,7 @@ export function DeepPassWizard({ passId }: Props) {
       <DrishtiPassSummary
         pass={pass}
         storageWarning={storageWarning}
+        showWhatsNext
         onInsightChange={(insight) => persist({ ...pass, insight })}
         onNowSentenceChange={(nowSentence) => persist({ ...pass, nowSentence })}
         onMirrorConfirmed={(confirmed) =>

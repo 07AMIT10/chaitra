@@ -1,7 +1,10 @@
-**Takeaway: Flow is determined by the slowest node, not the fastest edge.**
+**Flow dies at the slowest intersection, not the fastest lane.**
 
-Vehicles flow through the network until they reach an intersection or merge point. These nodes act as strict rate limiters. If the arrival rate at an on-ramp exceeds the rate at which cars can merge, a localized queue rapidly forms.
+```mermaid
+flowchart LR
+  Hwy[Highway lanes] --> Merge[Merge point]
+  Merge --> Light[Signal intersection]
+  Light --> City[City grid]
+```
 
-Once this queue spills back into upstream intersections, gridlock occurs. At this point, the network effectively locks up, as cars cannot enter an intersection because the exit is blocked. The flow rate drops to zero, despite the physical road remaining perfectly intact.
-
-Highway speed limits are largely irrelevant to total network flow during peak hours. The true determinant of throughput is the clearing rate of the most constrained intersections—the literal bottlenecks where multi-lane highways compress into city streets.
+On-ramps exceed merge rate and queues spill backward. Gridlock: cars block intersections because exits are full — flow hits zero on intact asphalt. [Queueing theory](/topics/queueing-theory): speed limits barely matter at peak; clearing rate at bottlenecks does.

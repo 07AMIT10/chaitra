@@ -1,6 +1,7 @@
 title: "Sleep"
 slug: sleep
 tagline: "The brain's nightly maintenance and memory compiler"
+phenomenon: "Sleep debt is a queue you can't delete — only drain"
 relatedTopics:
   - statistical-learning
   - queueing-theory
@@ -14,3 +15,5 @@ atAGlance:
   optimizes: "Next-day performance and long-term memory"
   persists: "Circadian rhythm, sleep architecture stages"
   likelyFuture: "Personalized chronotherapy; wearables as early warning"
+tryIt: "Tonight, note minutes until sleepy — not cups of coffee."
+featured: true

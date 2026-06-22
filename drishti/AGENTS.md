@@ -8,11 +8,78 @@ A **study** applies all seven Drishti lenses to one real-world phenomenon (e.g. 
 
 Routes after sync: `/drishti/studies/[slug]` (slug comes from `meta.yaml`).
 
+**Critical:** Readers see the **accordion** (`what-*.md`), not `README.md`. Write for the accordion; README is long-form authoring reference.
+
+## Voice D (editorial north star)
+
+**Feel after finishing:** surprise first (playful pattern-spotter), then something usable Monday (guided practitioner).
+
+| Beat | Rule | Gold example |
+|------|------|--------------|
+| **Hook** | First sentence quotable; one concrete object | Office: "agreements wearing furniture" |
+| **Lens body** | ≤80 words **or** bullets/table; no `**Takeaway:**` label | Bold hook line, not academic header |
+| **Practitioner close** | One 60-second try-it in `meta.yaml` `tryIt` | "Count countries on your desk object label" |
+| **Forecast** | Leading indicators; no fake % | Sleep: time-to-fall-asleep, not coffee count |
+
+### Brainrot antidote test
+
+Would this sentence work in a group chat?
+
+- ✅ "Sleep debt is a queue you can't delete."
+- ❌ "Photosynthesis is an extremely parallelized pipeline."
+
+### Gold vs anti-pattern
+
+| Gold | Anti-pattern |
+|------|--------------|
+| `THE_OFFICE_AS_A_COMPUTER/what-exists.md` — "agreements wearing furniture" | `THE_IMMUNE_SYSTEM/what-exists.md` — distributed spam filter opener |
+| `SLEEP/what-will-happen.md` — leading indicators, no fake % | `POWER_GRIDS/what-will-happen.md` — Prior/Posterior template |
+| `BLOOD_CIRCULATION/what-flows.md` — queue timeout, inline topic link | `PHOTOSYNTHESIS/README.md` (old) — parallelized pipeline opener |
+
+### Banned phrases (lint-enforced)
+
+- `Furthermore,`
+- `What also exists are`
+- `**Takeaway:**` (use plain bold hook instead)
+- `Prior:` / `Posterior:` without real cited numbers
+- Filler: `fundamentally`, `incredibly`, `massive` (when not describing a measurable quantity)
+- Opener: "planetary-scale distributed system"
+
+### Hard caps
+
+- `what-*.md` ≤80 words unless table or mermaid fence
+- Max 3 sentences per paragraph
+- One concrete named object per study minimum
+- One non-empty `tryIt` in `meta.yaml`
+
+## 14-dimension rubric
+
+Score each study **0–2** per dimension (0 = fail, 1 = pass, 2 = exemplar). **Publish threshold: ≥20/28.**
+
+| # | Dimension | 0 | 2 (exemplar) |
+|---|-----------|---|--------------|
+| 1 | Hook density | Generic textbook opener | Study-specific, quotable |
+| 2 | Concrete anchor | No physical object in first 100 words | Named object you could photograph |
+| 3 | `what-*.md` word count | >120 words per lens | ≤80 words OR bullets/table |
+| 4 | Paragraph brevity | Any paragraph >3 sentences | All ≤3 sentences |
+| 5 | Lens shape variety | All 7 lenses are 3 prose paragraphs | ≥2 lenses use bullets, table, or diagram |
+| 6 | Metaphor budget | >3 CS metaphors in one study | ≤1 forced metaphor; rest plain language |
+| 7 | Banned phrase scan | Contains banned phrases | None |
+| 8 | TL;DR stake test | All three bullets are definitions | ≥1 bullet implies human consequence |
+| 9 | Try-it moment | None | ≥1 prompt reader can do in 60 seconds |
+| 10 | Forecasting honesty | Fake % branches | Named indicators + what would change your mind |
+| 11 | Phenomenon on site | Not synced | One-liner in rendered page hero (Phase 2) |
+| 12 | Curriculum bridge in body | Topics only in footer | ≥1 inline `/topics/` link in a lens file |
+| 13 | Pass excerpt quality | Missing or generic | ≤25 words, study-specific hook |
+| 14 | README ≠ accordion | `what-*.md` copies README verbatim | Accordion compressed; README expanded |
+
+Self-score before shipping. Copy template from `drishti/studies/_TEMPLATE/` (Office-based), not SLEEP alone.
+
 ## Directory structure template
 
 ```
 drishti/studies/YOUR_STUDY_NAME/
-├── README.md              # full narrative (hub preview; optional for sync, required for authors)
+├── README.md              # long-form narrative (authoring; not synced to accordion)
 ├── meta.yaml              # catalog metadata (required)
 ├── what-exists.md         # one file per lens (all seven required)
 ├── what-changes.md
@@ -23,36 +90,26 @@ drishti/studies/YOUR_STUDY_NAME/
 └── what-will-happen.md
 ```
 
-**Folder naming:** `SCREAMING_SNAKE_CASE` (e.g. `YOUR_STUDY_NAME`, `BLOOD_CIRCULATION`).  
-**URL slug:** kebab-case in `meta.yaml` (e.g. `your-study-name`). If omitted, sync derives slug from folder name.
+**Folder naming:** `SCREAMING_SNAKE_CASE`.  
+**URL slug:** kebab-case in `meta.yaml`.
 
-**Lens order** (fixed everywhere):
-
-1. `what-exists` → 2. `what-changes` → 3. `what-flows` → 4. `what-learns` → 5. `what-persists` → 6. `what-emerges` → 7. `what-will-happen`
-
-Lens slugs are defined in `website/src/data/drishti-lenses.json`; do not invent new lens filenames.
-
-## Required files
-
-| File | Purpose |
-|------|---------|
-| `meta.yaml` | Title, slug, tagline, TL;DR, related topics, at-a-glance fields |
-| `what-*.md` (×7) | Short lens-specific body for the study page accordion |
-| `README.md` | Full case study with TL;DR, phenomenon, all seven sections (authoring reference; not synced to MDX index) |
-
-Sync **requires** `meta.yaml` and all seven `what-*.md` files. Missing files log warnings and leave gaps on the site.
+**Lens order** (fixed): `what-exists` → `what-changes` → `what-flows` → `what-learns` → `what-persists` → `what-emerges` → `what-will-happen`
 
 ## `meta.yaml` schema
 
 ```yaml
-title: "Human-readable title"       # required — page H1 source
-slug: your-study-name               # optional — kebab-case URL; defaults from folder name
+title: "Human-readable title"       # required
+slug: your-study-name               # optional — defaults from folder name
 tagline: "One-line hook"            # optional — subtitle under title
+phenomenon: "One sentence, no jargon"   # optional — sync to study hero (Phase 2)
+featured: true                      # optional — hub ordering
+tryIt: "60-second practitioner prompt"  # required — lint error if empty
+hooks:                              # optional — per-lens one-liners for Pass
+  what-exists: "quotable hook"
 relatedTopics:                      # required — topic slugs from website/src/data/topics.json
   - queueing-theory
-  - statistical-learning
-tldr:                               # required — exactly 3 bullets (site + catalog)
-  - "First insight."
+tldr:                               # required — exactly 3 bullets
+  - "First insight with stakes."
   - "Second insight."
   - "Third insight."
 atAGlance:                          # required — four one-line summaries
@@ -62,133 +119,71 @@ atAGlance:                          # required — four one-line summaries
   likelyFuture: "Plausible near-term trajectory"
 ```
 
-**Field rules:**
-
-- `relatedTopics` entries must match existing curriculum topic slugs or links break.
-- `tldr` must have **3** bullets (site components assume three).
-- Quote strings that contain colons or special YAML characters.
-- `atAGlance` keys are fixed; all four strings should be non-empty.
-
 ## Authoring rules (summary)
 
 Follow [AUTHORING.md](./AUTHORING.md) in full. Minimum for agents:
 
-1. **TL;DR** — 3 bullets at top of `README.md`; mirror in `meta.yaml`.
-2. **Bold one-line takeaway** at the start of each lens section in `README.md`.
-3. **Max 2–3 sentences** per paragraph; bullets over prose walls.
-4. Each `what-*.md` file: 1–3 short paragraphs or a tight bullet list (see `drishti/studies/SLEEP/what-exists.md`).
-5. **`what-will-happen`** — include forecasting flavor (branches, leading indicators, or a small table); see SLEEP example.
-6. Plain language first; link curriculum concepts via `relatedTopics`, not inline jargon dumps.
+1. **Write for the accordion** — `what-*.md` is what users read; README is expanded reference.
+2. **TL;DR** — 3 bullets; ≥1 answers "why should I care today?"; mirror in `meta.yaml`.
+3. **Bold hook** at start of each lens file (no `**Takeaway:**` label).
+4. **≤80 words** per `what-*.md` unless table/diagram.
+5. **`what-will-happen`** — branches + leading indicators; no fake Bayesian %.
+6. **Run lint before sync:** `cd website && npm run lint:drishti-content`
 
 ## Step-by-step: add a new study
 
-### 1. Create the study folder
+### 1. Copy template
 
 ```bash
-mkdir -p drishti/studies/YOUR_STUDY_NAME
+cp -r drishti/studies/_TEMPLATE drishti/studies/YOUR_STUDY_NAME
 ```
 
-Copy structure from `drishti/studies/SLEEP/` as a template.
+### 2. Write content
 
-### 2. Write `meta.yaml` and lens files
+- Fill `meta.yaml` including `tryIt`.
+- Write all seven `what-*.md` files (Voice D, accordion-first).
+- Write `README.md` long-form (can expand beyond 80 words per section).
 
-- Fill all fields in `meta.yaml`.
-- Write all seven `what-*.md` files using the lens questions from `drishti-lenses.json`.
-- Write `README.md` with full narrative (phenomenon + seven sections).
-
-### 3. Sync to the website
-
-From repo root:
+### 3. Lint + sync
 
 ```bash
 cd website
-npm run catalog:drishti    # regenerates website/src/data/drishti.json
-npm run sync:drishti       # copies lens/study content → website/src/content/drishti/
+npm run lint:drishti-content
+npm run catalog:drishti
+npm run sync:drishti
 ```
-
-Or run both via build (catalog runs before sync):
-
-```bash
-cd website && npm run build
-```
-
-**Do not hand-edit** generated files under `website/src/content/drishti/studies/<slug>/` except by re-running sync after changing source in `drishti/`.
 
 ### 4. Verify
 
 ```bash
-cd website
-npm run catalog:drishti && npm run sync:drishti
-npm run test:drishti-pass   # if pass logic touched
-npm run build               # full Astro build
+npm run test:drishti-pass
+npm run build
 ```
 
-Confirm:
+Confirm study renders at `/drishti/studies/<slug>`.
 
-- Study appears in `website/src/data/drishti.json` → `studies` array.
-- `website/src/content/drishti/studies/<slug>/index.mdx` exists.
-- All seven lens markdown files exist under that directory.
-- `/drishti/studies/<slug>` renders locally (`npm run dev`).
+### 5. Pass excerpts (if Return Loop should bridge)
 
-### 5. Optional: Drishti Pass excerpts
-
-If the study should appear in **Drishti Pass** step excerpts, add entries under `website/src/data/drishti/pass-excerpts.json` (keyed by lens slug → study slug). This file is **manual**, not generated by sync.
-
-## Example: `YOUR_STUDY_NAME`
-
-```
-drishti/studies/YOUR_STUDY_NAME/meta.yaml
-```
-
-```yaml
-title: "Your Study Name"
-slug: your-study-name
-tagline: "One sentence describing the phenomenon"
-relatedTopics:
-  - information-theory
-  - queueing-theory
-tldr:
-  - "Core framing bullet one."
-  - "Core framing bullet two."
-  - "Core framing bullet three."
-atAGlance:
-  flows: "Primary flows in this system"
-  optimizes: "What success looks like"
-  persists: "Stable structure or invariants"
-  likelyFuture: "Reasonable forecast hook"
-```
-
-```
-drishti/studies/YOUR_STUDY_NAME/what-exists.md
-```
-
-```markdown
-**One bold takeaway sentence.**
-
-Two or three short sentences explaining what genuinely exists vs what is agreed-upon or emergent label.
-```
-
-Repeat for `what-changes.md` through `what-will-happen.md`, then author full `README.md` per [AUTHORING.md](./AUTHORING.md).
+Add entries under `website/src/data/drishti/pass-excerpts.json` (≤25 words, hook-shaped).
 
 ## Common mistakes
 
 | Mistake | Fix |
 |---------|-----|
-| Editing only `website/src/content/drishti/` | Edit `drishti/studies/` and re-run sync |
-| Wrong lens filename (e.g. `what_exist.md`) | Use kebab-case slugs from `drishti-lenses.json` |
-| Missing `meta.yaml` | Study skipped entirely by catalog + sync |
+| Optimizing README only | Accordion `what-*.md` is the synced UX |
+| `**Takeaway:**` labels | Bold hook without label |
+| Missing `tryIt` | Add 60-second prompt to `meta.yaml` |
+| Skipping lint | `npm run lint:drishti-content` before sync |
+| Editing `website/src/content/drishti/` by hand | Edit `drishti/studies/` and re-sync |
 | Invalid `relatedTopics` slug | Check `website/src/data/topics.json` |
-| Fewer than 3 TL;DR bullets | Add exactly 3 in `meta.yaml` and README |
-| Forgetting sync after new study | Run `npm run catalog:drishti && npm run sync:drishti` |
-| Empty `atAGlance` field | Fill all four keys; Astro schema requires them |
-| Duplicate slug | Slugs must be unique across studies |
 
 ## Related paths
 
 | Path | Role |
 |------|------|
-| `drishti/AUTHORING.md` | Human voice, templates, ADHD-friendly rules |
-| `drishti/README.md` | Overview of Drishti tree |
+| `drishti/AUTHORING.md` | Human voice, templates |
+| `drishti/studies/_TEMPLATE/` | Office-based Voice D template |
+| `drishti/studies/THE_OFFICE_AS_A_COMPUTER/` | Gold exemplar |
+| `website/scripts/lint-drishti-content.mjs` | Content quality CI |
 | `website/scripts/sync-drishti.mjs` | Source → content sync |
-| `website/scripts/generate-drishti-catalog.mjs` | Builds `drishti.json` catalog |
-| `website/src/content.config.ts` | Astro collection schemas for drishti content |
+| `website/src/data/drishti/pass-excerpts.json` | Pass + bridge excerpts |

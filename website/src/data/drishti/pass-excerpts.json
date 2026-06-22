@@ -11,6 +11,30 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "The office is mostly agreements wearing furniture — desks are physical; roles, OKRs, and culture are informational and agreed-upon."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "A container ship is a moving warehouse with no undo — each border crossing is a queue with a bill of lading."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "A leaf is a solar panel you can hold — chloroplasts convert photons into stored sugar."
+    },
+    "internet-routing": {
+      "title": "Internet Routing",
+      "excerpt": "The cloud is someone else's computer — routers, fiber, and IXPs; no central map, only RAM-held topology."
+    },
+    "the-immune-system": {
+      "title": "The Immune System",
+      "excerpt": "No immune control room — cells bump, read antigens; lymph nodes review captured signals."
+    },
+    "urban-traffic-networks": {
+      "title": "Urban Traffic Networks",
+      "excerpt": "A jam is a density wave, not an object — cars can't be dropped when the queue backs up."
+    },
+    "power-grids": {
+      "title": "Power Grids",
+      "excerpt": "Spinning magnets in lockstep — not a battery; every bulb needs matching steam miles away."
     }
   },
   "what-changes": {
@@ -25,6 +49,30 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Headcount, priorities, and remote/hybrid policy drift quarter to quarter while the legal entity persists."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Demand jitters faster than boats — lean inventory turned missing buffers into amplified shocks."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Seasons and drought move faster than leaf repair — a dry week changes capture rate."
+    },
+    "internet-routing": {
+      "title": "Internet Routing",
+      "excerpt": "Cable cuts and viral streams rewrite the graph daily — BGP reroutes in seconds when links die."
+    },
+    "the-immune-system": {
+      "title": "The Immune System",
+      "excerpt": "Pathogens mutate, thymus shrinks, continents change threats — perpetual zero-day biology."
+    },
+    "urban-traffic-networks": {
+      "title": "Urban Traffic Networks",
+      "excerpt": "Rush hour clocks, rain, and stadiums spike arrivals — the crush window widens year by year."
+    },
+    "power-grids": {
+      "title": "Power Grids",
+      "excerpt": "Clouds and wind turned predictable base load into a real-time weather forecast problem."
     }
   },
   "what-flows": {
@@ -39,6 +87,30 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Electricity in; decisions and shipped code out. Bottlenecks: meeting load, review queues, unclear ownership — every standup is a scheduler."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Goods flow downstream; invoices upstream — one port jam starves every shelf behind it."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Photons in; sugar and oxygen out — root water is usually the bottleneck, not sunlight."
+    },
+    "internet-routing": {
+      "title": "Internet Routing",
+      "excerpt": "Packets flow independently; full router queues drop without mercy — TCP backs off as decentralized rate limiting."
+    },
+    "the-immune-system": {
+      "title": "The Immune System",
+      "excerpt": "Cytokines broadcast damage; antibodies tag invaders — concentration sets how hard the panic hits."
+    },
+    "urban-traffic-networks": {
+      "title": "Urban Traffic Networks",
+      "excerpt": "Flow dies at the slowest intersection — gridlock is blocked exits, not broken asphalt."
+    },
+    "power-grids": {
+      "title": "Power Grids",
+      "excerpt": "Energy rides as waves; overloaded lines sag and trip — load reroutes to stressed neighbors instantly."
     }
   },
   "what-learns": {
@@ -53,6 +125,30 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Retrospectives, postmortems, and OKR cycles update team behavior — organizational learning with stored state in docs and habits."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "The bullwhip effect — a 5% retail bump becomes a 40% factory order when every link panics."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Evolution is the feedback loop — Rubisco is slow, abundant, and nobody filed a sprint retro."
+    },
+    "internet-routing": {
+      "title": "Internet Routing",
+      "excerpt": "Routers learn paths by neighbor gossip and trust blindly — bad BGP announcements black-hole traffic globally."
+    },
+    "the-immune-system": {
+      "title": "The Immune System",
+      "excerpt": "V(D)J shuffles DNA, clones winners, kills self-binding T-cells — learning without a dataset file."
+    },
+    "urban-traffic-networks": {
+      "title": "Urban Traffic Networks",
+      "excerpt": "Waze and signal timers fight — shortcuts clog as fast as apps find them."
+    },
+    "power-grids": {
+      "title": "Power Grids",
+      "excerpt": "Relays trip locally; scarcity prices train generators — balance from markets, not one brain."
     }
   },
   "what-persists": {
@@ -67,6 +163,30 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Legal entity, brand, and API contracts persist through reorgs — agreements that survive people churn."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Ocean latency does not negotiate — near-shoring assembly cannot delete Pacific transit time."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Chloroplast chemistry is billions of years old — tweak yields, not physics."
+    },
+    "internet-routing": {
+      "title": "Internet Routing",
+      "excerpt": "TCP/IP and BGP persist from the 1970s — subsea glass still carries most global bits."
+    },
+    "the-immune-system": {
+      "title": "The Immune System",
+      "excerpt": "Memory cells cache old fights for decades — V(D)J machinery survived millions of years of vertebrates."
+    },
+    "urban-traffic-networks": {
+      "title": "Urban Traffic Networks",
+      "excerpt": "One lane clears ~2,000 cars per hour — reaction time sets the cap, not speed limits."
+    },
+    "power-grids": {
+      "title": "Power Grids",
+      "excerpt": "60 Hz is the heartbeat — drift to 59.5 Hz triggers automated load shedding."
     }
   },
   "what-emerges": {
@@ -81,6 +201,30 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Local meeting norms and Slack habits emerge into org culture and shipping velocity without a single culture officer."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Per-supplier lean inventory emergently produced system-wide fragility nobody owned."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Trillions of leaves emergently buffer CO₂ — no leaf sees the planetary ledger."
+    },
+    "internet-routing": {
+      "title": "Internet Routing",
+      "excerpt": "Global reach emerges from local peering — AS7007 mis-announced the whole internet and crashed routing."
+    },
+    "the-immune-system": {
+      "title": "The Immune System",
+      "excerpt": "Cytokine storms and autoimmunity when stop signals fail — herd immunity blocks paths through the population."
+    },
+    "urban-traffic-networks": {
+      "title": "Urban Traffic Networks",
+      "excerpt": "Personal routing creates phantom jams and Braess's Paradox — everyone optimizes alone."
+    },
+    "power-grids": {
+      "title": "Power Grids",
+      "excerpt": "Ohio 2003: one tree branch cascaded into fifty million people dark in minutes."
     }
   },
   "what-will-happen": {
@@ -95,6 +239,30 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Likely futures: AI agents as coworkers, hybrid remote equilibrium — watch hiring plans and tool adoption as leading indicators."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Watch port dwell time and days-inventory — not press releases — to see if resilience is real."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Track growing-season water tables to forecast crop stress — leading indicators beat hype."
+    },
+    "internet-routing": {
+      "title": "Internet Routing",
+      "excerpt": "Watch BGP hijack frequency and private backbone share — leading indicators beat IPv6 press releases."
+    },
+    "the-immune-system": {
+      "title": "The Immune System",
+      "excerpt": "Track CAR-T cost curves and autoimmune trends — not vaccine press-release counts alone."
+    },
+    "urban-traffic-networks": {
+      "title": "Urban Traffic Networks",
+      "excerpt": "Watch intersection clearing rate and toll-zone legislation — not ribbon-cuttings on new lanes."
+    },
+    "power-grids": {
+      "title": "Power Grids",
+      "excerpt": "Track reserve margins and storage MW — not renewable nameplate capacity alone."
     }
   }
 }
