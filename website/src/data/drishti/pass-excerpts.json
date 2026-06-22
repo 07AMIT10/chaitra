@@ -11,6 +11,14 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "The office is mostly agreements wearing furniture — desks are physical; roles, OKRs, and culture are informational and agreed-upon."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "A container ship is a moving warehouse with no undo — each border crossing is a queue with a bill of lading."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "A leaf is a solar panel you can hold — chloroplasts convert photons into stored sugar."
     }
   },
   "what-changes": {
@@ -25,6 +33,14 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Headcount, priorities, and remote/hybrid policy drift quarter to quarter while the legal entity persists."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Demand jitters faster than boats — lean inventory turned missing buffers into amplified shocks."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Seasons and drought move faster than leaf repair — a dry week changes capture rate."
     }
   },
   "what-flows": {
@@ -39,6 +55,14 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Electricity in; decisions and shipped code out. Bottlenecks: meeting load, review queues, unclear ownership — every standup is a scheduler."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Goods flow downstream; invoices upstream — one port jam starves every shelf behind it."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Photons in; sugar and oxygen out — root water is usually the bottleneck, not sunlight."
     }
   },
   "what-learns": {
@@ -53,6 +77,14 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Retrospectives, postmortems, and OKR cycles update team behavior — organizational learning with stored state in docs and habits."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "The bullwhip effect — a 5% retail bump becomes a 40% factory order when every link panics."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Evolution is the feedback loop — Rubisco is slow, abundant, and nobody filed a sprint retro."
     }
   },
   "what-persists": {
@@ -67,6 +99,14 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Legal entity, brand, and API contracts persist through reorgs — agreements that survive people churn."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Ocean latency does not negotiate — near-shoring assembly cannot delete Pacific transit time."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Chloroplast chemistry is billions of years old — tweak yields, not physics."
     }
   },
   "what-emerges": {
@@ -81,6 +121,14 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Local meeting norms and Slack habits emerge into org culture and shipping velocity without a single culture officer."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Per-supplier lean inventory emergently produced system-wide fragility nobody owned."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Trillions of leaves emergently buffer CO₂ — no leaf sees the planetary ledger."
     }
   },
   "what-will-happen": {
@@ -95,6 +143,14 @@
     "the-office-as-a-computer": {
       "title": "The Office as a Computer",
       "excerpt": "Likely futures: AI agents as coworkers, hybrid remote equilibrium — watch hiring plans and tool adoption as leading indicators."
+    },
+    "global-supply-chains": {
+      "title": "Global Supply Chains",
+      "excerpt": "Watch port dwell time and days-inventory — not press releases — to see if resilience is real."
+    },
+    "photosynthesis": {
+      "title": "Photosynthesis",
+      "excerpt": "Track growing-season water tables to forecast crop stress — leading indicators beat hype."
     }
   }
 }

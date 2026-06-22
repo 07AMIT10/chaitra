@@ -304,7 +304,7 @@ syncFramework();
 
 const studyFolders = fs
   .readdirSync(path.join(DRISHTI_ROOT, "studies"), { withFileTypes: true })
-  .filter((e) => e.isDirectory())
+  .filter((e) => e.isDirectory() && !e.name.startsWith("_"))
   .map((e) => e.name);
 
 for (const folder of studyFolders) {

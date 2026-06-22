@@ -4,6 +4,7 @@ import MermaidInit from "../components/MermaidInit.tsx";
 import LensNavigator from "../components/drishti/LensNavigator.astro";
 import { FocusModeToggle } from "../components/drishti/FocusModeToggle.tsx";
 import { DrishtiPassLauncher } from "../components/drishti/DrishtiPassLauncher.tsx";
+import { DrishtiAnalyticsInit } from "../components/drishti/DrishtiAnalyticsInit.tsx";
 import "../styles/narrative.css";
 import "../styles/drishti.css";
 
@@ -89,4 +90,5 @@ const passSourceUrl = Astro.url.pathname;
     studySlug={studySlug}
     initialLens={initialLens}
   />
+  <DrishtiAnalyticsInit client:load />
 </BaseLayout>

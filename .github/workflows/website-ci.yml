@@ -27,6 +27,7 @@ jobs:
       - run: npm run catalog
       - run: npm run catalog:drishti
       - run: npm run sync:drishti
+      - run: npm run lint:drishti-content
       - run: npm run test:links
       - run: npm run test:drishti-pass
       - run: npm run build

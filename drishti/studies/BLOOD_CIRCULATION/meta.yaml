@@ -14,3 +14,5 @@ atAGlance:
   optimizes: "Perfusion to demanding organs"
   persists: "Closed circuit topology, hemoglobin chemistry"
   likelyFuture: "Compensation until decompensation"
+tryIt: "After a flight of stairs, count seconds until breath normalizes."
+featured: true

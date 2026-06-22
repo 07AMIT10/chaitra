@@ -4,6 +4,7 @@ import TldrBox from "../../../components/drishti/TldrBox.astro";
 import AtAGlance from "../../../components/drishti/AtAGlance.astro";
 import LensSectionJump from "../../../components/drishti/LensSectionJump.astro";
 import CurriculumBridge from "../../../components/drishti/CurriculumBridge.astro";
+import { DrishtiStudyBridge } from "../../../components/drishti/DrishtiStudyBridge.tsx";
 import Details from "../../../components/mdx/Details.astro";
 import { getCollection } from "astro:content";
 import { DRISHTI_LENSES } from "../../../lib/drishti-lenses";
@@ -50,6 +51,12 @@ const bridgeTopics = study.relatedTopics
   </div>
 
   <AtAGlance {...study.atAGlance} />
+
+  <DrishtiStudyBridge
+    client:load
+    studySlug={study.slug}
+    studyTitle={study.title}
+  />
 
   <section aria-labelledby="lens-sections-heading">
     <h2 id="lens-sections-heading">Seven lenses on {study.title}</h2>

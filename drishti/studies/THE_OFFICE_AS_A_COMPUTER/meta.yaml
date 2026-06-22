@@ -1,6 +1,11 @@
 title: "The Office as a Computer"
 slug: the-office-as-a-computer
 tagline: "A room that converts energy into information"
+phenomenon: "A room that converts electricity into decisions"
+featured: true
+tryIt: "Count how many apps your team uses to decide one thing — that's your real org chart."
+hooks:
+  what-exists: "agreements wearing furniture"
 relatedTopics:
   - gossip-protocols
   - queueing-theory

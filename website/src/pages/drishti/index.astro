@@ -1,6 +1,7 @@
 ---
 import DrishtiLayout from "../../layouts/DrishtiLayout.astro";
 import LensCard from "../../components/drishti/LensCard.astro";
+import { DrishtiHubReturn } from "../../components/drishti/DrishtiHubReturn.tsx";
 import drishti from "../../data/drishti.json";
 import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
 ---
@@ -28,6 +29,8 @@ import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
       ◎ Apply Drishti to your phenomenon
     </button>
   </section>
+
+  <DrishtiHubReturn client:load />
 
   <section aria-labelledby="lenses-heading">
     <h2 id="lenses-heading">The seven lenses</h2>
