@@ -1,0 +1,16 @@
+title: "Photosynthesis"
+slug: photosynthesis
+tagline: "The scalable biological architecture powering the entire planet"
+relatedTopics:
+  - scalable-architectures
+  - information-theory
+  - distributed-systems
+tldr:
+  - "Photosynthesis is an extremely parallelized, solar-powered energy conversion pipeline."
+  - "It trades thermodynamic efficiency for massive, low-cost scale across the Earth's surface."
+  - "The system acts as an atmospheric buffer, absorbing excess carbon through distributed nodes."
+atAGlance:
+  flows: "Photons, electrons, carbon dioxide, and water"
+  optimizes: "Energy capture surface area and robust reproduction"
+  persists: "The fundamental biochemistry of the chloroplast"
+  likelyFuture: "Engineered crops optimized for higher photosynthetic yield"
