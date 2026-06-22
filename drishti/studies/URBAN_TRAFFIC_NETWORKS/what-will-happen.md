@@ -1,7 +1,9 @@
-**Takeaway: Tolls shift from static fees to algorithmic load balancers.**
+**Branches: platooning, priced roads, or worse gridlock.**
 
-Prior: static infrastructure expansion (adding lanes) consistently failed to solve congestion due to the iron law of induced demand. Evidence: cities like London and Singapore are implementing dynamic congestion pricing to explicitly throttle demand. **Posterior** points to road networks being managed exactly like cloud infrastructure, where surge pricing aggressively shapes user behavior to prevent network saturation.
+| Branch | Leading indicator |
+|--------|-------------------|
+| AV platooning gains density | permitted following distance in pilots |
+| Congestion pricing works | vehicle-miles traveled in tolled zones |
+| Sprawl wins politically | lane-miles added without VMT drop |
 
-Branches: (A) Autonomous vehicle platooning safely decreases following distance, increasing lane density by 40%, (B) Aggressive congestion pricing successfully reduces total urban vehicle miles 35%, (C) Continued sprawl and political resistance to tolling lead to worse gridlock 25%.
-
-**Forecasting snapshot:** State = current peak network utilization percentage; momentum = adoption of congestion pricing zones globally; watch local legislation regarding variable rate tolling and vehicle-miles-traveled (VMT) taxes.
+Watch peak intersection clearing rate and toll-zone legislation — not ribbon-cutting on new highways.

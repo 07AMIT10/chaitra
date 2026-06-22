@@ -26,6 +26,7 @@ const drishtiStudies = defineCollection({
     title: z.string(),
     slug: z.string(),
     tagline: z.string(),
+    phenomenon: z.string().optional(),
     tldr: z.array(z.string()),
     relatedTopics: z.array(z.string()),
     atAGlance: z.object({

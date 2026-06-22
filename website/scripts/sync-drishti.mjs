@@ -102,22 +102,20 @@ function parseMetaYaml(raw) {
   }
 
   const result = { ...data };
-  if (data.tldr === undefined) {
-    const tldr = [];
-    let inTldr = false;
-    for (const line of raw.split("\n")) {
-      if (line.startsWith("tldr:")) {
-        inTldr = true;
-        continue;
-      }
-      if (inTldr && /^\s+-\s+/.test(line)) {
-        tldr.push(line.replace(/^\s+-\s+/, "").replace(/^["']|["']$/g, ""));
-      } else if (inTldr && line.match(/^\w+:/)) {
-        inTldr = false;
-      }
+  const tldr = [];
+  let inTldr = false;
+  for (const line of raw.split("\n")) {
+    if (line.startsWith("tldr:")) {
+      inTldr = true;
+      continue;
     }
-    if (tldr.length) result.tldr = tldr;
+    if (inTldr && /^\s+-\s+/.test(line)) {
+      tldr.push(line.replace(/^\s+-\s+/, "").replace(/^["']|["']$/g, ""));
+    } else if (inTldr && line.match(/^\w+:/)) {
+      inTldr = false;
+    }
   }
+  if (tldr.length) result.tldr = tldr;
 
   const related = [];
   let inRelated = false;
@@ -259,9 +257,9 @@ function syncStudy(folder, catalogStudies) {
     console.warn(`skip study ${folder}: no meta.yaml`);
     return;
   }
-  const meta =
-    catalogStudies.find((s) => s.folder === folder) ??
-    parseMetaYaml(fs.readFileSync(metaPath, "utf8"));
+  const fileMeta = parseMetaYaml(fs.readFileSync(metaPath, "utf8"));
+  const catalogEntry = catalogStudies.find((s) => s.folder === folder);
+  const meta = { ...catalogEntry, ...fileMeta };
   const slug = meta.slug ?? folder.toLowerCase().replace(/_/g, "-");
   const destDir = path.join(CONTENT_ROOT, "studies", slug);
   fs.mkdirSync(destDir, { recursive: true });
@@ -278,11 +276,14 @@ function syncStudy(folder, catalogStudies) {
   }
 
   const atAGlance = meta.atAGlance ?? {};
+  const phenomenonLine =
+    meta.phenomenon?.trim() ? `phenomenon: "${meta.phenomenon}"` : "";
   const frontmatter = [
     "---",
     `title: "${meta.title}"`,
     `slug: ${slug}`,
     `tagline: "${meta.tagline ?? ""}"`,
+    ...(phenomenonLine ? [phenomenonLine] : []),
     yamlList("tldr", meta.tldr),
     yamlList("relatedTopics", meta.relatedTopics),
     "atAGlance:",

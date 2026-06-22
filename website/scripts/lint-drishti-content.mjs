@@ -29,13 +29,17 @@ const LENS_FILES = [
   "what-will-happen",
 ];
 
-/** Voice D exemplars — full strict lint (errors). Others warn until Phase 2 rewrite. */
+/** All catalog studies — full strict lint (errors). */
 const STRICT_STUDIES = new Set([
   "the-office-as-a-computer",
   "global-supply-chains",
   "photosynthesis",
   "sleep",
   "blood-circulation",
+  "internet-routing",
+  "the-immune-system",
+  "urban-traffic-networks",
+  "power-grids",
 ]);
 
 const BANNED_PATTERNS = [

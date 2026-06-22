@@ -22,7 +22,11 @@ export type StudySlug =
   | "blood-circulation"
   | "the-office-as-a-computer"
   | "global-supply-chains"
-  | "photosynthesis";
+  | "photosynthesis"
+  | "internet-routing"
+  | "the-immune-system"
+  | "urban-traffic-networks"
+  | "power-grids";
 
 export interface LensPassNotes {
   light?: string;

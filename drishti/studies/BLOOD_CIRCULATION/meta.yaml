@@ -1,6 +1,7 @@
 title: Blood Circulation
 slug: blood-circulation
 tagline: "A closed-loop delivery network with a central pump"
+phenomenon: "A closed loop where the heart schedules and vessels queue"
 tldr:
   - "Blood is a transport layer for O₂, nutrients, and signals."
   - "The heart schedules work; vessels are queues with capacity limits."

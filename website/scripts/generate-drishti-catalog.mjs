@@ -149,6 +149,7 @@ for (const e of studyDirs) {
     folder: e.name,
     title: meta.title,
     tagline: meta.tagline ?? "",
+    phenomenon: meta.phenomenon ?? "",
     tldr: meta.tldr ?? [],
     relatedTopics: meta.relatedTopics ?? [],
     atAGlance: meta.atAGlance ?? {},

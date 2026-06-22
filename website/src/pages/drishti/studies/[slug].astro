@@ -47,6 +47,9 @@ const bridgeTopics = study.relatedTopics
   ]}
 >
   <div class="drishti-study-hero">
+    {study.phenomenon && (
+      <p class="drishti-study-phenomenon">{study.phenomenon}</p>
+    )}
     <TldrBox items={study.tldr} />
   </div>
 

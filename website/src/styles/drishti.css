@@ -339,6 +339,14 @@ html.drishti-focus-mode .lens-section-jump {
   font-weight: 600;
 }
 
+.drishti-study-phenomenon {
+  margin: 0 0 var(--space-4);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-fg);
+}
+
 .drishti-study-hero {
   margin: 0 0 var(--space-6);
   padding: var(--space-5) var(--space-4);

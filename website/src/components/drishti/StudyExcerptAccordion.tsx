@@ -13,6 +13,12 @@ const STUDY_ORDER: StudySlug[] = [
   "sleep",
   "blood-circulation",
   "the-office-as-a-computer",
+  "global-supply-chains",
+  "photosynthesis",
+  "internet-routing",
+  "the-immune-system",
+  "urban-traffic-networks",
+  "power-grids",
 ];
 
 export function StudyExcerptAccordion({ lensSlug, preferredStudy }: Props) {
