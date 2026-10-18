@@ -2,7 +2,7 @@ title: "Merge Sort"
 slug: merge-sort
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not splitting an array and stitching it back. It is the reduction of sorting to merging."
+reframe: "Sorting unordered chaos appears to require combinatorial omniscience. In 1945, John von Neumann proved it requires only a two-finger zipper: split the universe down to isolated atoms, then weave them back together one comparison at a time."
 oneLine: "Every sort is a merge; every merge is one linear pass over two chains."
 tldr:
   - "Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does."

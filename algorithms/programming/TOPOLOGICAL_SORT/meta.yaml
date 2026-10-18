@@ -2,7 +2,7 @@ title: "Topological Sort"
 slug: topological-sort
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a linear order of the vertices. It is a linear extension of a partial order."
+reframe: "Thread an arrow of time through a tangled web of dependencies so that no consequence ever precedes its cause. The instant a circular dependency creeps in, causality fractures—revealing that sorting a DAG is the act of choosing one linear reality among an astronomical sea of valid futures."
 oneLine: "Flatten a dependency DAG into a queue order, and see the orders you did not choose."
 tldr:
   - "Reachability is a preorder; quotient it by mutual reachability and you get the poset you are really sorting."

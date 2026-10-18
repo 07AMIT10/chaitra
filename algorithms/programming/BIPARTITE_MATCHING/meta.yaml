@@ -2,7 +2,7 @@ title: "Bipartite Matching"
 slug: bipartite-matching
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not pairing things up greedily. It is a set of independent edges, grown along augmenting paths and pinned from both sides."
+reframe: "Tether two disjoint universes through a web of fragile handshakes. Eager pairings leave orphaned nodes in the cold; true optimality surges through alternating paths of swapped commitments, pinned between Hall's suffocating neighborhood trap and König's impenetrable vertex shield."
 oneLine: "Four applicants, four placements, six acceptable pairs, and a ceiling of three."
 tldr:
   - "A matching is a set of edges with no shared endpoints; greedy first-available pairing can strand a vertex that an augmenting path would have saved."

@@ -2,7 +2,7 @@ title: "Karatsuba Multiplication"
 slug: karatsuba-multiplication
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a faster way to multiply big numbers. It is the rank of polynomial multiplication dropping from four to three."
+reframe: "In 1960, Kolmogorov conjectured that multiplying two n-digit numbers fundamentally requires n² operations. Within a week, a 23-year-old student proved him wrong with three products instead of four: a single algebraic subtraction that cracked open the sub-quadratic universe."
 oneLine: "One product saved at each split, recursed into the exponent n^log₂3."
 tldr:
   - "Splitting an n-digit number in half turns four products into three: T(n) = 3T(n/2) + Θ(n), which solves to Θ(n^log₂3) ≈ Θ(n^1.585) against schoolbook's Θ(n²)."
@@ -13,3 +13,4 @@ tldr:
 mathBranches: [algebra, analysis, information-theory]
 primitives: [RecursionTree, GrowthTable, PredictionPrompt]
 attributions: ["Karatsuba–Ofman 1960/1962", "Toom 1963", "Cook 1966", "Schönhage–Strassen 1971", "Knuth 1981"]
+featured: false

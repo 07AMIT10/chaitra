@@ -12,7 +12,9 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   Every multiplication count below is exact arithmetic from M(2^k) = 3^k, not a hardware measurement.
 */}
 
-## Karatsuba is not a faster way to multiply big numbers. It is the rank of polynomial multiplication dropping from four to three.
+## The student who disproved Kolmogorov
+
+In the autumn of 1960, Andrey Kolmogorov—the titan of Soviet mathematics—convened a seminar at Moscow State University. He conjectured that multiplying two $n$-digit numbers fundamentally required $\Omega(n^2)$ elementary operations. Within one week, a 23-year-old student named Anatoly Karatsuba found an algebraic identity that demolished the conjecture on the spot.
 
 Multiply `1234` by `5678`. Cut each number in half at base $B = 100$, so $a_1 = 12$, $a_0 = 34$, $b_1 = 56$, $b_0 = 78$.
 
@@ -27,69 +29,86 @@ Multiply `1234` by `5678`. Cut each number in half at base $B = 100$, so $a_1 = 
    = 7,006,652                           = 7,006,652
 ```
 
-Both columns read `7,006,652`. The right column got there with three small multiplications instead of four, and paid for the difference with two additions and a subtraction.
+Both columns produce `7,006,652`. The right column arrives with three small multiplications instead of four, paying for the saving with simple additions and subtractions.
 
-At four digits that saves almost nothing. Apply it all the way down and it rewrites the exponent of multiplication.
+At four digits, that saving looks modest. Applied recursively to million-digit numbers, it transforms the computational universe.
 
-## 1 · The question
+## The quadratic illusion of grade school
 
-The operational statement is the multiplication you learned at school. Line the numbers up, multiply every digit of one by every digit of the other, and add the shifted rows.
+Grade school teaches us to multiply digit by digit: line up the rows, compute $n^2$ single-digit products, and sum the shifted rows.
 
-Two `n`-digit numbers meet in $n^2$ single-digit products. Turn that into a recursion by splitting each number in half and forming the four products $a_1 b_1$, $a_1 b_0$, $a_0 b_1$, $a_0 b_0$, and nothing improves: four subproblems of half the size is $T(n) = 4T(n/2) + \Theta(n)$, which the master theorem reads straight back as $\Theta(n^2)$.
+If you split each $n$-digit number into two halves and compute the four products $a_1 b_1$, $a_1 b_0$, $a_0 b_1$, $a_0 b_0$, nothing improves. Four subproblems of half the size yield $T(n) = 4T(n/2) + \Theta(n)$, which the master theorem reads right back as $\Theta(n^2)$.
 
-So the operational framing is a schedule, and no schedule is the real question. The real question is how many of those products are *essential*. Additions, subtractions and shifts are linear, and linear work is the cheap work. The products are what a multiplier actually has to reduce.
+Loop unrolling, SIMD registers, and cache blocking change the constant factor, but cannot break the quadratic wall. The true bottleneck is not the schedule of additions, but the number of essential scalar multiplications.
 
-## 2 · The real object: the multiplication tensor, and its rank
+## The algebraic engine: dropping tensor rank from 4 to 3
 
-Write the two numbers as polynomials in the base: $x = \sum_i a_i B^i$ and $y = \sum_j b_j B^j$. Before any carrying, the digits of the product are the convolution
+Write the two numbers as polynomials in the radix base: $x = \sum_i a_i B^i$ and $y = \sum_j b_j B^j$. Before carry propagation, the digits of the product form a discrete convolution:
 
-$$ c_k = \sum_{i+j=k} a_i b_j $$
+$$
+c_k = \sum_{i+j=k} a_i b_j
+$$
 
-and the carries are a linear pass afterwards. So the only nonlinear work in multiplication is this convolution, a bilinear map in the two coefficient vectors.
+Carries are resolved in a single linear pass afterwards. The only nonlinear operation in multiplication is this bilinear map of coefficient vectors.
 
-A bilinear algorithm that uses `r` products is a decomposition of that map into `r` rank-1 terms. Each term is one product of a combination of the `a`'s with a combination of the `b`'s, $u_\ell(a)\cdot v_\ell(b)$, feeding into the output with its own weight $w_\ell(B)$.
+A bilinear algorithm using $r$ multiplications decomposes that map into $r$ rank-1 terms. Schoolbook multiplication evaluates four terms, establishing a rank of 4. Karatsuba rewrites the exact same polynomial product using only three rank-1 terms:
 
-Schoolbook's four products are four such terms, one per pair of blocks, so its rank is at most 4. Karatsuba's scheme is the same object with three:
+$$
+a_1 b_1\,(B^2 - B) \;+\; a_0 b_0\,(1 - B) \;+\; (a_1 + a_0)(b_1 + b_0)\,B
+$$
 
-$$ a_1 b_1\,(B^2 - B) \;+\; a_0 b_0\,(1 - B) \;+\; (a_1 + a_0)(b_1 + b_0)\,B $$
+Multiply it out: the weights $B^2 - B$ and $1 - B$ cancel the unwanted cross terms gathered by the middle product. The algebraic rank of two-block polynomial multiplication is 3, not 4.
 
-Multiply it out and the weights $B^2 - B$ and $1 - B$ are exactly what cancel the cross terms the single middle product swept up. The rank of two-block multiplication is 3.
+## Deriving the identity and riding the recurrence
 
-The rank is the object. The exponent of the whole algorithm is how that rank compounds under recursion, and this is the framing Knuth gives the problem (*TAOCP* Vol. 2, §4.3.3, 1981). It is also the move Strassen makes in two dimensions, where the block-product rank drops from 8 to 7.
+Take the split $x = a_1 B^m + a_0$ and $y = b_1 B^m + b_0$, and expand their product:
 
-## 3 · The mathematics: derive the identity, then the recurrence, then the rank
+$$
+(a_1 B^m + a_0)(b_1 B^m + b_0) \;=\; a_1 b_1 B^{2m} + (a_1 b_0 + a_0 b_1)B^m + a_0 b_0
+$$
 
-**The identity, derived.** Take the split $x = a_1 B^m + a_0$ and $y = b_1 B^m + b_0$ and multiply out.
+The sum of cross terms $a_1 b_0 + a_0 b_1$ appears to require two multiplications. Karatsuba evaluates the product of the sums instead:
 
-$$ (a_1 B^m + a_0)(b_1 B^m + b_0) \;=\; a_1 b_1 B^{2m} + (a_1 b_0 + a_0 b_1)B^m + a_0 b_0 $$
+$$
+(a_1 + a_0)(b_1 + b_0) \;=\; a_1 b_1 + a_1 b_0 + a_0 b_1 + a_0 b_0
+$$
 
-The middle coefficient is the only awkward part: it is a sum of the two *cross* products. So compute the product of the two sums, which is what evaluating both factors at $1$ gives you.
+Solve directly for the cross pair by subtracting the outer products:
 
-$$ (a_1 + a_0)(b_1 + b_0) \;=\; a_1 b_1 + a_1 b_0 + a_0 b_1 + a_0 b_0 $$
+$$
+a_1 b_0 + a_0 b_1 \;=\; (a_1 + a_0)(b_1 + b_0) - a_1 b_1 - a_0 b_0
+$$
 
-Solve that for the cross pair,
+Substitute this back to evaluate the full product with three multiplications:
 
-$$ a_1 b_0 + a_0 b_1 \;=\; (a_1 + a_0)(b_1 + b_0) - a_1 b_1 - a_0 b_0 $$
+$$
+x\,y \;=\; z_2 B^{2m} + z_1 B^m + z_0, \qquad z_2 = a_1 b_1,\quad z_0 = a_0 b_0,\quad z_1 = (a_1 + a_0)(b_1 + b_0) - z_2 - z_0
+$$
 
-and substitute it back. The two cross products are gone, replaced by one product of the sums and two subtractions:
+Because $z_2$, $z_1$, and $z_0$ are each products of half-size integers, we recurse on all three:
 
-$$ x\,y \;=\; z_2 B^{2m} + z_1 B^m + z_0, \qquad z_2 = a_1 b_1,\quad z_0 = a_0 b_0,\quad z_1 = (a_1 + a_0)(b_1 + b_0) - z_2 - z_0 $$
+$$
+T(n) \;=\; 3\,T(n/2) + \Theta(n)
+$$
 
-Three products and four additions compute the same block product. Nothing was assumed about the base `B`, so the identity is exact over the integers, not an approximation (Karatsuba and Ofman 1962).
+The master theorem compares $\log_2 3 \approx 1.585$ against the linear overhead degree $d = 1$. Because $\log_2 3 > 1$, the recursion tree is leaf-dominated:
 
-**The recurrence.** Each of $z_2$, $z_1$, $z_0$ is itself a product of half-size numbers, so call the method on each.
+$$
+T(n) \;=\; \Theta\!\left(n^{\log_2 3}\right) \;\approx\; \Theta\!\left(n^{1.585}\right)
+$$
 
-$$ T(n) \;=\; 3\,T(n/2) + \Theta(n) $$
-
-The $\Theta(n)$ collects everything that is not a product: the sums $a_1 + a_0$ and $b_1 + b_0$, the two subtractions that recover $z_1$, and the shifts and adds that place the three pieces.
-
-**The additions do not set the exponent.** At the top call the non-product work is proportional to `n`, a polynomial of degree `d = 1`. The products recurse into three calls of half the size, so `a = 3` and `b = 2`, and the master theorem compares $\log_b a = \log_2 3 \approx 1.585$ against `d = 1`. Since $\log_2 3 \gt 1$, the leaves dominate.
-
-$$ T(n) \;=\; \Theta\!\left(n^{\log_2 3}\right) \;\approx\; \Theta\!\left(n^{1.585}\right) $$
-
-The linear additions ride along as a constant factor. At every level the additive work is a fixed multiple of that level's product work, and the level totals grow by $3/2$ per level, so the deepest level holds the largest share and the additions join it rather than outweighing it. Push the additions to quadratic work (`d = 2`) and the root would dominate instead, forcing the exponent to `2` no matter what the rank is. (Master theorem, leaf case; Knuth 1981, §4.3.3.)
-
-Here are the exact counts the recurrence predicts. At $n = 2^k$ digits the method performs $3^k$ multiplications, against schoolbook's $n^2$.
+<PredictionPrompt
+  client:visible
+  question="You cut two 1,024-digit numbers in half. Instead of 4 half-size multiplications, you do 3. How much multiplication work is actually saved after full recursion?"
+  options={[
+    "About 25%, because saving 1 out of 4 multiplications per level leaves 75% of the work.",
+    "Over 94%, performing only 59,049 multiplications instead of the grade-school 1,048,576.",
+    "Nothing, because the extra additions at each level cancel out the multiplicative gain."
+  ]}
+  correct={1}
+  hint="1,024 = 2¹⁰, so there are ten levels of recursion and each level triples the count."
+  explain="Saving 1 in 4 feels like a modest 25% discount. But in recursion, savings compound exponentially! At n = 2¹⁰ = 1,024, the recursion runs 10 levels deep. Schoolbook executes 4¹⁰ = 1,048,576 base products, whereas Karatsuba executes 3¹⁰ = 59,049 products. That eliminates over 94% of all multiplications!"
+/>
 
 <GrowthTable
   highlight="1,048,576"
@@ -100,52 +119,15 @@ Here are the exact counts the recurrence predicts. At $n = 2^k$ digits the metho
     { n: "1,024", logn: "10", note: "Karatsuba 3¹⁰ = 59,049 · schoolbook 1,024² = 1,048,576 · 17.8×" },
     { n: "8,192", logn: "13", note: "Karatsuba 3¹³ = 1,594,323 · schoolbook 8,192² = 67,108,864 · 42×" },
     { n: "65,536", logn: "16", note: "Karatsuba 3¹⁶ = 43,046,721 · schoolbook 65,536² = 4,294,967,296 · 99.8×" },
-    { n: "1,048,576", logn: "20", note: "Karatsuba 3²⁰ = 3,486,784,401 · schoolbook 1,048,576² ≈ 1.1×10¹² · 315×" },
+    { n: "1,048,576", logn: "20", note: "Karatsuba 3²⁰ = 3,486,784,401 · schoolbook 1,048,576² ≈ 1.1×10¹² · 315×" }
   ]}
 />
 
-<PredictionPrompt
-  client:visible
-  question="An n = 1,024-digit number is multiplied by another with Karatsuba. How many single-digit multiplications does the method perform?"
-  options={["3,072", "59,049", "1,048,576", "1,024"]}
-  correct={1}
-  hint="1,024 = 2¹⁰, so there are ten levels of the recursion and each level triples the count."
-  explain="The recursion M(n) = 3M(n/2) with M(1) = 1 gives M(2^k) = 3^k. At k = 10 that is 3¹⁰ = 59,049, against schoolbook's 1,024² = 1,048,576 — about 17.8 times fewer products. The option 3,072 = 3n is the count if the saving did not recurse; 1,024 is n itself."
-/>
+At one million digits, the gap is greater than 300-fold. What looked like minor bookkeeping at 4 digits has broken the sound barrier.
 
-**The bilinear rank is exact: 2r − 1 for r blocks.** An `R`-product scheme writes every product of the map as $\sum_{\ell=1}^{R} u_\ell(a)\,v_\ell(b)\,w_\ell$, so all products lie in the span of the `R` weight vectors $w_\ell$. The products of two `r`-block numbers span all $2r - 1$ coefficients of their convolution, so `R` is at least $2r - 1$.
+## The visual cascade: from quadratic wall to sub-quadratic tree
 
-The bound is met. Evaluate both factors at $2r - 1$ points chosen so the evaluations need only additions, multiply the values pointwise for $2r - 1$ products, then interpolate; the interpolation is a linear solve. So the rank is exactly $2r - 1$, and at `r = 2` it is the 3 that Karatsuba used. Rank counts essential products and nothing else — it is silent about the additions, which is what the recurrence above has to add back in.
-
-**Toom–Cook: split into r parts, pay 2r − 1 products.** Two blocks is the case `r = 2`. Split each number into `r` parts instead and the same evaluation recipe gives $2r - 1$ products per node (Toom 1963; Cook 1966).
-
-$$ T(n) \;=\; (2r - 1)\,T(n/r) + \Theta(n), \qquad T(n) \;=\; \Theta\!\left(n^{\log_r (2r - 1)}\right) $$
-
-The exponent falls as `r` grows: $\log_3 5 \approx 1.465$ for three parts, $\log_4 7 \approx 1.404$ for four, and since $(2r-1)/r$ tends to $2$ the exponent tends to `1`. The exponent is not the whole story. Each extra part adds a fixed cost — the evaluations, the interpolation, and divisions that must be exact — so the constant grows as the exponent falls.
-
-<PredictionPrompt
-  client:visible
-  question="Does a 3-way split (Toom-3) beat a 2-way split (Karatsuba) asymptotically — and what does it cost in practice?"
-  options={[
-    "Yes. Toom-3's exponent log₃5 ≈ 1.465 is below Karatsuba's log₂3 ≈ 1.585, so it wins above some size — but the constant is larger and the interpolation needs exact divisions, so at small sizes Karatsuba is faster.",
-    "No. Both splits give the same exponent, log₂3.",
-    "Yes, and it is faster at every size, since more parts is always better.",
-  ]}
-  correct={0}
-  explain="Toom-3 splits each number into three parts and uses 2·3 − 1 = 5 products per node, so T(n) = 5T(n/3) + Θ(n) and the exponent is log₃5 ≈ 1.465, below log₂3 ≈ 1.585. The gain is asymptotic only: the interpolation solves a linear system and divides by small constants, which adds a constant factor and overhead that a 2-way split avoids. Libraries switch to Toom-3 above a threshold and keep Karatsuba below it, and more parts is not better at every size because the constant grows with r."
-/>
-
-**The FFT route: Schönhage–Strassen 1971.** Take the evaluation idea to its limit and evaluate at all the `n`-th roots of unity. A discrete Fourier transform evaluates all `n` points using $O(n \log n)$ additions and multiplications by constants (the twiddle factors), the pointwise multiplication is `n` products rather than $n^2$, and the inverse transform interpolates. The number of essential products becomes linear.
-
-The obstacle is the ring. Roots of unity of enough orders exist in $\mathbb{Z}/(2^m+1)$ only for $m$ a power of two, so the operands are cut into blocks of about $\log n$ bits and each block is transformed separately. That block structure is the price of the method, and it is exactly the extra factor in Schönhage and Strassen's bound:
-
-$$ M(n) \;=\; O(n \log n \log \log n) $$
-
-**The honest lower bound.** You must read every digit, so the trivial lower bound is $\Omega(n)$. The best known algorithms sit close to $n \log n$ — Schönhage–Strassen at $n \log n \log \log n$, then Harvey and van der Hoeven's $O(n \log n)$ (2019, published 2021), which improved Fürer's $n \log n \cdot 2^{O(\log^* n)}$ (2007). Neither pins the answer down. Whether integer multiplication is $\Theta(n \log n)$, or lower, or needs another logarithmic factor, is open, and there is no general lower bound beyond $\Omega(n)$. Those two bounds are the honest state of the problem: the upper bound is near-linear, the matching lower bound is not known.
-
-## 4 · The centrepiece: drive the recurrence
-
-The panel is the recurrence, seeded at `a = 3`, `b = 2`, `d = 1`: three products of half the size plus one linear recombination per call.
+The panel visualizes the recurrence seeded at $a = 3$, $b = 2$, $d = 1$: three half-size products and linear overhead per call.
 
 <RecursionTree
   client:visible
@@ -157,46 +139,65 @@ The panel is the recurrence, seeded at `a = 3`, `b = 2`, `d = 1`: three products
   caption="The panel draws T(n) = a·T(n/b) + n^d. Seeded at (3, 2, 1) it is Karatsuba; move a to 4 and the same panel is schoolbook. Each dot is a recursive call and each ribbon bar is a level's total work."
 />
 
-Read the ribbon top to bottom. Level `k` holds $3^k$ subproblems of size $n/2^k$, and each level's total is larger than the one above by the factor $3/2$, so the bars grow downward and the deepest level, the leaves, holds the most work. That is why the panel names the case *leaf-dominated* and prints $\Theta(n^{\log_2 3})$.
+Level $k$ holds $3^k$ subproblems of size $n/2^k$. Total work per level grows by $3/2$ each step down, meaning the leaf level dominates the runtime.
 
-Now move `a`. Set it to 4 and the same panel draws schoolbook: the ribbon grows by $4/2 = 2$ per level, the leaves dominate harder, and the read-out becomes $\Theta(n^{\log_2 4}) = \Theta(n^2)$. The two settings for `a` are the two algorithms, side by side, differing only in the rank of their node.
-
-Then move `d`. At `d = 2` the additions are quadratic, $\log_2 3 \approx 1.585$ falls below `d = 2`, the *root* dominates, and the exponent is `2` whatever the rank is. The additions are linear in this problem, and that is what lets the rank show through the panel.
+Drag $a$ from 3 to 4. The ribbon expansion quickens from $1.5\times$ to $2.0\times$ per level, and the asymptotic readout snaps from $\Theta(n^{1.585})$ to $\Theta(n^2)$. That single step on the slider is the barrier Kolmogorov thought impenetrable.
 
 <PredictionPrompt
   client:visible
-  question="In the recurrence panel, set a = 4 to model schoolbook's four half-size products. What does the panel read?"
-  options={["Θ(n^{1.585})", "Θ(n log n)", "Θ(n²)"]}
-  correct={2}
-  explain="With a = 4 and b = 2 the panel computes log_b a = log₂4 = 2, above d = 1, so it is leaf-dominated and prints Θ(n^{log₂4}) = Θ(n²). Its ribbon now grows by 4/2 = 2 per level instead of 3/2, so the leaves dominate harder. Θ(n^{1.585}) is Karatsuba (a = 3). Θ(n log n) would need log_b a = d, which no two-way split has: it needs log₂a = 1, and there is no integer a between the two algorithms."
+  question="Karatsuba requires extra additions and subtractions (overhead d=1). What would happen to the asymptotic complexity if additions were quadratic (d=2)?"
+  options={[
+    "The complexity would remain Θ(n^1.585) because multiplications always outweigh additions.",
+    "The complexity would collapse back to Θ(n²) because root addition overhead would dominate the entire tree.",
+    "The complexity would become Θ(n^3.585) by multiplying the degrees."
+  ]}
+  correct={1}
+  explain="In the master theorem, runtime depends on max(log_b a, d). Karatsuba wins because linear addition (d=1) sits below log₂ 3 ≈ 1.585, keeping the tree leaf-dominated. If addition took quadratic time (d=2), then d > log₂ 3, the root would dominate, and the total cost would fall back to Θ(n²)—erasing the entire algebraic advantage of the 3-product trick!"
 />
 
-## 5 · The payoff
+## From CPython to RSA: where the trick lives
 
-The rank is the whole trade, and the trade is everywhere.
+Karatsuba is active code running on billions of machines daily.
 
-- **Every big-integer library.** CPython's large `int` product, Java's `BigInteger`, and GMP all leave the schoolbook loop for Karatsuba above a few dozen digits, then chain Toom-3 and an FFT method as the operands grow. RSA and Diffie–Hellman are chains of exactly these products.
-- **The same rank move, two indices wide.** Strassen's algorithm (1969) multiplies two 2×2 blocks with 7 products instead of 8, and recursion gives $\Theta(n^{\log_2 7}) \approx \Theta(n^{2.807})$ against schoolbook's $\Theta(n^3)$. Karatsuba is the one-index case of that idea.
-- **Polynomial multiplication, unchanged.** The convolution is the same bilinear map, so every method here applies to polynomials directly; FFT multiplication is the standard tool, and Kronecker substitution encodes a polynomial product as one big-integer product.
-- **A counting rule.** When multiplication is the expensive operation and addition is cheap, count the essential products — the rank — and recurse. That rule is the entry point to algebraic complexity.
+In CPython, Python's arbitrary-precision `int` type switches from schoolbook multiplication to Karatsuba as soon as integers exceed 70 digits. The GNU Multiple Precision Arithmetic Library (GMP) and Java's `BigInteger` rely on it across similar ranges. Every RSA key generation and Diffie-Hellman modular exponentiation executes chains of Karatsuba multiplications.
 
-## 6 · Advanced and optional
+The same algebraic principle applies identically to polynomial multiplication. Polynomial convolution in computer algebra systems evaluates using Karatsuba before switching to fast Fourier transforms.
 
-Skip this; nothing below is used again.
+## Beyond Karatsuba: Toom-Cook, FFTs, and the open frontier
 
-**The constant, not the exponent, picks the algorithm in practice.** Karatsuba's per-call overhead is larger than schoolbook's, so it wins only above a crossover size; the same is true between Karatsuba and Toom-3, and again before an FFT method pays. A production library is a chain of these, each chosen by operand size, and the crossover points are found by measurement, not by the exponents.
+Two-block splitting is only the first step. Splitting each operand into $r$ parts yields the Toom-Cook family of algorithms (Toom 1963, Cook 1966).
 
-**The general question is open.** For integer multiplication the best known upper bound is $O(n \log n)$ (Harvey and van der Hoeven 2019/2021) and the best general lower bound is still $\Omega(n)$; nothing known places the true complexity, and no one rules out $\Theta(n \log n)$ or a bound below it. Matrix multiplication has the same gap: the best known exponent is still above 2.37, and $\omega = 2$ is conjectured, not known.
+$$
+T(n) \;=\; (2r - 1)\,T(n/r) + \Theta(n), \qquad T(n) \;=\; \Theta\!\left(n^{\log_r (2r - 1)}\right)
+$$
 
-**Bilinear rank is pinned down; bit complexity is not.** The bilinear rank of the `r`-block product is exactly $2r - 1$ by the counting argument and the evaluation scheme above. That is the rank of the non-recursive block map. What stays open is the *integer* problem: there the base is an integer rather than a field, additions and carries are not free, and the interpolating divisions must be exact, so the rank alone does not determine the cost.
+<PredictionPrompt
+  client:visible
+  question="If splitting numbers into 2 parts reduces products from 4 to 3 (exponent log₂3 ≈ 1.585), what happens when splitting into 3 parts (Toom-3)?"
+  options={[
+    "You get 6 products instead of 9, giving exponent log₃6 ≈ 1.63 (slower than Karatsuba).",
+    "You get 5 products instead of 9, giving exponent log₃5 ≈ 1.465, beating Karatsuba asymptotically but requiring more complex interpolation.",
+    "You cannot evaluate degree-2 polynomials in fewer than 9 multiplications without imaginary numbers."
+  ]}
+  correct={1}
+  explain="Multiplying two degree-2 polynomials yields a degree-4 polynomial with 5 coefficients. By evaluating at 5 distinct points (e.g. 0, 1, -1, 2, ∞), computing 5 pointwise multiplications, and interpolating via matrix inversion, Toom-3 achieves T(n) = 5T(n/3) + Θ(n). Its exponent is log₃5 ≈ 1.465, beating Karatsuba, though its higher constant factor makes it profitable only above several hundred digits."
+/>
 
-## 7 · Attributions
+Taking polynomial evaluation to the limit gives the Fast Fourier Transform (FFT). Evaluating polynomials at roots of unity drops multiplication to near-linear time:
 
-- **Karatsuba and Ofman 1960/1962** — the three-product identity and the $\Theta(n^{\log_2 3})$ recursion. Karatsuba found it in 1960 after Kolmogorov conjectured that $n^2$ multiplications were necessary; it was announced at Kolmogorov's seminar and published in *Doklady Akademii Nauk SSSR* in 1962.
-- **Toom 1963** — the split into `r` parts and the $2r - 1$ pointwise products, the generalisation that lowers the exponent toward 1.
-- **Cook 1966** — the same scheme as an algorithm on a random-access machine, with the interpolation made explicit; source of the name Toom–Cook.
-- **Schönhage and Strassen 1971** — the FFT algorithm, $O(n \log n \log \log n)$, the first method to bring the exponent to essentially 1 up to a log log n factor.
-- **Knuth 1981** — *The Art of Computer Programming*, Vol. 2, §4.3.3, where integer multiplication is treated as a bilinear map and the rank framing is developed.
-- **Strassen 1969** — the two-index version, rank 7 for 2×2 blocks; used on this page only as the analogue that names its thesis.
-- **Fürer 2007** — $n \log n \cdot 2^{O(\log^* n)}$, the first algorithm to beat Schönhage–Strassen's log log n factor over a general ring.
-- **Harvey and van der Hoeven 2019/2021** — the $O(n \log n)$ upper bound, the current best known for integer multiplication.
+$$
+M(n) \;=\; O(n \log n \log \log n)
+$$
+
+Schönhage and Strassen (1971) established this bound over Fermat rings. In 2019, David Harvey and Joris van der Hoeven proved that $n$-digit integers can be multiplied in $O(n \log n)$ time.
+
+Whether $O(n \log n)$ is the ultimate lower bound remains one of the great open questions in theoretical computer science. The only universal lower bound known is $\Omega(n)$—the time required simply to read the digits.
+
+## Historical provenance and attributions
+
+- **Karatsuba and Ofman 1960/1962** — *Multiplication of Many-Digital Numbers by Automata*: discovered the 3-product identity in 1960, refuting Kolmogorov's conjecture; published in 1962.
+- **Toom 1963** — *The Complexity of a Scheme of Functional Elements Realizing the Multiplication of Integers*: generalized the evaluation-interpolation technique to $r$ blocks.
+- **Cook 1966** — *On the Minimum Computation Time of Functions*: formalized Toom's technique for random-access machines.
+- **Schönhage and Strassen 1971** — *Fast Multiplication of Large Numbers*: introduced the FFT multiplication algorithm over modular rings, achieving $O(n \log n \log \log n)$.
+- **Knuth 1981** — *The Art of Computer Programming*, Vol. 2, §4.3.3: classic exposition framing integer multiplication through multilinear rank.
+- **Harvey and van der Hoeven 2019/2021** — *Integer multiplication in time O(n log n)*: achieved the celebrated $O(n \log n)$ bound.

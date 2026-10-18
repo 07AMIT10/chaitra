@@ -13,7 +13,7 @@ import SeriesChart from "@alg/SeriesChart.tsx";
   proved 2^(n/2) distinct-LCS count of the block-reversal family.
 */}
 
-## Longest common subsequence is not the letters the two strings share. It is the tallest chain in the product of their prefix orders.
+## The Surviving Thread
 
 Read the two strings as rows, and cross out characters until the survivors agree.
 
@@ -30,12 +30,12 @@ The word `BCAB` survives in each: the top row keeps positions 2, 3, 4, 6, the bo
   options={["3", "4", "5", "7"]}
   correct={1}
   hint="You are not aligning columns. You may skip any characters in either row, as long as what is left, read in order, is the same word."
-  explain="Four. BCAB sits inside both strings, and five is impossible. The table you drive below puts 4 in the bottom-right cell and writes no number larger than 4 anywhere, so no longer word can exist."
+  explain="Four. Multiple distinct subsequences achieve length 4—including BCAB, BCBA, and BDAB—but no 5-character common word exists. Measuring this length requires filling the prefix grid; finding every witness exposes the combinatorial branching of shared paths."
 />
 
 Four is a **length**, not a word. That gap runs the whole page: measuring the length is cheap, printing one word is cheap, and counting all the words is not.
 
-## 1 · The question
+## The Naive Power-Set Trap
 
 Operationally you are handed two strings, $a$ of length $m$ and $b$ of length $n$, and asked for the longest word that is a **subsequence** — a selection of positions in order, not necessarily adjacent — of both. Brute force lists all $2^m$ subsequences of $a$ and keeps the longest that also sits in $b$. That is exponential work for an answer that is one integer.
 
@@ -47,7 +47,7 @@ $$
 
 That recurrence is correct, and it never mentions a subsequence. It compares prefixes and takes maxima. What it measures is a *height* in an order built from the two strings, and that order is the object we actually want.
 
-## 2 · The real object: a grid, and the chains of matching cells
+## The Constellation of Matching Cells
 
 Take the prefixes of $a$ in order: $\varepsilon \subset a[1..1] \subset \dots \subset a[1..m]$. Prefixes order by extension, so this is a chain — a totally ordered set — with $m+1$ elements. The prefixes of $b$ form a second chain with $n+1$ elements.
 
@@ -59,7 +59,9 @@ $$
 M \;=\; \{\, (i,j) \;:\; a_i = b_j \,\},
 $$
 
-carrying the same product order. Now look at what a chain of $M$ is. A chain is a set of matching cells, pairwise comparable, so its rows strictly increase and its columns strictly increase. Its cells pair $a_{i_1},\dots,a_{i_t}$ with $b_{j_1},\dots,b_{j_t}$, and every pair agrees, so both sequences spell one word — a common subsequence of length $t$. Every common subsequence arises this way, so
+carrying the same product order. A chain in $M$ is a set of pairwise comparable matching cells, meaning both rows and columns strictly increase.
+
+Its cells pair $a_{i_1},\dots,a_{i_t}$ with $b_{j_1},\dots,b_{j_t}$ where every pair agrees, spelling a single common subsequence of length $t$. Every common subsequence arises this way, so
 
 $$
 \mathrm{LCS}(a,b) \;=\; \operatorname{height}(M),
@@ -69,9 +71,9 @@ the longest chain among the matching cells.
 
 The DP table is this lattice with a label on every cell: $L(i,j)$ is the height of $M$ inside the rectangle $[1..i]\times[1..j]$ — the tallest chain reachable using only the first $i$ characters of $a$ and the first $j$ of $b$. Hover a cell in section 4 and that height is the number you are reading.
 
-## 3 · The mathematics
+## Decomposing the Monotone Staircase
 
-### 3.1 The recurrence, from the last matched pair
+### The Three-Way Choice at the Boundary
 
 Fix a longest chain in the rectangle $[1..i]\times[1..j]$ and inspect its last cell, the one with the largest row and column. Exactly one of three things holds.
 
@@ -81,9 +83,11 @@ Fix a longest chain in the rectangle $[1..i]\times[1..j]$ and inspect its last c
 
 When $a_i = b_j$ the first case beats the other two, and when $a_i \ne b_j$ the cell $(i,j)$ is not in $M$ so only the last two remain. Those three cases are the recurrence above. The $O(mn)$ table is Wagner and Fischer 1974, written for string-to-string correction; the common subsequence is the case where substitution is forbidden.
 
-### 3.2 A chain is a staircase, and the table is its longest path
+### Staircases as String Alignments
 
-Draw the grid with the row index down and the column index across. A chain in $M$ is a set of cells you visit in order, never moving left or up. Thread a path through them: between consecutive cells step **down** to raise the row or **right** to raise the column. Join the first cell to $(0,0)$ and the last to $(m,n)$ the same way.
+Draw the grid with the row index down and the column index across. A chain in $M$ is a sequence of cells visited without ever moving left or up.
+
+Thread a path through them: step **down** to advance rows, or **right** to advance columns. Connecting $(0,0)$ to the first cell and the last cell to $(m,n)$ completes the route.
 
 Every path from $(0,0)$ to $(m,n)$ built from down-steps, right-steps and diagonal steps is an **alignment** of the two strings.
 
@@ -91,11 +95,13 @@ Every path from $(0,0)$ to $(m,n)$ built from down-steps, right-steps and diagon
 - A right-step consumes one character of $b$ and none of $a$ — an insertion.
 - A diagonal step consumes one of each, and when it lands on a matching cell it is a matched pair.
 
-Restrict the diagonal steps to matching cells and the correspondence is exact. Each such staircase picks out the diagonal cells $(i_1,j_1),\dots,(i_t,j_t)$, both coordinates increasing, each pair equal — a chain of $M$ and nothing more. The staircase is the chain, and the chain is the common subsequence. Different staircases can spell the same word: `aab` and `aba` share `ab` along two different staircases. That gap between *witnesses* and *words* returns in section 3.4.
+Restrict the diagonal steps to matching cells and the correspondence is exact. Each such staircase picks out the diagonal cells $(i_1,j_1),\dots,(i_t,j_t)$, both coordinates increasing, each pair equal — a chain of $M$ and nothing more.
+
+The staircase is the chain, and the chain is the common subsequence. Different staircases can spell the same word: `aab` and `aba` share `ab` along two different staircases. That gap between *witnesses* and *words* returns in the counting section below.
 
 Read the table as a longest path and $L(i,j)$ is the greatest number of match-diagonal steps on any staircase from $(0,0)$ to $(i,j)$. The three cases of the recurrence are the three possible last moves, and the arrows that light up when you hover a cell are exactly those moves.
 
-### 3.3 Insert and delete, and the distance identity
+### The Exact Duality with Edit Distance
 
 Price a down-step and a right-step at one each, and a matching diagonal step at zero. A staircase from $(0,0)$ to $(m,n)$ with $t$ match-diagonal steps spends $m-t$ down-steps deleting the characters of $a$ it skips and $n-t$ right-steps inserting the characters of $b$ it adds, so its cost is
 
@@ -126,7 +132,7 @@ a derived identity, not a definition: it is the staircase cost above at $t = t^{
 
 The swap between the two sides of the prompt is the lesson: distance is a metric because it prices a path, and LCS is not because it measures an overlap. Overlap does not add like distance.
 
-### 3.4 Length, witness, count
+### One Number, Many Witnesses, Combinatorial Explosion
 
 The height is one number, and the table computes it in $O(mn)$ time and space. Press **Trace solution** and the highlighted chain walks one witness out — a staircase of $L(m,n)$ matched cells, one longest common subsequence you can print. Keeping the whole table to trace it costs $O(mn)$ memory; Hirschberg 1975 reconstructs the same witness in $O(\min(m,n))$ space by splitting the strings in half, computing the table from both ends, and recursing on the winning half.
 
@@ -137,7 +143,9 @@ a = x₁ y₁ x₂ y₂ ⋯ x_k y_k
 b = y₁ x₁ y₂ x₂ ⋯ y_k x_k
 ```
 
-In $a$ the two symbols of each block appear one way round; in $b$ the other way. A common subsequence can use at most one symbol from any block — using both would need the two orders to agree — and it needs one from every block to reach the maximum. The maximum length is therefore $k$, and every choice of one symbol per block is a distinct longest common subsequence. That is $2^k$ words on strings of length $n = 2k$: the count is $2^{\,n/2}$, exponential in the length.
+In $a$ the two symbols of each block appear one way round; in $b$ the other way. A common subsequence can use at most one symbol from any block — using both would need the two orders to agree.
+
+Reaching the maximum length $k$ requires choosing exactly one symbol from each block. Every distinct set of choices yields a valid longest common subsequence, generating $2^k = 2^{\,n/2}$ distinct words on strings of length $n = 2k$.
 
 <PredictionPrompt
   client:visible
@@ -162,7 +170,7 @@ One caution if you try to count. A DP that sums its predecessor counts counts *s
 
 Both curves are exact arithmetic, not measurements: the lower one is the $(n+1)^2$ cell count, the upper is the $2^{\,n/2}$ count proved above. They cross just past $n = 16$ and never meet again.
 
-## 4 · The centrepiece: drive the table
+## Ascending the DP Grid
 
 <DPHeatmap
   client:visible
@@ -172,24 +180,30 @@ Both curves are exact arithmetic, not measurements: the lower one is the $(n+1)^
   caption="Hover any cell to light the moves that filled it: from above (skip a character of a), from the left (skip a character of b), or from the diagonal on a match. Press play to fill the 56 cells in dependency order, then Trace solution to read one longest common subsequence out of the grid."
 />
 
-The top row and left column are all zero, because an empty prefix shares no character with anything. An interior cell on a match copies its upper-left neighbour and adds one — a diagonal step of the staircase. Off a match it takes the larger of the neighbours above and to the left, a down-step or a right-step. The bottom-right cell reads 4.
+The top row and left column are all zero, because an empty prefix shares no character with anything. An interior matching cell copies its upper-left neighbour and adds one, tracing a diagonal staircase step.
+
+Off a match, a cell inherits the maximum of its neighbours above and to the left. The bottom-right cell for these words reads 4.
 
 Turn on **Trace solution** and the chain walks out one witness: four matched cells joined into a staircase, spelling `BCAB`. Different tie-breaks inside the table produce different witnesses of the same length — that ambiguity is the seed of section 3.4, where the witnesses can outnumber the words.
 
-## 5 · The payoff
+## Where Posets Power Modern Toolchains
 
 - **`diff`, `patch`, and version control.** A line diff is a longest common subsequence over lines. Myers 1986 turned the staircase into an $O(nd)$ walk along its diagonals, where $d$ is the edit distance, so `diff`, `patch` and `git diff` cost the size of the change rather than the size of the files. The picture a diff tool draws is the staircase of section 3.2.
 - **Sequence alignment.** Needleman and Wunsch 1970 scored this recurrence over amino acids, and Smith and Waterman 1981 dropped the requirement to span both strings. Flip a mismatch to a negative score and the same grid aligns locally. Every alignment score in bioinformatics is this table.
-- **Longest increasing subsequence.** When $b$ is a rearrangement of $a$ with all characters distinct, send each character of $b$ to its position in $a$ to get a permutation $\pi$. Then $\mathrm{LCS}(a,b) = \mathrm{LIS}(\pi)$, because a common subsequence is a set of positions increasing in both strings. For `1234` and `2143`, $\pi = 2,1,4,3$ and its longest increasing subsequence has length 2 — the same 2 the table gives. That is the bridge to the [Longest Increasing Subsequence](/algorithms/programming/longest-increasing-subsequence) page, where this number is the height of a two-dimensional order.
+- **Longest increasing subsequence.** When $b$ is a rearrangement of $a$, map each character of $b$ to its position in $a$ to obtain permutation $\pi$. Then $\mathrm{LCS}(a,b) = \mathrm{LIS}(\pi)$, connecting string alignment directly to the [Longest Increasing Subsequence](/algorithms/programming/longest-increasing-subsequence) page.
 - **Plagiarism and duplicate detection.** Comparing documents, source files, or product titles is an LCS or an edit distance over tokens, and the same staircase decides which spans match.
 
-## 6 · Advanced (optional): faster tables and the quadratic wall
+## Bit-Parallel Speedups and the SETH Barrier
 
-The exact $O(mn)$ table is not the last word when the strings share few characters. Hunt and Szymanski 1977 listed only the matching cells and ran an LIS-like pass over them, for $O((r+n)\log n)$ with $r = |M|$ — a win when $r$ is small. Masek and Paterson 1980 used the four-Russians method to reach $O(n^2/\log n)$. Crochemore, Iliopoulos, Pinzon and Reid 2001 packed the DP into machine words for $O(nm/w)$ bit operations.
+The exact $O(mn)$ table is not the last word when the strings share few characters. Hunt and Szymanski 1977 listed only the matching cells for $O((r+n)\log n)$ time with $r = |M|$, which wins when matches are sparse.
 
-Against all of that, the quadratic shape is close to unavoidable. Abboud, Backurs and Williams 2015 show that an $O(n^{2-\epsilon})$ algorithm for LCS would refute the Strong Exponential Time Hypothesis. State it at its true strength: a conditional lower bound, not a proof that no fast algorithm exists. It is why the grid has stood since Wagner and Fischer 1974.
+Masek and Paterson 1980 used the four-Russians method to reach $O(n^2/\log n)$. Crochemore, Iliopoulos, Pinzon and Reid 2001 packed the recurrence into machine words for $O(nm/w)$ bit operations.
 
-## 7 · Attributions
+Against all of that, the quadratic barrier appears immovable. Abboud, Backurs and Williams 2015 show that an $O(n^{2-\epsilon})$ algorithm for LCS would refute the Strong Exponential Time Hypothesis.
+
+This is a conditional lower bound, not an absolute impossibility proof. It explains why the quadratic grid has stood unchallenged since Wagner and Fischer 1974.
+
+## Lineage & Attributions
 
 - **Wagner and Fischer 1974** — *The string-to-string correction problem*: the $O(mn)$ dynamic program, of which this table is the insert/delete case.
 - **Hirschberg 1975** — *A linear space algorithm for computing maximal common subsequences*: reconstruction in $O(\min(m,n))$ space by divide and conquer, quadratic time kept, quadratic memory dropped.

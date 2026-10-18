@@ -41,6 +41,12 @@
   overflow-x: clip;
 }
 
+@media (max-width: 480px) {
+  .alg-shell {
+    padding: var(--space-3);
+  }
+}
+
 .alg-shell--accent {
   border-color: var(--alg-accent-line);
   border-left-color: var(--alg-accent);
@@ -62,6 +68,17 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: var(--space-3);
+}
+
+@media (max-width: 480px) {
+  .alg-shell__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .alg-shell__right {
+    width: 100%;
+  }
 }
 
 .alg-shell__headtext {
@@ -104,14 +121,17 @@
 .alg-btn {
   font: inherit;
   font-size: 0.85rem;
-  min-height: 38px;
-  min-width: 38px;
-  padding: 0.4rem 0.9rem;
+  min-height: var(--touch-target-min, 44px);
+  min-width: var(--touch-target-min, 44px);
+  padding: 0.45rem 0.9rem;
   border: 1px solid var(--alg-border-strong);
   border-radius: var(--radius-md);
   background: var(--alg-surface-2);
   color: var(--color-text);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .alg-btn:hover {
@@ -182,13 +202,27 @@
   font: inherit;
   font-size: 0.875rem;
   text-align: left;
-  min-height: 38px;
-  padding: 0.4rem 0.9rem;
+  min-height: var(--touch-target-min, 44px);
+  padding: 0.5rem 0.95rem;
   border: 1px solid var(--alg-border-strong);
   border-radius: var(--radius-md);
   background: var(--color-surface);
   color: var(--color-text);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+}
+
+@media (max-width: 480px) {
+  .alg-predict__opts {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  .alg-predict__opt {
+    width: 100%;
+    text-align: left;
+  }
 }
 
 .alg-predict__opt:hover:not(:disabled) {
@@ -255,6 +289,7 @@
 
 .alg-predict__hint-btn {
   align-self: flex-start;
+  min-height: var(--touch-target-min, 44px);
 }
 
 /* -------------------------------------------------------- PaceControls ---- */
@@ -264,6 +299,19 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
+}
+
+@media (max-width: 480px) {
+  .alg-pace {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .alg-pace__count {
+    order: 10;
+    width: 100%;
+    text-align: center;
+    margin-top: 4px;
+  }
 }
 
 .alg-pace__count {
@@ -302,15 +350,18 @@
 
 .alg-pace__speed {
   font: inherit;
-  font-size: 0.8rem;
-  min-height: 30px;
-  min-width: 34px;
-  padding: 0 0.4rem;
+  font-size: 0.85rem;
+  min-height: 40px;
+  min-width: 40px;
+  padding: 0 0.5rem;
   border: none;
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--color-muted);
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .alg-pace__speed:hover {
@@ -430,8 +481,10 @@
 }
 
 .alg-grow__scroll {
+  position: relative;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .alg-grow__table {
@@ -451,6 +504,10 @@
 .alg-grow__table th:first-child,
 .alg-grow__table td:first-child {
   text-align: left;
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  z-index: 2;
 }
 
 .alg-grow__table thead th {
@@ -474,6 +531,7 @@
 
 .alg-grow__row--hl td:first-child {
   box-shadow: inset 3px 0 0 var(--color-drishti);
+  background: color-mix(in srgb, var(--color-drishti) 22%, var(--color-surface));
   font-weight: 600;
 }
 
@@ -499,8 +557,10 @@
 }
 
 .alg-bank__scroll {
+  position: relative;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .alg-bank__ledger {
@@ -523,6 +583,10 @@
 .alg-bank__ledger td:first-child {
   text-align: left;
   font-family: var(--font-sans);
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  z-index: 2;
 }
 
 .alg-bank__ledger thead th {
@@ -579,7 +643,7 @@
 }
 
 .alg-bank__assert {
-  flex: 1 1 16rem;
+  flex: 1 1 min(100%, 16rem);
   padding: var(--space-3);
   border-radius: var(--radius-md);
   border: 1px solid var(--alg-border);
@@ -758,6 +822,15 @@
   font-weight: 600;
 }
 
+.alg-semiring__scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  padding-bottom: var(--space-2);
+}
+
 .alg-semiring__grid {
   display: grid;
   gap: 2px;
@@ -826,7 +899,7 @@
 
 .alg-semiring__step input[type="range"] {
   flex: 1 1 12rem;
-  min-height: 32px;
+  min-height: var(--touch-target-min, 44px);
   accent-color: var(--alg-accent);
 }
 
@@ -1082,7 +1155,10 @@
 }
 
 .alg-graph__dist {
+  position: relative;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .alg-graph__dist table {
@@ -1102,6 +1178,10 @@
   text-align: left;
   color: var(--color-muted);
   font-family: var(--font-sans);
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  z-index: 1;
 }
 
 .alg-graph__dist-inf {
@@ -1114,8 +1194,9 @@
 }
 
 .alg-graph__history {
+  list-style: none;
   margin: 0;
-  padding-left: 1.4rem;
+  padding: 0;
   max-height: 8.5rem;
   overflow-y: auto;
   font-size: 0.76rem;
@@ -1151,6 +1232,17 @@
   color: var(--color-muted);
 }
 
+.alg-dp__canvas-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--alg-border);
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+}
+
 .alg-dp__svg {
   display: block;
   width: 100%;
@@ -1158,6 +1250,11 @@
   background: color-mix(in srgb, var(--color-bg) 70%, transparent);
   border: 1px solid var(--alg-border);
   border-radius: var(--radius-sm);
+}
+
+.alg-dp__canvas-wrap .alg-dp__svg {
+  border: none;
+  background: transparent;
 }
 
 .alg-dp__axis {
@@ -1411,6 +1508,31 @@
   text-align: right;
 }
 
+@media (max-width: 520px) {
+  .alg-rec__ribbon-row {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .alg-rec__ribbon-k {
+    font-weight: 600;
+  }
+  .alg-rec__ribbon-txt {
+    min-width: 0;
+    width: auto;
+    margin-left: auto;
+    font-size: 0.72rem;
+  }
+  .alg-rec__ribbon-track {
+    width: 100%;
+    flex: 1 0 100%;
+    order: 3;
+    height: 0.8rem;
+  }
+  .alg-rec__slider input[type="range"] {
+    min-height: var(--touch-target-min, 44px);
+  }
+}
+
 .alg-rec__ribbon-txt b {
   color: var(--color-text);
 }
@@ -1651,6 +1773,24 @@
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-3);
+}
+
+@media (max-width: 520px) {
+  .alg-ca__identity {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  .alg-ca__ideq {
+    display: none;
+  }
+  .alg-ca__idbox {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-3);
+  }
 }
 
 .alg-ca__idbox {
@@ -1939,7 +2079,10 @@
 }
 
 .alg-lp__tablewrap {
+  position: relative;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .alg-lp__table {
@@ -1961,6 +2104,10 @@
 .alg-lp__table td:first-child {
   text-align: left;
   font-family: var(--font-sans);
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  z-index: 1;
 }
 
 .alg-lp__table thead th {
@@ -1969,4 +2116,89 @@
 
 .alg-lp__row--cut td {
   background: color-mix(in srgb, var(--color-drishti) 12%, transparent);
+}
+
+/* ================================================== Mobile SVG Scalability */
+
+@media (max-width: 600px) {
+  /* SeriesChart */
+  .alg-chart__tick-label {
+    font-size: 16px;
+  }
+  .alg-chart__axis-label {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .alg-chart__anno-text {
+    font-size: 16px;
+  }
+  .alg-chart__line {
+    stroke-width: 3px;
+  }
+  .alg-chart__dot {
+    r: 3px;
+  }
+
+  /* LatticeClimb */
+  .alg-lattice__node-text {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .alg-lattice__node-box {
+    stroke-width: 2px;
+  }
+  .alg-lattice__edge-hit {
+    stroke-width: 28px;
+  }
+
+  /* MonteCarloBound */
+  .alg-mc__tick {
+    font-size: 16px;
+  }
+  .alg-mc__bound {
+    stroke-width: 3.2px;
+  }
+  .alg-mc__stats {
+    gap: var(--space-2) var(--space-3);
+    justify-content: space-between;
+  }
+
+  /* GraphCanvas */
+  .alg-graph__nlabel {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .alg-graph__wlabel {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .alg-graph__edge {
+    stroke-width: 2.5px;
+  }
+  .alg-graph__edge--accepted,
+  .alg-graph__edge--path {
+    stroke-width: 4.2px;
+  }
+
+  /* ChainAntichain */
+  .alg-ca__tick,
+  .alg-ca__ptlabel {
+    font-size: 16px;
+  }
+  .alg-ca__axis-label {
+    font-size: 18px;
+  }
+
+  /* LPDualityDashboard */
+  .alg-lp__nlabel {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .alg-lp__elabel {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .alg-lp__edge {
+    stroke-width: 2.6px;
+  }
 }

@@ -3,7 +3,7 @@ title: "Fixed-Point Iteration"
 slug: fixed-point-iteration
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not the loop xₙ₊₁ = g(xₙ). It is a contraction of a complete metric space, pulled to its one fixed point at rate qⁿ."
+reframe: "Take any crumpled map and toss it onto the floor: exactly one point rests directly above the coordinate it represents. A contraction mapping folds an entire metric space inward, reeling every starting guess into an inescapable attractor at rate qⁿ."
 oneLine: "Repeat x = cos x from any start and watch the cobweb spiral into the Dottie number."
 tldr: ["A map that shrinks every distance by a fixed factor q < 1 has exactly one fixed point, and plain iteration reaches it (Banach 1922).", "The error halves geometrically: the panel's ratio column settles on q = 0.6736 for x = cos x, and the chart below plots the honest decay.", "The check you actually run is calculus: if |g′(x)| ≤ q < 1 on an interval, the mean value theorem makes g a contraction there.", "Newton's method is the special case g′(x*) = 0, which is why its error squares instead of shrinking geometrically."]
 mathBranches: ["analysis", "numerical-analysis", "geometry"]
@@ -15,9 +15,11 @@ import IterationLab from "@alg/IterationLab.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 
-## Fixed-point iteration is not a loop that stops moving. It is a contraction pulling a complete space onto its one fixed point.
+## The Cobweb Spiral
 
-The panel below opens on $g(x) = \cos x$ starting from $x_0 = 1$. Press step and follow the cobweb as it bounces between the cosine curve and the diagonal line $y = x$.
+Type `cos` into a pocket calculator, press equals, and press it again. No matter what initial number you entered, the display drifts helplessly toward `0.739085...`—the Dottie number.
+
+The panel below captures this exact convergence. Follow the cobweb staircase as it bounces between the cosine curve and the diagonal line $y = x$.
 
 <IterationLab
   client:visible
@@ -28,19 +30,19 @@ The panel below opens on $g(x) = \cos x$ starting from $x_0 = 1$. Press step and
 
 Watch the $e_n$ column as you step. It falls by roughly the same factor every time, and that factor is the slope of $g$ at the fixed point. Everything on this page explains that number.
 
-## 1 · The question
+## The Mirage of the Halting Loop
 
 You want to solve $x = g(x)$, so you iterate $x_{n+1} = g(x_n)$ and stop when the points stop moving. For $g(x) = \cos x$ this works from any start you drag the slider to.
 
 The operational framing hides the real question. Some maps land and some run away, and the loop itself cannot tell you which kind you hold. The question is what property of $g$ makes iteration a proof instead of a hope.
 
-## 2 · The real object
+## Complete Spaces and Metric Contractions
 
 The real object is a complete metric space with a contraction on it. A metric space is a set with a distance $d(x, y)$, and completeness means every Cauchy sequence has a limit in the space. The closed interval of the real line is complete; an open interval is not, since a sequence can converge to a missing endpoint.
 
 A contraction is a map $g$ with one number $q$ below $1$ such that $d(g(x), g(y)) \le q\,d(x, y)$ for every pair $x$ and $y$. The constant $q$ is the whole story: it says all distances shrink by the same factor at every step. The panel's ratio column is your window onto $q$.
 
-## 3 · The mathematics
+## Banach's Inevitable Attractor
 
 Banach's contraction mapping theorem (Banach 1922, building on Picard's 1890 successive approximations) states the payoff. If $g$ is a contraction with constant $q$ on a complete metric space, then $g$ has exactly one fixed point $x^*$, and $x_{n+1} = g(x_n)$ converges to it from any start.
 
@@ -100,7 +102,7 @@ Name the contrast that makes Banach 1922 worth its fame. Brouwer's fixed-point t
   hint="Compute q⁵/(1−q) times 0.4597, then compare with the panel's e₅."
 />
 
-## 4 · The centrepiece: drive the contraction
+## Driving the Cobweb Staircase
 
 Return to the panel and change the function. On the cubic $g(x) = (2x + 5)^{1/3}$ the ratio column settles on a smaller $q$ and the staircase falls faster; on the $\sqrt{2}$ map it settles on $0.1716$ near $+\sqrt{2}$.
 
@@ -121,19 +123,19 @@ The chart below plots the honest numbers for the cosine run from $x_0 = 1$: the 
 
 Read the two lines on the log scale as straight lines with the same slope. That shared slope is $q$, and the gap between the lines is the slack $1/(1-q)$ the proof pays for not knowing the future.
 
-## 5 · The payoff
+## From Picard Iteration to PageRank
 
 Picard used this iteration to solve differential equations (Picard 1890): rewrite $y' = f(y)$ as an integral equation and iterate the integral, which contracts on a short time interval. Banach's abstraction turned one existence proof into a method for equations everywhere.
 
 Every solver with a "tolerance" and a "max iterations" field is spending this theorem. Value iteration in dynamic programming, power iteration for eigenvectors, and the inner loops of splitting methods all converge because some map contracts. When they stall, the first diagnostic is the same: estimate $q$, and check whether it is really below $1$.
 
-## 6 · Optional: when the contraction is only local
+## Escaping the Basin: When Contraction is Local
 
 Skippable. The theorem needs $g$ to map a complete set into itself and contract there. Often neither holds globally, yet both hold on a small closed ball around the fixed point.
 
 Then the same proof runs locally: start inside the ball and you converge with the same rate. Newton lives here, since $N'(x^*) = 0$ only forces contraction near $x^*$. The global cosine map of this page is the easy case, not the typical one.
 
-## 7 · Attributions
+## Lineage & Attributions
 
 - **Picard 1890** — successive approximations for ordinary differential equations, the iteration Banach later abstracted.
 - **Brouwer 1911** — the topological fixed-point theorem: existence without uniqueness, rate, or construction; the foil to Banach.

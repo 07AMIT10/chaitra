@@ -9,23 +9,23 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
     DPHeatmap         problem ("lis") · sequence (number[]) · caption · height
   Interactive primitives need an explicit Astro client directive (`client:visible`).
   Astro islands cannot nest, so each driven primitive is its own island.
-  Every count stated below is computed by the same rules the components use:
-  strict-increase chains, non-increasing antichains, the `top >= card` pile rule.
 */}
 
-## Longest increasing subsequence is not a hunt for a subsequence. It is the tallest chain in a two-dimensional order.
+## The Solitaire Shuffle
 
-Six numbers stand in a row: `4 1 5 2 6 3`. You may keep any of them, in the order they appear, but the kept numbers have to climb the whole way. Lock a guess at the longest such run.
+Six numbers stand on a board in scrambled order: `4 1 5 2 6 3`. You may pick any subset of these values, preserving their left-to-right order of arrival, provided every chosen value strictly exceeds its predecessor.
+
+At first glance, this feels like an arbitrary game of search and backtrack across $2^n$ possible subsets. Lock in a guess at the longest ascending run hidden inside this sequence.
 
 <PredictionPrompt
   client:visible
   question="In the sequence 4, 1, 5, 2, 6, 3, how long is the longest strictly increasing subsequence?"
   options={["2", "3", "4", "6"]}
   correct={1}
-  explain="The best runs ending at each position come out as 1, 1, 2, 2, 3, 3, so the longest run anywhere is 3. Both 4, 5, 6 and 1, 2, 3 reach it, and neither extends: after the closing 6 no larger value remains to its right."
+  explain="The best climbing runs ending at each position have lengths 1, 1, 2, 2, 3, 3. The maximum length anywhere is 3. Both [4, 5, 6] and [1, 2, 3] attain it, and neither can be extended further: following the final 6, no larger number remains to its right."
 />
 
-Same six numbers again, now drawn. The panel plots each value against its position, colours one longest climbing run gold and one longest falling run blue, and deals a card game below the picture.
+Plot the six numbers as coordinates $(i, p_i)$ in the Cartesian plane. The panel paints one longest ascending run in gold, one longest descending run in blue, and deals the numbers into solitaire piles below.
 
 <ChainAntichain
   client:visible
@@ -33,87 +33,85 @@ Same six numbers again, now drawn. The panel plots each value against its positi
   caption="Six points (i, pᵢ). Gold: a longest increasing subsequence. Blue: a longest non-increasing one. The transport at the top steps the patience piles card by card."
 />
 
-One number in that panel is doing quiet work: the pile count equals the length of the gold run. The rest of the page is about which theorem says so, and which theorem it is *not*.
+A quiet miracle unfolds in that panel: the number of patience piles equals the exact length of the gold climbing run. That equality is not an accident of arithmetic; it is a fundamental theorem of partially ordered sets.
 
-## 1 · The question
+## The Quadratic Illusion
 
-The ask is operational. Walk left to right, decide for each number whether to keep it, and finish with the longest increasing thing you kept. A subsequence is any subset of positions, so brute force has $2^n$ candidates to inspect.
-
-The usual fix is dynamic. Let `dp[i]` be the length of the longest increasing subsequence that ends exactly at position `i`.
+The naive programmatic strategy tracks a state array: let `dp[i]` denote the length of the longest increasing subsequence terminating at index `i`.
 
 $$
-dp[i] \;=\; 1 + \max\{\, dp[j] \;:\; j < i \text{ and } p_j < p_i \,\}, \qquad dp[i] = 1 \text{ when no such } j \text{ exists.}
+dp[i] = 1 + \max\{\, dp[j] : j < i \text{ and } p_j < p_i \,\}, \qquad dp[i] = 1 \text{ if no such } j \text{ exists.}
 $$
 
-That recurrence is correct, and it is not the question. After the base case it never mentions a subsequence; it only compares a number to earlier numbers that happen to be smaller. What it maximises is a *chain* in an order built on the points, and that order is the object we actually want.
+Evaluating this recurrence demands scanning every prior position for each element, consuming $O(n^2)$ pairwise comparisons. But this recurrence does not actually care about strings or arrays; it is secretly computing the maximal chain in a geometric order.
 
-## 2 · The real object: the points, in two orders at once
+## The 2D Dominance Poset
 
-Keep the sequence, drop the list, and draw the points $(i, p_i)$ in the plane. Write $(i, p_i) \prec (j, p_j)$ when $i < j$ **and** $p_i < p_j$. Both coordinates must move the same way: the position grows and the value grows.
-
-That relation is a strict partial order. Nothing precedes itself, and if $a \prec b$ and $b \prec c$ then $a \prec c$. It is the intersection of the natural order on positions with the natural order on values, which is why it is called a two-dimensional order, or the dominance order on the points.
-
-A **chain** is a set whose points are pairwise comparable. Listed by position, its values strictly increase, which is exactly an increasing subsequence and nothing more. An **antichain** is a set with no comparable pair: for $i < j$ we need $p_i \ge p_j$, so listed by position its values never rise.
-
-The **height** of the order is the length of its longest chain; the **width** is the size of its largest antichain. In the panel above, gold is a longest chain and blue is a largest antichain. Every quantity the original problem asks for is a coordinate of this one picture.
-
-## 3 · The mathematics: one cover for the height, one cover for the width
-
-**Mirsky's theorem (Mirsky 1971).** The height of a finite poset equals the fewest antichains that cover it.
+Drop the array index and treat the sequence as a cloud of planar points $(i, p_i)$. Define a partial order $\prec$ by requiring both coordinates to grow simultaneously:
 
 $$
-\operatorname{height}(P) \;=\; \min\{\, k \;:\; P = A_1 \cup \dots \cup A_k, \ \text{each } A_i \text{ an antichain} \,\}
+(i, p_i) \prec (j, p_j) \iff i < j \quad\text{and}\quad p_i < p_j
 $$
 
-Patience sorting is a proof you can watch. Deal the numbers face up, left to right, each onto the leftmost pile whose top is at least it; if no top is that large, start a new pile.
+This relation is the intersection of two linear orders—the order of arrival and the order of value—forming a two-dimensional **dominance poset**.
 
-Each pile is non-increasing in position order, so each pile is an antichain, and every card lies on exactly one pile. That is a cover of all the points by as many antichains as there are piles, so the height cannot exceed the pile count.
+A **chain** in this poset is a collection of mutually comparable points: sorting them by position automatically sorts them in strictly increasing value. An **antichain** is a set of mutually incomparable points: sorting them by position yields a sequence that never ascends ($p_i \ge p_j$ whenever $i < j$).
 
-The other direction makes it exact. When a card lands on pile $k$, link it to the top of pile $k-1$ at that moment; following those links from a pile top rebuilds a strictly increasing subsequence of length equal to the number of piles. So the pile count is at least the height, and the two agree.
+The **height** of the poset is the size of its largest chain, while its **width** is the size of its largest antichain. In the visualizer above, gold is the maximal chain and blue is the maximal antichain.
 
-Together those two facts are Mirsky's theorem made constructive: patience sorting hands you a cover that is not merely valid but *minimum*. The panel prints it as the identity `max chain = min antichain cover`.
+## Mirsky, Dilworth, and the Patience Invariant
 
-What makes it fast is a small invariant. A card lands on the leftmost pile whose top is at least it, so it lowers a top and can never cross the pile to its left; a new pile is started only when the card beats every current top.
+**Mirsky's Theorem (Mirsky 1971).** In any finite partially ordered set, the height equals the minimum number of antichains needed to cover all elements.
+
+$$
+\operatorname{height}(P) = \min\{\, k : P = A_1 \cup \dots \cup A_k, \ \text{each } A_i \text{ an antichain} \,\}
+$$
+
+Patience sorting provides a constructive proof of Mirsky's theorem. Deal the cards left to right, placing each card onto the leftmost pile whose visible top is at least the card's value; if no such pile exists, start a new pile to the right.
+
+Every pile formed this way is strictly non-increasing in time order, so each pile is an antichain. Whenever a card lands on pile $k$, it can be linked to the current top of pile $k-1$, carving out an ascending chain whose length matches the pile count.
 
 <PredictionPrompt
   client:visible
-  question="After any number of cards, read the pile tops from left to right. What order are they always in?"
-  options={["No particular order — they jumble as cards land.", "Strictly increasing.", "Strictly decreasing."]}
+  question="After dealing any number of cards, examine the top cards of all active piles from left to right. What ordering invariant do they obey?"
+  options={[
+    "No guaranteed order: tops fluctuate arbitrarily as new cards land.",
+    "Strictly increasing from left to right.",
+    "Strictly decreasing from left to right."
+  ]}
   correct={1}
-  explain="A card on pile k has value v with top[k-1] < v ≤ top[k] just before it lands, so it keeps top[k-1] < top[k]; a new pile needs v larger than every top, so the array only ever extends to the right. That invariant is what turns 'leftmost large-enough pile' into a binary search, and it is the row of numbers printed under the piles."
+  explain="When a card lands on pile k, its value v satisfies top[k-1] < v ≤ top[k] at that exact moment. Placing v onto pile k lowers top[k] while keeping it strictly above top[k-1]! Consequently, the pile tops always form a strictly sorted array, enabling binary search to locate the correct pile in O(log n) time."
 />
 
-Because the tops form a sorted array, each card costs one binary search. With `n` cards and an array of length at most `n`, the pile method runs in $O(n\log n)$ steps against $O(n^2)$ for the recurrence of section 1.
+Because the active pile tops remain strictly sorted, finding the leftmost valid pile costs only one binary search per card. For $n$ cards, patience sorting computes the exact LIS in $O(n \log n)$ time, entirely sidestepping the quadratic recurrence.
 
-The dual statement is the one routinely swapped with Mirsky's, so keep them apart. Write-ups that call the patience piles "Dilworth" have the attribution backwards.
+What about Dilworth's theorem? It is the dual counterpart to Mirsky's result, not a duplicate.
 
-**Dilworth's theorem (Dilworth 1950).** The width of a finite poset equals the fewest chains that cover it.
+**Dilworth's Theorem (Dilworth 1950).** In any finite partially ordered set, the width equals the minimum number of chains needed to cover all elements.
 
 $$
-\operatorname{width}(P) \;=\; \min\{\, k \;:\; P = C_1 \cup \dots \cup C_k, \ \text{each } C_i \text{ a chain} \,\}
+\operatorname{width}(P) = \min\{\, k : P = C_1 \cup \dots \cup C_k, \ \text{each } C_i \text{ a chain} \,\}
 $$
 
-Mirsky covers with antichains and answers the height; Dilworth covers with chains and answers the width. The easy half is a sentence: a chain can hold at most one point of an antichain, so any chain cover needs at least width chains.
+Mirsky partitions into antichains to reveal the height; Dilworth partitions into chains to reveal the width.
 
-That a greedy cover attains the bound is the substantive half, and this page cites it rather than proving it. In the panel both counts are on screen, and they are different numbers.
-
-**Erdős–Szekeres (Erdős and Szekeres 1935).** Every sequence of length greater than $(r-1)(s-1)$ contains a strictly increasing subsequence of length $r$ or a non-increasing subsequence of length $s$.
-
-The proof is a pigeonhole you can run yourself. Give position `i` the pair $(a_i, b_i)$ of the longest increasing and longest non-increasing subsequence ending at `i`. If $i < j$ then either $p_i < p_j$, which forces $a_j > a_i$, or $p_i \ge p_j$, which forces $b_j > b_i$.
-
-So no two positions receive the same pair, and there are only $(r-1)(s-1)$ pairs with $a_i < r$ and $b_i < s$. More positions than pairs forces one of the two runs past its ceiling.
+**Erdős–Szekeres Theorem (Erdős & Szekeres 1935).** Every sequence containing more than $(r-1)(s-1)$ distinct elements must contain either an increasing subsequence of length $r$ or a non-increasing subsequence of length $s$.
 
 <PredictionPrompt
   client:visible
-  question="With r = 4 and s = 4 the bound says any sequence longer than 9 has an increasing run of length 4 or a non-increasing run of length 4. Here are ten numbers: 3, 2, 1, 6, 5, 4, 9, 8, 7, 0. Which does the bound deliver for this sequence?"
-  options={["An increasing run of length 4.", "A non-increasing run of length 4.", "Neither — this sequence disproves the bound."]}
+  question="For r = 4 and s = 4, any sequence with more than 9 numbers must have an ascending run of 4 or a descending run of 4. Test this on: 3, 2, 1, 6, 5, 4, 9, 8, 7, 0 (ten numbers). Which run does the bound deliver?"
+  options={[
+    "An increasing run of length 4.",
+    "A non-increasing run of length 4.",
+    "Neither: this carefully engineered sequence disproves the bound."
+  ]}
   correct={1}
-  explain="The numbers are three descending blocks, 3 2 1 then 6 5 4 then 9 8 7, with a 0 appended. The 0 drags 3, 2, 1, 0 down to a non-increasing run of length 4, while every increasing run stalls at length 3. The nine-number prefix 3 2 1 6 5 4 9 8 7 dodges both, which is exactly the (r−1)(s−1) = 9 the bound predicts."
+  explain="The sequence consists of three descending triplets (3,2,1 then 6,5,4 then 9,8,7) followed by 0. Every increasing run is choked at length 3 (such as 1, 4, 7). But the trailing 0 combines with the first triplet to yield [3, 2, 1, 0]—a descending subsequence of length 4! The 9-element prefix dodges both, illustrating the exact sharpness of (r-1)(s-1) = 9."
 />
 
-## 4 · The centrepiece: the DP and the piles, on one sequence
+## Two Algorithms, One Invariant
 
-Take a sequence where the two sides disagree, so both theorems are visible at once.
+Consider a nine-element sequence where the primal chain and the dual antichain diverge in length.
 
 <ChainAntichain
   client:visible
@@ -121,9 +119,9 @@ Take a sequence where the two sides disagree, so both theorems are visible at on
   caption="Nine points. The gold chain has length 6 and the pile count is 6 — Mirsky's antichain cover. The blue antichain has length 3 and the greedy chain cover also has 3 chains — Dilworth's dual. Six and three, from one set of points."
 />
 
-Step it and read the columns. The gold chain is `2 → 5 → 7 → 8 → 10 → 13`, of length 6, and the patience piles number 6 as well; that equality is Mirsky's theorem, and the surviving tops `{2, 3, 6, 8, 10, 13}` are the minimum cover the piles built. The blue antichain is `11 → 8 → 6`, of length 3, and the fewest chains that cover the nine points is 3; that is Dilworth's theorem.
+Step through the solitaire deal. The gold chain is `2 → 5 → 7 → 8 → 10 → 13` of length 6, and exactly 6 piles emerge; this is Mirsky's theorem in action. Meanwhile, the longest non-increasing antichain is `11 → 8 → 6` of length 3, and the points can be covered by 3 chains; this confirms Dilworth's dual.
 
-Now run the same nine numbers through the other lens. Each cell is `dp[i]`, the longest increasing subsequence ending at that position, filled left to right.
+Now observe the same sequence evaluated by dynamic programming.
 
 <DPHeatmap
   client:visible
@@ -132,38 +130,36 @@ Now run the same nine numbers through the other lens. Each cell is `dp[i]`, the 
   caption="The O(n²) table. Hover a cell to see the exact recurrence that filled it, or step the fill order and watch the back-pointers."
 />
 
-The row comes out `1 2 2 3 4 4 5 6 3`. Its largest entry is 6, the same number the piles counted, and tracing the back-pointers from that cell recovers a chain of length 6.
-
-So there are two algorithms and one number. The table builds the best chain from below and takes a maximum at the end; patience sorting grows the antichain cover and reads its size. Mirsky's theorem is the reason the two cannot disagree.
+The DP table outputs `1 2 2 3 4 4 5 6 3`. Its maximum entry is 6, identical to the pile count produced by patience sorting. Two distinct computational paradigms converge upon the same structural invariant.
 
 <PredictionPrompt
   client:visible
-  question="Let the sequence be 3, 3. How long is its longest strictly increasing subsequence, and how many patience piles do its two cards make?"
+  question="Consider the sequence with duplicate values: [3, 3]. How long is its longest strictly increasing subsequence, and how many patience piles does it produce?"
   options={["1 and 1", "2 and 2", "1 and 2", "2 and 1"]}
   correct={0}
-  explain="Strictly increasing needs both coordinates to grow, so two equal values are never comparable and the run stops at 1. The second 3 lands on the first pile rather than starting a new one, so the pile count is 1 too — which is why the pile rule says 'top is at least the card' and not 'top is greater than the card'."
+  explain="Because strict increase requires strict inequalities in both indices and values, two equal elements cannot belong to the same chain; the maximum climbing length is 1. Under patience rules, the second 3 is placed onto the first pile because its top (3) is 'at least' the card. The pile count remains 1, perfectly matching Mirsky's bound."
 />
 
-## 5 · The payoff
+## Box Stacking, Diff Engines, and Interception
 
-The height of a two-dimensional order hides inside every problem that stacks or schedules under two thresholds at once.
+The height of a two-dimensional poset governs real-world systems constrained by dual thresholds.
 
-Box stacking is the same order read off rectangles: box $A$ sits on box $B$ when both sides of $A$ are smaller, and the tallest tower is a longest chain. Partitioning a sequence into the fewest non-increasing runs is the LIS again, by Mirsky, which answers the classic interception problem: how few non-increasing passes are needed to cover an incoming stream.
+Box nesting models this directly: box $A$ nests inside box $B$ when both dimensions are strictly smaller, turning maximum tower height into an LIS chain. Similarly, missile defence scheduling uses Mirsky's theorem to calculate the minimum number of non-increasing interception batteries needed to neutralize an inbound missile barrage.
 
-Two permutations reduce to the same object. Relabel the second by the positions of its values in the first, and the longest common subsequence becomes a longest increasing subsequence; version control leans on precisely this, taking the unique matching lines of two files and keeping a longest increasing subsequence of their positions as diff anchors.
+In file comparison algorithms, diff engines locate identical lines between two documents, order them by line number, and find the longest increasing subsequence. The elements outside that LIS identify the exact insertions and deletions.
 
-In each case the object is one poset and the certificate is one cover. If a problem hands you a maximum compatible set under two coordinates, you are being asked for a height.
+## Beyond the First Row: Young Tableaux and Random Matrices
 
-## 6 · Optional: the whole shape, not just its first row
+Patience sorting reveals just the first row of a richer algebraic structure. Applying the Robinson–Schensted correspondence (Schensted 1961) inserts each number into a Young tableau. The length of the first row $\lambda_1$ equals the LIS, while the length of the first column equals the longest decreasing subsequence.
 
-Skippable. If you want the full shape rather than one number, insert each value into a Young tableau by row insertion (Schensted 1961). The shape $\lambda$ that results has first row $\lambda_1$ equal to the longest increasing subsequence, and its first column has length equal to the longest strictly decreasing subsequence.
+For random permutations of size $n$, the expected LIS length scales asymptotically as $2\sqrt{n}$ (Vershik & Kerov 1977).
 
-The patience piles keep only the first row's length; the tableau keeps every row. That extra structure is where the fluctuations of the longest increasing subsequence of a random permutation are studied (Baik, Deift and Johansson 1999), a story this page does not enter.
+Baik, Deift & Johansson (1999) proved that the fluctuations of the LIS around $2\sqrt{n}$ converge to the Tracy–Widom distribution from random matrix theory. A simple card game connects directly to quantum energy levels.
 
-## 7 · Attributions
+## Attributions
 
-- **Mirsky 1971** — *A dual of Dilworth's decomposition theorem*: the height of a poset equals the fewest antichains covering it. This is the theorem the patience piles exhibit, and the one the pile count should be credited to.
-- **Dilworth 1950** — *A decomposition theorem for partially ordered sets*: the width equals the fewest chains covering it. The dual of Mirsky's statement, not a restatement of it; the page keeps the two apart on purpose.
-- **Erdős–Szekeres 1935** — *A combinatorial problem in geometry*: any sequence longer than $(r-1)(s-1)$ contains an increasing subsequence of length $r$ or a non-increasing one of length $s$.
-- **Schensted 1961** — *Longest increasing and decreasing subsequences*: insertion into a Young tableau, whose shape has first row the LIS and first column the longest strictly decreasing subsequence.
-- **Baik–Deift–Johansson 1999** — the Tracy–Widom limit for the LIS of a random permutation, named only as a pointer from the shape.
+- **Mirsky 1971** — *A dual of Dilworth's decomposition theorem*: poset height equals the minimum antichain cover size.
+- **Dilworth 1950** — *A decomposition theorem for partially ordered sets*: poset width equals the minimum chain cover size.
+- **Erdős & Szekeres 1935** — *A combinatorial problem in geometry*: Ramsey-theoretic lower bounds for monotonic subsequences.
+- **Schensted 1961** — The Robinson–Schensted correspondence relating subsequences to Young tableaux.
+- **Baik, Deift & Johansson 1999** — Proof of Tracy–Widom fluctuations for the LIS of random permutations.

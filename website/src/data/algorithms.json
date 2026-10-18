@@ -6,7 +6,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "0/1 Knapsack",
-      "reframe": "It is not a hunt for the best value per kilogram. It is a longest path through a grid, and an integer program whose linear relaxation sits strictly above it.",
+      "reframe": "Pack a mountaineer's rucksack for a deadly ascent. Greedy heuristics chase density and starve on dead weight; the true optimum is a ghost threading a lattice DAG, leaving an insurmountable integrality gap between continuous relaxations and indivisible cargo.",
       "oneLine": "Three items, a ten-kilogram pack, and a table whose bottom-right cell is the answer.",
       "tldr": [
         "The state is a cell (i, c): the best value from the first i items inside capacity c. The recurrence is V(i,c) = max(V(i−1,c), vᵢ + V(i−1, c−wᵢ)), and the cell grid is a DAG whose longest path is the optimum.",
@@ -43,7 +43,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Bellman–Ford",
-      "reframe": "It is not a slower Dijkstra. It is the least fixed point of a monotone relaxation operator.",
+      "reframe": "It is not a slower Dijkstra for broken edges. It is a deflationary gravity: a monotone operator pressing down on every road simultaneously until distances freeze into their least fixed point—or spiral endlessly into a negative abyss.",
       "oneLine": "Relax every edge in rounds; stop when nothing improves.",
       "tldr": [
         "The state is one distance vector; a round applies the relaxation operator to every edge at once.",
@@ -79,7 +79,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Binary Search",
-      "reframe": "It is not looking at the middle element. It is the halving of an interval of possible answers.",
+      "reframe": "To search a billion records, a linear scan must traverse the continent of data footprint by footprint. Binary search cuts the entire continent in half thirty times. In thirty questions, a search space larger than humanity collapses to a single atom.",
       "oneLine": "Halve the interval that still contains the answer, one comparison at a time.",
       "tldr": [
         "The state is an interval that always contains the answer; every comparison deletes at least half of what is left.",
@@ -118,7 +118,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Bipartite Matching",
-      "reframe": "It is not pairing things up greedily. It is a set of independent edges, grown along augmenting paths and pinned from both sides.",
+      "reframe": "Tether two disjoint universes through a web of fragile handshakes. Eager pairings leave orphaned nodes in the cold; true optimality surges through alternating paths of swapped commitments, pinned between Hall's suffocating neighborhood trap and König's impenetrable vertex shield.",
       "oneLine": "Four applicants, four placements, six acceptable pairs, and a ceiling of three.",
       "tldr": [
         "A matching is a set of edges with no shared endpoints; greedy first-available pairing can strand a vertex that an augmenting path would have saved.",
@@ -154,7 +154,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Breadth-First Search",
-      "reframe": "It is not a traversal order. It is the distance function of a graph, written one level at a time.",
+      "reframe": "It is not a graph traversal. It is an unweighted shockwave detonating from a single spark: expanding in concentric spheres of integer distance, carving out the exact geodesic metric of the graph one frontier at a time.",
       "oneLine": "One source, one queue, and the distance of every vertex — a level at a time.",
       "tldr": [
         "The output is a level function: the least fixed point of d(v) = 1 + min d(u) over neighbours — distance in the unweighted metric.",
@@ -192,7 +192,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Coin Change",
-      "reframe": "It is not the largest-coin-first rule. It is a shortest path over the amounts, and greedy is exact exactly when the coin system is canonical.",
+      "reframe": "The cashier's reflex to grab the largest coin is an arithmetic trap. Minimum coin change is a shortest path through a discrete lattice of debt, and greedy choices tumble into disaster the instant a currency ceases to be canonical.",
       "oneLine": "The fewest coins that sum to an amount, and the exact condition under which the largest-first rule finds them.",
       "tldr": [
         "Every cell of the table is a shortest-path distance on the amounts 0 to the amount, where each coin is an edge of weight one.",
@@ -228,7 +228,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Depth-First Search",
-      "reframe": "It is not a plunge down one path. It is a spanning forest whose vertices carry nested time intervals.",
+      "reframe": "It is not a blind plunge into the dark. It is a dual-clock crystallization: each vertex is entered with a timestamp and exited with an epitaph, freezing the chaos of a graph into a laminar geometry of perfectly nested time intervals.",
       "oneLine": "Two time-stamps per vertex, and the way the intervals they bound stand to each other.",
       "tldr": [
         "Every vertex gets a discovery time and a finish time; the intervals they bound are either nested or disjoint, never partially overlapping (the parenthesis theorem).",
@@ -262,7 +262,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Dijkstra's Algorithm",
-      "reframe": "It is not a search for a shortest path. It is a wavefront settling vertices in increasing distance: a one-sided metric closure.",
+      "reframe": "It is not a search for a path. It is a wave of light radiating through glass of different thicknesses: the moment a town is touched, its distance is carved in stone forever, because light cannot travel backward in time.",
       "oneLine": "One source, one frontier, labels that only fall.",
       "tldr": [
         "The state is a vector of over-estimates plus a settled set; relaxation only lowers a label.",
@@ -299,7 +299,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Edit Distance",
-      "reframe": "It is not a count of differing characters. It is the geodesic distance in the graph of all strings, where each edit is an edge.",
+      "reframe": "Every word is a coordinate in an infinite space of strings. Insert, delete, and mutate are unit vectors across its grid; edit distance is the exact geodesic, carving the shortest trek through a lattice of prefixes.",
       "oneLine": "The fewest insertions, deletions and substitutions that turn one string into another.",
       "tldr": [
         "Every cell of the table is a shortest-path distance in the graph of strings, and hovering it lights the three edges that reach it.",
@@ -334,7 +334,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Fixed-Point Iteration",
-      "reframe": "It is not the loop xₙ₊₁ = g(xₙ). It is a contraction of a complete metric space, pulled to its one fixed point at rate qⁿ.",
+      "reframe": "Take any crumpled map and toss it onto the floor: exactly one point rests directly above the coordinate it represents. A contraction mapping folds an entire metric space inward, reeling every starting guess into an inescapable attractor at rate qⁿ.",
       "oneLine": "Repeat x = cos x from any start and watch the cobweb spiral into the Dottie number.",
       "tldr": [
         "A map that shrinks every distance by a fixed factor q < 1 has exactly one fixed point, and plain iteration reaches it (Banach 1922).",
@@ -369,7 +369,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Floyd–Warshall",
-      "reframe": "It is not all-pairs shortest paths. It closes one matrix over a semiring, and the arithmetic you choose is the problem you are solving.",
+      "reframe": "It is not a road-trip calculator. It is a universal matrix inversion engine: swap out two algebraic symbols, and the exact same four-line loop morphs from pricing shortest paths into counting quantum walks, proving reachability, or decoding hidden Markov trellises.",
       "oneLine": "One triple loop, four arithmetics, four different answers from the same grid.",
       "tldr": [
         "The four-line triple loop uses only ⊕, ⊗, 0 and 1; the semiring axioms are its entire hypothesis.",
@@ -406,7 +406,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Huffman Coding",
-      "reframe": "It is not a compression trick. It is the prefix-code tree of least weighted path length, and its cost is trapped between the entropy H and H + 1.",
+      "reframe": "Flip the message upside down. Pair the two rarest whispers in an alphabet, fuse them into a single stem, and climb upward until the entire language hangs from one root—its average cost pinioned within a single bit of Shannon's thermodynamic limit.",
       "oneLine": "Merge the two lightest roots; the accumulated cost is the average code length, and it lands within one bit of the entropy.",
       "tldr": [
         "Every merge adds the two merged weights to a running total, so when a single tree remains that total equals the average code length sum of p_i times l_i. The panel accumulates it as you merge and shows it against H.",
@@ -447,7 +447,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Karatsuba Multiplication",
-      "reframe": "It is not a faster way to multiply big numbers. It is the rank of polynomial multiplication dropping from four to three.",
+      "reframe": "In 1960, Kolmogorov conjectured that multiplying two n-digit numbers fundamentally requires n² operations. Within a week, a 23-year-old student proved him wrong with three products instead of four: a single algebraic subtraction that cracked open the sub-quadratic universe.",
       "oneLine": "One product saved at each split, recursed into the exponent n^log₂3.",
       "tldr": [
         "Splitting an n-digit number in half turns four products into three: T(n) = 3T(n/2) + Θ(n), which solves to Θ(n^log₂3) ≈ Θ(n^1.585) against schoolbook's Θ(n²).",
@@ -483,7 +483,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Longest Common Subsequence",
-      "reframe": "It is not the letters two strings share. It is the tallest chain in the product of their prefix orders, and the DP table labels every cell with its height.",
+      "reframe": "Lay two strings along the axes of a plane and watch their shared letters ignite into a constellation of points. The longest common subsequence is the maximal chain climbing through this poset—the highest monotone ridge connecting two divergent texts.",
       "oneLine": "The longest word that appears, in order, inside both strings.",
       "tldr": [
         "A common subsequence is a chain in the product order on the matching cells (i, j) with a[i] = b[j]; the DP table writes the height of each rectangle into its corner.",
@@ -516,7 +516,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Longest Increasing Subsequence",
-      "reframe": "It is not a hunt for a subsequence. It is the tallest chain in a two-dimensional order, and patience sorting builds the antichain cover that matches it.",
+      "reframe": "Deal a shuffled deck into solitaire piles: each card must sit on a strictly larger predecessor, or start a new pile to the right. The moment the deck runs out, the count of piles is no mere card trick—it is the height of a hidden poset, locked in perfect duality with the longest ascending path through the chaos.",
       "oneLine": "The height of the order on the points (i, pᵢ), and the fewest antichains that cover them.",
       "tldr": [
         "The state is a partial order on the points (i, pᵢ): comparable means the index and the value both grow. An increasing subsequence is a chain; a non-increasing one is an antichain.",
@@ -551,7 +551,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Maximum Flow",
-      "reframe": "It is not 'push flow until you get stuck'. It is a linear program whose dual is a cut, and the gap between them closes to exactly zero.",
+      "reframe": "Pump fluid through a pipe network until the seams burst. The instant the flow chokes, the network reveals an invisible geometric fault-line: a razor-thin cut across the world where every single pipe is gorged to capacity.",
       "oneLine": "Seven pipes, five junctions, and the cut that certifies the answer.",
       "tldr": [
         "The state is a feasible flow, and the maximum flow is the optimum of a linear program whose constraints are one row per junction.",
@@ -586,7 +586,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Merge Sort",
-      "reframe": "It is not splitting an array and stitching it back. It is the reduction of sorting to merging.",
+      "reframe": "Sorting unordered chaos appears to require combinatorial omniscience. In 1945, John von Neumann proved it requires only a two-finger zipper: split the universe down to isolated atoms, then weave them back together one comparison at a time.",
       "oneLine": "Every sort is a merge; every merge is one linear pass over two chains.",
       "tldr": [
         "Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does.",
@@ -625,7 +625,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Minimum Spanning Tree",
-      "reframe": "It is not taking the cheapest edges and hoping. It is finding a minimum-weight basis of a matroid, and greedy is exact because the cut and cycle properties are that matroid's exchange axiom.",
+      "reframe": "It is not a cautious hoarder picking cheap twigs. It is the geometric miracle of a matroid: short-sighted, local greed is mathematically guaranteed to carve out the globally optimal skeleton without a single step of regret.",
       "oneLine": "One weighted graph, two greedy orders, one forced total — and the axiom that makes greedy provably right.",
       "tldr": [
         "A spanning tree is a basis of the graphic matroid; a minimum spanning tree is a minimum-weight basis.",
@@ -662,7 +662,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Newton's Method",
-      "reframe": "It is not the update rule xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ). It is the tangent line followed down to the axis, and at a simple root each step squares the error.",
+      "reframe": "Standard algorithms crawl toward truth one digit at a time. Newton's method rides a tangent line straight down to the coordinate axis: once inside the basin of attraction, every single step squares the error, doubling the count of correct decimal digits in a blinding geometric flash.",
       "oneLine": "Take the tangent at the current guess, read where it crosses the axis, and watch the correct digits double.",
       "tldr": [
         "The step is one tangent line. Replace f by its tangent at (xₙ, f(xₙ)) and set the next guess where that line hits the axis; the panel draws exactly that segment from guess to axis.",
@@ -703,7 +703,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Quicksort",
-      "reframe": "It is not choosing a pivot and partitioning. It is a random binary search tree built by comparison, and the running time is the depth of that tree.",
+      "reframe": "Quicksort is not partitioning numbers on a chalkboard. It is a random binary search tree materialising in memory out of pure probability: every comparison creates an edge, and the execution time is the summed depth of that living tree.",
       "oneLine": "Every comparison is an edge in a tree; the bill is the tree's depth, summed.",
       "tldr": [
         "The pivot sequence is a binary search tree — the one built by inserting the keys in input order — and the comparison count is its internal path length.",
@@ -740,7 +740,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Stable Matching",
-      "reframe": "It is not a search over matchings. It is deferred acceptance, and the matching that survives the process is the one no pair wants to leave.",
+      "reframe": "Pair two warring camps where every individual harbours private desires and fierce rankings. What prevents revolt is not goodwill, but the cold geometry of deferred acceptance: an unshakeable equilibrium where no clandestine pair in the room would rather elope together than stay with their assigned partners.",
       "oneLine": "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes.",
       "tldr": [
         "Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted.",
@@ -778,7 +778,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Strassen's Algorithm",
-      "reframe": "It is not multiplying matrices in a clever order. It is lowering the rank of a tensor, and the rank sets the exponent.",
+      "reframe": "For centuries, multiplying four numbers in a square demanded eight multiplications — treated as an immutable law of arithmetic. Strassen discovered that eight is a lie: seven is enough. That single missing product permanently broke the cubic wall of linear algebra.",
       "oneLine": "Seven products where the textbook needs eight, applied to half-size blocks over and over.",
       "tldr": [
         "Matrix multiplication is a bilinear map; the fewest scalar products that compute it is the rank of its tensor, and the textbook algorithm is an 8-term decomposition.",
@@ -813,7 +813,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Topological Sort",
-      "reframe": "It is not a linear order of the vertices. It is a linear extension of a partial order.",
+      "reframe": "Thread an arrow of time through a tangled web of dependencies so that no consequence ever precedes its cause. The instant a circular dependency creeps in, causality fractures—revealing that sorting a DAG is the act of choosing one linear reality among an astronomical sea of valid futures.",
       "oneLine": "Flatten a dependency DAG into a queue order, and see the orders you did not choose.",
       "tldr": [
         "Reachability is a preorder; quotient it by mutual reachability and you get the poset you are really sorting.",
@@ -850,7 +850,7 @@
       "field": "programming",
       "fieldLabel": "Programming",
       "title": "Union–Find",
-      "reframe": "It is not an algorithm. It is a partition, climbing a lattice.",
+      "reframe": "Begin with a universe of isolated atoms. Every merge is an irreversible climb up a crystal mountain that can never be descended. By the summit, the cost of each step is governed by the slowest-growing function in human mathematics.",
       "oneLine": "Two operations on the partitions of a finite set.",
       "tldr": [
         "The state is a partition; union is the join in the partition lattice.",

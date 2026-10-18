@@ -2,7 +2,7 @@ title: "Binary Search"
 slug: binary-search
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not looking at the middle element. It is the halving of an interval of possible answers."
+reframe: "To search a billion records, a linear scan must traverse the continent of data footprint by footprint. Binary search cuts the entire continent in half thirty times. In thirty questions, a search space larger than humanity collapses to a single atom."
 oneLine: "Halve the interval that still contains the answer, one comparison at a time."
 tldr:
   - "The state is an interval that always contains the answer; every comparison deletes at least half of what is left."

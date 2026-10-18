@@ -2,7 +2,7 @@ title: "0/1 Knapsack"
 slug: knapsack-0-1
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a hunt for the best value per kilogram. It is a longest path through a grid, and an integer program whose linear relaxation sits strictly above it."
+reframe: "Pack a mountaineer's rucksack for a deadly ascent. Greedy heuristics chase density and starve on dead weight; the true optimum is a ghost threading a lattice DAG, leaving an insurmountable integrality gap between continuous relaxations and indivisible cargo."
 oneLine: "Three items, a ten-kilogram pack, and a table whose bottom-right cell is the answer."
 tldr:
   - "The state is a cell (i, c): the best value from the first i items inside capacity c. The recurrence is V(i,c) = max(V(i−1,c), vᵢ + V(i−1, c−wᵢ)), and the cell grid is a DAG whose longest path is the optimum."

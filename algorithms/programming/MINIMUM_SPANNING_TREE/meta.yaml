@@ -2,7 +2,7 @@ title: "Minimum Spanning Tree"
 slug: minimum-spanning-tree
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not taking the cheapest edges and hoping. It is finding a minimum-weight basis of a matroid, and greedy is exact because the cut and cycle properties are that matroid's exchange axiom."
+reframe: "It is not a cautious hoarder picking cheap twigs. It is the geometric miracle of a matroid: short-sighted, local greed is mathematically guaranteed to carve out the globally optimal skeleton without a single step of regret."
 oneLine: "One weighted graph, two greedy orders, one forced total — and the axiom that makes greedy provably right."
 tldr:
   - "A spanning tree is a basis of the graphic matroid; a minimum spanning tree is a minimum-weight basis."

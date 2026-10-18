@@ -2,7 +2,7 @@ title: "Quicksort"
 slug: quicksort
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not choosing a pivot and partitioning. It is a random binary search tree built by comparison, and the running time is the depth of that tree."
+reframe: "Quicksort is not partitioning numbers on a chalkboard. It is a random binary search tree materialising in memory out of pure probability: every comparison creates an edge, and the execution time is the summed depth of that living tree."
 oneLine: "Every comparison is an edge in a tree; the bill is the tree's depth, summed."
 tldr:
   - "The pivot sequence is a binary search tree — the one built by inserting the keys in input order — and the comparison count is its internal path length."

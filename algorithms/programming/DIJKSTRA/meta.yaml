@@ -2,7 +2,7 @@ title: "Dijkstra's Algorithm"
 slug: dijkstra
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a search for a shortest path. It is a wavefront settling vertices in increasing distance: a one-sided metric closure."
+reframe: "It is not a search for a path. It is a wave of light radiating through glass of different thicknesses: the moment a town is touched, its distance is carved in stone forever, because light cannot travel backward in time."
 oneLine: "One source, one frontier, labels that only fall."
 tldr:
   - "The state is a vector of over-estimates plus a settled set; relaxation only lowers a label."

@@ -3,7 +3,7 @@ title: "Minimum Spanning Tree"
 slug: minimum-spanning-tree
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not taking the cheapest edges and hoping. It is finding a minimum-weight basis of a matroid, and greedy is exact because the cut and cycle properties are that matroid's exchange axiom."
+reframe: "It is not a cautious hoarder picking cheap twigs. It is the geometric miracle of a matroid: short-sighted, local greed is mathematically guaranteed to carve out the globally optimal skeleton without a single step of regret."
 oneLine: "One weighted graph, two greedy orders, one forced total — and the axiom that makes greedy provably right."
 tldr: ["A spanning tree is a basis of the graphic matroid; a minimum spanning tree is a minimum-weight basis.", "The cut property and the cycle property are the two faces of Whitney's exchange axiom, and each one proves greedy exact.", "Ties decide the tree, never the weight: on the graph below there are exactly two minimum spanning trees, one edge-swap apart.", "Greedy breaks the instant independence stops being a matroid — three items and one capacity are enough to see it."]
 mathBranches: ["combinatorics", "optimization", "graph-theory"]
@@ -22,7 +22,7 @@ import SeriesChart from "@alg/SeriesChart.tsx";
     PredictionPrompt question · options (string[]) · correct (index) · explain
     SeriesChart      series {name, points:[x,y][]} · title · xLabel · yLabel · logY · height   (static)
 
-  Provenance of every number on this page.
+  Provenance of every number on this page:
     - The six-vertex, eight-edge graph below was chosen by brute force over all spanning
       trees (Cayley-style enumeration, 24 of them): exactly 2 have minimum weight 6. Four
       edges lie in every minimum tree; two lie in none, with triangle witnesses A–B–D and
@@ -36,9 +36,9 @@ import SeriesChart from "@alg/SeriesChart.tsx";
       SeriesChart is static and carries no directive.
 */}
 
-## An MST is not the cheapest edges. It is a minimum-weight basis of a matroid.
+## Two Greedy Orders, One Forced Weight
 
-Six vertices, eight weighted edges, and two players that both want the cheapest way to connect everything.
+Six vertices, eight weighted edges, and two competing algorithms that both seek the cheapest network to connect everything. One sorts all edges globally; the other grows a single tree outward from vertex A.
 
 <GraphCanvas
   client:visible
@@ -91,118 +91,102 @@ Six vertices, eight weighted edges, and two players that both want the cheapest 
   ]}
 />
 
-Both panels run on the same edges with the same weights. The left player sweeps a globally sorted list; the right player grows one blob from **A**. The logs will not look alike.
+Both panels operate on the exact same graph. The left player sweeps a globally sorted list; the right player expands a connected component from vertex A.
 
 <PredictionPrompt
   client:visible
-  question="Two completely different routes. Can they finish at different total weights?"
+  question="Kruskal sweeps globally sorted edges, while Prim grows a local cluster from vertex A. Can their final trees finish with different total weights?"
   options={[
-    "Yes — the order changes which edges are still available, so the totals can differ.",
-    "No — both stop the moment the graph is connected, and any connected outcome weighs the same.",
-    "No — both return a minimum-weight basis, and a minimum weight is a property of the graph, not of the route."
+    "Yes — their search trajectories differ radically, so their final costs can vary.",
+    "No — any spanning tree on a connected graph has the exact same total weight.",
+    "No — both find a minimum-weight basis of the graphic matroid, where total weight is uniquely fixed by the graph."
   ]}
   correct={2}
-  explain="Greedy on a matroid always lands on a minimum-weight basis, so the total is forced to one number. The third option is the reason; the second is a trap. Stopping at a spanning tree does not make the weight minimal — A–B, B–D, B–E, E–F and C–F is also a spanning tree of this graph, and it weighs 8, not 6."
+  explain="Both algorithms are guaranteed to produce a minimum spanning tree of weight exactly 6. The second option is an intuition trap: arbitrary spanning trees on this graph weigh up to 10. The total weight is an invariant of the matroid, not of the algorithmic route."
 />
 
-## 1 · The question
+## The Mystery of Unregretted Greed
 
-Write down the operational statement a first course hands you. Sort the edges by weight, walk the list, keep an edge unless it closes a cycle, stop when you have `n-1` edges. That is already an algorithm, and it is five lines of code.
+Greedy algorithms usually fail. In almost every combinatorial puzzle, seizing the immediate best local option leads directly to a suboptimal dead end.
 
-So the real question is not what to compute. It is why a decision made at step three can never be regretted at step seven, and what has to be true of the *family of edge sets* for that to hold.
+Yet for spanning trees, greed never fails. You can sort edges globally and greedily pick non-cycles, or expand locally and greedily take the cheapest exit; both arrive at mathematical perfection.
 
-Push on the second half and the answer is sharp. There is one axiom that makes greedy exact, and the cheapest edges themselves are not it. The axiom is about how independent sets of different sizes fit inside one another.
+The real question is not how to write these five lines of code. It is why a choice made at step two is never regretted at step ten, and what geometric structure makes that possible.
 
-## 2 · The real object: bases of the graphic matroid
+## Whitney's Matroid and the Axiom of Exchange
 
-A matroid $M = (E,\mathcal{I})$ is a finite ground set $E$ together with a family $\mathcal{I}$ of subsets, called independent, satisfying three properties. The empty set is independent; every subset of an independent set is independent; and the exchange axiom below holds.
+A **matroid** $M = (E,\mathcal{I})$ is a finite ground set $E$ of elements together with an independent set system $\mathcal{I}$ satisfying three conditions (Whitney 1935):
 
-$$\text{If } A,B\in\mathcal{I} \text{ and } |A| < |B|, \text{ then } \exists\, e\in B\setminus A \text{ with } A\cup\{e\}\in\mathcal{I}. \qquad (\text{Whitney 1935})$$
+- The empty set is independent: $\varnothing \in \mathcal{I}$.
+- Heredity: if $A \in \mathcal{I}$ and $A' \subseteq A$, then $A' \in \mathcal{I}$.
+- The **exchange axiom**: if $A, B \in \mathcal{I}$ with $|A| < |B|$, there exists an element $e \in B \setminus A$ such that $A \cup \{e\} \in \mathcal{I}$.
 
-Whitney introduced these objects in 1935 to abstract what linear dependence in a vector space actually uses. Read the axiom once more: a smaller independent set can always grow by stealing an element from a larger one, without giving anything back.
+$$
+\text{If } A,B\in\mathcal{I} \text{ and } |A| < |B|, \text{ then } \exists\, e\in B\setminus A \text{ with } A\cup\{e\}\in\mathcal{I}
+$$
 
-For a graph, take $E$ to be the edge set and declare an edge set independent when it is acyclic. Then a maximal independent set — a basis — is a spanning tree, and the whole structure is the **graphic matroid** of the graph (Whitney 1935). A minimum spanning tree is nothing more than a minimum-weight basis.
+Whitney formulated this in 1935 to generalize linear independence from vector spaces to combinatorics. A smaller independent set can always absorb an element from a larger one without losing independence.
 
-That the acyclicity family satisfies the exchange axiom is worth checking on the object in front of you, because everything downstream rests on it. Suppose the forests $A$ and $B$ satisfy $|A| < |B|$, and count components: $A$ has $n-|A|$ of them, $B$ has $n-|B|$, so $A$ cuts the vertices into strictly more pieces. If every edge of $B$ had both endpoints inside one piece of $A$, then $B$ could hold at most $n - (n-|A|) = |A|$ edges; since $|B| > |A|$, some edge $e$ of $B$ must join two pieces of $A$, and $A\cup\{e\}$ is again a forest.
+In a graph, let $E$ be the edge set and declare an edge subset independent if and only if it is acyclic (a forest). A maximal independent set is a spanning tree, and the resulting structure is the **graphic matroid**. A minimum spanning tree is simply a minimum-weight basis of this matroid.
 
-## 3 · The mathematics: cut, cycle, and the one axiom under them
+To verify the exchange axiom on graphs, consider two forests $A$ and $B$ with $|A| < |B|$. Forest $A$ has $n - |A|$ connected components, while $B$ has $n - |B|$ components, meaning $A$ partitions vertices into strictly more pieces. Because $|B| > |A|$, some edge $e \in B$ must connect two distinct components of $A$, ensuring $A \cup \{e\}$ remains an acyclic forest.
 
-Two theorems do all the work, and each is a face of Whitney's axiom. The panels above are the place to point at while you read them.
+## The Cut and Cycle Duals
 
-**Cut property.** Split the vertices into two non-empty sides, and let $e$ be a cheapest edge crossing that split. Then some minimum spanning tree contains $e$.
+Two fundamental theorems govern spanning trees, serving as dual expressions of Whitney's exchange axiom:
 
-Take any minimum tree $T$. If $e\notin T$, the unique path in $T$ between the endpoints of $e$ crosses the split an odd number of times, so it contains another crossing edge $f\ne e$. Deleting $f$ and inserting $e$ leaves a spanning tree whose weight changes by $w(e)-w(f)\le 0$, so the tree is still minimum, and now it contains $e$.
+**Cut property.** Partition vertices into two non-empty sets $S$ and $V \setminus S$. The lightest edge crossing this cut belongs to some minimum spanning tree. If it is uniquely lightest, it belongs to *every* minimum spanning tree.
 
-If $e$ is the **only** cheapest edge across the split, the inequality is strict, and then every minimum tree contains $e$. A forced edge is a cheapest edge that is unique across some split.
+**Cycle property.** In any simple cycle $C$, the strictly heaviest edge cannot belong to any minimum spanning tree.
 
-**Cycle property.** Let $e$ be an edge of a cycle $C$ that is strictly heavier than every other edge of $C$. Then no minimum spanning tree contains $e$.
-
-Suppose a minimum tree $T$ did contain $e$. Deleting $e$ from $T$ splits it into two components, and the remaining edges of the cycle $C$ must cross that split, so some other cycle edge $f$ reconnects the two components. Then $T-e+f$ is a spanning tree of weight $w(T)-w(e)+w(f)$ — strictly smaller than $w(T)$, which contradicts minimality.
-
-Now read the panels against those two theorems. The triangle **A–B–D** on screen carries weights 1, 2 and 3, so the edge **B–D** is strictly the heaviest edge of that cycle, and no minimum tree contains it.
+Consider triangle **A–B–D** on screen with weights 1, 2, and 3. Edge **B–D** weighs 3, making it strictly the heaviest edge on that cycle.
 
 <PredictionPrompt
   client:visible
-  question="Edge B–D weighs 3. Is it in every minimum spanning tree of this graph?"
+  question="Cycle A–B–D has edge weights 1, 2, and 3. Can edge B–D (weight 3) ever appear in an MST of this graph?"
   options={[
-    "Yes — it is the only edge reaching that corner of the square.",
-    "No — it is the strictly heaviest edge of the cycle A–B–D, so no minimum tree contains it at all.",
-    "It depends on where you start the search."
+    "Yes — if the algorithm begins at vertex B, it must take its adjacent edge.",
+    "No — the cycle property strictly eliminates the heaviest edge of any cycle.",
+    "It depends on the tie-breaking order of the other edges."
   ]}
   correct={1}
-  explain="The cycle property settles it without any search: the closed walk A–B–D–A has weights 2, 3, 1, so B–D is the unique maximum, and swapping it for A–D or A–B along that cycle always gets lighter. The same argument kills E–C, the weight-2 worst edge of the cycle E–F–C–E. Both stay grey in both panels above, whichever route the player takes."
+  explain="Deleting B–D from any candidate tree that contains it splits the tree into two components. Reconnecting them using either A–D (weight 1) or A–B (weight 2) produces a strictly lighter spanning tree. The cycle property guarantees that B–D is eliminated before search begins."
 />
 
-The two theorems are not two facts. Together they say: an edge is safe when it is light across a cut, and dead when it is heavy around a cycle, and the exchange axiom is the single statement from which both follow.
+The two theorems are two aspects of a single reality: an edge is safe when it is lightest across a cut, and eliminated when it is heaviest around a cycle.
 
-**Greedy is exact on a matroid.** Sort $E$ by weight, scan, and keep each edge that leaves the kept set independent. The set you end with is a minimum-weight basis (Rado 1957, Edmonds 1971).
+**Where greed shatters: the knapsack trap.** Matroid structure is the exact boundary where greed works. Remove the exchange axiom, and greed collapses immediately:
 
-Here is the exchange argument that proves it, in four steps. Write the greedy basis as $g_1,\dots,g_r$ in the order greedy chose it, so $w(g_1)\le\cdots\le w(g_r)$, and write any other basis $B$ as $b_1,\dots,b_r$ in increasing weight.
+- Consider items with weights $(5, 5, 6)$ and values $(7, 7, 8)$, with knapsack capacity 10.
+- A greedy strategy picks value 8 (weight 6) first, blocking the remaining items and scoring 8.
+- The optimal solution selects the two items of weight 5, scoring $7 + 7 = 14$.
 
-- Fix $i$ and set $A=\{g_1,\dots,g_{i-1}\}$. Then $g_i$ is a lightest edge with $A\cup\{g_i\}$ independent, because any lighter one had been scanned earlier and would have been taken.
-- Put $B_i=\{b_1,\dots,b_i\}$. Both $A$ and $B_i$ are independent and $|A| = i-1 < i = |B_i|$, so exchange hands you some $e\in B_i\setminus A$ with $A\cup\{e\}$ independent.
-- Therefore $w(g_i)\le w(e)$, and $e$ lies among the $i$ lightest members of $B$, so $w(e)\le w(b_i)$. Hence $w(g_i)\le w(b_i)$ for every $i$.
-- Bases of a matroid all have the same size, so summing over $i$ gives $w(g_1)+\cdots+w(g_r)\le w(b_1)+\cdots+w(b_r)$.
+The knapsack system fails Whitney's exchange axiom. With independent sets $A=\{c\}$ of size 1 and $B=\{a,b\}$ of size 2, no item from $B$ can augment $A$. That failure is why 0/1 knapsack is NP-hard (Karp 1972) while MST runs in near-linear time.
 
-Do not read that as a proof about graphs. It never mentions vertices, weights or cuts; it uses the exchange axiom and nothing else. Any matroid-shaped family gets greedy for free.
+## The Twin Skeletons: Kruskal and Prim in Lockstep
 
-That is exactly why the hypothesis is worth testing. Here is a family of the same shape that is not a matroid.
+Both panels finish at five edges with total weight 6, but their logs reveal distinct routes:
 
-- Three items: **a** has value 7 and weight 5, **b** has value 7 and weight 5, **c** has value 8 and weight 6.
-- A set of items is independent when its total weight is at most 10.
-- Greedy by value takes **c** first, since 8 is the largest value. That leaves room for neither **a** nor **b**, because 6 + 5 exceeds 10. Greedy scores 8.
-- The set `{a,b}` weighs 10 and scores 14, against greedy's 8. The optimum more than doubles greedy here.
+- Kruskal accepts edges in order: A–D (1), B–E (1), E–F (1), C–F (1), A–B (2), while rejecting cycles D–E, E–C, and B–D.
+- Prim grows outward from A: A–D (1), A–B (2), B–E (1), E–F (1), C–F (1).
 
-The exchange axiom fails on precisely that pair. With $A=\{c\}$ and $B=\{a,b\}$ we have $|A| = 1 < 2 = |B|$, and *no* element of $B\setminus A$ can be added to $A$ without breaking the bound. In a matroid that situation cannot arise: the smaller set always has somewhere to grow. Losing the axiom costs you exactness in polynomial time — this family is the 0/1 knapsack problem, and that is NP-hard (Karp 1972).
-
-## 4 · The centrepiece, read properly
-
-Both panels stopped at five edges and total weight 6. Their logs are not the same log.
-
-- Kruskal accepted A–D, B–E, E–F, C–F, then A–B, and rejected D–E, E–C, B–D.
-- Prim accepted A–D, A–B, B–E, E–F, C–F, in that order, adding one vertex each time.
-
-The shared **total** is the theorem from section 3, not luck: both routes return a minimum-weight basis, and a minimum weight depends only on the graph. That the two edge *sets* also coincide is weaker and less interesting — it is the shared tie-break talking, and the next prediction shows how thin that agreement is.
-
-The disagreements that remain are about *which* minimum tree, and they happen only where weights tie. Two edges of weight 2 could carry the final connection, **A–B** and **D–E**, and they sit opposite each other on the cycle A–B–E–D–A. That cycle's heaviest edges are exactly those two, so neither is excluded by the cycle property, and neither is forced by a unique-cheapest cut.
+Their shared total is guaranteed by matroid theory. Whether their chosen edge *sets* match depends entirely on arbitrary tie-breaking between equal-weight edges.
 
 <PredictionPrompt
   client:visible
-  question="Brute force over this graph finds 24 spanning trees. Is the minimum spanning tree unique?"
+  question="There are 24 distinct spanning trees on this 6-vertex graph. Is the minimum spanning tree unique?"
   options={[
-    "Yes — greedy is deterministic, so there is one minimum tree.",
-    "No — there are exactly two, and they differ by a single edge swap.",
+    "Yes — because both Kruskal and Prim returned the exact same tree.",
+    "No — there are exactly two minimum spanning trees of weight 6, differing by one edge.",
     "No — all 24 spanning trees have weight 6."
   ]}
   correct={1}
-  explain="Exactly two of the 24 weigh 6: one uses A–B, the other uses D–E, and they agree on the other four edges. The tie is the cause, since a cycle excludes its heaviest edge only when that edge is strictly heaviest, and here A–B and D–E are both 2. Greedy is deterministic only once a tie-break is fixed; with the edge-list order both players take A–B, and reordering the list would hand one of them D–E instead, for the same weight 6."
+  explain="Two spanning trees achieve the minimum weight 6: one contains edge A–B and the other contains edge D–E, while sharing the other four edges. Both edges have weight 2 across the same cycle. The tie-break in the edge list selected A–B, but swapping it for D–E yields an equally optimal tree."
 />
 
-What is genuinely fixed is the other direction: four edges — A–D, B–E, E–F, C–F — sit in *every* minimum tree. Each one is the unique cheapest edge across some split, so the cut property pins it. A–D is alone at weight 1 across the split $\{A\}\mid\{B,C,D,E,F\}$, and E–F is alone at weight 1 across $\{A,B,D,E\}\mid\{C,F\}$.
+Four edges — A–D, B–E, E–F, C–F — sit in *every* minimum tree. Each is the unique cheapest edge across a cut, pinned by the cut property.
 
-So the graph has four forced edges, one free choice, and two excluded edges. Greedy is exact about the total and silent about everything else.
-
-Cost is a separate story, and the panels are the wrong place to read it: both are correct, neither is fast. The chart below measures one currency — comparisons of two edge weights — for three implementations on seeded random graphs with three edges per vertex.
+The chart below measures key comparisons across three implementations on seeded random graphs with $m = 3n$.
 
 <SeriesChart
   title="Edge-weight comparisons to build one MST, measured (m = 3n, mean of 20 seeded graphs)"
@@ -230,31 +214,27 @@ Cost is a separate story, and the panels are the wrong place to read it: both ar
   ]}
 />
 
-Read two facts off it. Kruskal's curve sits between 0.75× and 0.9× of the closed reference $m\log_2 m$, because a merge sort of $m$ weights does about that many comparisons and nothing else in the sweep is a weight comparison. The rescan Prim of the right-hand panel is a different curve: it re-examines all $m$ edges once per added vertex, so by 256 vertices it is near 8× Kruskal's count. Swap in a binary heap and that factor falls back to the same order as the sort.
+Kruskal tracks $m \log_2 m$ closely because sorting dominates runtime. Rescanning Prim examines every edge per added vertex, growing quadratically, while a binary heap restores performance to near-sorting speeds.
 
-## 5 · The payoff
+## Electrifying Moravia: From Clusters to Traveling Salesmen
 
-Kruskal's inner question — are these two endpoints already in one component — is a partition query, and the answer is not free. Sort the `m` edges for $O(m\log m)$, then spend a `find` per endpoint per edge; with union by rank and path compression that phase costs $O(m\,\alpha(n))$ and vanishes into the sort. The data structure is on [the union–find page](/algorithms/programming/union-find), and this is where it earns its keep.
+Kruskal's cycle check uses disjoint-set union–find. Sorting $m$ edges costs $O(m \log m)$, followed by operations costing $O(m \alpha(n))$, absorbing union–find cost into sorting:
 
-$$ O(m\log m) \;+\; O(m\,\alpha(n)) \;=\; O(m\log m) $$
+$$
+O(m\log m) + O(m\,\alpha(n)) = O(m\log m)
+$$
 
-Borůvka got there first, in 1926, for the electrification of Moravia; his algorithm lets every component grow simultaneously, which is the reason it still shows up in parallel and distributed settings. Borůvka-style component merging is the standard approach to connectivity in MapReduce (Kiveris and others 2014), and Jarník published the blob-growing route in 1930, twenty-seven years before Prim's paper.
+Borůvka conceived the first MST algorithm in 1926 to plan the regional electrical network of Moravia. His algorithm grows components in parallel, halving the component count each round. This parallel structure remains the standard method for graph connectivity in modern distributed systems (Kiveris et al. 2014).
 
-Cut a minimum spanning tree's heaviest $k-1$ edges and you get $k$ clusters — that is single-linkage clustering, exactly (Gower and Ross 1969). Image segmenters use the same greedy merge. Christofides (1976) turned an MST into a travelling-salesman tour costing at most 1.5 times the optimum.
+Removing the $k-1$ heaviest edges from an MST partitions vertices into $k$ optimal clusters, which is single-linkage clustering (Gower and Ross 1969). Christofides (1976) used an MST to guarantee a 1.5-approximation for the metric Traveling Salesperson Problem.
 
-The structure travels further than graphs. Minimum-weight basis is a theorem about any matroid, so the same greedy solves maximum-weight independent sets under other independence rules, and the exchange argument never changes. The two ends of that road are the randomized linear-time MST of Karger, Klein and Tarjan (1995), which guesses the tree's own edges to prune itself, and the weighted matroid intersection problem, which is what happens when one independence system is not enough.
+## The Frontier of Linear Time and Matroid Intersections
 
-## 6 · Advanced, and skippable
+Chazelle (2000) established an $O(m \cdot \alpha(m, n))$ deterministic MST algorithm using soft heaps. Pettie and Ramachandran (2002) discovered an algorithm with provably optimal runtime, although its exact mathematical complexity remains an open problem.
 
-Skip this if you only need one tree.
+When an optimization problem requires independence across *two* matroids simultaneously, simple greed fails. Edmonds (1979) solved matroid intersection using augmenting paths, bridging bipartite matching and network synthesis.
 
-Borůvka's algorithm merges each component with its own cheapest outgoing edge. It needs no global sort, it needs each component's minimum, and it halves the component count each round — so it runs in $O(m\log n)$ and parallelises almost unchanged.
-
-Getting below that took decades. Chazelle (2000) reached $O(m\,\alpha(m,n))$ deterministic, matching the union–find bound, and Pettie and Ramachandran (2002) gave the optimal deterministic algorithm — optimal in the sense that its running time is the true complexity of the problem, which nobody has written down in closed form.
-
-Matroid *intersection* is the next rung. Ask for a minimum-weight set independent in two matroids at once: the same shape covers bipartite matching, whose edge sets are independent in two partition matroids, and the polynomial algorithm is Edmonds (1979) — with no greedy argument in sight.
-
-## 7 · Attributions
+## Attributions
 
 - **Whitney 1935** — *On the abstract properties of linear dependence*: matroids and the exchange axiom. The object this page is about.
 - **Borůvka 1926** — the first minimum spanning tree algorithm, and the halving structure behind parallel and distributed versions.

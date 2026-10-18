@@ -2,7 +2,7 @@ title: "Strassen's Algorithm"
 slug: strassen-matrix-multiplication
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not multiplying matrices in a clever order. It is lowering the rank of a tensor, and the rank sets the exponent."
+reframe: "For centuries, multiplying four numbers in a square demanded eight multiplications — treated as an immutable law of arithmetic. Strassen discovered that eight is a lie: seven is enough. That single missing product permanently broke the cubic wall of linear algebra."
 oneLine: "Seven products where the textbook needs eight, applied to half-size blocks over and over."
 tldr:
   - "Matrix multiplication is a bilinear map; the fewest scalar products that compute it is the rank of its tensor, and the textbook algorithm is an 8-term decomposition."

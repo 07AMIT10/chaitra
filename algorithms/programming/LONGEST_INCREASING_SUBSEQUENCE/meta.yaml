@@ -2,7 +2,7 @@ title: "Longest Increasing Subsequence"
 slug: longest-increasing-subsequence
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a hunt for a subsequence. It is the tallest chain in a two-dimensional order, and patience sorting builds the antichain cover that matches it."
+reframe: "Deal a shuffled deck into solitaire piles: each card must sit on a strictly larger predecessor, or start a new pile to the right. The moment the deck runs out, the count of piles is no mere card trick—it is the height of a hidden poset, locked in perfect duality with the longest ascending path through the chaos."
 oneLine: "The height of the order on the points (i, pᵢ), and the fewest antichains that cover them."
 tldr:
   - "The state is a partial order on the points (i, pᵢ): comparable means the index and the value both grow. An increasing subsequence is a chain; a non-increasing one is an antichain."

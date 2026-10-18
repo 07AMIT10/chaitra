@@ -2,7 +2,7 @@ title: "Newton's Method"
 slug: newton-method
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not the update rule xₙ₊₁ = xₙ − f(xₙ)/f′(xₙ). It is the tangent line followed down to the axis, and at a simple root each step squares the error."
+reframe: "Standard algorithms crawl toward truth one digit at a time. Newton's method rides a tangent line straight down to the coordinate axis: once inside the basin of attraction, every single step squares the error, doubling the count of correct decimal digits in a blinding geometric flash."
 oneLine: "Take the tangent at the current guess, read where it crosses the axis, and watch the correct digits double."
 tldr:
   - "The step is one tangent line. Replace f by its tangent at (xₙ, f(xₙ)) and set the next guess where that line hits the axis; the panel draws exactly that segment from guess to axis."

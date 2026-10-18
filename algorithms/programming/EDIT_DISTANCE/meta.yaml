@@ -2,7 +2,7 @@ title: "Edit Distance"
 slug: edit-distance
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a count of differing characters. It is the geodesic distance in the graph of all strings, where each edit is an edge."
+reframe: "Every word is a coordinate in an infinite space of strings. Insert, delete, and mutate are unit vectors across its grid; edit distance is the exact geodesic, carving the shortest trek through a lattice of prefixes."
 oneLine: "The fewest insertions, deletions and substitutions that turn one string into another."
 tldr:
   - "Every cell of the table is a shortest-path distance in the graph of strings, and hovering it lights the three edges that reach it."

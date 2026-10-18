@@ -60,7 +60,7 @@ const items = catalog.algorithms.filter((item) => item.field === field);
     padding: 0;
     display: grid;
     gap: var(--space-4);
-    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
   }
 
   .alg-field__card {
@@ -73,6 +73,13 @@ const items = catalog.algorithms.filter((item) => item.field === field);
     border: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
     background: var(--color-surface);
     text-decoration: none;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .alg-field__card:hover {
+    border-color: var(--color-algorithms, #a78bfa);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-algorithms, #a78bfa) 12%, transparent);
   }
 
   .alg-field__card--pending {

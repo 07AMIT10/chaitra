@@ -122,13 +122,13 @@
 
 .alg-huff__rootbtn {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: var(--space-2);
   font: inherit;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-family: var(--font-mono);
-  padding: 0.25rem 0.6rem;
-  min-height: 34px;
+  padding: 0.4rem 0.8rem;
+  min-height: var(--touch-target-min, 44px);
   border: 1px solid var(--alg-border-strong);
   border-radius: var(--radius-md);
   background: var(--alg-surface-2);
@@ -275,7 +275,10 @@
 }
 
 .alg-huff__tablewrap {
+  position: relative;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   border: 1px solid var(--alg-border);
   border-radius: var(--radius-sm);
 }
@@ -299,12 +302,23 @@
   background: var(--alg-surface-2);
 }
 
+.alg-huff__table thead th:first-child {
+  position: sticky;
+  left: 0;
+  background: var(--alg-surface-2);
+  z-index: 2;
+}
+
 .alg-huff__table tbody th,
 .alg-huff__table tfoot th {
   text-align: left;
   color: var(--color-text);
   font-family: var(--font-mono);
   font-weight: 600;
+  position: sticky;
+  left: 0;
+  background: var(--color-surface);
+  z-index: 1;
 }
 
 .alg-huff__table tfoot td {

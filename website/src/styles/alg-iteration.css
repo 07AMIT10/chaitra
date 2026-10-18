@@ -62,8 +62,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
-  min-width: 190px;
-  flex: 1 1 190px;
+  min-width: 0;
+  flex: 1 1 min(100%, 160px);
   font-size: 0.82rem;
   color: var(--color-muted);
 }
@@ -75,7 +75,7 @@
 .alg-iter__slider input[type="range"] {
   width: 100%;
   accent-color: var(--alg-accent);
-  min-height: 30px;
+  min-height: var(--touch-target-min, 44px);
 }
 
 .alg-iter__bar {
@@ -252,7 +252,10 @@
 }
 
 .alg-iter__tablewrap {
+  position: relative;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
   border: 1px solid var(--alg-border);
   border-radius: var(--radius-sm);
 }
@@ -284,6 +287,10 @@
 .alg-iter__table th:first-child {
   text-align: left;
   color: var(--color-muted);
+  position: sticky;
+  left: 0;
+  background: var(--alg-surface-2);
+  z-index: 1;
 }
 
 .alg-iter__row--now td {
@@ -307,4 +314,14 @@
 .alg-iter__order b {
   color: var(--color-text);
   font-family: var(--font-mono);
+}
+
+@media (max-width: 600px) {
+  .alg-iter__tick {
+    font-size: 16px;
+  }
+  .alg-iter__axislabel {
+    font-size: 18px;
+    font-weight: 600;
+  }
 }

@@ -2,9 +2,9 @@ import GraphCanvas from "@alg/GraphCanvas.tsx";
 import SemiringMatrix from "@alg/SemiringMatrix.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
-## Bellman–Ford is not a slower Dijkstra. It is the least fixed point of a monotone relaxation operator.
+## A Universe Falling Into Equilibrium
 
-Five towns, six one-way roads, one of them downhill. Press **step** and watch a single row of numbers fall until it stops.
+Five towns, six one-way roads, and a downhill path that bends time backward. Press **step** and watch a single row of tentative distances collapse until it freezes into equilibrium.
 
 <GraphCanvas
   client:visible
@@ -29,69 +29,75 @@ Five towns, six one-way roads, one of them downhill. Press **step** and watch a 
   caption="Six one-way roads and their weights. The negative edge R→T = −4 has no cycle through it, so this graph has a well-defined answer. Step through and watch the d row."
 />
 
-The edge list is written back-to-front on purpose. An in-place run that scans it this way advances the frontier by exactly one hop per round, which makes the round count visible instead of hidden.
+The edge list is written back-to-front on purpose. Scanning it in this reverse order advances the wavefront by exactly one hop per round, making the round count visible.
 
-The d row below the graph holds one number per town. A round replaces each number by the best over the incoming roads, and no number ever rises.
+The distance vector under the graph holds one number per town. Each round replaces every label with the best route over its incoming roads, and no number ever rises.
 
 <PredictionPrompt
   client:visible
-  question="Start from the empty table: S at 0, every other town at ∞. How many rounds of relaxation actually lower some distance before the table stops moving?"
-  options={["Two", "Three", "Four, the n−1 worst case"]}
+  question="Start with S at 0 and every other town at ∞. For 5 vertices, the theoretical guarantee is at most 4 rounds. How many rounds actually lower some distance before the table freezes?"
+  options={[
+    "2 rounds — because the graph is small with only 6 edges",
+    "3 rounds — the deepest shortest path requires 3 hops",
+    "4 rounds — the n−1 worst-case limit is always exhausted"
+  ]}
   correct={1}
-  explain="Round 1 reaches P = 4 and Q = 5. Round 2 reaches R = 7 and T = 12. Round 3 replaces T with 3, along S→P→R→T. Round 4 lowers nothing, which is how the loop knows to stop. Four rounds is the n−1 guarantee, not this graph's need: the cheapest route to T is three hops."
-  hint="Ask what the cheapest route to T is, and count its hops."
+  explain="Round 1 discovers P = 4 and Q = 5. Round 2 discovers R = 7 and tentative path T = 12 via P. Round 3 finds the shortcut S→P→R→T, dropping T to 3. Round 4 relaxes all edges but lowers nothing, certifying that the n−1 bound is merely an upper limit."
+  hint="Find the cheapest route to T and count how many edges it traverses."
 />
 
-## 1 · The question
+## The Failure of Dijkstra's Horizon
 
-Fix a directed graph with edge weights and one source `s`. You want the cheapest cost of a walk from `s` to every node. Weights may be negative, and a negative cycle is not ruled out in advance.
+Dijkstra assumes that any prefix of a shortest path must itself be a shortest path. A single negative edge shatters that foundation: a town settled early with a low score can later be undercut by a longer detour that gains time.
 
-Dijkstra settles towns in increasing distance, which assumes every prefix of a cheapest route is already cheapest. One negative edge breaks that: a town settled early can later be beaten through a town settled late.
+Standard curricula frame Bellman–Ford as a sluggish fallback that repeatedly relaxes every edge until nothing changes. That framing hides the real mathematical object.
 
-The usual framing is "relax every edge until nothing improves", Bellman–Ford as the fallback once Dijkstra's monotonicity is gone. That framing hides the real question, which is what those repeated passes are converging to, and why the stopping rule and the negative-cycle test turn out to be one fact seen twice.
+The repeated passes are not crude brute force. They are successive iterations of a monotone contracting operator converging to its least fixed point.
 
-## 2 · The real object: one vector, one operator
+## The Deflationary Operator
 
-The state is a single vector $d \in (\mathbb{R} \cup \{+\infty\})^V$, one entry per town, with the pin $d(s)=0$. Nothing else is carried between rounds.
+The state consists of a single vector $d \in (\mathbb{R} \cup \{+\infty\})^V$, pinned at $d(s)=0$. Between rounds, nothing else is stored.
 
-The answer is the solution of the Bellman equation:
+The final vector satisfies Bellman's equation for the principle of optimality (Bellman 1958):
 
-$$ d(s)=0, \qquad d(v)=\min_{(u,v)\in E}\bigl(d(u)+w(u,v)\bigr)\quad(v\neq s) $$
+$$
+d(s)=0, \qquad d(v)=\min_{(u,v)\in E}\bigl(d(u)+w(u,v)\bigr)\quad(v\neq s)
+$$
 
-This is Bellman's principle of optimality written as a fixed-point equation (Bellman 1958). A cheapest route into $v$ ends with some road $(u,v)$, so its cost is the cheapest cost into $u$ plus that road's weight.
+Define the relaxation operator $T$ by testing every incoming road against the current estimate:
 
-Define the relaxation operator $T$ by the same rule, keeping the old value inside the minimum:
+$$
+T(d)(v)=\min\Bigl\{\,d(v),\; \min_{(u,v)\in E}\bigl(d(u)+w(u,v)\bigr)\Bigr\}, \qquad T(d)(s)=0
+$$
 
-$$ T(d)(v)=\min\Bigl\{\,d(v),\; \min_{(u,v)\in E}\bigl(d(u)+w(u,v)\bigr)\Bigr\}, \qquad T(d)(s)=0 $$
+Then $T(d)=d$ means no road can be relaxed, and one round of Bellman–Ford is one application of $T$. The operator possesses two essential properties:
 
-Then $T(d)=d$ says exactly "no road can be relaxed", and one round of Bellman–Ford is one application of $T$. Two properties of $T$ drive the whole page.
+- **Monotone.** If $d \le d'$ entrywise, then $T(d) \le T(d')$. Minimums and additions preserve order.
+- **Deflationary.** $T(d) \le d$ for every vector $d$. Each step either reduces a distance estimate or leaves it unchanged; a label never rises.
 
-- **Monotone.** If $d \le d'$ entrywise, then $T(d) \le T(d')$. Every entry of $T$ is a minimum of sums, and sums and minimums preserve order.
-- **Deflationary.** $T(d) \le d$ for every $d$, because each entry is a minimum over a set that contains the old value. A relaxation lowers a label or leaves it alone; it never raises one.
+Because $T$ is deflationary, distance estimates descend monotonically from $+\infty$ and can never fall beneath the true shortest paths. When a round produces no change, $T(d) = d$, certifying that the vector has reached its least fixed point.
 
-Two consequences are visible on the canvas. A deflationary monotone map cannot overshoot, so the iterates fall and stay above the true distances. A vector that no round lowers is a fixed point, so a quiet round is a certificate that the run is done.
+## The Finite Horizon and the Negative Abyss
 
-## 3 · The mathematics: n−1 rounds, and the n-th round as the test
+Start at $d^{(0)}$ with source at $0$ and all other entries at $+\infty$. The sequence $d^{(0)} \ge d^{(1)} \ge d^{(2)} \ge \cdots$ drops monotonically until it stabilizes.
 
-Start at $d^{(0)}$: source at $0$, everything else at $+\infty$. Because $T$ is deflationary the sequence $d^{(0)} \ge d^{(1)} \ge d^{(2)} \ge \cdots$ falls, and because it can never fall below the true distances it must come to rest. The theorem says when.
+**Theorem (Shimbel 1955; Bellman 1958).** If no negative cycle is reachable from source $s$, then $d^{(n-1)}$ is the exact shortest-path vector. Any subsequent round changes nothing.
 
-**Theorem (Shimbel 1955; Bellman 1958).** If no negative cycle is reachable from `s`, then $d^{(n-1)}$ is finite-valued on the reachable towns, satisfies the Bellman equation, and equals the shortest-path vector. Every later round changes nothing.
+The proof is a cycle-elimination argument. Any walk that visits more than $n-1$ edges must repeat a vertex, forming a cycle. Because no reachable cycle has negative weight, excising that cycle cannot increase total cost.
 
-The reason is one counting argument, and it is the whole of the n−1 bound. A walk that repeats a town contains a cycle, and deleting that cycle cannot raise the cost, because no reachable cycle has negative total weight.
+Therefore, an optimal walk without cycles exists, containing at most $n-1$ edges. Each application of $T$ extends optimal paths by at least one edge, guaranteeing convergence within $n-1$ passes.
 
-So a cheapest walk can be chosen with no repeated town. That leaves it at most $n-1$ roads long, hence at most $n-1$ rounds away.
+### Tropical Matrix Powers
 
-Two corollaries sit on the same fact. Since the iterates only fall and never pass the answer, a round that lowers nothing has arrived: $d^{(n-1)}$ is a fixed point of $T$. And the bound is not tight on demand — the canvas graph needed three of its four rounds, because its deepest cheapest route is three hops.
+Let $L$ be the adjacency matrix with $L[u][v]=w(u,v)$ and $+\infty$ otherwise. Under tropical operations $\oplus=\min$ and $\otimes=+$, the $k$-th power measures exact path lengths:
 
-### The same run, read as min-plus matrix powers
+$$
+\bigl(L^{(k)}\bigr)[u][v]=\text{cheapest cost of a walk } u\to v \text{ with exactly } k \text{ roads}, \qquad L^{(0)}=I
+$$
 
-Build the $n\times n$ matrix $L$ by $L[u][v]=w(u,v)$ where a road exists and $+\infty$ otherwise. Under the operations $\oplus=\min$ and $\otimes=+$ the $k$-th power has a reading you can point at:
+where $I$ has $0$ on the diagonal and $+\infty$ off it. One Bellman–Ford round is the tropical affine mapping $d \mapsto d \oplus (d \otimes L)$. After $k$ rounds, the vector matches row $s$ of the partial closure $\bigoplus_{j=0}^{k} L^{(j)}$.
 
-$$ \bigl(L^{(k)}\bigr)[u][v]=\text{cheapest cost of a walk } u\to v \text{ with exactly } k \text{ roads}, \qquad L^{(0)}=I $$
-
-where $I$ has $0$ on the diagonal and $+\infty$ off it. One Bellman–Ford round is then the affine map $d \mapsto d \oplus (d \otimes L)$, and after $k$ rounds the vector is row `s` of the partial sum $\bigoplus_{j=0}^{k} L^{(j)}$.
-
-The full sum $L^{\star}=\bigoplus_{j\ge 0} L^{(j)}$ is the **min-plus closure**: the all-pairs shortest costs. It is the least matrix with $0$ on its diagonal satisfying the closure equation $X = I \oplus (X \otimes L)$, and the sum stabilises at $j=n-1$ for the same delete-the-cycle reason. Row `s` of $L^{\star}$, truncated at $n-1$, is the vector the canvas ends on.
+The complete sum $L^{\star}=\bigoplus_{j\ge 0} L^{(j)}$ is the min-plus matrix closure. It satisfies $X = I \oplus (X \otimes L)$ and stabilizes at $j=n-1$ because simple paths have length at most $n-1$.
 
 <SemiringMatrix
   client:visible
@@ -109,19 +115,17 @@ The full sum $L^{\star}=\bigoplus_{j\ge 0} L^{(j)}$ is the **min-plus closure**:
   caption="The same six roads as a min-plus matrix. The reflexivity the panel adds on the diagonal is the L^(0) = I term. Drag the slider and read row S: it finishes at 0, 4, 5, 7, 3, the distances the canvas reaches."
 />
 
-The panel is a different schedule, not a different answer. It walks $k$ over intermediate towns (Warshall's k-loop, five rounds), while Bellman–Ford walks rounds over roads ($n-1$ rounds). Both land on the same fixed point, because both compute the same closure.
+The matrix panel uses a different scheduling order than Bellman–Ford. It computes the triple loop over intermediate vertices, whereas Bellman–Ford iterates over edge relaxations. Both converge to the identical fixed point because both compute the same algebraic closure.
 
-### The n-th round is the test
+### The n-th Round: Detecting the Abyss
 
-Run one round past the end. The test asks whether any road $(u,v)$ with finite $d^{(n-1)}(u)$ still satisfies $d^{(n-1)}(u)+w(u,v) \lt d^{(n-1)}(v)$.
+Run one round past $n-1$. The test asks if any road still satisfies $d^{(n-1)}(u) + w(u,v) < d^{(n-1)}(v)$.
 
-If yes, some $n$-road walk beats every shorter one. Deleting cycles from that walk leaves the cost no worse whenever the cycle is non-negative, so the surviving cycle must be negative, and a reachable negative cycle exists (Ford 1956; Bellman 1958).
+If a label still drops, a walk with $n$ edges beats every shorter walk. Stripping cycles from that walk cannot increase weight unless the cycle itself has strictly negative weight (Ford 1956; Bellman 1958).
 
-When no such road exists, the same computation certifies the opposite: the fixed point is real and the table is final.
+When a negative cycle is reachable, no finite fixed point exists. Each lap around the cycle subtracts energy, driving distances toward $-\infty$. The $n$-th round fires an alarm precisely because the fixed point has vanished.
 
-**When a negative cycle is reachable, nothing stops.** Then $d^{(k)}$ drops by at least the cycle's weight every pass, so $d^{(k)} \to -\infty$ around it and no finite vector satisfies the Bellman equation. In the extended reals the only fixed point assigns $-\infty$ to the towns on the cycle; there is no shortest walk at all. The fixed point does not exist, and the n-th round is where a run finds out.
-
-Add one road to the same picture: `T→P` with weight −10. Now `P→R→T→P` is a cycle of total weight `3 − 4 − 10 = −11`, and every lap removes 11 from the labels it touches. Step to the end and watch the run refuse to settle.
+Add road `T→P` with weight −10 to the picture. Now `P→R→T→P` is a cycle of total weight $3 - 4 - 10 = -11$, and every lap removes 11 from the labels it touches.
 
 <GraphCanvas
   client:visible
@@ -149,36 +153,32 @@ Add one road to the same picture: `T→P` with weight −10. Now `P→R→T→P`
 
 <PredictionPrompt
   client:visible
-  question="The first table settled with d(T) = 3 after three rounds. Add T→P = −10 and run the n-th round. What does it show?"
+  question="Add road T→P = -10 to close the cycle P→R→T→P. What happens on the n-th round of relaxation?"
   options={[
-    "Nothing. One extra road cannot move a table that already stopped.",
-    "T→P still relaxes: 3 + (−10) = −7 beats d(P) = 4, and no finite table exists.",
-    "It reports d(T) = 3 + (−11) = −8 as the new answer."
+    "Nothing. One extra road cannot move a table that already stabilized.",
+    "Road T→P relaxes again: 3 + (−10) = −7 beats d(P) = 4, proving no finite fixed point exists.",
+    "It reports d(T) = −8 as a newly discovered stable shortest path."
   ]}
   correct={1}
-  explain="An n-road walk can beat every shorter one only through a negative cycle, and here the cycle P→R→T→P has weight 3 + (−4) + (−10) = −11. Each lap lowers the labels on it by 11, so no round ever goes quiet and no finite fixed point exists. The n-th round is the negative-cycle test, and it fires exactly when the fixed point fails."
+  explain="Cycle P→R→T→P has total weight 3 + (−4) + (−10) = −11. Each pass around this loop reduces vertex labels by 11 without limit. On round 5 (the n-th round), T→P relaxes d(P) from 4 to 3 + (−10) = −7, proving the system is in an infinite gravitational collapse."
   hint="Compare the new road's weight against the cycle it closes."
 />
 
-## 4 · The payoff
+## Distance Vectors and Currency Arbitrage
 
-Distance-vector routing is this page in a network. A router stores one cost per destination and repeats the Bellman equation locally: my cost is the best over neighbours of the neighbour's advertised cost plus the link cost. Routers swap distance vectors and relax, exactly as the canvas does, and RIP is Bellman–Ford running in that distributed form.
+Distance-vector routing protocols such as RIP implement Bellman–Ford across physical networks. Each router broadcasts its vector of distances to immediate neighbours, updating local routing tables according to the Bellman equation.
 
-The failure mode has a routing name too. Counting to infinity is a loop of routers each believing a cheaper route exists through the next, so a metric climbs forever instead of settling. It is the region where the fixed point is missing, and it is why deployed protocols cap the metric and split horizons.
+The infamous 'count-to-infinity' failure mode occurs when a link breaks and routers bounce obsolete distances back and forth. This is the physical realization of a missing fixed point, requiring split-horizon rules and hop-count limits.
 
-Arbitrage is the same test wearing a trader's hat. Put currencies at the towns and let a road's weight be $-\log$ of the exchange rate, so multiplying rates around a cycle means summing weights around it.
+Currency arbitrage is the exact inverse application. Set edge weights to $-\log(\text{exchange rate})$ so that multiplying currency conversions corresponds to summing weights. A profitable round trip becomes a negative cycle, transforming the $n$-th round test into an arbitrage detector.
 
-A profitable round trip is then exactly a negative cycle. Here the "bug" is the feature: the n-th round is an arbitrage detector.
+## Moore's Queue: Chasing the Active Frontier
 
-Tropical algebra ties it back to the rest of the section. The min-plus closure is one object computed two ways: this page reaches row `s` of it by relaxation, while Floyd–Warshall reaches the whole matrix by an intermediate-vertex triple loop. Change $\oplus,\otimes$ to $(\max,+)$ and the same machine is Viterbi decoding a trellis, or the longest path in a DAG once you pin the vertex order.
+Relaxing all $E$ edges in every round costs $O(VE)$ operations. Moore (1959) introduced the Shortest Path Faster Algorithm (SPFA), keeping a queue of vertices whose distances recently decreased.
 
-## 5 · Advanced, skippable: relax only what moved
+Only edges leaving active vertices are relaxed. While worst-case complexity remains $O(VE)$, typical execution speeds rival Dijkstra on sparse graphs.
 
-Relaxing all $E$ roads every round costs $\Theta(VE)$, the price the canvas pays. Moore's 1959 refinement keeps a queue of towns whose label just changed and relaxes only their outgoing roads. Same operator, same fixed point, same $n-1$-round guarantee in the worst case, far fewer relaxations on ordinary graphs.
-
-Do not read the queue as a different algorithm. It is the same descent, spending its rounds where the labels are still moving.
-
-## 6 · Attributions
+## Attributions
 
 - **Shimbel 1955** — *Structural determination of the shortest route matrix*: the round-robin relaxation and its $O(VE)$ bound, the earliest form of the method.
 - **Bellman 1958** — *On a routing problem*: the principle of optimality framing, the Bellman equation $d(v)=\min_{(u,v)}(d(u)+w(u,v))$, and the iteration bound.

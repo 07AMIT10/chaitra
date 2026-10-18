@@ -2,7 +2,7 @@ title: "Union–Find"
 slug: union-find
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not an algorithm. It is a partition, climbing a lattice."
+reframe: "Begin with a universe of isolated atoms. Every merge is an irreversible climb up a crystal mountain that can never be descended. By the summit, the cost of each step is governed by the slowest-growing function in human mathematics."
 oneLine: "Two operations on the partitions of a finite set."
 tldr:
   - "The state is a partition; union is the join in the partition lattice."

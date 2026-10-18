@@ -220,25 +220,27 @@ export default function SemiringMatrix({
         </label>
       )}
 
-      <div className="alg-semiring__grid" style={{ gridTemplateColumns: cols }}>
-        <div className="alg-semiring__corner" aria-hidden="true" />
-        {Array.from({ length: n }, (_, j) => (
-          <div key={`ch${j}`} className="alg-semiring__cell alg-semiring__cell--head">
-            {colLabels?.[j] ?? String(j + 1)}
-          </div>
-        ))}
+      <div className="alg-semiring__scroll">
+        <div className="alg-semiring__grid" style={{ gridTemplateColumns: cols }}>
+          <div className="alg-semiring__corner" aria-hidden="true" />
+          {Array.from({ length: n }, (_, j) => (
+            <div key={`ch${j}`} className="alg-semiring__cell alg-semiring__cell--head">
+              {colLabels?.[j] ?? String(j + 1)}
+            </div>
+          ))}
 
-        {view.map((row, i) => (
-          <RowFrag
-            key={`row${i}`}
-            i={i}
-            row={row}
-            prevRow={prev?.[i]}
-            pivot={showSteps ? pivot : -1}
-            showChanges={showSteps}
-            rowLabel={rowLabels?.[i] ?? String(i + 1)}
-          />
-        ))}
+          {view.map((row, i) => (
+            <RowFrag
+              key={`row${i}`}
+              i={i}
+              row={row}
+              prevRow={prev?.[i]}
+              pivot={showSteps ? pivot : -1}
+              showChanges={showSteps}
+              rowLabel={rowLabels?.[i] ?? String(i + 1)}
+            />
+          ))}
+        </div>
       </div>
 
       <p className="alg-caption">

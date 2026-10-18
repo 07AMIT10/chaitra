@@ -2,7 +2,7 @@ title: "Bellman–Ford"
 slug: bellman-ford
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a slower Dijkstra. It is the least fixed point of a monotone relaxation operator."
+reframe: "It is not a slower Dijkstra for broken edges. It is a deflationary gravity: a monotone operator pressing down on every road simultaneously until distances freeze into their least fixed point—or spiral endlessly into a negative abyss."
 oneLine: "Relax every edge in rounds; stop when nothing improves."
 tldr:
   - "The state is one distance vector; a round applies the relaxation operator to every edge at once."

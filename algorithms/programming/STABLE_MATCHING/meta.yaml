@@ -2,7 +2,7 @@ title: "Stable Matching"
 slug: stable-matching
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a search over matchings. It is deferred acceptance, and the matching that survives the process is the one no pair wants to leave."
+reframe: "Pair two warring camps where every individual harbours private desires and fierce rankings. What prevents revolt is not goodwill, but the cold geometry of deferred acceptance: an unshakeable equilibrium where no clandestine pair in the room would rather elope together than stay with their assigned partners."
 oneLine: "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes."
 tldr:
   - "Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted."

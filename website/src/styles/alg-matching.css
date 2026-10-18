@@ -128,7 +128,7 @@
 
 .alg-match__lists {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: var(--space-3);
 }
 
@@ -216,6 +216,10 @@
   border-radius: var(--radius-sm);
   background: var(--alg-surface-2);
   min-width: 0;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
 }
 
 .alg-match__grid {
@@ -295,6 +299,21 @@
   line-height: 1.6;
   color: var(--color-text);
   overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .alg-match__pilltext {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .alg-match__sidetitle {
+    font-size: 17px;
+    font-weight: 600;
+  }
+  .alg-match__proplabel {
+    font-size: 15px;
+    font-weight: 600;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

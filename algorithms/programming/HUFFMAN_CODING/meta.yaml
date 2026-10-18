@@ -2,7 +2,7 @@ title: "Huffman Coding"
 slug: huffman-coding
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a compression trick. It is the prefix-code tree of least weighted path length, and its cost is trapped between the entropy H and H + 1."
+reframe: "Flip the message upside down. Pair the two rarest whispers in an alphabet, fuse them into a single stem, and climb upward until the entire language hangs from one root—its average cost pinioned within a single bit of Shannon's thermodynamic limit."
 oneLine: "Merge the two lightest roots; the accumulated cost is the average code length, and it lands within one bit of the entropy."
 tldr:
   - "Every merge adds the two merged weights to a running total, so when a single tree remains that total equals the average code length sum of p_i times l_i. The panel accumulates it as you merge and shows it against H."

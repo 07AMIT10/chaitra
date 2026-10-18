@@ -2,7 +2,7 @@ title: "Breadth-First Search"
 slug: breadth-first-search
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not a traversal order. It is the distance function of a graph, written one level at a time."
+reframe: "It is not a graph traversal. It is an unweighted shockwave detonating from a single spark: expanding in concentric spheres of integer distance, carving out the exact geodesic metric of the graph one frontier at a time."
 oneLine: "One source, one queue, and the distance of every vertex — a level at a time."
 tldr:
   - "The output is a level function: the least fixed point of d(v) = 1 + min d(u) over neighbours — distance in the unweighted metric."

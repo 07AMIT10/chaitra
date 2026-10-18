@@ -35,6 +35,45 @@ const total = algorithms.length;
     </p>
   )}
 
+  <section class="alg-hub__trails" aria-labelledby="alg-trails-heading">
+    <h2 id="alg-trails-heading">Curated Mathematical Trails</h2>
+    <p class="alg-hub__trail-sub">Guided pathways connecting algorithms through their shared mathematical reality.</p>
+    <div class="alg-hub__trail-grid">
+      <div class="alg-hub__trail-card">
+        <span class="alg-hub__trail-badge">Trail 01 · Duality</span>
+        <h3>The Zero-Gap Bridge</h3>
+        <p>Follow how linear bounds, geometric cuts, and order covers collapse duality gaps to zero.</p>
+        <ul class="alg-hub__trail-links">
+          <li><a href="/algorithms/programming/maximum-flow">Maximum Flow & Min-Cut</a></li>
+          <li><a href="/algorithms/programming/knapsack-0-1">0/1 Knapsack & LP Relaxation</a></li>
+          <li><a href="/algorithms/programming/longest-increasing-subsequence">LIS & Dilworth Antichains</a></li>
+        </ul>
+      </div>
+
+      <div class="alg-hub__trail-card">
+        <span class="alg-hub__trail-badge">Trail 02 · Algebraic Geometry</span>
+        <h3>Breaking Classical Asymptotics</h3>
+        <p>How discovering unexpected tensor ranks and polynomial identities shattered centuries of arithmetic orthodoxy.</p>
+        <ul class="alg-hub__trail-links">
+          <li><a href="/algorithms/programming/strassen-matrix-multiplication">Strassen Multiplication</a></li>
+          <li><a href="/algorithms/programming/karatsuba-multiplication">Karatsuba Multiplication</a></li>
+          <li><a href="/algorithms/programming/merge-sort">Merge Sort & Master Theorem</a></li>
+        </ul>
+      </div>
+
+      <div class="alg-hub__trail-card">
+        <span class="alg-hub__trail-badge">Trail 03 · Metric Geodesics</span>
+        <h3>Wavefronts & Semiring Closures</h3>
+        <p>Shortest paths not as pointer updates, but as physical waves expanding through tropical metric semirings.</p>
+        <ul class="alg-hub__trail-links">
+          <li><a href="/algorithms/programming/dijkstra">Dijkstra Metric Wavefront</a></li>
+          <li><a href="/algorithms/programming/floyd-warshall">Floyd–Warshall (min, +) Closure</a></li>
+          <li><a href="/algorithms/programming/bellman-ford">Bellman–Ford Conservative Fields</a></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
   {fields.length > 0 && (
     <section aria-labelledby="alg-fields-heading">
       <h2 id="alg-fields-heading">Browse by field</h2>
@@ -149,13 +188,81 @@ const total = algorithms.length;
     color: var(--color-muted);
   }
 
+  .alg-hub__trails {
+    margin: var(--space-6) 0 var(--space-8);
+  }
+
+  .alg-hub__trail-sub {
+    color: var(--color-muted);
+    margin-top: calc(-1 * var(--space-2));
+    margin-bottom: var(--space-4);
+  }
+
+  .alg-hub__trail-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+    gap: var(--space-4);
+  }
+
+  .alg-hub__trail-card {
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in srgb, var(--color-algorithms, #a78bfa) 30%, transparent);
+    background: linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--color-algorithms, #a78bfa) 8%, var(--color-surface)),
+      var(--color-surface)
+    );
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+
+  .alg-hub__trail-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-algorithms, #a78bfa);
+  }
+
+  .alg-hub__trail-card h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    color: var(--color-text);
+  }
+
+  .alg-hub__trail-card p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    line-height: 1.5;
+  }
+
+  .alg-hub__trail-links {
+    margin: auto 0 0;
+    padding-left: 1.1rem;
+    padding-top: var(--space-2);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+
+  .alg-hub__trail-links a {
+    color: var(--color-algorithms-hover, #c4b5fd);
+    text-decoration: none;
+  }
+
+  .alg-hub__trail-links a:hover {
+    text-decoration: underline;
+  }
+
   .alg-hub__fields {
     list-style: none;
     margin: 0 0 var(--space-6);
     padding: 0;
     display: grid;
     gap: var(--space-4);
-    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 11rem), 1fr));
   }
 
   .alg-hub__field-card {
@@ -167,6 +274,13 @@ const total = algorithms.length;
     border: 1px solid color-mix(in srgb, var(--color-algorithms, #a78bfa) 35%, transparent);
     background: var(--color-surface);
     text-decoration: none;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .alg-hub__field-card:hover {
+    border-color: var(--color-algorithms, #a78bfa);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-algorithms, #a78bfa) 12%, transparent);
   }
 
   .alg-hub__field-count {
@@ -193,11 +307,18 @@ const total = algorithms.length;
     display: inline-flex;
     align-items: center;
     gap: var(--space-2);
-    padding: 0.3rem 0.7rem;
+    min-height: 40px;
+    padding: 0.4rem 0.8rem;
     border-radius: var(--radius-md);
     border: 1px solid color-mix(in srgb, var(--color-muted) 35%, transparent);
     font-size: var(--font-size-sm);
     text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .alg-hub__branch-filter a:hover {
+    border-color: var(--color-algorithms, #a78bfa);
+    background: color-mix(in srgb, var(--color-algorithms, #a78bfa) 10%, transparent);
   }
 
   .alg-hub__branch-count {
@@ -249,7 +370,7 @@ const total = algorithms.length;
     padding: 0;
     display: grid;
     gap: var(--space-4);
-    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
   }
 
   .alg-hub__card {
@@ -262,6 +383,13 @@ const total = algorithms.length;
     border: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
     background: var(--color-surface);
     text-decoration: none;
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .alg-hub__card:hover {
+    border-color: var(--color-algorithms, #a78bfa);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px color-mix(in srgb, var(--color-algorithms, #a78bfa) 12%, transparent);
   }
 
   .alg-hub__card--pending {

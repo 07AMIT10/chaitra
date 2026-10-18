@@ -12,9 +12,9 @@ import SeriesChart from "@alg/SeriesChart.tsx";
   that GraphCanvas builds for the graphs below. Nothing here autoplays: both start paused.
 */}
 
-## Breadth-first search is not a traversal order. It is the distance function of a graph, written one level at a time.
+## Concentric Rings of Integer Distance
 
-Eight vertices, one source `S`. Step the canvas and the search spreads in rings — one vertex, then two, then two, then three — while the chip row under the log grows and shrinks. Redraw the graph and the visit order can change; the rings cannot, because the rings are what the search computes.
+Eight vertices, one source $S$. Step through the canvas and watch the search propagate in expanding ripples—first one vertex, then two, then two, then three. Redraw the network and the visiting order may scramble, but the concentric metric rings are immutable invariants.
 
 <GraphCanvas
   client:visible
@@ -48,81 +48,65 @@ Eight vertices, one source `S`. Step the canvas and the search spreads in rings 
 
 <PredictionPrompt
   client:visible
-  question="The far-right vertex G has two long chains leading to it, each four edges from S. Before you press play: at what depth does BFS actually place G?"
+  question="The rightmost vertex G terminates two prominent perimeter chains that are each 4 hops from S. At what depth does the expanding BFS wave actually swallow vertex G?"
   options={["Depth 2", "Depth 3", "Depth 4", "Depth 5"]}
   correct={1}
-  explain="Depth 3. The chord C–G leaves a vertex that is already at depth 2, so G is enqueued the moment C comes off the queue — the same wave as E and F. The two four-edge chains are real paths, but a path is shortest only when nothing shorter exists, and S–A–C–G has length 3."
+  explain="Depth 3. Chord C–G connects from vertex C, which settles at level 2. When C is processed, G is immediately added to the level-3 wave, bypassing the longer 4-hop perimeter routes S–A–C–E–G and S–B–D–F–G. BFS discovers true geodesic distance, ignoring longer visual paths."
 />
 
-## 1 · The question
+## The Tour vs. The Level Metric
 
-A first course states the algorithm as a walk. Put the source in a list; repeatedly take the next vertex, add its unseen neighbours to the end, and mark them seen. That is breadth-first search, and it is correct.
+Textbooks commonly teach breadth-first search as a simple recipe: insert the source into a FIFO queue, pop the front, and enqueue unvisited neighbours. That procedural description conceals the true mathematical object.
 
-It is also the wrong description of what is being computed. The order in which vertices leave the list is an artifact of the drawing and of the neighbour order; change either and the order changes. What does not change is the integer every vertex receives.
+The specific order in which vertices emerge from the queue is an arbitrary artefact of tie-breaking and neighbour indexing. What remains absolutely fixed across every valid run is the integer label assigned to each vertex.
 
-Read the canvas as an assignment of integers, not a tour. `S` gets 0, `A` and `B` get 1, `C` and `D` get 2, and `E`, `G`, `F` get 3. That number — edges crossed from `S`, at fewest — is the answer.
+Read the canvas as computing an exact metric tensor rather than a traversal tour. Source $S$ receives 0, while subsequent vertices receive their geodesic hop distance from the spark.
 
-A stack walks the same vertices and does not produce those numbers; it produces a depth-first order, where reachability is known and distance is not. The queue is not a detail of the implementation. It is the mechanism that keeps the integers in order, and everything below is about that order.
+## The Geodesic Metric and its Fixed Point
 
-## 2 · The real object: the level function
+Fix source $s$. The **distance** $d(v)$ is the minimum number of edges on any path from $s$ to $v$. The **level set** $L_k = \{v \in V : d(v) = k\}$ partitions reachable vertices into concentric metric spheres.
 
-Fix a source `s`. The **distance** $d(v)$ is the fewest edges on a path from `s` to `v`, and $d(v)=\infty$ when no path exists. The **level** $L_k$ is the set of vertices with $d = k$, so the levels partition the reachable vertices into the rings you watched.
+Every edge $\{u, v\}$ in the graph must obey the Lipschitz triangle inequality:
 
-One rule governs every edge. Its ends differ by at most one level,
+$$
+d(v) \le d(u) + 1 \qquad \text{for every edge } \{u,v\}
+$$
 
-$$ d(v) \le d(u) + 1 \qquad \text{for every edge } \{u,v\}, $$
+This inequality yields Bellman's equation for unweighted graphs, where $N(v)$ denotes the neighbourhood of $v$:
 
-because walking the edge turns any path to `u` into a path to `v` that is one edge longer.
+$$
+d(s) = 0, \qquad d(v) = 1 + \min_{u \in N(v)} d(u) \quad (v \ne s)
+$$
 
-That inequality becomes an equation. Write $N(v)$ for the neighbours of `v`, and read a minimum over an empty set as $\infty$:
+The distance function is the least fixed point of this equation. On the canvas, vertex $G$ connects to neighbours at levels 3, 3, and 2, uniquely fixing its distance at $1 + 2 = 3$.
 
-$$ d(s) = 0, \qquad d(v) = 1 + \min_{u \in N(v)} d(u) \quad (v \ne s). $$
+## The Monotone Queue and König's Parity Theorem
 
-The distance function is the least fixed point of that equation. Point at `G` on the canvas: its three neighbours sit at levels 3, 3 and 2, so the rule forces `G` to $1+2 = 3$.
+**The two-level queue invariant.** If the vertex at the front of the queue has level $k$, then every vertex currently waiting in the queue has level $k$ or $k+1$.
 
-This is a derived identity, not a named theorem. Iterate the right-hand side from below — start every value at 0 and apply it repeatedly — and each round lifts a vertex by one until it reaches its level and stops. That is why the solution is the *least* fixed point; on a fixed graph it is also the only one, so the word costs nothing.
-
-The equation is not the algorithm. What BFS adds is the speed of solving it, and that is entirely a fact about the queue.
-
-## 3 · The mathematics
-
-**The queue stays sorted, and only ever one level wide.** If the vertex at the front has level $k$, then every entry in the queue has level $k$ or $k+1$, in that order.
-
-The proof is one induction. Begin with the queue holding only `s`, at level 0. Dequeue a vertex of level $k$ and append its newly found neighbours, all of level $k+1$; the entries already waiting were level $k$ or $k+1$ by hypothesis, and nothing else is ever appended.
-
-So the front of the queue is always a minimum-distance unsettled vertex. A priority queue would reach that choice by comparison; when every edge has weight 1, arrival order already *is* that order.
+Because each unweighted edge has length 1, exploring a level-$k$ vertex discovers only neighbours at level $k+1$. The queue remains permanently sorted by distance without requiring any comparison logic.
 
 <PredictionPrompt
   client:visible
-  question="Dijkstra needs a priority queue to keep pulling the closest unsettled vertex. BFS pulls whatever is at the front of a plain queue. Why is that the same thing?"
+  question="Dijkstra requires an expensive priority queue to extract the nearest vertex. Why can BFS extract the minimum using a basic FIFO queue?"
   options={[
-    "The queue never holds two levels more than one apart, so its front is always a closest vertex.",
-    "The graphs are small, so the order never matters.",
-    "It is not the same thing; BFS only approximates the distances."
+    "Because edges have uniform weight 1, newly discovered vertices are always at level k+1, keeping the queue sorted automatically.",
+    "Because graphs processed by BFS are restricted to small diameters.",
+    "It does not; BFS only approximates shortest distances."
   ]}
   correct={0}
-  explain="Because every edge costs 1, a vertex is discovered only from level k or k+1, so the queue stays sorted and spans at most two adjacent levels. Its front is therefore a minimum-distance vertex, which is exactly what the priority queue was for. Give the edges weights and this proof collapses — that collapse is the whole difference between BFS and Dijkstra."
+  explain="Because every edge has identical cost 1, the queue contents are bounded within at most two adjacent levels: k and k+1. Elements enter in non-decreasing order of distance, guaranteeing that the queue head is always an exact minimum without priority sorting."
 />
 
-Watch the chip row on the first canvas. After `C` is dequeued it fills to `D E G` — levels 2, 3, 3: sorted, with the two ends one apart. Run the whole search and the row never puts a 2 after a 3.
+**Shortest-path trees and parity.** Tree edges form a directed tree where every child sits at depth $d(\text{parent}) + 1$. Non-tree edges can only connect vertices whose levels differ by 0 or 1.
 
-**The accepted edges are a shortest-path tree.** Mark each vertex when it is first discovered and record the neighbour that discovered it; those pointers are the tree, the green edges (Moore 1959; Lee 1961).
+A graph is **bipartite** if and only if no edge connects two vertices at the identical level. If an edge joins two vertices at level $r$, tracing their ancestors back to their lowest common ancestor at level $\ell$ produces an odd cycle of length $2(r - \ell) + 1$.
 
-In that tree a child lies exactly one level below its parent, because a vertex is discovered at level $k+1$ only while a level-$k$ vertex is current. The tree path from `s` down to `v` therefore has exactly $d(v)$ edges. A shortest path exists, and the tree is its witness.
+This constructive observation proves König's theorem (1936): a graph is 2-colourable if and only if it contains no odd cycle. BFS validates bipartiteness in a single linear pass.
 
-A non-tree edge joins levels that differ by 0 or by 1, never more — it is a path of length 1, and $d$ obeys the inequality above. That difference of 0 is the whole of the next result. Red on the canvas means only that BFS did not take the edge; whether a red edge is harmless depends on whether its ends sit at the same level.
+## The Chord That Kills Bipartiteness
 
-**Parity: a graph is bipartite exactly when no edge joins two vertices of equal level.** Colour every vertex by the parity of its level, $k \bmod 2$. An edge is properly coloured exactly when its ends differ by one level, and every edge's ends differ by 0 or 1. So the parity colouring is a 2-colouring if and only if no edge joins two equal-level vertices.
-
-An odd cycle hides behind every equal-level edge. Take an edge $\{u,v\}$ with $d(u) = d(v) = r$, and let `w` be the lowest common ancestor of `u` and `v` in the BFS tree, at level $\ell$. The two tree paths down from `w` each have length $r - \ell$, so the closed walk $u \to w \to v \to u$ has length $2(r-\ell)+1$: odd.
-
-The converse is the same argument reversed. If an odd cycle had no equal-level edge, its level would change by exactly $\pm 1$ at every step; summing an odd number of $\pm 1$ steps around a closed loop cannot return to the start. Hence an odd cycle and an equal-level edge are the same obstruction.
-
-That is König's theorem, proved rather than quoted: a graph is bipartite if and only if it contains no odd cycle (König 1936). BFS decides it in a single sweep — one comparison of levels per edge.
-
-## 4 · The centrepiece: delete the chords
-
-Here are the same eight vertices with the two chords `C–D` and `C–G` removed. What is left is one even cycle, `S–A–C–E–G–F–D–B–S`.
+Here are the same eight vertices with chords `C–D` and `C–G` removed, leaving an 8-vertex cycle `S–A–C–E–G–F–D–B–S`.
 
 <GraphCanvas
   client:visible
@@ -152,37 +136,33 @@ Here are the same eight vertices with the two chords `C–D` and `C–G` removed
   ]}
 />
 
-On the cycle the levels run 1, 2, 2, 2, 1 and every edge steps between neighbours in that list. The first canvas is this cycle plus two chords, and one of them forces an odd cycle.
+On the pure cycle, the levels partition cleanly into even and odd rings. Reinserting a single chord can instantly introduce an odd cycle.
 
 <PredictionPrompt
   client:visible
-  question="The first canvas is this even cycle plus two chords, C–D and C–G. Is that graph 2-colourable, and if not, what does BFS show you?"
+  question="Removing chords C–D and C–G leaves an 8-vertex cycle. If you reinsert chord C–G, does the graph remain bipartite?"
   options={[
-    "Yes — two chords cannot break a 2-colouring.",
-    "No. BFS refuses E–G, which joins two level-3 vertices and closes the triangle C–E–G.",
-    "No, and the only culprit is the chord C–D."
+    "Yes — adding a chord between different levels never forms an odd cycle.",
+    "No — it closes the 3-cycle C–E–G, which BFS flags with a rejected edge between equal-level vertices.",
+    "No — but only chord C–D destroys bipartiteness."
   ]}
   correct={1}
-  explain="Adding C–G makes the triangle C–E–G: C–E and C–G are tree edges, and E–G is the edge BFS refuses because E and G are both at level 3. A 2-colouring forces E and G to opposite colours along C, yet E–G joins them, which is impossible. The other chord, C–D, breaks it too, joining two level-2 vertices and closing the odd cycle S–A–C–D–B–S."
+  explain="Chord C–G creates triangle C–E–G. Vertices E and G both sit at level 3, forcing edge E–G to connect two vertices of identical parity. A proper 2-colouring is mathematically impossible on an odd cycle."
 />
 
-## 5 · The payoff
+## Metric Geodesics and Small-World Clocks
 
-The function inside the search is a metric. Unweighted shortest paths are the graph's own notion of distance, so one sweep writes an entire row of the distance matrix — routing hops in a network, a word ladder between two words, degrees of separation between two people.
+BFS computes the exact geodesic metric of an unweighted graph in $O(V + E)$ time. Rerunning BFS from each vertex computes the complete graph diameter and all-pairs hop counts.
 
-The same sweep answers two more questions. Restart it at each unvisited vertex and the restart points are the connected components; compare the levels of every edge and you have decided bipartiteness by König's test. That test is exactly two-slot scheduling: jobs are vertices, an edge says two jobs cannot share a slot, and a 2-colouring is the assignment.
+In distributed computing, each BFS level corresponds to one broadcast round or MapReduce pass (Cohen 2009). The eccentricity of a node becomes the physical latency clock of the network.
 
-In a distributed system the levels become rounds. Flooding a network, one gossip round, or a single MapReduce job advances the frontier by exactly one level, so the number of rounds is the eccentricity of the source (Cohen 2009). The shape of the graph turns into a clock.
+In social networks, Milgram (1967) demonstrated the 'six degrees of separation' phenomenon: human connection graphs exhibit remarkably small diameters despite having billions of nodes.
 
-That is why a letter crosses a handful of hops and not thousands. The cost of the search is the level count, not the vertex count, and real social graphs turn out to have small diameters even when they are enormous (Milgram 1967).
+## The Geometry of the Wavefront: Memory Bounds
 
-## 6 · Optional: what the frontier costs
+The queue stores the frontier, which spans at most two adjacent levels. Its peak size is determined by the maximum level width of the network rather than total vertices.
 
-**Skippable.** Everything above is one sweep; this is about the memory it needs.
-
-The queue holds the frontier, and the frontier is at most two levels wide, so its size is bounded by the widest level of the graph — not by the number of vertices. A path needs a single slot; a star needs one per leaf.
-
-The chart plots the size of each level for three shapes: a path, a square grid, and a star. The path's frontier is flat at 1, the grid's swells to the middle of the grid and falls back, and the star jumps to 20 in a single step. These are exact level counts, read off the level structure — not a timing run.
+The chart below shows level sizes across three canonical topologies: a linear path, a 2D square grid, and a radial star graph.
 
 <SeriesChart
   title="How wide is one level? The frontier you have to hold."
@@ -205,9 +185,11 @@ The chart plots the size of each level for three shapes: a path, a square grid, 
   ]}
 />
 
-A closing aside, not needed for the argument. The BFS tree is not unique: when a vertex has several neighbours on the level above, whichever is examined first becomes its parent, and a different neighbour order returns a different tree with the same distances. The distances are canonical; the tree is one witness among many.
+The path frontier requires only 1 vertex in memory. The square grid expands diamond-like to 11 vertices before shrinking, while the star graph demands storing all 20 leaves in a single burst.
 
-## 7 · Attributions
+The resulting BFS tree is one witness among many. While tie-breaking produces different tree pointers, the underlying metric distances are absolute invariants.
+
+## Attributions
 
 - **Moore 1959** — E. F. Moore, *The shortest path through a maze*: the breadth-first sweep that labels every vertex with its distance from one source.
 - **Lee 1961** — C. Y. Lee, *An algorithm for path connections and its applications*: the same search as wire routing, where each level is a wavefront.

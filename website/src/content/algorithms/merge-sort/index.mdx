@@ -3,7 +3,7 @@ title: "Merge Sort"
 slug: merge-sort
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not splitting an array and stitching it back. It is the reduction of sorting to merging."
+reframe: "Sorting unordered chaos appears to require combinatorial omniscience. In 1945, John von Neumann proved it requires only a two-finger zipper: split the universe down to isolated atoms, then weave them back together one comparison at a time."
 oneLine: "Every sort is a merge; every merge is one linear pass over two chains."
 tldr: ["Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does.", "The recurrence T(n) = 2T(n/2) + Θ(n) sums to Θ(n log n): each of the log n levels touches every key exactly once.", "For n = 2^k the worst case is exactly n log₂ n − n + 1 comparisons — a derived identity, not an estimate.", "That matches the floor ⌈log₂(n!)⌉ = Θ(n log n) to a constant factor, so no comparison sort can beat it asymptotically."]
 mathBranches: ["algebra", "analysis", "information-theory", "order-theory"]
@@ -26,9 +26,11 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   Every count below is exact arithmetic from the identities derived in section 3, not a hardware measurement.
 */}
 
-## Merge sort is not splitting an array and stitching it back. It is the reduction of sorting to merging.
+## Von Neumann's fifty-page ink handwritten program
 
-Two sorted rows sit on the table. Take the smaller front each time and they braid into one.
+In the spring of 1945, John von Neumann drafted a 50-page handwritten program for the EDVAC. That document was the first program ever recorded for a stored-program computer, and its subject was Merge Sort: the demonstration that sorting is not global rearrangement, but a deterministic zipper.
+
+Place two sorted rows on the table. Compare only their heads, advance the winner, and braid them into one.
 
 ```
    left   [  2,  7,  8, 11 ]
@@ -45,63 +47,75 @@ Two sorted rows sit on the table. Take the smaller front each time and they brai
   merged  [  1,  2,  3,  7,  8,  9, 11 ]   in 6 comparisons
 ```
 
-Four and three is seven, and the walk needed six: the last element is appended with nothing left to compare it against. No split did any of this work. The merging did all of it.
+Four elements and three elements total seven. The two-finger walk finishes in exactly six comparisons because the survivor is appended without contest.
 
 <PredictionPrompt
   client:visible
-  question="Merging a sorted row of 4 with a sorted row of 5, worst case: how many comparisons?"
-  options={["4", "8", "9", "5"]}
+  question="You merge two sorted arrays of lengths p and q. What is the absolute worst-case comparison count?"
+  options={[
+    "p + q, because every single item must be inspected against a counterpart.",
+    "p + q − 1, because the very last item is appended with no opponent remaining.",
+    "p · q, because each element in the left array could cross each element in the right array."
+  ]}
   correct={1}
-  explain="Each comparison emits exactly one of the nine elements, but the final element is appended with no comparison at all. So the ceiling is 4 + 5 − 1 = 8, and an input that interleaves the two rows the whole way reaches it."
+  explain="Every single comparison decides a winner and emits at least one element into the merged output. But when p + q − 1 elements have been emitted, exactly one element remains in the survivor array. With nothing left to compare against, it is appended unconditionally in O(1) time. The tight ceiling is p + q − 1."
 />
 
-That two-finger walk is not a textbook detail. It is the join inside every merge join in a database, the merge inside every external sort, and the phase of MapReduce whose shuffle hands each reducer already-sorted runs to join.
+That two-finger walk is the engine inside relational database merge-joins, the kernel of external disk sorts, and the shuffle phase of MapReduce.
 
-## 1 · The question
+## The fallacy of quadratic re-inspection
 
-The operational statement is a recipe: split the keys into two halves, sort each half, merge the results. Recursion bottoms out at single keys, which are sorted already.
+The standard textbook description sounds like arbitrary book-keeping: halve the array, sort each half, merge the halves. Single keys are trivially sorted.
 
-The naive neighbours answer a different question. Insertion sort keeps a sorted prefix and inserts the next key into it, which may scan the whole prefix, costing Θ(n²) over the run. Selection sort scans for the minimum again and again, the same Θ(n²).
+Naive sorting algorithms ask the wrong question. Insertion sort repeatedly scans a growing prefix, costing $\Theta(n^2)$ when reversals are common. Selection sort repeatedly searches the unsorted remainder for the minimum, spending $\Theta(n^2)$ regardless of order.
 
-Neither is slow because the idea is wrong. Both are slow because they re-do work at the top level instead of combining two already-ordered pieces at cost proportional to their length. The real question is what it costs to *join two sorted pieces*, and what that join costs across a whole tree of joins.
+Neither algorithm fails due to poor engineering. They fail because they re-inspect unsorted data from scratch instead of fusing pre-ordered components at cost proportional to length.
 
-## 2 · The real object: a sorted run is a chain, and merge is its join
+## The algebraic soul: chains in a commutative monoid
 
-A sorted row is a **chain** in the total order on the keys. A merge takes two chains `A` and `B` on disjoint key sets and returns the chain on their union `A ∪ B`.
+A sorted array is a **chain** in the total order of keys. Merging takes two chains $A$ and $B$ over disjoint sets and produces the chain on their union $A \cup B$.
 
-At every instant the smallest unemitted key is the smaller of the two fronts, so each output is forced and there is no choice left to make. Merging is deterministic: read the two fronts, emit the smaller, advance that finger.
+At every step, the smallest unemitted key is guaranteed to sit at one of the two heads. The merge operation is associative and commutative, with the empty chain acting as the identity element:
 
-That join is associative and commutative, with the empty chain as its identity:
+$$
+(A \vee B) \vee C = A \vee (B \vee C), \qquad A \vee B = B \vee A, \qquad A \vee \varnothing = A
+$$
 
-$$ (A \vee B) \vee C = A \vee (B \vee C), \qquad A \vee B = B \vee A, \qquad A \vee \varnothing = A $$
+The sorted chains form a commutative monoid. **Sorting is a fold of this join over singleton sets.**
 
-So the sorted chains of a set form a commutative monoid, and **sorting is a fold of that join over the singletons**. The recursion tree is only a schedule for the fold. By associativity and commutativity every schedule produces the same chain; schedules differ only in what they cost.
+The binary recursion tree is merely one convenient evaluation schedule for the fold. Because the monoid is associative and commutative, every schedule computes the exact same chain—they differ only in cache behavior and comparative depth.
 
-## 3 · The mathematics: one linear join, paid once per level
+## The exact arithmetic: deriving n log n − n + 1
 
-**The join is linear.** Merging sorted lists of lengths `p` and `q` needs at most `p + q − 1` comparisons:
+Merging sorted lists of lengths $p$ and $q$ consumes at most $p + q - 1$ comparisons:
 
-$$ C_{\text{merge}}(p,q) \;\le\; p + q - 1 $$
+$$
+C_{\text{merge}}(p,q) \;\le\; p + q - 1
+$$
 
-Each comparison emits at least one key, so `p + q − 1` emissions cannot need more than `p + q − 1` comparisons; the last key is appended with no comparison. The bound is tight — interleave the rows so neither empties until the last element (Knuth 1973, §5.2.4).
+Each comparison emits at least one element, so emitting $p + q - 1$ elements cannot require more than $p + q - 1$ comparisons. The last key appends for free (Knuth 1973, §5.2.4).
 
-**The recurrence.** If each node merges its two halves at cost proportional to its size, then
+If every level merges halves at cost proportional to their size, the overall work satisfies:
 
-$$ T(n) = 2\,T(n/2) + \Theta(n) $$
+$$
+T(n) = 2\,T(n/2) + \Theta(n)
+$$
 
-Level `k` of the tree holds $2^k$ subproblems of size $n/2^k$, so its total size is `n`, and there are about $\log_2 n$ internal levels. Every level costs `Θ(n)` and there are `log n` of them. With $a = 2$, $b = 2$, $d = 1$ this is the balanced case of the master theorem, $\Theta(n^d \log n) = \Theta(n \log n)$ (Bentley, Haken and Saxe 1980).
+Level $k$ contains $2^k$ subproblems of size $n/2^k$, totaling $n$ elements across roughly $\log_2 n$ levels. With $a=2$, $b=2$, and $d=1$, this is the balanced case of the master theorem: $\Theta(n \log n)$.
 
-**The exact count, derived.** Write $C(n)$ for the worst-case number of comparisons on `n` keys. A single key costs nothing, $C(1) = 0$. The top merge of two sorted halves of size $n/2$ costs at most $n - 1$, so for $n = 2^k$
+For $n = 2^k$, we can derive the exact comparison count $C(n)$ without approximations:
 
-$$ C(n) \;\le\; 2\,C(n/2) + (n-1) $$
+$$
+C(n) \;\le\; 2\,C(n/2) + (n-1)
+$$
 
-Unroll it level by level. At depth `i`, $2^i$ subproblems have sizes summing to exactly `n`, and each merge stops one comparison early, so depth `i` costs $n - 2^i$ while the leaf level costs nothing. Summing the internal levels $i = 0$ up to $k-1$,
+Unrolling level by level reveals that depth $i$ costs $n - 2^i$, while leaves cost zero. Summing depths $i = 0$ through $k-1$:
 
-$$ C(2^k) \;=\; \sum_{i=0}^{k-1}\bigl(n - 2^{i}\bigr) \;=\; k\,n - (2^k - 1) \;=\; n \log_2 n - n + 1 $$
+$$
+C(2^k) \;=\; \sum_{i=0}^{k-1}\bigl(n - 2^{i}\bigr) \;=\; k\,n - (2^k - 1) \;=\; n \log_2 n - n + 1
+$$
 
-For general `n` the same level sum, with the ceilings that keep each level's sizes totalling `n`, gives $C(n) = n\lceil \log_2 n\rceil - 2^{\lceil \log_2 n\rceil} + 1$.
-
-State the strength honestly. The identity $n\log_2 n - n + 1$ is **derived here** from the merge bound, not quoted. That this upper bound is *met* — that some input forces `n − 1` comparisons at every merge simultaneously — is Knuth's matching result (1973, §5.2.4), so the number is the exact worst case for straight two-way merge sort, not merely a ceiling.
+For arbitrary $n$, ceiling corrections yield $C(n) = n\lceil \log_2 n\rceil - 2^{\lceil \log_2 n\rceil} + 1$. Knuth proved that worst-case inputs achieve this bound simultaneously at every level.
 
 <SeriesChart
   title="Exact worst-case comparisons, hand-computed, at n = 2^k"
@@ -125,48 +139,46 @@ State the strength honestly. The identity $n\log_2 n - n + 1$ is **derived here*
   ]}
 />
 
-Three curves, one leading term. The upper line is the level sum $n\log_2 n$, every level touching every key once. The middle line is the exact count: subtract the `n` the leaves do not do and the $n-1$ early stops, and the level sum becomes $n\log_2 n - n + 1$.
-
-The lower line is the floor no comparison sort can go under. As `n` grows, the gap between the top two stays a constant fraction of `n`, while both keep the same $n\log_2 n$ slope.
-
 <PredictionPrompt
   client:visible
-  question="Sort 1,024 keys with merge sort. What is the exact worst-case comparison count?"
-  options={["9,216", "9,217", "10,240", "5,120"]}
-  correct={1}
-  hint="1,024 = 2^10, so use n log₂ n − n + 1."
-  explain="With n = 2^10, n log₂ n = 10,240. Subtract the leaves' level (n = 1,024) and add back the +1 that the last merge saves you: 10,240 − 1,024 + 1 = 9,217. The option 9,216 drops the +1; 10,240 forgets that merges stop early and that leaves do nothing."
-/>
-
-**The floor, and why nothing beats it.** Take away merge sort and ask what *any* sorting algorithm must spend. In the **comparison model** an algorithm may look at two keys and learn only which is smaller; it may not read a key as an integer, hash it, or use its bits. That restriction is the whole content of the phrase.
-
-A run of `k` comparisons is a path in a binary decision tree, so the tree has at most $2^k$ leaves. A correct sort must end at a different leaf for each of the `n!` input orders, so $2^k \ge n!$ and $k \ge \lceil \log_2(n!) \rceil$. Stirling's approximation (Stirling 1730) turns the factorial into
-
-$$ \log_2(n!) \;=\; n \log_2 n - n \log_2 e + \tfrac{1}{2}\log_2(2\pi n) + o(1) \;=\; \Theta(n \log n) $$
-
-That is the decision-tree lower bound, and it is a counting argument rather than one person's theorem; Knuth gives the standard treatment (1973, §5.3.1).
-
-<PredictionPrompt
-  client:visible
-  question="Can a comparison sort be made faster than merge sort asymptotically — say O(n) comparisons — if the merge is cleverer?"
+  question="For n = 1,024 = 2¹⁰ keys, n log₂ n = 10,240. Does worst-case merge sort actually perform 10,240 comparisons?"
   options={[
-    "Yes — a cleverer merge gets to O(n).",
-    "No — any comparison sort needs Ω(n log n) comparisons in the worst case.",
-    "Only if the input is already nearly sorted."
+    "Yes, because every one of the 10 levels does exactly n comparisons across all subproblems.",
+    "No: it performs exactly 9,217 comparisons—saving over 1,000 comparisons due to base cases and terminal appends.",
+    "No: it performs 5,120 comparisons on average because half the keys skip comparison."
   ]}
   correct={1}
-  explain="The decision tree has n! leaves, so the height is at least log₂(n!) = n log₂ n − 1.4427n + O(log n) = Ω(n log n). Merge sort already reaches n log₂ n − n + 1, the same leading term 1, so it is asymptotically optimal and no merge can erase the n log₂ n. The escape is to leave the comparison model: radix sort and counting sort read keys as digits and sort bounded integers in O(n) time, which is faster only because they are not comparison sorts."
+  hint="Unroll the recurrence: C(2^k) = n log₂ n − n + 1."
+  explain="The loose textbook bound n log₂ n counts n comparisons at every single level, including the leaf level (which does 0 comparisons) and assumes every merge costs p + q instead of p + q − 1. Summing the exact formula n log₂ n − n + 1 gives 10,240 − 1,024 + 1 = 9,217. That is 1,023 fewer comparisons than the naive asymptotic product!"
 />
 
-Merge sort does not merely match the floor in order. Its count $n\log_2 n - n + 1$ and the floor $n\log_2 n - 1.4427\,n + O(\log n)$ share the same leading coefficient 1, and their ratio tends to one. The exact optimum is a little lower still — Ford and Johnson (1959) sort five keys in 7 comparisons against merge sort's 8 — which is why merge sort is the reference point and not the champion.
+What is the fundamental theoretical limit for *any* comparison sort? A comparison algorithm is a binary decision tree where each branch provides at most one bit of information.
 
-**Stability is the merge rule.** Call a sort stable if equal keys keep their input order, and make one decision in the merge: when the two fronts are equal, emit the one from the left run. Then stability follows by induction — the split reorders nothing, a single key is trivially stable, and the tie goes to the earlier run at every level.
+To differentiate between all $n!$ possible permutations of $n$ keys, the decision tree must contain at least $n!$ leaves. Hence, tree depth satisfies $k \ge \lceil \log_2(n!) \rceil$. Applying Stirling's approximation:
 
-Flip that one choice, emit the right front on a tie, and the same algorithm runs at the same speed and is unstable. Stability lives in the merge, not in the recursion.
+$$
+\log_2(n!) \;=\; n \log_2 n - n \log_2 e + \tfrac{1}{2}\log_2(2\pi n) + o(1) \;=\; \Theta(n \log n)
+$$
 
-## 4 · The centrepiece: drive the recurrence
+Merge sort's leading term $n \log_2 n$ matches this information-theoretic floor with a leading coefficient of exactly 1.
 
-The panel is the recurrence itself, started at $a = 2$, $b = 2$, $d = 1$ — two recursive calls on half the data, plus one linear merge.
+<PredictionPrompt
+  client:visible
+  question="Could an ingenious divide-and-conquer strategy reduce comparison sorting to O(n) worst-case time?"
+  options={[
+    "Yes: splitting into 3 or 4 sub-lists instead of 2 lowers the depth enough to reach O(n).",
+    "No: any comparison sort is bounded below by ⌈log₂(n!)⌉ = Ω(n log n) by Shannon information theory.",
+    "Yes, but only if the hardware provides atomic 3-way branch instructions."
+  ]}
+  correct={1}
+  explain="A comparison sort is a binary decision tree where each question provides at most 1 bit of information. Since n keys have n! possible permutations, the decision tree must have at least n! distinct leaves. Its depth must be at least ⌈log₂(n!)⌉. Stirling's approximation reveals ⌈log₂(n!)⌉ = n log₂ n − 1.4427n + O(log n) = Ω(n log n). Beating O(n log n) requires abandoning comparisons entirely (like Radix Sort)."
+/>
+
+Stability is governed entirely by the merge tie-breaking rule. When left and right heads match, emit the left item first; by induction, equal keys preserve their original input ordering.
+
+## The balanced ribbon: why every level pays exactly n
+
+The panel models the recurrence $a = 2$, $b = 2$, $d = 1$: two subproblems of half the size, plus linear merge overhead.
 
 <RecursionTree
   client:visible
@@ -175,41 +187,37 @@ The panel is the recurrence itself, started at $a = 2$, $b = 2$, $d = 1$ — two
   d={1}
   levels={4}
   label="two halves, one linear merge per node"
-  caption="Every internal level ties at n because each of its subproblems merges its whole slice. The panel also draws a unit of work at the leaves, where the real sort does none, and each merge stops one comparison early: two corrections, of n and n − 1, sit between this ribbon and the exact count."
+  caption="Every internal level ties at n because each subproblem merges its whole slice. The ribbon is perfectly flat, illustrating the balanced master-theorem case Θ(n log n)."
 />
 
-Read the ribbon. Level `k` holds $2^k$ nodes of size $n/2^k$, so each node's work is $n/2^k$ and the level total is `n`. Every bar is the same height, and that flat ribbon is the whole reason the sum is `n log₂ n` and not `n` — the panel calls it the balanced case.
+Read the ribbon vertically. Level $k$ contains $2^k$ nodes of size $n/2^k$, each costing $n/2^k$ merge work. The level total is always $n$, forming a flat ribbon across all $\log_2 n$ levels.
 
-Now move the sliders and watch the ribbon tilt. Set $d = 0$: the merge is free and the level totals shrink geometrically, so the leaves dominate and the panel reads Θ(n) — splitting alone, with no linear join, is linear. Set $d = 2$: the merge is quadratic and the root dominates, so the panel reads Θ(n²) and the tree has bought nothing.
+Now adjust the sliders. Setting $d = 0$ makes the merge free, causing work to decay geometrically and yielding $\Theta(n)$. Setting $d = 2$ makes the merge quadratic, blowing up the root to $\Theta(n^2)$.
 
-The logarithm is not bought by the halving. It is bought by $d = 1$: the linear join at every node, paid at every level, which is exactly the `n` the flat ribbon shows.
+The logarithm is not produced by halving alone. It is born of $d = 1$: the linear cost paid persistently across every level of the tree.
 
-## 5 · The payoff
+## The universal join: from Timsort to MapReduce
 
-The merge is the join, so it is where merge sort shows up.
+Because the merge step is a monoid join, it powers critical infrastructure across computing:
 
-- **It is the stable sort in your library.** Python's `sorted` and Java's `Arrays.sort` on objects are Timsort, a merge sort that finds existing runs and joins them; the primitive overloads use an unstable quicksort instead. Because the merge is stable, sorting by a secondary key and then a primary one gives a two-key sort in two passes.
-- **It handles data that does not fit in memory.** External merge sort sorts chunks that fit in RAM, writes them as runs, then joins the runs with a k-way merge costing `n log₂ k`. That k-way join is the sort-and-merge work of MapReduce: the shuffle hands reducers sorted runs, and they merge them instead of re-sorting.
-- **It is the join in a database.** A sort-merge join sorts both relations and then walks them with two fingers, the same walk as the opening example; after the sort the join itself is `O(p + q)`.
-- **It counts inversions for free.** Add one line to the merge — when you emit from the right run, you have just crossed every element still unemitted in the left run — and merge sort counts the inversions of a permutation in `O(n log n)`.
-- **It parallelises because the join is associative.** A reduce over `∨` can be split anywhere, so the recursion tree is a schedule over cores. Splitting and merging are independent jobs; only the merge of two results has to wait.
+- **Timsort in Python and Java.** Python's `sorted` and Java's object sorting use Timsort, an adaptive merge sort that identifies natural sorted runs before merging them.
+- **External sorting.** When datasets exceed RAM, systems sort chunks in memory and merge the runs from disk using a $k$-way tournament tree in $O(n \log k)$ time.
+- **Database sort-merge joins.** Relational databases sort both tables and merge them in a single linear stream, avoiding hash table sizing bottlenecks.
+- **Inversion counting.** Modifying the merge to count unmerged left-hand keys whenever a right-hand key is emitted computes permutation inversions in $O(n \log n)$ time.
 
-## 6 · Advanced and optional
+## The hidden tax: scratch space and in-place barriers
 
-Skip this; nothing below is used again.
+Merge sort's primary practical compromise is memory. Merging into a single contiguous array requires an auxiliary buffer of size $n$, demanding $\Theta(n)$ extra space where quicksort requires only $O(\log n)$ stack frames.
 
-**The real cost is the scratch array.** Merging writes into a second array of size `p + q`, so merge sort spends `Θ(n)` extra space where quicksort spends `O(log n)`. Stable in-place merging exists (Katajainen, Pasanen and Teuhola 1996) but does more moves, so in practice the memory stays spent.
+While in-place merging algorithms exist (Katajainen et al. 1996), their high pointer manipulation overhead makes standard buffering faster in practice.
 
-**Runs beat recursion.** Timsort does not split blindly; it finds maximal ascending or descending runs and merges those (Peters 2002). On partly sorted input the runs are long and few, which is why it is the default for real payloads.
+Adaptive algorithms capitalize on pre-existing order. When an array is nearly sorted, Timsort merges long natural runs in near $O(n)$ time.
 
-**The exact optimum is still open.** Ford and Johnson gave the merge-insertion method in 1959, and computer search has settled the smallest possible comparison count only for `n` in the low twenties. Merge sort is optimal to a constant factor, not to the count.
+## Historical provenance and attributions
 
-## 7 · Attributions
-
-- **von Neumann 1945** — the earliest recorded merge sort, a two-way merge written for the EDVAC; the credit is Knuth's, who tracks it down (*TAOCP* Vol. 3, §5.2.4).
-- **Knuth 1973** — *The Art of Computer Programming*, Vol. 3, *Sorting and Searching*: the merge bound `p + q − 1`, the exact worst case $n\lceil\log_2 n\rceil - 2^{\lceil\log_2 n\rceil} + 1$ for straight two-way merge sort, and the decision-tree lower bound of §5.3.1.
-- **Stirling 1730** — the approximation behind $\log_2(n!) = n\log_2 n - n\log_2 e + O(\log n)$.
-- **Bentley, Haken and Saxe 1980** — the balanced case of the master theorem that names the panel's $\Theta(n^d \log n)$.
-- **Ford and Johnson 1959** — merge-insertion, a comparison sort that beats plain merge sort on small inputs.
-- **Peters 2002** — Timsort, the stable natural merge sort. **Katajainen, Pasanen and Teuhola 1996** — practical stable in-place merging.
-- **The decision-tree lower bound** — the counting argument $\log_2(n!) = \Theta(n \log n)$, attributed to no single author; Knuth 1973 gives the standard treatment.
+- **von Neumann 1945** — First recorded implementation of Merge Sort, hand-written in ink for the EDVAC.
+- **Knuth 1973** — *The Art of Computer Programming*, Vol. 3: derived the exact worst-case bound $n \lceil\log_2 n\rceil - 2^{\lceil\log_2 n\rceil} + 1$.
+- **Stirling 1730** — *Methodus Differentialis*: the factorial expansion underpinning the $\Omega(n \log n)$ comparison lower bound.
+- **Bentley, Haken, and Saxe 1980** — Formulation of the master theorem characterizing the balanced $\Theta(n \log n)$ case.
+- **Ford and Johnson 1959** — Merge-insertion algorithm (Ford-Johnson algorithm), optimizing comparisons on small sets.
+- **Peters 2002** — Designed Timsort for Python, combining run detection with balanced merge strategies.

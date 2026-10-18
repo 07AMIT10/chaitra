@@ -2,7 +2,7 @@ title: "Maximum Flow"
 slug: maximum-flow
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not 'push flow until you get stuck'. It is a linear program whose dual is a cut, and the gap between them closes to exactly zero."
+reframe: "Pump fluid through a pipe network until the seams burst. The instant the flow chokes, the network reveals an invisible geometric fault-line: a razor-thin cut across the world where every single pipe is gorged to capacity."
 oneLine: "Seven pipes, five junctions, and the cut that certifies the answer."
 tldr:
   - "The state is a feasible flow, and the maximum flow is the optimum of a linear program whose constraints are one row per junction."

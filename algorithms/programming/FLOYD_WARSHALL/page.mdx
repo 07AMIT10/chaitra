@@ -11,9 +11,9 @@ import SeriesChart from "@alg/SeriesChart.tsx";
   Each interactive primitive carries its own client directive; islands cannot nest.
 */}
 
-## Floyd–Warshall is not an all-pairs shortest-path algorithm. It closes one matrix over a semiring — and the arithmetic you choose is the problem you are solving.
+## Four Lines, Four Universes
 
-Four towns, five one-way roads. Order the towns A, B, C, D and every road runs downhill, so no trip can loop forever.
+Four towns, five one-way roads, and a tiny grid of numbers. Under standard arithmetic, cell A→D is a distance. Alter two algebraic definitions, and the exact same numbers answer four unrelated branches of computer science.
 
 ```
 A --1--> B --1--> D
@@ -23,7 +23,7 @@ A --1--> B --1--> D
     ---> C --------+
 ```
 
-The roads are one grid of numbers, `R`, where `R[i][j]` is the cost of driving straight from `i` to `j` and a dot means there is no road.
+The roads form a matrix $R$, where $R[i][j]$ is the cost of traveling directly from $i$ to $j$, and a dot marks the absence of a road.
 
 ```
       A  B  C  D
@@ -33,23 +33,23 @@ The roads are one grid of numbers, `R`, where `R[i][j]` is the cost of driving s
  D    ·  ·  ·  ·
 ```
 
-That grid is the entire input. Fix your attention on one cell, A→D, and ask what number belongs in it.
+That grid is the entire input. Focus on cell A→D and consider what value belongs there.
 
 <PredictionPrompt
   client:visible
-  question="One grid of roads. Under (min, +) the cell A→D closes at 2. Switch to (+, ×) and the same cell becomes a much larger number. What is each arithmetic asking?"
+  question="Look at cell A→D in the grid. Under (min, +) it closes at 2. Switch to (+, ×) and the same cell becomes 3. What is each arithmetic calculating?"
   options={[
-    "(min, +) asks for the fewest roads; (+, ×) asks how many routes there are.",
-    "They ask the same question in different units.",
-    "(min, +) counts routes; (+, ×) measures distance."
+    "(min, +) finds the cheapest route length; (+, ×) counts the number of distinct routes.",
+    "They measure the same distance in different coordinate systems.",
+    "(min, +) counts paths; (+, ×) computes Euclidean distance."
   ]}
   correct={0}
-  explain="Under (min, +) the answer is the cheapest route, so A→D is two roads — through B, or through C. Under (+, ×) the answer sums a product over every route, so with unit costs it counts them: A→B→D, A→C→D, and A→B→C→D, three routes. Minimising and counting are different questions put to the same grid."
+  explain="Under (min, +), the calculation minimizes road sums, yielding the shortest path length of 2 (via B or C). Under (+, ×), operations sum the product of edge weights along each route, counting exactly three paths: A→B→D, A→C→D, and A→B→C→D. Minimizing distance and counting paths are different questions asked of the exact same matrix."
 />
 
-## 1 · The question
+## The Four-Line Ghost
 
-Here is the whole algorithm.
+Here is the entirety of the algorithm:
 
 ```
 for k = 1 … n
@@ -58,28 +58,30 @@ for k = 1 … n
       R[i][j] ← R[i][j] ⊕ R[i][k] ⊗ R[k][j]
 ```
 
-Read what is missing. No town, no road, no distance, no queue, no priority. Nowhere does the code say what ⊕ and ⊗ are.
+Notice what is absent: no priority queues, no edge pointers, no graph traversals. Nowhere does the code specify what $\oplus$ and $\otimes$ mean.
 
-The operational framing — "find all shortest paths" — smuggles that answer in, quietly setting ⊕ to min and ⊗ to plus. That is a choice. It is the only choice in the program, and every meaning the loop can carry lives inside it.
+Standard teaching obscures this by hardcoding $\oplus = \min$ and $\otimes = +$. That is a single arbitrary choice, and every interpretation the algorithm can manifest lives inside that algebraic substitution.
 
-The naive alternatives are also worse. Dijkstra from every source costs $O(n\,m\log n)$ and refuses negative edges. Bellman–Ford from every source costs $O(n^2 m)$. The four lines above cost $O(n^3)$, allow negative edges, and never ask what the numbers mean.
+Running Dijkstra from every vertex costs $O(V \cdot E \log V)$ and refuses negative edges. Bellman–Ford from every vertex costs $O(V^2 E)$. These four lines run in $O(V^3)$, accept negative edges, and never ask what the numbers represent.
 
-## 2 · The real object: a matrix over a semiring
+## The Kleene Star and Semiring Algebras
 
-A **semiring** is a set $S$ with two operations, $\oplus$ and $\otimes$, and two elements, $0$ and $1$, obeying four rules (Golan 1999):
+A **semiring** $(S, \oplus, \otimes, 0, 1)$ is an algebraic structure with addition $\oplus$ and multiplication $\otimes$ satisfying four conditions (Golan 1999):
 
-- $(S,\oplus,0)$ is a commutative monoid — $\oplus$ is associative and commutative with identity $0$.
-- $(S,\otimes,1)$ is a monoid — $\otimes$ is associative with identity $1$.
-- $\otimes$ distributes over $\oplus$ on both sides: $a\otimes(b\oplus c) = (a\otimes b)\oplus(a\otimes c)$, and the mirror image.
-- $0$ annihilates: $a\otimes 0 = 0\otimes a = 0$.
+- $(S, \oplus, 0)$ is a commutative monoid with identity $0$.
+- $(S, \otimes, 1)$ is a monoid with identity $1$.
+- Multiplication distributes over addition: $a \otimes (b \oplus c) = (a \otimes b) \oplus (a \otimes c)$.
+- The zero element annihilates under multiplication: $a \otimes 0 = 0 \otimes a = 0$.
 
-That is the whole list, and the loop of §1 uses nothing else. Associativity lets you regroup a chain of roads. Distributivity lets you split a route at a point. Annihilation lets a route that does not exist add nothing.
+The four-line loop requires nothing else. Associativity permits regrouping road chains, distributivity allows branching paths at intermediate vertices, and annihilation ensures missing roads contribute nothing.
 
-A **closed semiring** adds a star: every $a$ has $a^\star$ satisfying
+A **closed semiring** equips every element with a Kleene star $a^\star$ (Kleene 1951):
 
-$$ a^\star = 1 \oplus a \otimes a^\star = 1 \oplus a^\star \otimes a $$
+$$
+a^\star = 1 \oplus a \otimes a^\star = 1 \oplus a^\star \otimes a
+$$
 
-and when the series converges, $a^\star = 1 \oplus a \oplus a^2 \oplus a^3 \oplus \cdots$. The star is the closure. Kleene 1951 introduced it for regular languages; for a matrix $A$ the loop computes $A^\star$, the least solution of $X = I \oplus A \otimes X$ (Lehmann 1977). Four instances carry this page:
+When the geometric series converges, $a^\star = 1 \oplus a \oplus a^2 \oplus \cdots$. For an entire matrix $A$, the triple loop computes the matrix closure $A^\star$, the least solution of $X = I \oplus A \otimes X$ (Lehmann 1977). Four choices define the table below:
 
 | semiring | ⊕ | ⊗ | zero | one | the entry $A^\star_{ij}$ means |
 |---|---|---|---|---|---|
@@ -88,23 +90,23 @@ and when the series converges, $a^\star = 1 \oplus a \oplus a^2 \oplus a^3 \oplu
 | $(\mathrm{OR},\mathrm{AND})$ | OR | AND | false | true | whether a route exists |
 | $(\max,+)$ | $\max$ | $+$ | $-\infty$ | $0$ | longest route |
 
-Each row is a different arithmetic obeying the same four rules, and the four lines cannot tell the rows apart.
+Each row represents an arithmetic obeying the exact same four axioms. The code executes identically across all four.
 
-## 3 · The mathematics
+## Elimination and the Semiring Inverse
 
-**The recurrence.** Let $d^{(k)}_{ij}$ be the entry after the first $k$ rounds. Warshall 1962 gives the Boolean version and Floyd 1962 the weighted one; both are this:
+**The recurrence.** Let $d^{(k)}_{ij}$ represent the matrix state after admitting the first $k$ vertices as possible intermediates (Warshall 1962; Floyd 1962):
 
-$$ d^{(0)}_{ij} = A_{ij} \oplus \delta_{ij}, \qquad d^{(k)}_{ij} = d^{(k-1)}_{ij} \oplus \bigl( d^{(k-1)}_{ik} \otimes d^{(k-1)}_{kj} \bigr) $$
+$$
+d^{(0)}_{ij} = A_{ij} \oplus \delta_{ij}, \qquad d^{(k)}_{ij} = d^{(k-1)}_{ij} \oplus \bigl( d^{(k-1)}_{ik} \otimes d^{(k-1)}_{kj} \bigr)
+$$
 
-The $\delta_{ij}$ term is $1$ when $i = j$ and $0$ otherwise. It is the road of length zero from a town to itself, and it is why the closure includes staying put. After $n$ rounds $d^{(n)} = A^\star$.
+Here $\delta_{ij}$ equals $1$ on the diagonal and $0$ elsewhere, representing a zero-length stay. After $n$ rounds, $d^{(n)} = A^\star$.
 
-**Why the axioms are enough.** A route from $i$ to $j$ either avoids $k$ or passes through $k$. Distributivity turns "or" into $\oplus$ and "then" into $\otimes$; associativity lets the split sit anywhere in the route; the zero absorbs the routes that do not exist. Nothing outside the four rules is used, which is why the same four lines answer four unrelated questions.
+Round $k$ eliminates vertex $k$ from remaining paths. A path entering $k$ may loop through $k$ arbitrarily many times, forming the star $R_{kk}^{\star} = \delta \oplus R_{kk} \oplus R_{kk}^{2} \oplus \cdots$.
 
-**The step is an elimination with a star.** Round $k$ removes town $k$ from every remaining route. A route that enters $k$ may lap through $k$ any number of times before it leaves, and that freedom is not a finite sum — it is the star $R_{kk}^{\star} = \delta \oplus R_{kk} \oplus R_{kk}^{2} \oplus \cdots$. So the exact step replaces the pivot by its star, scales row $k$ and column $k$ by it, and only then splits each remaining entry into "avoid $k$" or "enter, lap through $k$, leave".
+When addition is idempotent ($a \oplus a = a$, as in $\min$, $\max$, and $\text{OR}$), self-loops collapse to $\delta \oplus R_{kk}$. Real addition is non-idempotent ($1 + 1 = 2$), making each loop a distinct path, where the star becomes the geometric series $\frac{1}{1 - R_{kk}}$.
 
-When $\oplus$ is idempotent — $a \oplus a = a$, as for $\min$, $\max$ and OR — the star collapses to $\delta \oplus R_{kk}$, and seeding $\delta$ on the diagonal up front changes nothing. Addition is the one non-idempotent case: $1 \oplus 1 = 2$, so a lap is a genuinely new route and the star is the geometric series $\frac{1}{1 - R_{kk}}$. The panel seeds the identity only where the collapse holds, and computes the star where it does not.
-
-**Four readings of this grid.** Point at the cell A→D after the closure:
+**Four readings of this grid.** Inspect cell A→D after closure:
 
 | reading | A→D | the number is |
 |---|---|---|
@@ -113,17 +115,19 @@ When $\oplus$ is idempotent — $a \oplus a = a$, as for $\min$, $\max$ and OR �
 | $(\mathrm{OR},\mathrm{AND})$ | 1 (true) | whether D is reachable |
 | $(+,\times)$ | 3 | how many distinct routes |
 
-Under $(\max,+)$ and under $(+,\times)$ the cell prints 3, and the two threes count different things: three roads on the single longest route, three routes in total. That is a coincidence of this grid, not an identity. The diagonal tells the same story — $(\min,+)$ and $(\max,+)$ put 0 there, $(\mathrm{OR},\mathrm{AND})$ puts true, and $(+,\times)$ puts 1, the empty route. Every panel agrees with its own row, cell for cell.
+Under $(\max,+)$ and $(+,\times)$, cell A→D prints 3, yet they count different concepts: three edges along the longest path versus three distinct paths. Every semiring panel agrees with its row, cell for cell.
 
-**The star as a matrix inverse.** Over the reals under $(+,\times)$, with no cycle, the closure is the geometric series
+**Matrix inversion.** Over real numbers under $(+, \times)$ on an acyclic graph, the closure is the classic Neumann series:
 
-$$ A^\star = I + A + A^2 + A^3 + \cdots = (I - A)^{-1} $$
+$$
+A^\star = I + A + A^2 + A^3 + \cdots = (I - A)^{-1}
+$$
 
-so the triple loop is Gaussian elimination computing a matrix inverse in a semiring (Lehmann 1977). Cheapest routes, route counts, reachability and longest routes are all one inverse, taken in four arithmetics.
+The four-line loop is simply Gaussian elimination computing a matrix inverse in a semiring (Lehmann 1977). Shortest paths, path counts, connectivity, and longest routes are all the identical matrix inverse.
 
-## 4 · The centrepiece: the grid, and the switch
+## Morphing Arithmetic on a 4×4 Grid
 
-Below is your grid. Start in $(\min,+)$ and drag the k slider from 0 to 4. The same four lines run over the same numbers, and only the highlighted row and column — the vertex $k$ that round admits as an intermediate — can move anything.
+Below is your grid. Start in $(\min,+)$ and drag the $k$ slider from 0 to 4. The same four lines run over the same numbers, updating rows and columns through intermediate vertex $k$.
 
 <SemiringMatrix
   client:visible
@@ -138,53 +142,45 @@ Below is your grid. Start in $(\min,+)$ and drag the k slider from 0 to 4. The s
 
 <PredictionPrompt
   client:visible
-  question="With (min, +) selected, exactly one of the sixteen cells changes as you drag k from 0 to 4. Which cell, and at which round?"
+  question="Under (min, +), exactly one off-diagonal cell changes as you drag k from 0 to 4. Which cell updates, and at which round?"
   options={[
-    "A→D, at round 2 — the round that admits B.",
-    "A→C, at round 1 — the round that admits A.",
-    "B→D, at round 3 — the round that admits C.",
-    "None. The grid is closed before the loop starts."
+    "A→D at round 2 — the round that admits vertex B as an intermediate.",
+    "A→C at round 1 — the round that admits vertex A.",
+    "B→D at round 3 — the round that admits vertex C.",
+    "None — the shortest paths are already present in the initial adjacency matrix."
   ]}
   correct={0}
-  explain="At k = 0 the cell A→D is ∞: no road, and no two-road route yet. Every two-road route from A to D passes through B or through C. B is the second vertex, so round 2 adds A→B→D and writes 2. Round 3 admits C and offers A→C→D, also 2, so the minimum does not move. Round 4 admits D, which has no outgoing road, and changes nothing."
+  explain="At k = 0, cell A→D is ∞ because no direct road exists. Any two-hop path from A to D must pass through B or C. Round 2 admits vertex B, discovering A→B→D of length 2 and writing 2 into A→D. Round 3 admits C, offering A→C→D (also length 2), leaving the minimum unchanged."
 />
 
-Now switch to $(\max,+)$ and drag again. Round 2 still gives A→D = 2, but round 3 lifts it to 3, because the longest route A→B→C→D exists only once C is an intermediate. Switch to $(\mathrm{OR},\mathrm{AND})$ and the same cell flips from 0 to 1 at round 2, then stops. One loop, three schedules.
+Switch to $(\max,+)$ and drag the slider again. Round 2 sets A→D = 2, but round 3 lifts it to 3 because A→B→C→D becomes available once C is admitted. Switch to $(\mathrm{OR},\mathrm{AND})$ and the same cell transitions from 0 to 1 at round 2.
 
-## 5 · The payoff
+## The Many Faces of the Closure
 
-**Shortest paths.** $(\min,+)$ is Floyd 1962's reading, and the one that answers all-pairs distances in a single cubic pass. Negative roads are allowed; if a diagonal entry is negative after round $n$, some route is cheaper than standing still, and that is a negative cycle.
+**Shortest paths.** $(\min,+)$ is Floyd's 1962 formulation, solving all-pairs distances in cubic time. Negative edge weights are supported; a negative diagonal after round $n$ flags a negative cycle.
 
-**Reachability.** $(\mathrm{OR},\mathrm{AND})$ is Warshall 1962's transitive closure. Databases use it to answer "is there a path from x to y" without walking the edges; build tools use it to close a dependency relation and order the work.
+**Reachability.** $(\mathrm{OR},\mathrm{AND})$ is Warshall's 1962 transitive closure. Relational databases evaluate graph queries with it, and compiler build tools compute dependency closures.
 
-**Maximum-likelihood paths.** Viterbi decoding of a hidden Markov model is $(\max,\times)$; take logs and it is $(\max,+)$. The trellis and this grid carry the same recurrence, which is why speech recognisers, gene finders and parsers all contain this loop.
+**Maximum-likelihood paths.** Viterbi decoding of hidden Markov models uses $(\max,\times)$; taking logarithms converts it to $(\max,+)$. The identical recurrence powers speech recognition and genomic parsing.
 
-**Routing.** Distance-vector routing is the $(\min,+)$ closure spread across routers, each holding one row. A router relaxes its row against a neighbour's, and a link failure is just a changed entry.
+**Capacity and bottleneck.** The bottleneck algebra $(\max,\min)$ maximizes the minimal edge capacity along a route. This computes maximum-bandwidth paths across communication backbones.
 
-**Capacity.** The sibling arithmetic $(\max,\min)$ maximises the smallest capacity along a route. That is the widest-path question, the natural one for a network asked for bandwidth rather than distance.
+**Counting.** $(+,\times)$ counts walks. While counting walks in a graph with cycles is polynomial, counting *simple* paths without repeated vertices is #P-complete (Valiant 1979).
 
-**Counting.** $(+,\times)$ counts routes. On a grid with cycles it counts walks, which is cheap; counting *simple* paths instead is #P-complete (Valiant 1979). The arithmetic you pick decides which side of that cliff you stand on.
+## The Boundary of Convergence: When the Star Diverges
 
-## 6 · Advanced, and skippable
-
-Skip this on a first read. It is the fine print of existence.
-
-**When the star exists.** The closure sums over routes of unbounded length, so the grid decides whether the sum converges.
+The closure sums over paths of unbounded length, meaning convergence depends on the algebraic properties of the graph:
 
 | reading | the closure exists exactly when |
 |---|---|
 | $(\min,+)$ | no cycle has negative total cost; otherwise the sum runs down forever |
 | $(\max,+)$ | no cycle has positive total cost; otherwise the sum runs up forever |
-| $(+,\times)$ | the grid has no cycle — otherwise there are infinitely many walks (weights below 1 are also fine) |
+| $(+,\times)$ | the grid has no cycle — otherwise there are infinitely many walks |
 | $(\mathrm{OR},\mathrm{AND})$ | always; a Boolean cycle adds no new truth |
 
-$(\max,+)$ is unbounded above on any positive cycle, and that is the only reason it needs an acyclic grid. $(\min,+)$ has the mirror problem below.
+For $(\min,+)$ and $(\max,+)$, a diagonal entry is $\delta$ unless a cycle pays off, making the star collapse. For $(+,\times)$, the star is a geometric series that diverges the moment a cycle exists.
 
-**The star is where the four readings part company.** Every panel runs the same elimination; they differ only in the number the pivot is replaced by. For $(\min,+)$ and $(\max,+)$ a diagonal entry is $\delta$ unless a cycle through that town pays off — negative for $\min$, positive for $\max$ — so the star is $\delta$ and every lap is free. For $(\mathrm{OR},\mathrm{AND})$ a Boolean lap adds no truth, so the star is true. For $(+,\times)$ the star is the geometric series, and that is the whole difference: it equals the plain sum exactly while $R_{kk} = 0$, and diverges the moment a lap exists, which is precisely the condition that no cycle passes through $k$.
-
-On this grid every diagonal entry stays 0, so the $(+,\times)$ panel settles at the true count. A→D reads 3 — two routes of two roads and one of three — and it stops there, because there is no lap to add.
-
-The true count is the geometric series, and the reason it settles here is that the grid has no cycle. Your cell A→D collects two routes of two roads and one of three, then stops. Put the towns on a cycle instead and every extra lap is another route, so nothing ever stops.
+The chart below shows path counts under $(+, \times)$ on an acyclic graph versus a cycle.
 
 <SeriesChart
   title="The same four lines under (+, ×), on two grids: one fixed cell each"
@@ -197,11 +193,11 @@ The true count is the geometric series, and the reason it settles here is that t
   ]}
 />
 
-The flat line is a finite sum — two routes of two roads and one of three — so it stops at 3. The rising line is a three-town cycle, where each extra lap is another route, so it never settles. These counts are hand-computed from the definition, not sampled.
+The flat line shows an acyclic graph where the sum terminates at 3 paths. The ascending line shows a three-vertex cycle where every traversal adds walks, diverging without bound.
 
-**Cost.** The loop is $O(n^3)$ in time and $O(n^2)$ in space if you keep the whole grid. On a sparse graph with non-negative weights, $n$ runs of Dijkstra beat it — $O(n\,m\log n)$ against $O(n^3)$. On a dense graph, or one with negative edges, the four lines win.
+On dense graphs, Floyd–Warshall's $O(n^3)$ runtime outperforms running Dijkstra $n$ times ($O(n^2 \log n + nm)$). Its simplicity and branchless execution make it exceptionally fast on modern hardware caches.
 
-## 7 · Attributions
+## Attributions
 
 - **Kleene 1951** — the star $a^\star$ and the algebra of regular events; the closure reading of §2.
 - **Warshall 1962** — *A theorem on Boolean matrices*: the triple loop for transitive closure, the $(\mathrm{OR},\mathrm{AND})$ instance.

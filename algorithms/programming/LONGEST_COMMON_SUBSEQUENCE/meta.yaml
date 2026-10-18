@@ -2,7 +2,7 @@ title: "Longest Common Subsequence"
 slug: longest-common-subsequence
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not the letters two strings share. It is the tallest chain in the product of their prefix orders, and the DP table labels every cell with its height."
+reframe: "Lay two strings along the axes of a plane and watch their shared letters ignite into a constellation of points. The longest common subsequence is the maximal chain climbing through this poset—the highest monotone ridge connecting two divergent texts."
 oneLine: "The longest word that appears, in order, inside both strings."
 tldr:
   - "A common subsequence is a chain in the product order on the matching cells (i, j) with a[i] = b[j]; the DP table writes the height of each rectangle into its corner."

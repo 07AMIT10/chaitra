@@ -434,9 +434,9 @@ export default function DPHeatmap({
     Math.min(38, Math.floor((height - 44) / Math.max(1, model.rows + 1)))
   );
   const leftW = Math.max(52, maxRowLen * 8 + 16);
-  // The centred column-axis label sits at y=12; keep the header baseline
+  // The centred column-axis label sits at y=14; keep the header baseline
   // (topH-8) far enough below it that the two glyph boxes never overlap.
-  const topH = 38;
+  const topH = 44;
   const W = leftW + model.cols * cw + 6;
   const H = topH + model.rows * ch + 6;
   const cx = (c: number) => leftW + c * cw + cw / 2;
@@ -523,132 +523,135 @@ export default function DPHeatmap({
         </span>
       </div>
 
-      <svg
-        className="alg-dp__svg"
-        viewBox={`0 0 ${W} ${H}`}
-        role="img"
-        aria-label={`${model.title}: DP table heatmap`}
-      >
-        <defs>
-          <marker
-            id={`${uid}-arrow`}
-            viewBox="0 0 10 10"
-            refX="9"
-            refY="5"
-            markerWidth="5"
-            markerHeight="5"
-            orient="auto-start-reverse"
-          >
-            <path d="M0,1 L10,5 L0,9 z" fill="context-stroke" />
-          </marker>
-        </defs>
-
-        <text className="alg-dp__axis" x={leftW + (model.cols * cw) / 2} y={12} textAnchor="middle">
-          {model.axisCols}
-        </text>
-        <text
-          className="alg-dp__axis"
-          x={12}
-          y={topH + (model.rows * ch) / 2}
-          textAnchor="middle"
-          transform={`rotate(-90 12 ${topH + (model.rows * ch) / 2})`}
+      <div className="alg-dp__canvas-wrap">
+        <svg
+          className="alg-dp__svg"
+          viewBox={`0 0 ${W} ${H}`}
+          style={{ minWidth: `${Math.max(W, 440)}px` }}
+          role="img"
+          aria-label={`${model.title}: DP table heatmap`}
         >
-          {model.axisRows}
-        </text>
+          <defs>
+            <marker
+              id={`${uid}-arrow`}
+              viewBox="0 0 10 10"
+              refX="9"
+              refY="5"
+              markerWidth="5"
+              markerHeight="5"
+              orient="auto-start-reverse"
+            >
+              <path d="M0,1 L10,5 L0,9 z" fill="context-stroke" />
+            </marker>
+          </defs>
 
-        {model.colHeaders.map((h, c) => (
-          <text key={`ch${c}`} className="alg-dp__head" x={cx(c)} y={topH - 8} textAnchor="middle">
-            {h}
+          <text className="alg-dp__axis" x={leftW + (model.cols * cw) / 2} y={14} textAnchor="middle">
+            {model.axisCols}
           </text>
-        ))}
-        {model.rowHeaders.map((h, r) => (
-          <text key={`rh${r}`} className="alg-dp__head" x={leftW - 8} y={cy(r) + 4} textAnchor="end">
-            {h}
+          <text
+            className="alg-dp__axis"
+            x={12}
+            y={topH + (model.rows * ch) / 2}
+            textAnchor="middle"
+            transform={`rotate(-90 12 ${topH + (model.rows * ch) / 2})`}
+          >
+            {model.axisRows}
           </text>
-        ))}
 
-        {model.values.map((row, r) =>
-          row.map((v, c) => {
-            const filled = (ordIdx.get(`${r},${c}`) ?? 0) < current;
-            const t = heat(v);
-            const unreachable = !Number.isFinite(t);
-            const isCur = currentCell != null && currentCell.r === r && currentCell.c === c;
-            const onSolution = traceSet.has(`${r},${c}`);
-            const cls = [
-              "alg-dp__cell",
-              filled ? "alg-dp__cell--filled" : "alg-dp__cell--empty",
-              unreachable ? "alg-dp__cell--inf" : "",
-              isCur ? "alg-dp__cell--cur" : "",
-              onSolution && trace ? "alg-dp__cell--sol" : "",
-              isPred({ r, c }) ? "alg-dp__cell--pred" : "",
-              active && active.r === r && active.c === c ? "alg-dp__cell--active" : "",
-            ]
-              .filter(Boolean)
-              .join(" ");
-            const opacity = !filled
-              ? 0
-              : unreachable
-                ? 0.32
-                : 0.1 + Math.max(0, Math.min(1, t)) * 0.68;
-            return (
-              <g
-                key={`c${r}-${c}`}
-                className={cls}
-                role="button"
-                tabIndex={0}
-                aria-label={`cell row ${r} column ${c} value ${fmtVal(v)}`}
-                onMouseEnter={() => setHover({ r, c })}
-                onMouseLeave={() => setHover((h) => (h && h.r === r && h.c === c ? null : h))}
-                onClick={() => setSel({ r, c })}
-                onFocus={() => setHover({ r, c })}
-                onBlur={() => setHover((h) => (h && h.r === r && h.c === c ? null : h))}
-                onKeyDown={(ev) => {
-                  if (ev.key === "Enter" || ev.key === " ") setSel({ r, c });
-                }}
-              >
-                <rect
-                  x={leftW + c * cw + 1}
-                  y={topH + r * ch + 1}
-                  width={cw - 2}
-                  height={ch - 2}
-                  rx={3}
-                  fill={unreachable ? "var(--color-error)" : "var(--alg-accent)"}
-                  fillOpacity={opacity}
-                />
-                <rect
-                  className="alg-dp__border"
-                  x={leftW + c * cw + 1}
-                  y={topH + r * ch + 1}
-                  width={cw - 2}
-                  height={ch - 2}
-                  rx={3}
-                />
-                <text
-                  className="alg-dp__val"
-                  x={cx(c)}
-                  y={cy(r) + 4}
-                  textAnchor="middle"
-                  opacity={filled ? 1 : 0.28}
+          {model.colHeaders.map((h, c) => (
+            <text key={`ch${c}`} className="alg-dp__head" x={cx(c)} y={topH - 8} textAnchor="middle">
+              {h}
+            </text>
+          ))}
+          {model.rowHeaders.map((h, r) => (
+            <text key={`rh${r}`} className="alg-dp__head" x={leftW - 8} y={cy(r) + 4} textAnchor="end">
+              {h}
+            </text>
+          ))}
+
+          {model.values.map((row, r) =>
+            row.map((v, c) => {
+              const filled = (ordIdx.get(`${r},${c}`) ?? 0) < current;
+              const t = heat(v);
+              const unreachable = !Number.isFinite(t);
+              const isCur = currentCell != null && currentCell.r === r && currentCell.c === c;
+              const onSolution = traceSet.has(`${r},${c}`);
+              const cls = [
+                "alg-dp__cell",
+                filled ? "alg-dp__cell--filled" : "alg-dp__cell--empty",
+                unreachable ? "alg-dp__cell--inf" : "",
+                isCur ? "alg-dp__cell--cur" : "",
+                onSolution && trace ? "alg-dp__cell--sol" : "",
+                isPred({ r, c }) ? "alg-dp__cell--pred" : "",
+                active && active.r === r && active.c === c ? "alg-dp__cell--active" : "",
+              ]
+                .filter(Boolean)
+                .join(" ");
+              const opacity = !filled
+                ? 0
+                : unreachable
+                  ? 0.32
+                  : 0.1 + Math.max(0, Math.min(1, t)) * 0.68;
+              return (
+                <g
+                  key={`c${r}-${c}`}
+                  className={cls}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`cell row ${r} column ${c} value ${fmtVal(v)}`}
+                  onMouseEnter={() => setHover({ r, c })}
+                  onMouseLeave={() => setHover((h) => (h && h.r === r && h.c === c ? null : h))}
+                  onClick={() => setSel({ r, c })}
+                  onFocus={() => setHover({ r, c })}
+                  onBlur={() => setHover((h) => (h && h.r === r && h.c === c ? null : h))}
+                  onKeyDown={(ev) => {
+                    if (ev.key === "Enter" || ev.key === " ") setSel({ r, c });
+                  }}
                 >
-                  {fmtVal(v)}
-                </text>
-              </g>
-            );
-          })
-        )}
+                  <rect
+                    x={leftW + c * cw + 1}
+                    y={topH + r * ch + 1}
+                    width={cw - 2}
+                    height={ch - 2}
+                    rx={3}
+                    fill={unreachable ? "var(--color-error)" : "var(--alg-accent)"}
+                    fillOpacity={opacity}
+                  />
+                  <rect
+                    className="alg-dp__border"
+                    x={leftW + c * cw + 1}
+                    y={topH + r * ch + 1}
+                    width={cw - 2}
+                    height={ch - 2}
+                    rx={3}
+                  />
+                  <text
+                    className="alg-dp__val"
+                    x={cx(c)}
+                    y={cy(r) + 4}
+                    textAnchor="middle"
+                    opacity={filled ? 1 : 0.28}
+                  >
+                    {fmtVal(v)}
+                  </text>
+                </g>
+              );
+            })
+          )}
 
-        {arrows.map((ar, i) => (
-          <line
-            key={`ar${i}`}
-            className={`alg-dp__arrow ${ar.cls}`}
-            x1={ar.x1}
-            y1={ar.y1}
-            x2={ar.x2}
-            y2={ar.y2}
-            markerEnd={`url(#${uid}-arrow)`}
-          />
-        ))}
-      </svg>
+          {arrows.map((ar, i) => (
+            <line
+              key={`ar${i}`}
+              className={`alg-dp__arrow ${ar.cls}`}
+              x1={ar.x1}
+              y1={ar.y1}
+              x2={ar.x2}
+              y2={ar.y2}
+              markerEnd={`url(#${uid}-arrow)`}
+            />
+          ))}
+        </svg>
+      </div>
 
       <p className="alg-dp__formula" aria-live="polite">
         {activeFormula != null ? (

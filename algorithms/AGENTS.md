@@ -54,11 +54,12 @@ python3 -c "import yaml; yaml.safe_load(open('algorithms/<field>/<NAME>/meta.yam
 
 | Rule | Detail |
 |---|---|
-| **Reframe headline** | The first heading is the thesis, not the algorithm's name. `Union–Find is not an algorithm. It is a partition, climbing a lattice.` |
+| **Narrative headings** | Do not use robotic numbered titles like `## 1 · The question`. Use narrative, curiosity-driven titles tailored to the topic (`## The 2×2 Illusion`, `## The Hidden Tensor Geometry`). |
+| **No echo-chamber reframe** | The layout hero already displays the `meta.yaml` reframe. Do not repeat the exact reframe as the first H2; open with a dramatic premise, historical hook, or concrete artefact. |
 | **Concrete artefact first** | No definitions, no algebra, no asymptotics in the first screen. A thing the reader can point at. |
 | **Direct voice, second person** | "Press merge", not "the user may press merge". |
 | **≤ 3 sentences per paragraph** | Break long paragraphs; the page is scanned as much as read. |
-| **Predictions** | At least two `PredictionPrompt`s. Lock a guess, then reveal and score it. |
+| **Predictions as intuition traps** | At least two `PredictionPrompt`s. Pose a genuine intuition trap, paradox, or calculation surprise — never a dry textbook definition quiz. |
 | **No autoplay** | Nothing moves until the reader moves it. `PaceControls` for every stepped sequence. |
 | **Attributions** | Every named theorem carries its author and year. `α(n)` is Tarjan 1975, not "well known". |
 | **Right strength** | Distinguish a cited theorem, a derived identity and a measured curve. Do not dress a measurement as a proof, or a proof as a measurement. |

@@ -14,9 +14,11 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   can drag it to 8 for the schoolbook comparison, or down to turn the leaf case balanced and then root-dominated.
 */}
 
-## Strassen is not multiplying matrices in a clever order. It is one decrement in the rank of a tensor.
+## Seven products that broke the cubic wall
 
-Take two 2×2 matrices and multiply them both ways.
+In 1968, Volker Strassen set out to prove that Gaussian elimination was optimal. Instead, while calculating by hand in Frankfurt, he stumbled across seven equations that shattered a bedrock assumption of linear algebra.
+
+Take two $2\times 2$ matrices and multiply them both ways.
 
 ```
 A = [ 1  2 ]      B = [ 5  6 ]
@@ -35,55 +37,57 @@ Strassen    M1 = (1+4)(5+8)  =  65      c11 = M1 + M4 - M5 + M7 = 65 + 8 - 24 - 
             M7 = (2-4)(7+8) = -30
 ```
 
-Count the multiplication signs. The top block has eight; the bottom block has seven; both produce the same four output entries. Nothing in the bottom block reuses a partial product of the top block.
+Count the multiplication signs. The schoolbook recipe demands eight scalar products; Strassen finds every entry of the output with seven. No intermediate product is recycled from the schoolbook list—every single term is an exotic combination.
 
 <PredictionPrompt
   client:visible
-  question="Seven products compute all four entries of a 2×2 product where the textbook needs eight. What is the eight-to-seven step, really?"
+  question="You need four numbers for the output matrix C. Each entry is an inner product of two 2-vectors, requiring 2 multiplications, giving 4 × 2 = 8. How can seven scalar products possibly compute four independent outputs?"
   options={[
-    "A cleverer order of the same eight products.",
-    "A partial factor shared by several of the eight products.",
-    "A shorter decomposition of the same tensor — its rank is 7, not 8."
+    "They cannot over general rings; Strassen's trick secretly relies on division.",
+    "Matrix multiplication is a single joint 3D tensor, whose rank over any field is 7, not 8.",
+    "The 2×2 entries share common subexpressions that cancel out in cache."
   ]}
-  correct={2}
-  explain="Order cannot change a count: each of the eight index triples (i, k, j) still needs its own product of two entries, however you sequence them. What changed is that Strassen writes the multiplication tensor as a sum of seven rank-one pieces instead of eight. The least such number is the tensor's rank, and it is a property of the map, not of any loop. Winograd (1971) proved six is impossible, so this rank is exactly 7 — there is no further cleverness to find at size 2."
+  correct={1}
+  explain="Schoolbook multiplication treats each entry of C as an isolated dot product, missing cross-entry structure. But matrix multiplication is a single bilinear map represented by a 3D structure tensor of size 2×2×2. That tensor decomposes into a sum of exactly seven rank-1 tensors. Winograd (1971) proved that 7 is the algebraic minimum: no algorithm can do it in 6."
 />
 
-That single decrement is the whole story, and it is worth knowing now that it is exact and not a lucky first step. Everything below is what happens when you apply the same decrement to half-size blocks, and why the exponent of matrix multiplication is a rank.
+That single missing product is the entire engine of the revolution. Everything that follows unfolds when you apply that decrement recursively to half-size blocks.
 
-## 1 · The question
+## The fallacy of the loop reorder
 
-The operational statement is the triple loop: `c[i][j] += a[i][k] * b[k][j]` for every `i`, `j`, `k`. It spends $n^3$ multiplications and $n^3 - n^2$ additions.
+The schoolbook algorithm is defined by the triple loop: `c[i][j] += a[i][k] * b[k][j]` across all `i`, `j`, `k`. It spends $n^3$ multiplications and $n^3 - n^2$ additions.
 
-The tempting next thought is that the loop order is where the waste sits. Carry the running sum in registers, reuse a partial product, unroll by four — and the count falls. Regrouping the eight terms of a 2×2 product any way you like does not lower it, because each of the eight index triples $(i,k,j)$ still needs its own product of two entries, $a_{ik}\,b_{kj}$.
+Programmers often suspect loop reordering, cache blocking, or vectorization could lower the multiplication count. But reordering terms can never change their quantity: each of the eight index triples $(i,k,j)$ still demands an independent product $a_{ik}\,b_{kj}$.
 
-So "clever order" is the wrong question, since order cannot change a count. The right question lets the factors of each product be *any* linear combinations of the entries, not just single entries, and asks the least number of products of the form (combination of $A$)·(combination of $B$) whose sum is the whole product.
+To beat $n^3$, you must abandon the requirement that factors are individual matrix entries. The true question permits factors to be *any* linear combinations of entries, asking for the minimum number of products whose linear combination yields $C$.
 
-That number does not mention loops, registers, or schedules. It is a property of the multiplication map itself.
+## Bilinear maps and the hidden tensor rank
 
-## 2 · The real object: a bilinear map and its tensor rank
+Fix a field $\mathbb{F}$ and a size $n$. Matrix multiplication is the bilinear map:
 
-Fix a field $\mathbb{F}$ and a size $n$. Matrix multiplication is the bilinear map
+$$
+\mu : \mathbb{F}^{n\times n}\times\mathbb{F}^{n\times n}\to\mathbb{F}^{n\times n}, \qquad \mu(A,B)=AB
+$$
 
-$$ \mu : \mathbb{F}^{n\times n}\times\mathbb{F}^{n\times n}\to\mathbb{F}^{n\times n}, \qquad \mu(A,B)=AB $$
+Bilinear means linear in each argument separately. Every bilinear map can be written as a **structure tensor**, an array of coefficients describing how each monomial $a_{ik}b_{kj}$ contributes to each output entry $c_{ij}$.
 
-Bilinear means linear in each argument on its own. Every bilinear map can be written down as a **structure tensor**, the array of coefficients saying how a monomial $a_{ik}b_{kj}$ feeds the output entry $c_{ij}$. For matrix multiplication there is exactly one monomial per index triple, so the tensor is a sum of $n^3$ rank-one pieces:
+For matrix multiplication, the tensor is a sum of $n^3$ rank-one components:
 
-$$ T_{nnn} \;=\; \sum_{i=1}^{n}\sum_{k=1}^{n}\sum_{j=1}^{n} e_i \otimes e_k \otimes e_j $$
+$$
+T_{nnn} \;=\; \sum_{i=1}^{n}\sum_{k=1}^{n}\sum_{j=1}^{n} e_i \otimes e_k \otimes e_j
+$$
 
-At $n=2$ this sum has eight terms, and those eight terms are the textbook algorithm: one scalar product each. The **rank** $R(T)$ is the fewest rank-one tensors whose sum is $T$:
+At $n=2$, this sum has eight terms, representing the textbook algorithm. The **tensor rank** $R(T)$ is the fewest rank-one tensors needed to sum to $T$:
 
-$$ T \;=\; \sum_{s=1}^{r} u_s \otimes v_s \otimes w_s, \qquad R(T) = \min r $$
+$$
+T \;=\; \sum_{s=1}^{r} u_s \otimes v_s \otimes w_s, \qquad R(T) = \min r
+$$
 
-Read one term. The vector $u_s$ selects a linear combination of the entries of $A$, $v_s$ selects one of $B$, and $w_s$ says where the product lands in $C$. So a rank-$r$ decomposition is precisely a bilinear algorithm using $r$ scalar products, and the fewest products is the rank (Strassen 1969; Bürgisser, Clausen and Shokrollahi 1997).
+Vector $u_s$ forms a linear combination of entries from $A$, $v_s$ from $B$, and $w_s$ directs where their product lands in $C$. Thus, an $r$-term decomposition is an algorithm using $r$ scalar multiplications. The minimum multiplication count is identical to tensor rank.
 
-Two decompositions of $T_{222}$ are now on the table. The textbook is an 8-term one. The seven lines in the opening block are a 7-term one. So the question "how many products?" has become the question "how small can the rank be?".
+## The seven identities and the Winograd floor
 
-The multiplication count is the rank. The addition count is not fixed by the rank: the same seven products can be assembled with 18 additions or with 15. Only the first number is the invariant, and that asymmetry is what makes a rank drop pay.
-
-## 3 · The mathematics
-
-**The seven products.** For general 2×2 blocks, with $A=\begin{bmatrix} a_{11} & a_{12} \\ a_{21} & a_{22} \end{bmatrix}$ and $B$ likewise:
+For general $2\times 2$ blocks, Strassen's seven products are:
 
 $$
 \begin{aligned}
@@ -93,63 +97,50 @@ M_7 &= (a_{12}-a_{22})(b_{21}+b_{22})
 \end{aligned}
 $$
 
-The four output entries are then linear combinations of the seven:
+The four output entries recombine these products using additions and subtractions:
 
-$$ c_{11}=M_1+M_4-M_5+M_7, \quad c_{12}=M_3+M_5, \quad c_{21}=M_2+M_4, \quad c_{22}=M_1-M_2+M_3+M_6 $$
+$$
+c_{11}=M_1+M_4-M_5+M_7, \quad c_{12}=M_3+M_5, \quad c_{21}=M_2+M_4, \quad c_{22}=M_1-M_2+M_3+M_6
+$$
 
-Both displays are Strassen's (1969), *Gaussian elimination is not optimal*. Check the first identity against the opening block: $65+8-24-30=19$. Expand $c_{22}=M_1-M_2+M_3+M_6$ and each unwanted monomial appears twice with opposite signs — $a_{11}b_{11}$, $a_{22}b_{11}$, $a_{11}b_{22}$ and $a_{21}b_{11}$ all cancel — leaving exactly $a_{22}b_{22}+a_{21}b_{12}$.
+Expand $c_{22}=M_1-M_2+M_3+M_6$ and watch the unwanted cross-terms evaporate: $a_{11}b_{11}$, $a_{22}b_{11}$, $a_{11}b_{22}$, and $a_{21}b_{11}$ all cancel out in pairs. What survives is $a_{21}b_{12} + a_{22}b_{22}$, the exact inner product required.
 
-**Rank 7 is the floor at size 2.** Seven products are not merely enough, they are necessary: no six-product bilinear algorithm computes the 2×2 product (Winograd 1971). So $R(T_{222})=7$ exactly, and Strassen's step is optimal there. Winograd also reassembled the seven products with fifteen additions, the minimum for seven products, down from Strassen's eighteen.
-
-**From one block to a whole matrix.** Block an $n\times n$ product into four $(n/2)\times(n/2)$ pieces and the seven-product rule turns it into seven half-size products. Rank is submultiplicative under tensor powers:
-
-$$ R\bigl(T \otimes T'\bigr) \;\le\; R(T)\,R(T'), \qquad\text{so}\qquad R\bigl(T_{222}^{\otimes k}\bigr)\;\le\; 7^k \;=\; n^{\log_2 7} $$
-
-At $n=2^k$ the seven products are the branches, and the additions are overhead paid at each branch. Counting only what the tree replicates gives the recurrence
-
-$$ T(n) \;=\; 7\,T(n/2) \;+\; \Theta(n^2) $$
-
-With $a=7$, $b=2$, $d=2$, and $\log_2 7 \approx 2.807$ exceeding $d=2$, this is the master theorem's leaf case — the leaves dominate — so
-
-$$ T(n) \;=\; \Theta\!\left(n^{\log_2 7}\right) \;\approx\; \Theta\!\left(n^{2.807}\right) $$
-
-The recursion-tree panel in section 4 prints exactly this bound.
+Winograd (1971) proved that seven products are an absolute mathematical floor. No bilinear algorithm can multiply two $2\times 2$ matrices with six products. Therefore, $R(T_{222}) = 7$ exactly.
 
 <PredictionPrompt
   client:visible
-  question="T(n) = 7T(n/2) + Θ(n²). What asymptotic does the master theorem give?"
+  question="Strassen trades 1 fewer multiplication for 18 additions (which Winograd later trimmed to 15). At large n, won't the avalanche of additions wipe out the savings?"
   options={[
-    "Θ(n²), because the quadratic overhead dominates.",
-    "Θ(n² log n).",
-    "Θ(n^2.807), because log₂ 7 ≈ 2.807.",
-    "Θ(n³)."
-  ]}
-  correct={2}
-  explain="Compare log_b a = log₂ 7 ≈ 2.807 with d = 2. The first is larger, so the leaf level dominates and the answer is Θ(n^{log_b a}) = Θ(n^2.807). Reading it as Θ(n²) would be the root case, which needs d above the log; Θ(n² log n) is the balanced case, which needs the two to be equal, and they are not."
-/>
-
-**Why the additions never set the exponent.** At each node the eighteen additions act on $(n/2)\times(n/2)$ blocks, costing $18\cdot(n/2)^2 = 4.5\,n^2 = \Theta(n^2)$. That is the $d=2$ in the recurrence.
-
-Because $2$ sits below $\log_2 7 \approx 2.807$, the additions cannot change the exponent. Level $k$ carries $7^k$ nodes each adding $n^2/4^k$, so level $k$'s addition total is $n^2(7/4)^k$, and the sum over the levels is geometric with ratio $7/4$. Its total is a constant multiple of $n^{\log_2 7}$ — the same order as the products, scaled by a constant.
-
-So the additions enlarge the constant and nothing else. Push $d$ up to 3 in the panel and the case flips to root-dominated, $\Theta(n^3)$: then the overhead, not the products, sets the bill. At the honest $d=2$ the products are what the tree multiplies, and the seven is what sets the exponent.
-
-<PredictionPrompt
-  client:visible
-  question="Every node also does Θ(n²) of additions. Across the whole recursion, do those additions change the exponent?"
-  options={[
-    "Yes — after enough levels they overtake the products and the total is Θ(n²).",
-    "No — they add a constant multiple; the exponent stays log₂ 7 ≈ 2.807.",
-    "They add a logarithmic factor, giving Θ(n^2.807 · log n)."
+    "Yes: additions grow as Θ(n²) at every node, eventually dominating the runtime.",
+    "No: additions form a geometric series that scales at the exact same rate as multiplications, leaving the exponent untouched.",
+    "Additions add an extra log n factor, turning the complexity into Θ(n^2.807 · log n)."
   ]}
   correct={1}
-  explain="The additions at level k total n²(7/4)^k, a geometric series with ratio 7/4 over the levels; its sum is a constant times n^{log₂ 7}. That is the same order as the products, so it changes the hidden constant, not the exponent. Θ(n²) would require the additions to dominate at the root, which needs d above log₂ 7; the log factor would need d exactly equal to log₂ 7."
+  explain="At level k, there are 7^k subproblems, each doing overhead proportional to (n/2^k)². The total addition work across level k is n² · (7/4)^k. Because 7/4 > 1, this geometric series is leaf-heavy and sums to Θ(n^{log₂ 7}) ≈ Θ(n^2.807). The additions swell the leading constant factor, but cannot touch the exponent!"
 />
+
+Because tensor rank is submultiplicative ($R(T \otimes T') \le R(T)R(T')$), recursing on half-size blocks yields:
+
+$$
+R\bigl(T_{222}^{\otimes k}\bigr) \;\le\; 7^k \;=\; n^{\log_2 7}
+$$
+
+The recurrence relation is:
+
+$$
+T(n) \;=\; 7\,T(n/2) \;+\; \Theta(n^2)
+$$
+
+Since $\log_2 7 \approx 2.807 > 2$, the master theorem places this firmly in the leaf-dominated case:
+
+$$
+T(n) \;=\; \Theta\!\left(n^{\log_2 7}\right) \;\approx\; \Theta\!\left(n^{2.807}\right)
+$$
 
 <GrowthTable
   highlight="2³⁰"
   accentColumn="logn"
-  caption="Scalar products for a full recursion down to scalars, 8^k against 7^k at n = 2^k. The log n column is the recursion depth k, one level per halving. The additions (18 per node) and the classical base case that real code uses are not in these columns."
+  caption="Scalar products for a full recursion down to scalars, 8^k against 7^k at n = 2^k. The log n column is the recursion depth k, one level per halving. Additions and classical base cases are omitted."
   rows={[
     { n: "2¹⁰", logn: "10", note: "8¹⁰ = 1.07×10⁹ against 7¹⁰ = 2.8×10⁸ (3.8× fewer)" },
     { n: "2²⁰", logn: "20", note: "1.2×10¹⁸ against 8.0×10¹⁶ (14× fewer)" },
@@ -158,21 +149,11 @@ So the additions enlarge the constant and nothing else. Push $d$ up to 3 in the 
   ]}
 />
 
-Read down that table: the gap grows by a fixed factor, $(8/7)^{10} \approx 3.8$, every ten levels. The naive count is a fixed power of $n$ above Strassen's, and that power, $0.193$, is the whole difference between an exponent of 3 and an exponent of 2.807.
+Notice how the gap widens by $(8/7)^{10} \approx 3.8$ every ten doublings. That multiplying advantage is the entire difference between an exponent of 3 and 2.807.
 
-**A faster algorithm versus a better exponent.** A constant-factor speedup still grows as $n^3$; Strassen's $n^{2.807}$ grows slower forever. Only a change in the number of *products* per block changes the exponent, because the recursion replicates products — and that number is the rank. The exponent itself has a name:
+## The cascade: how one missing product bends the exponent
 
-$$ \omega \;=\; \inf\{\, \tau \;:\; \text{two } n\times n \text{ matrices can be multiplied in } O(n^{\tau}) \text{ operations} \,\} $$
-
-The trivial bounds are $2 \le \omega \le 3$: you must at least read the $n^2$ inputs and write the $n^2$ outputs, and the triple loop gives the upper end. Strassen moved the upper bound to $\omega \le \log_2 7 \approx 2.807$, and he moved it by moving a tensor's rank from 8 to 7. Improving the exponent is exactly finding a smaller-rank decomposition of some tensor power.
-
-**The cost: accuracy.** Speed is bought with accuracy. Strassen's identities subtract as well as add, so the algorithm is not componentwise stable, and its rounding-error bound carries a factor that grows with the recursion depth — faster than the classical algorithm's (Higham 2002, §23.2).
-
-On ill-conditioned or badly scaled inputs the classical algorithm can return the more accurate answer, so implementations commonly run Strassen while the blocks are large and drop back to the triple loop for small ones. On an exact domain, such as a finite field, the trade vanishes: there is no rounding, and the smaller rank is free.
-
-## 4 · The centrepiece: drive the recurrence
-
-Start the panel at $a=7$, $b=2$, $d=2$ — seven branches, halved size, quadratic overhead. That is the recurrence, on screen.
+Inspect the recurrence visually. At $a=7$, $b=2$, and $d=2$, the leaves outrun the root overhead.
 
 <RecursionTree
   client:visible
@@ -181,49 +162,54 @@ Start the panel at $a=7$, $b=2$, $d=2$ — seven branches, halved size, quadrati
   d={2}
   levels={4}
   label="seven half-size products, plus the additions at each node"
-  caption="The panel opens on a = 7, the value Strassen's rank gives. The a-slider spans 1 to 8: drag it to 8 and the bound becomes Θ(n^3), the schoolbook algorithm; drag it down and the leaf case turns balanced and then root-dominated. Read the printed bound against the ribbon — at a = 7 it should say Θ(n^2.807), the leaf-dominated case."
+  caption="The panel opens on a = 7, the value Strassen's rank gives. Drag a to 8 to see the schoolbook cubic wall Θ(n³). Drag a down to 4 to see the balanced Θ(n² log n) threshold, or raise d to 3 to see the additions dominate."
 />
 
-Read the ribbon from the top. Level $k$ holds $7^k$ nodes of size $n/2^k$, and each node's overhead is $(n/2^k)^2$, so level totals grow by the factor $r = 7/4 = 1.75$ and the deepest level is the heaviest single level. That is why the panel names the leaf-dominated case and prints $\Theta(n^{\log_b a}) = \Theta(n^{2.807})$.
+Level $k$ holds $7^k$ subproblems of size $n/2^k$, each costing $(n/2^k)^2$ addition work. The work per level grows by $7/4 = 1.75$ each step down, making the bottom level the heaviest.
 
-Now move the sliders, keeping $d=2$. Lower $a$ to 4 and the case turns balanced — $\log_b a = 2$ now equals $d = 2$ — so the ribbon flattens and the bound reads $\Theta(n^2\log n)$. Lower $a$ to 2 or 1 and it is root-dominated at $\Theta(n^2)$.
+Drag the $a$-slider from 7 to 8. The printed asymptotic jumps from $\Theta(n^{2.807})$ straight to $\Theta(n^3)$. That single tick of the slider captures the whole gulf between Strassen and three centuries of matrix algebra.
 
-Raise $d$ to 3 instead and the case flips to root-dominated, $\Theta(n^3)$ — the overhead, not the products, sets the bill. The additions matter only once they reach the products' order, which at $d=2$ they do not.
+Now slide $a$ down to 4. Because $\log_2 4 = 2$ matches $d=2$, every level does equal work, yielding $\Theta(n^2 \log n)$.
 
-Now drag $a$ from 7 to 8. The printed bound jumps to $\Theta(n^3)$: that one step of the slider is the whole difference between Strassen and the triple loop. The GrowthTable above says the same thing in multiplication counts, $7^k$ against $8^k$.
+## The price of speed: precision and practical crossover
 
-The reading that matters is on screen before you touch anything. Seven branches, not eight, and the printed exponent is $2.807$, not $3$.
+Speed is not free. Strassen's algorithm introduces numerical subtraction of large, nearly equal intermediate terms.
 
-## 5 · The payoff
+<PredictionPrompt
+  client:visible
+  question="Strassen's recurrence gives Θ(n^2.807) operations. Why do high-performance libraries (like BLAS) still use the classical cubic loop for matrices smaller than n ≈ 512?"
+  options={[
+    "Because Strassen is mathematically undefined unless n is an exact power of 2.",
+    "Because 18 additions per node create heavy memory overhead, and numerical rounding error accumulates faster than in standard GEMM.",
+    "Because compiler auto-vectorizers cannot parse recursive subroutines."
+  ]}
+  correct={1}
+  explain="Two practical constraints dictate linear algebra engineering. First, 18 block additions per node create significant memory allocation and cache churn, losing to SIMD-optimized cubic GEMM until n ≥ 512. Second, Strassen lacks componentwise stability: subtraction of inexact floats causes error bounds to grow faster with recursion depth (Higham 2002)."
+/>
 
-Matrix multiplication is the black box under a whole shelf of numeric routines, and a smaller $\omega$ moves all of them at once. Strassen (1969) showed that matrix inversion, the determinant and Gaussian elimination all have the same exponent as matrix multiplication, up to a constant factor. A faster multiply is a faster solve, a faster determinant, a faster factorisation.
+Over exact algebraic structures—like finite fields in cryptography or modular arithmetic in computer algebra—rounding errors do not exist. In those domains, the rank drop is pure gain.
 
-Strassen's algorithm is also not a museum piece. It ships inside BLAS and inside the scientific and deep-learning stacks, almost always as a hybrid: recurse with the seven products while the blocks are large, then finish with the highly tuned triple loop in cache. The crossover point is a measurement, not a theorem, and it moves with the machine and the shape of the matrices; Huang, Smith, Henry and van de Geijn (2016) measured Strassen winning from around $n = 512$ on modern hardware.
+Every modern high-performance implementation runs a hybrid: recurse using Strassen for massive blocks, then transition to classical cubic GEMM once blocks fit inside L1/L2 cache.
 
-Over an exact domain the accuracy cost disappears. Over a finite field there is no rounding, so the rank win is free, and Strassen and its descendants are used for exact linear algebra where the classical algorithm's advantage in accuracy buys nothing.
+## The unfinished race for omega
 
-The rank move is not about matrices. Karatsuba and Ofman (1962) multiplied two two-digit numbers in three scalar multiplications instead of four, and the complex-number trick $(a+bi)(c+di)$ does the same with three real products instead of four. Each is a shorter rank-one decomposition of a different bilinear map: the same decrement, a different tensor.
+Matrix multiplication is the universal engine of computational mathematics. Inversion, determinants, and LUP decomposition all share the exact same asymptotic complexity exponent $\omega$:
 
-## 6 · Advanced and optional
+$$
+\omega \;=\; \inf\{\, \tau \;:\; \text{two } n\times n \text{ matrices can be multiplied in } O(n^{\tau}) \text{ operations} \,\}
+$$
 
-Skip this; nothing here is used again.
+The trivial boundaries are $2 \le \omega \le 3$: reading the inputs requires $n^2$ steps, while the textbook loop takes $n^3$. Strassen proved $\omega \le \log_2 7 \approx 2.807$.
 
-**The record on $\omega$ has moved several times, and is still moving.** Every improvement is a lower-rank construction for some tensor power. Coppersmith and Winograd (1990) broke below $2.4$ with a construction from arithmetic progressions, reaching $\omega < 2.376$, and that stood for two decades.
+For fifty years, mathematicians have hunted for lower-rank tensor decompositions of larger blocks. Coppersmith and Winograd (1990) used the laser method on arithmetic progressions to prove $\omega < 2.376$. Alman and Williams (2021) trimmed this to $\omega < 2.37286$.
 
-Alman and Williams (2021) refined that laser method asymmetrically to reach $\omega < 2.37286$. Between and since, the bound has crept down again repeatedly — Pan 1978, Schönhage 1981, Strassen 1986, Stothers 2010, Le Gall 2014, Duan, Wu and Zhou 2022.
+Yet those modern constructions are purely galactic: their hidden constants are so colossal that they would only surpass Strassen on matrices larger than the observable universe. Strassen's algorithm remains the only sub-cubic method fast enough to run on real hardware.
 
-Treat any single number as a snapshot of an active line of work, not a settled constant. Several published values are already superseded, and no proof that $\omega = 2$ exists; the trivial lower bound is still $\omega \ge 2$, so the gap between 2 and the best upper bound is unclosed.
+## Historical provenance and attributions
 
-The strong results are *galactic*: the constant hidden inside $O(n^{\omega})$ is so large that no present-day computer reaches a size where they win. Strassen's own algorithm, with its modest constant, is the only member of the family that runs on real inputs.
-
-## 7 · Attributions
-
-- **Strassen 1969** — *Gaussian elimination is not optimal*: the seven products, the sub-cubic bound $O(n^{\log_2 7})$, the rank of a bilinear map as the object of study, and the transfer of inversion, determinant and elimination to the multiplication exponent.
-- **Winograd 1971** — *On multiplication of 2×2 matrices*: seven products are necessary, so $R(T_{222}) = 7$ exactly; and the 15-addition reassembly, the minimum for seven products.
-- **Coppersmith and Winograd 1990** — *Matrix multiplication via arithmetic progressions*: $\omega < 2.376$, the breakthrough that held for two decades.
-- **Alman and Williams 2021** — *A refined laser method and faster matrix multiplication*: $\omega < 2.37286$.
-- **Higham 2002** — *Accuracy and Stability of Numerical Algorithms*, §23.2: the error analysis of Strassen's method, whose rounding-error bound grows faster with $n$ than the classical algorithm's.
-- **Duan, Wu and Zhou 2022** — a further refinement of the laser method, named only to show the record keeps moving.
-- **Karatsuba and Ofman 1962** — the three-multiplication integer product, the same rank drop on another bilinear map.
-- **Huang, Smith, Henry and van de Geijn 2016** — measured Strassen benefits at practical matrix sizes, the crossover in section 5.
-- **Bürgisser, Clausen and Shokrollahi 1997** — *Algebraic Complexity Theory*: the standard reference for tensor rank and bilinear complexity.
+- **Strassen 1969** — *Gaussian elimination is not optimal*: introduced the 7-product identity, established $O(n^{\log_2 7})$, and reduced inversion and determinants to matrix multiplication.
+- **Winograd 1971** — *On multiplication of 2×2 matrices*: proved $R(T_{222}) = 7$ is minimal, and constructed the 15-addition variant.
+- **Coppersmith and Winograd 1990** — *Matrix multiplication via arithmetic progressions*: proved $\omega < 2.376$, standing as the frontier for two decades.
+- **Alman and Williams 2021** — *A refined laser method and faster matrix multiplication*: advanced the theoretical bound to $\omega < 2.37286$.
+- **Higham 2002** — *Accuracy and Stability of Numerical Algorithms*, §23.2: authoritative numerical stability analysis of Strassen's recurrence.
+- **Huang, Smith, Henry and van de Geijn 2016** — *Strassen's Algorithm for Matrix Multiplication*: empirical benchmarks pinning down practical crossover points on contemporary architectures.

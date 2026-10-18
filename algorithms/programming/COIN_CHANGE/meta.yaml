@@ -2,7 +2,7 @@ title: "Coin Change"
 slug: coin-change
 field: programming
 fieldLabel: "Programming"
-reframe: "It is not the largest-coin-first rule. It is a shortest path over the amounts, and greedy is exact exactly when the coin system is canonical."
+reframe: "The cashier's reflex to grab the largest coin is an arithmetic trap. Minimum coin change is a shortest path through a discrete lattice of debt, and greedy choices tumble into disaster the instant a currency ceases to be canonical."
 oneLine: "The fewest coins that sum to an amount, and the exact condition under which the largest-first rule finds them."
 tldr:
   - "Every cell of the table is a shortest-path distance on the amounts 0 to the amount, where each coin is an edge of weight one."

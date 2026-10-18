@@ -112,12 +112,12 @@ export default function LatticeClimb({ n, onPartition, height = 460, caption }: 
       const slot = (W - 2 * padX) / arr.length;
       arr.forEach((key, i) => {
         const label = labelOf(byKey.get(key)!);
-        const w = Math.max(36, label.length * 6.4 + 14);
+        const w = Math.max(42, label.length * 7 + 16);
         pos.set(key, {
           x: padX + (i + 0.5) * slot,
           y: padTop + (k - 1) * tierGap,
           w,
-          h: 18,
+          h: 24,
           label,
           k,
         });
@@ -254,6 +254,14 @@ export default function LatticeClimb({ n, onPartition, height = 460, caption }: 
               onMouseEnter={() => setHoverKey(key)}
               onMouseLeave={() => setHoverKey((h) => (h === key ? null : h))}
             >
+              <rect
+                x={p.x - Math.max(p.w, 48) / 2}
+                y={p.y - 24}
+                width={Math.max(p.w, 48)}
+                height={48}
+                fill="transparent"
+                aria-hidden="true"
+              />
               <rect
                 className="alg-lattice__node-box"
                 x={p.x - p.w / 2}
