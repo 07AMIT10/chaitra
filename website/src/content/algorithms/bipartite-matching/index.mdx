@@ -1,0 +1,153 @@
+---
+title: "Bipartite Matching"
+slug: bipartite-matching
+field: programming
+fieldLabel: "Programming"
+reframe: "Tether two disjoint universes through a web of fragile handshakes. Eager pairings leave orphaned nodes in the cold; true optimality surges through alternating paths of swapped commitments, pinned between Hall's suffocating neighborhood trap and König's impenetrable vertex shield."
+oneLine: "Four applicants, four placements, six acceptable pairs, and a ceiling of three."
+tldr: ["A matching is a set of edges with no shared endpoints; greedy first-available pairing can strand a vertex that an augmenting path would have saved.", "Hall's condition (Hall 1935) certifies impossibility from the left: the pair {Cara, Dan} shares a single neighbour, so no matching covers all four applicants.", "Berge's condition (Berge 1957) certifies optimality from the search: with no augmenting path left, the size-3 matching is maximum.", "König's theorem (König 1931) pins the same number from the cover side, and the unit-capacity flow reduction (Ford–Fulkerson 1956) makes it fall out of pipes."]
+mathBranches: ["combinatorics", "graph-theory", "optimization"]
+primitives: ["MatchingBoard", "PredictionPrompt", "LPDualityDashboard"]
+attributions: ["Hall 1935", "König 1931", "Berge 1957", "Ford–Fulkerson 1956", "Hopcroft–Karp 1973", "Birkhoff 1946"]
+---
+
+import MatchingBoard from "@alg/MatchingBoard.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import LPDualityDashboard from "@alg/LPDualityDashboard.tsx";
+
+{/*
+  Primitive contract used by this page, matched to website/src/components/algorithms/.
+    PredictionPrompt    question · options (string[]) · correct (index) · explain · hint?
+    MatchingBoard       left (string[]) · right (string[]) · leftPrefs (number[][]) · rightPrefs (number[][]) · problem · caption · height
+    LPDualityDashboard  nodes ({ id, x, y, label? }[]) · edges ({ from, to, capacity }[]) · source · sink · caption · height
+  Interactive primitives need an explicit Astro client directive (`client:visible`).
+  Astro islands cannot nest, so each interactive primitive is its own island.
+*/}
+
+## The Four-Applicant Bottleneck
+
+Four candidates assemble on the left (Ana, Ben, Cara, Dan) facing four career opportunities on the right (Wren, Xiu, Yara, Zed). Edges mark strictly approved mutual qualifications: Ana accepts Wren, Xiu, or Zed; Ben will only accept Wren; Cara and Dan both accept only Yara.
+
+A hasty administrator might pair candidates opportunistically as they arrive. But a single greedy mistake locks out qualified candidates down the line, trapping the matching below its true capacity.
+
+<PredictionPrompt
+  client:visible
+  question="Cara and Dan both qualify exclusively for Yara. Can any clever matching strategy ever place all four applicants simultaneously?"
+  options={[
+    "Yes: the remaining three placements can absorb any excess demand.",
+    "No: the candidate subset {Cara, Dan} shares a single mutual neighbor, violating Hall's marriage condition.",
+    "Yes: provided Dan is matched prior to evaluating Cara."
+  ]}
+  correct={1}
+  hint="Count the combined neighbourhood size of the subset, not individual candidates in isolation."
+  explain="The subset S = {Cara, Dan} has neighbourhood N(S) = {Yara}, meaning |N(S)| = 1 < |S| = 2. Philip Hall (1935) proved that a full matching demands |N(S)| ≥ |S| for every possible subset. Two applicants competing for one unique slot ensures at least one must remain unplaced regardless of routing."
+/>
+
+## The Greedy Myopia
+
+Suppose you walk down the roster in alphabetical order, assigning each applicant the first available role they accept.
+
+Ana acts first and claims Wren. Next arrives Ben: because Ben qualifies only for Wren, Ben is stranded without an assignment, even though Xiu and Zed sit entirely vacant!
+
+A rigid algorithm that never revokes a handshake permanently stalls at 2 matches. True optimization requires the ability to reach backwards, shift existing commitments, and reopen pathways for stranded peers.
+
+## Alternating Paths and Edge Independence
+
+A **matching** is a subset of edges sharing no common endpoints. Edges in the matching are active bonds; all remaining edges are idle candidates. A vertex touching no active edge is **free**.
+
+An **alternating path** weaves between non-matched and matched edges in strict alternation. If such a path starts and ends at free vertices, it is an **augmenting path**.
+
+Flipping the membership along an augmenting path transforms every non-matched link into an active bond and demotes every matched link. Because the path began and ended on free edges, the total matching size increases by exactly one!
+
+## The Triad of Equivalence: Hall, Berge, and König
+
+Three classical theorems pin the exact limits of bipartite matching.
+
+**Hall's Marriage Theorem (Hall 1935).** A bipartite graph admits a matching covering every left vertex if and only if every left subset $S$ satisfies $|N(S)| \ge |S|$. On our board, the subset $S = \{\text{Cara}, \text{Dan}\}$ has $N(S) = \{\text{Yara}\}$, proving algebraically why 4 matches are impossible.
+
+**Berge's Lemma (Claude Berge 1957).** A matching is maximum if and only if it admits zero augmenting paths. If any larger matching exists, their symmetric difference must contain an alternating path with more edges from the superior matching, which is by definition an augmenting path. When augmenting path search returns empty, optimality is guaranteed.
+
+**König's Duality Theorem (Dénes König 1931).** In any bipartite graph, the size of a maximum matching equals the size of a minimum vertex cover:
+
+$$
+\text{maximum matching size} = \text{minimum vertex cover size} \qquad \text{(bipartite graphs only)}
+$$
+
+On our board, the vertex subset $\{\text{Ana}, \text{Ben}, \text{Yara}\}$ contains 3 vertices and intercepts every single permitted edge. Since this cover has size 3 and our matching achieves size 3, weak duality snaps shut with zero gap.
+
+The bipartite restriction is indispensable: an odd cycle like a triangle has maximum matching 1, but demands 2 vertices to cover all edges.
+
+<PredictionPrompt
+  client:visible
+  question="Ana greedily claims Wren on the first move, leaving Ben (who only accepts Wren) stranded. Is the search stuck?"
+  options={[
+    "Yes: Wren is occupied and Ben accepts nobody else, so the run must restart from scratch.",
+    "No: the alternating path Ben–Wren–Ana–Xiu can be flipped, sliding Ana to Xiu and freeing Wren for Ben.",
+    "Only if an external coordinator revokes Ana's application entirely."
+  ]}
+  correct={1}
+  hint="Trace Ana's alternative qualifications. An assigned node is not a closed dead-end."
+  explain="Ben–Wren is free, Wren–Ana is matched, and Ana–Xiu is free. Flipping this 3-edge augmenting path instantly pairs Ben with Wren and reassigns Ana to Xiu! The matching grows from 1 to 2 without restarting the search."
+/>
+
+## Flipping Commitments in Real Time
+
+Step through Kuhn's augmenting path algorithm below. Watch the gold trail illuminate alternating rescue chains across the board.
+
+<MatchingBoard
+  client:visible
+  problem="bipartite-matching"
+  left={["Ana", "Ben", "Cara", "Dan"]}
+  right={["Wren", "Xiu", "Yara", "Zed"]}
+  leftPrefs={[[0, 1, 3], [0], [2], [2]]}
+  rightPrefs={[[0, 1], [0], [2, 3], [0]]}
+  caption="Kuhn's augmenting-path search on the board from section 0. Ana takes Wren first and strands Ben; Ben's step repairs it along Ben–Wren–Ana–Xiu; Dan's step finds nothing, which is Hall's shortfall drawn as a failed search."
+  height={300}
+/>
+
+Step one: Ana seizes Wren, stranding Ben. Step two: Ben initiates a search; the system discovers the path `Ben–Wren–Ana–Xiu` and flips it, neatly accommodating both candidates.
+
+Step three: Cara pairs effortlessly with Yara, lifting the score to 3. Step four: Dan searches for an augmenting route, but every branch chokes at the already-committed Yara; the search halts at size 3, certifying optimality via Berge's condition.
+
+Now observe the same instance modeled as a unit-capacity network flow with a source and sink.
+
+<LPDualityDashboard
+  client:visible
+  nodes={[{ id: "s", x: 0, y: 1.5, label: "s" }, { id: "Ana", x: 1, y: 0 }, { id: "Ben", x: 1, y: 1 }, { id: "Cara", x: 1, y: 2 }, { id: "Dan", x: 1, y: 3 }, { id: "Wren", x: 2, y: 0 }, { id: "Xiu", x: 2, y: 1 }, { id: "Yara", x: 2, y: 2 }, { id: "Zed", x: 2, y: 3 }, { id: "t", x: 3, y: 1.5, label: "t" }]}
+  edges={[{ from: "s", to: "Ana", capacity: 1 }, { from: "s", to: "Ben", capacity: 1 }, { from: "s", to: "Cara", capacity: 1 }, { from: "s", to: "Dan", capacity: 1 }, { from: "Ana", to: "Wren", capacity: 1 }, { from: "Ana", to: "Xiu", capacity: 1 }, { from: "Ana", to: "Zed", capacity: 1 }, { from: "Ben", to: "Wren", capacity: 1 }, { from: "Cara", to: "Yara", capacity: 1 }, { from: "Dan", to: "Yara", capacity: 1 }, { from: "Wren", to: "t", capacity: 1 }, { from: "Xiu", to: "t", capacity: 1 }, { from: "Yara", to: "t", capacity: 1 }, { from: "Zed", to: "t", capacity: 1 }]}
+  source="s"
+  sink="t"
+  caption="The board's instance as a unit-capacity flow network: source to applicants, the six acceptable pairs as pipes, placements to sink. Max flow 3, min cut 3, gap zero."
+  height={360}
+/>
+
+Every unit of flow along an edge corresponds to an active matching pair. The max-flow min-cut theorem (Ford & Fulkerson 1956) yields a max flow of 3 and a minimum cut of 3, echoing König's theorem through the lens of continuous duality.
+
+## Timetables, Corridors, and the Hopcroft–Karp Squeeze
+
+Bipartite matching models resource arbitration across industry: assigning medical shifts, scheduling examination timetables, and matching display advertisers to viewer impressions.
+
+When graphs scale to millions of nodes, searching for single augmenting paths takes $O(V E)$ time. Hopcroft & Karp (1973) accelerated this by structuring execution into phases: each phase constructs a BFS level graph and extracts a maximal set of vertex-disjoint shortest augmenting paths in parallel.
+
+Because each phase strictly increases the length of shortest augmenting paths, at most $O(\sqrt{V})$ phases are required, yielding an overall runtime of:
+
+$$
+O(E\sqrt{V}) \qquad \text{(Hopcroft–Karp 1973)}
+$$
+
+## The Birkhoff Polytope and the 0–1 Permanent
+
+To compute the total count of distinct perfect matchings rather than locating just one, inspect the 0–1 biadjacency matrix $A$. The number of perfect matchings is the **permanent** of $A$—the signless analog of the determinant.
+
+Leslie Valiant (1979) proved computing the permanent is #P-complete, demonstrating the vast gulf between finding one witness and counting all witnesses.
+
+The Birkhoff–von Neumann theorem (Birkhoff 1946; von Neumann 1953) illuminates the geometry: the convex hull of all permutation matrices forms the Birkhoff polytope of doubly stochastic matrices. Fractional matchings form a continuous polyhedron whose extreme vertices are precisely the discrete matchings.
+
+## Attributions
+
+- **Hall 1935** — *On Representatives of Subsets*: Hall's marriage condition characterizing left-saturating matchings.
+- **König 1931** — *Graphs and Matrices*: Duality theorem equating maximum bipartite matching to minimum vertex cover.
+- **Berge 1957** — *Two theorems in graph theory*: Augmenting path criterion certifying matching optimality.
+- **Ford & Fulkerson 1956** — Network flow formulations and the unit-capacity matching reduction.
+- **Hopcroft & Karp 1973** — An $O(n^{5/2})$ algorithm for maximum matchings in bipartite graphs using phased shortest augmenting paths.
+- **Birkhoff 1946 & von Neumann 1953** — The Birkhoff–von Neumann theorem decomposing doubly stochastic matrices into permutation matchings.

@@ -1,0 +1,204 @@
+---
+title: "Binary Search"
+slug: binary-search
+field: programming
+fieldLabel: "Programming"
+reframe: "To search a billion records, a linear scan must traverse the continent of data footprint by footprint. Binary search cuts the entire continent in half thirty times. In thirty questions, a search space larger than humanity collapses to a single atom."
+oneLine: "Halve the interval that still contains the answer, one comparison at a time."
+tldr: ["The state is an interval that always contains the answer; every comparison deletes at least half of what is left.", "T(n) = T(n/2) + 1 solves to floor(log2 n) + 1, which is ceil(log2(n+1)) — the logarithm derived, not assumed.", "k two-outcome comparisons reach at most 2^k leaves, so n + 1 possible answers force k >= ceil(log2(n+1)): binary search is exactly optimal in the comparison model, and the model is the fine print.", "The same boundary search is bisection, because every false-then-true predicate has a first-true position."]
+mathBranches: ["analysis", "information-theory", "order-theory"]
+primitives: ["RecursionTree", "GrowthTable", "SeriesChart", "PredictionPrompt"]
+attributions: ["Knuth 1973", "Bentley 1986", "Bentley, Haken and Saxe 1980", "Peterson 1957", "van Emde Boas 1975", "Bloch 2006"]
+relatedTopics: ["information-theory"]
+---
+
+import RecursionTree from "@alg/RecursionTree.tsx";
+import GrowthTable from "@alg/GrowthTable.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Binary Search — primitive contract matched to website/src/components/algorithms/.
+    PredictionPrompt  question · options (string[]) · correct (index) · explain · hint?
+    RecursionTree     a · b · d · levels? · label? · caption   (T(n) = a·T(n/b) + n^d)
+    GrowthTable       highlight (row key) · rows? · accentColumn? · caption
+    SeriesChart       series: { name, points: [x, y][] }[] · title · xLabel · yLabel · logY · annotations
+  The counts below are exact arithmetic from the closed form T(n) = floor(log2 n) + 1, not hardware measurements.
+  Every interactive primitive carries an explicit Astro client directive; islands cannot nest.
+*/}
+
+## Thirty questions to locate an atom
+
+In 1986, Jon Bentley challenged professional programmers at Bell Labs and IBM to write binary search. Over ninety percent introduced off-by-one errors or infinite loops, despite having hours to test their work. The algorithm requires scarcely twenty lines of code, yet its precision punishes the slightest careless assumption.
+
+Eight sorted numbers sit in a row: `[3, 9, 14, 21, 27, 33, 41, 58]`. You want the 27.
+
+Inspect index 3, see 21, and extinguish every index at or below 3 because sortedness forbids them from equaling 27. Inspect index 5, see 33, and the entire upper bracket vanishes. In two comparisons, seven candidates evaporate, leaving index 4 as the 27.
+
+<PredictionPrompt
+  client:visible
+  question="A sorted database holds 1,000,000,000 records. A linear search takes up to 1,000,000,000 comparisons. What is the absolute worst-case comparison count for binary search?"
+  options={[
+    "About 500,000,000 comparisons (half the database).",
+    "Exactly 30 comparisons.",
+    "About 1,000 comparisons (the square root of 1,000,000)."
+  ]}
+  correct={1}
+  hint="How many times can you halve a billion before you reach one?"
+  explain="Human intuition fails at exponential decay. Each comparison cuts the search space in half. Since 2³⁰ = 1,073,741,824 > 10⁹, exactly 30 comparisons suffice to isolate a single record out of a billion candidates. Thirty questions collapse a haystack larger than the population of Europe into one needle!"
+/>
+
+## The illusion of looking at the middle
+
+The standard operational framing is familiar: look at the midpoint, compare values, branch left or right, and repeat. That recipe tells you what to type, but obscures why the process runs so fast.
+
+A naive linear search tests elements sequentially, spending up to $n$ comparisons. The fundamental question is not which element to inspect next. The true question is how much doubt a single comparison can extinguish.
+
+## The invariant: contracting the horizon of doubt
+
+The active state of binary search is an interval of surviving candidate indices, $[lo, hi)$. Outside this bracket, every index has been mathematically proven impossible:
+
+$$
+\left(\exists i : a_i = t\right) \implies \exists i \in [lo, hi) : a_i = t
+$$
+
+Sortedness is the contract that legitimizes mass elimination. If $a_{mid} < t$, then transitivity guarantees that $a_j \le a_{mid} < t$ for every $j \le mid$, allowing one comparison to discard an entire prefix.
+
+The midpoint is merely the optimal halving point. What the algorithm maintains is an interval guaranteed to preserve the answer, while halving its length at every step.
+
+<PredictionPrompt
+  client:visible
+  question="What happens if you run binary search for the number 3 on the unsorted array [9, 2, 8, 3, 7]?"
+  options={[
+    "It returns index 3 because 3 is present in the array.",
+    "It reports that 3 is absent, after incorrectly discarding index 3.",
+    "It enters an infinite loop bouncing between 2 and 8."
+  ]}
+  correct={1}
+  explain="The algorithm inspects index 2, finding 8. Because 8 > 3, it assumes all values at or above index 2 are greater than 3, discarding indices 2 through 4—including the target 3! Binary search does not look for values: it relies on the global contract of sortedness to justify mass elimination."
+/>
+
+## The exact arithmetic of thirty questions
+
+A probe costs one comparison and leaves a subproblem at most half as large:
+
+$$
+T(n) = T(\lfloor n/2 \rfloor) + 1, \qquad T(1) = 1
+$$
+
+For powers of two, $n = 2^k$, the recurrence unrolls into a pure count of halvings:
+
+$$
+T(2^k) = T(2^{k-1}) + 1 = k + T(1) = k + 1
+$$
+
+Inverting back to $n$ yields an exact algebraic identity:
+
+$$
+T(n) = \lfloor \log_2 n \rfloor + 1 = \lceil \log_2 (n+1) \rceil
+$$
+
+This matches the balanced master theorem case with $a = 1$, $b = 2$, and $d = 0$, giving $\Theta(\log n)$.
+
+Why is this optimal? Any comparison algorithm forms a decision tree where $k$ two-way questions yield at most $2^k$ leaves.
+
+An array of size $n$ has $n + 1$ potential outcomes ($n$ indices plus "absent"). To distinguish every outcome, the tree must have at least $n+1$ distinct leaves:
+
+$$
+2^k \ge n + 1 \quad\Longrightarrow\quad k \ge \lceil \log_2 (n+1) \rceil
+$$
+
+Binary search matches this information-theoretic lower bound exactly (Knuth 1973, §5.3.1).
+
+<GrowthTable
+  highlight="10⁹"
+  accentColumn="logn"
+  caption="Multiplying candidate count by 10 adds only ~3.3 comparisons. Each doubling costs exactly one comparison."
+  rows={[
+    { n: "10", logn: "4", note: "ten cards" },
+    { n: "100", logn: "7", note: "a hundred entries" },
+    { n: "1,000", logn: "10", note: "a thousand entries" },
+    { n: "10⁶", logn: "20", note: "a million" },
+    { n: "10⁹", logn: "30", note: "a billion, in thirty comparisons" },
+    { n: "10¹⁸", logn: "60", note: "squaring n doubles log n" },
+    { n: "10⁸⁰", logn: "266", note: "atoms in the observable universe" }
+  ]}
+/>
+
+<SeriesChart
+  title="Surviving candidates after k probes, n = 10⁹ — exact arithmetic, hand-computed"
+  xLabel="probes k"
+  yLabel="candidates still possible"
+  logY
+  annotations={[{ x: 30, text: "k = 30 reaches one candidate" }]}
+  series={[
+    {
+      name: "halving, n / 2^k",
+      points: [[0, 1000000000], [5, 31250000], [10, 976562.5], [15, 30517.578125], [20, 953.6743164], [25, 29.80232239], [30, 0.9313225746]],
+    },
+    {
+      name: "linear scan, n − k",
+      points: [[0, 1000000000], [5, 999999995], [10, 999999990], [15, 999999985], [20, 999999980], [25, 999999975], [30, 999999970]],
+    },
+  ]}
+/>
+
+On a logarithmic scale, halving is a straight downward line, reaching 1 in 30 steps. A linear scan barely registers on this axis, discarding an imperceptible fraction of the data.
+
+## Driving the recurrence: why halving alone is not enough
+
+The recurrence panel sets $a = 1$, $b = 2$, $d = 0$: one child branch of half the size, plus one comparison per step.
+
+<RecursionTree
+  client:visible
+  a={1}
+  b={2}
+  d={0}
+  levels={4}
+  label="one comparison, then one half"
+  caption="Every level costs n⁰ = 1. The total work across L + 1 levels is simply L + 1, yielding Θ(log n)."
+/>
+
+Level $k$ holds a single node of size $n/2^k$, spending $(n/2^k)^0 = 1$ work. Every bar on the ribbon has equal width 1, summing across $L + 1$ levels to $\Theta(\log n)$.
+
+Now adjust the branching slider to $a = 2$.
+
+<PredictionPrompt
+  client:visible
+  question="Suppose you modify binary search to explore both halves whenever you are unsure (a=2, b=2, d=0). Does halving the problem size preserve logarithmic time?"
+  options={[
+    "Yes: because subproblems halve in size at every step, it remains Θ(log n).",
+    "No: searching both halves causes work to double at each level, collapsing runtime to Θ(n).",
+    "It becomes Θ(n log n) like merge sort."
+  ]}
+  correct={1}
+  explain="Halving subproblem size does not buy a logarithm. What buys the logarithm is pruning: setting a=1 by throwing away half the universe! If you branch into both halves (a=2), you generate 2^k tasks at depth k, touching all n leaves and taking linear Θ(n) time—identical to a sequential scan."
+/>
+
+When $a = 2$, work doubles at each depth, and the tree becomes leaf-dominated at $\Theta(n)$. The logarithm is not bought by halving the array. It is bought by $a = 1$: the merciless elimination of the unchosen half.
+
+## Monotone predicates: from git bisect to root finding
+
+Binary search generalizes far beyond sorted arrays. It applies to any monotone boolean predicate $P(x)$ that transitions from false to true:
+
+- **`git bisect`.** Finds the exact regression commit by treating "does the bug reproduce here?" as a monotone predicate over chronological history.
+- **Root finding by bisection.** Finds where a continuous function crosses zero by checking $\text{sign}(f(mid))$, halving the bracket interval each step.
+- **Binary lifting.** Finds lowest common ancestors in trees in $O(\log n)$ by querying ancestor powers of two.
+
+Breaking the comparison model breaks the logarithmic barrier. Interpolation search achieves $O(\log \log n)$ on uniform keys, while hash tables achieve $O(1)$ by forfeiting ordering entirely.
+
+## The integer overflow bug that survived nine years in Java
+
+Computing the midpoint as `mid = (lo + hi) / 2` contains a subtle flaw. When $lo + hi$ exceeds $2^{31} - 1$, 32-bit signed integer addition overflows into negative numbers, causing array index out-of-bounds exceptions.
+
+This bug persisted unnoticed inside Java's `java.util.Arrays.binarySearch` for over nine years (Bloch 2006). The bug-free formulation is `mid = lo + (hi - lo) / 2` or `(lo + hi) >>> 1`.
+
+Precision in endpoint updates is essential. An incorrect endpoint update either enters an infinite loop or skips the target entirely.
+
+## Historical provenance and attributions
+
+- **Knuth 1973** — *The Art of Computer Programming*, Vol. 3, §5.3.1: definitive analysis of binary search and the information-theoretic lower bound $\lceil \log_2(n+1) \rceil$.
+- **Bentley 1986** — *Programming Pearls*: highlighted the notorious implementation pitfalls of binary search among experienced software engineers.
+- **Bentley, Haken, and Saxe 1980** — Formulation of the master theorem characterizing the balanced $\Theta(\log n)$ case.
+- **Peterson 1957** — Introduced interpolation search, establishing $O(\log \log n)$ average-case lookup on uniform keys.
+- **Bloch 2006** — Identified and documented the nine-year-old integer overflow bug in Java's standard library.

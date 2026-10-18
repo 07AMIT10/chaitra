@@ -1,0 +1,15 @@
+title: "Breadth-First Search"
+slug: breadth-first-search
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a graph traversal. It is an unweighted shockwave detonating from a single spark: expanding in concentric spheres of integer distance, carving out the exact geodesic metric of the graph one frontier at a time."
+oneLine: "One source, one queue, and the distance of every vertex — a level at a time."
+tldr:
+  - "The output is a level function: the least fixed point of d(v) = 1 + min d(u) over neighbours — distance in the unweighted metric."
+  - "A plain queue is enough because the frontier stays sorted by distance and never spans more than two adjacent levels."
+  - "One sweep also decides bipartiteness: colouring by level parity is proper exactly when no edge joins two vertices of equal level (König 1936)."
+mathBranches: [graph-theory, order-theory, combinatorics]
+primitives: [GraphCanvas, PredictionPrompt, SeriesChart]
+attributions: ["Moore 1959", "Lee 1961", "König 1936", "Milgram 1967", "Cohen 2009"]
+relatedTopics: [gossip-protocols, pagerank, mapreduce]
+featured: false

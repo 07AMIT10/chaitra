@@ -1,0 +1,327 @@
+/* IterationLab — the scalar iteration laboratory.
+   Consumes tokens.css only. Owns the `.alg-iter` namespace so the shared
+   algorithms.css (other workstreams) is never edited. */
+
+.alg-iter {
+  --alg-accent: var(--color-algorithms, #a78bfa);
+  --alg-accent-hover: color-mix(in srgb, var(--alg-accent) 75%, #ffffff);
+  --alg-accent-soft: color-mix(in srgb, var(--alg-accent) 15%, transparent);
+  --alg-accent-faint: color-mix(in srgb, var(--alg-accent) 8%, transparent);
+  --alg-accent-line: color-mix(in srgb, var(--alg-accent) 45%, transparent);
+  --alg-border: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  --alg-border-strong: color-mix(in srgb, var(--color-muted) 45%, transparent);
+  --alg-surface-2: color-mix(in srgb, var(--color-bg) 45%, var(--color-surface));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  min-width: 0;
+  font-family: var(--font-sans);
+}
+
+.alg-iter__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.alg-iter__glabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  margin-right: var(--space-1);
+}
+
+.alg-iter__defn {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  background: var(--alg-surface-2);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.alg-iter__defn b {
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.alg-iter__starts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+}
+
+.alg-iter__slider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  flex: 1 1 min(100%, 160px);
+  font-size: 0.82rem;
+  color: var(--color-muted);
+}
+
+.alg-iter__slider b {
+  color: var(--color-text);
+}
+
+.alg-iter__slider input[type="range"] {
+  width: 100%;
+  accent-color: var(--alg-accent);
+  min-height: var(--touch-target-min, 44px);
+}
+
+.alg-iter__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.alg-iter__count {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-iter__count b {
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
+
+.alg-iter__warn {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 55%, transparent);
+  background: color-mix(in srgb, var(--color-warning) 12%, transparent);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+.alg-iter__readout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-2);
+}
+
+.alg-iter__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  background: var(--alg-surface-2);
+  min-width: 0;
+}
+
+.alg-iter__k {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--color-muted);
+  overflow-wrap: anywhere;
+}
+
+.alg-iter__v {
+  font-size: 0.95rem;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.alg-iter__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-iter__grid {
+  stroke: color-mix(in srgb, var(--color-muted) 18%, transparent);
+  stroke-width: 1;
+}
+
+.alg-iter__axis {
+  stroke: color-mix(in srgb, var(--color-muted) 55%, transparent);
+  stroke-width: 1.2;
+}
+
+.alg-iter__tick {
+  fill: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.alg-iter__axislabel {
+  fill: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.alg-iter__curve {
+  fill: none;
+  stroke: var(--alg-accent);
+  stroke-width: 2;
+}
+
+.alg-iter__diag {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-muted) 60%, transparent);
+  stroke-width: 1.3;
+  stroke-dasharray: 5 4;
+}
+
+.alg-iter__web {
+  fill: none;
+  stroke: var(--color-success);
+  stroke-width: 1.7;
+}
+
+.alg-iter__rootline {
+  stroke: color-mix(in srgb, var(--color-drishti) 70%, transparent);
+  stroke-width: 1.3;
+  stroke-dasharray: 4 4;
+}
+
+.alg-iter__bracket {
+  fill: color-mix(in srgb, var(--alg-accent) 8%, transparent);
+  stroke: none;
+}
+
+.alg-iter__bracket--cur {
+  fill: color-mix(in srgb, var(--alg-accent) 26%, transparent);
+}
+
+.alg-iter__tangent {
+  stroke: var(--color-drishti);
+  stroke-width: 1.7;
+}
+
+.alg-iter__secant {
+  stroke: var(--color-drishti);
+  stroke-width: 1.7;
+  stroke-dasharray: 6 3;
+}
+
+.alg-iter__drop {
+  stroke: color-mix(in srgb, var(--color-drishti) 55%, transparent);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 3;
+}
+
+.alg-iter__pt {
+  fill: var(--color-surface);
+  stroke: var(--alg-accent-hover);
+  stroke-width: 1.6;
+}
+
+.alg-iter__pt--now {
+  fill: var(--alg-accent);
+  stroke: var(--color-text);
+  stroke-width: 1.6;
+}
+
+.alg-iter__img {
+  fill: var(--color-surface);
+  stroke: var(--color-success);
+  stroke-width: 1.5;
+}
+
+.alg-iter__ring {
+  fill: none;
+  stroke: var(--alg-accent);
+  stroke-width: 1.2;
+  stroke-dasharray: 3 3;
+  opacity: 0.9;
+}
+
+.alg-iter__off {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--color-warning);
+}
+
+.alg-iter__tablewrap {
+  position: relative;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-iter__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.alg-iter__table th,
+.alg-iter__table td {
+  padding: 0.3rem 0.55rem;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--alg-border);
+}
+
+.alg-iter__table th {
+  color: var(--color-muted);
+  font-weight: 600;
+  text-align: right;
+  background: var(--alg-surface-2);
+  position: sticky;
+  top: 0;
+}
+
+.alg-iter__table td:first-child,
+.alg-iter__table th:first-child {
+  text-align: left;
+  color: var(--color-muted);
+  position: sticky;
+  left: 0;
+  background: var(--alg-surface-2);
+  z-index: 1;
+}
+
+.alg-iter__row--now td {
+  background: var(--alg-accent-soft);
+  color: var(--color-text);
+}
+
+.alg-iter__notecell {
+  text-align: left;
+  color: var(--color-muted);
+}
+
+.alg-iter__order,
+.alg-iter__note {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+.alg-iter__order b {
+  color: var(--color-text);
+  font-family: var(--font-mono);
+}
+
+@media (max-width: 600px) {
+  .alg-iter__tick {
+    font-size: 16px;
+  }
+  .alg-iter__axislabel {
+    font-size: 18px;
+    font-weight: 600;
+  }
+}

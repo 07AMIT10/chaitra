@@ -1,0 +1,176 @@
+import LPDualityDashboard from "@alg/LPDualityDashboard.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+
+{/*
+  Contract matched to website/src/components/algorithms/:
+    PredictionPrompt    question · options (string[]) · correct (index) · explain
+    LPDualityDashboard  nodes ({id,x,y,label?}[]) · edges ({from,to,capacity}[]) · source · sink · caption · height
+    SeriesChart         series ({name, points [x,y][]}[]) · title · xLabel · yLabel · logY · height
+  Interactive primitives carry an explicit Astro client directive; each is one island.
+*/}
+
+## The Five-Junction Pressure Chamber
+
+Five steel junctions sit under pressure, labelled $s$, $a$, $b$, $c$, and $t$, linked by seven one-way conduits. Each conduit has a fixed volumetric ceiling: $s \to a$ holds 2, $s \to b$ holds 6, $a \to b$ holds 2, $a \to c$ holds 3, $b \to c$ holds 2, $c \to t$ holds 7, and $b \to t$ holds 3. Fluid is injected at source $s$ and escapes only at sink $t$, never accumulating at intermediate nodes.
+
+Before tracing a single trajectory, a natural question surfaces: what is the maximum rate at which fluid can traverse this network? More fundamentally, how could any observer prove that no clever routing trick could squeeze through even a single extra drop?
+
+<PredictionPrompt
+  client:visible
+  question="Before tracing a single route: what is the maximum rate of fluid that can reach the sink?"
+  options={["6", "7", "8", "10"]}
+  correct={1}
+  explain="The pipes leaving source s sum to 2 + 6 = 8, and the pipes feeding sink t sum to 7 + 3 = 10, tempting a guess of 8. The true bottleneck is an invisible interior fault-line: the cut separating {s, b} from {a, c, t} consists of edges s→a (2), b→c (2), and b→t (3), which sum to exactly 7. Fluid cannot cross a cut faster than the total capacity of that cut."
+/>
+
+## The Phantom Reverse Flow
+
+The naive operational impulse is greedy: pump fluid along any route with spare room, and halt when no path from $s$ to $t$ looks open. But that stopping condition merely reports where your initial guesses ran out of room, not where the network chokes.
+
+A pipe already carrying volume holds a hidden power: reverse capacity. By pushing backwards along an active pipe, you cancel a prior commitment and reroute flow elsewhere at zero net cost. To discover optimal throughput, search must proceed through the *residual graph*, where every unit of forward flow spawns an equivalent backward path.
+
+Greedy searches search forwards, but mathematical optimality requires an inescapable upper bound. To prove that 7 is the true ceiling, you cannot merely shrug after running out of paths; you must present a concrete geometric barrier that forbids 8. That certificate is a cut.
+
+## The Duality of Fluid and Steel
+
+The physical state is a **feasible flow**: an assignment $f_e$ to each pipe $e$ satisfying capacity constraints $0 \le f_e \le c_e$ and strict conservation at every junction except $s$ and $t$. The aggregate throughput is the total volume spilling out of the source:
+
+$$
+v(f) = \sum_{e \in \delta^+(s)} f_e
+$$
+
+Here $\delta^+(S)$ denotes the set of conduits directed from inside a subset of junctions $S$ to the outside world.
+
+Its mathematical mirror is a **cut**: a partition of the vertices into $S$ and its complement, with $s \in S$ and $t \notin S$. The cut's capacity is the gross capacity of all pipes crossing the boundary:
+
+$$
+\operatorname{cap}(S) = \sum_{e \in \delta^+(S)} c_e
+$$
+
+Any cut whatsoever provides an absolute ceiling on every feasible flow. The magic happens when the fluid rate equals the cut capacity: at that instant, both are unconditionally certified optimal.
+
+## The Vanishing Gap and Total Unimodularity
+
+The primal question is a linear program: maximise throughput subject to non-negative edge bounds and Kirchhoff's current conservation law at every junction.
+
+$$
+\max\; v \quad \text{subject to} \quad \sum_{e \in \delta^+(u)} f_e - \sum_{e \in \delta^-(u)} f_e = \begin{cases} v & u = s, \\ -v & u = t, \\ 0 & \text{otherwise,}\end{cases} \qquad 0 \le f_e \le c_e
+$$
+
+Summing the conservation equations over any subset $S$ containing the source causes all internal pipe cancellations. What remains is the fundamental inequality of weak duality:
+
+$$
+v(f) = \sum_{e \in \delta^+(S)} f_e - \sum_{e \in \delta^-(S)} f_e \le \sum_{e \in \delta^+(S)} f_e \le \sum_{e \in \delta^+(S)} c_e = \operatorname{cap}(S)
+$$
+
+The gap $\operatorname{cap}(S) - v(f)$ is nonnegative for every flow and every cut. In the dashboard below, this gap begins at 8 and drops strictly downward, certifying progress toward the bottleneck.
+
+The linear-programming dual assigns a potential $\pi_u$ to each junction and a shadow price $z_e \ge 0$ to each pipe, normalised so $\pi_s - \pi_t = 1$. The dual program minimises total capacity cost $\sum_e c_e z_e$ subject to price differences $z_e \ge \pi_u - \pi_v$. Integrating over potential thresholds reveals that this dual optimum is precisely the minimum cut.
+
+**Theorem (Ford & Fulkerson 1956; Elias, Feinstein & Shannon 1956).** The maximum flow value equals the minimum cut capacity. The residual graph provides both the algorithm and the certificate: when no augmenting path remains from $s$ to $t$, the set of vertices $S$ still reachable from $s$ defines a cut where every forward pipe is saturated and every backward pipe is dry.
+
+Why does an integer plumbing problem never yield fractional trickles? The junction-pipe incidence matrix has exactly one $+1$ and one $-1$ in each column, making it **totally unimodular** (Hoffman & Kruskal 1956). Every basic feasible solution of a totally unimodular system with integer bounds is an integer vector, guaranteeing that integer capacities yield pure integer flows.
+
+<SeriesChart
+  title="Augmentations on a four-junction diamond, hand-computed"
+  xLabel="log₁₀ of the capacity C on each decisive pipe"
+  yLabel="augmentations"
+  logY
+  height={260}
+  series={[
+    {
+      name: "Edmonds–Karp (shortest path)",
+      points: [[0, 2], [1, 2], [2, 2], [3, 2], [4, 2], [5, 2], [6, 2]],
+    },
+    {
+      name: "Ford–Fulkerson (worst path choice)",
+      points: [[0, 2], [1, 20], [2, 200], [3, 2000], [4, 20000], [5, 200000], [6, 2000000]],
+    },
+  ]}
+/>
+
+On a simple four-node diamond with high capacity $C$, an unfortunate choice of augmenting paths can bounce a single unit back and forth, consuming $2C$ steps. Edmonds & Karp (1972) tamed this by always augmenting along shortest paths via breadth-first search, guaranteeing termination in $O(V E^2)$ steps regardless of capacity magnitudes.
+
+<PredictionPrompt
+  client:visible
+  question="Ford–Fulkerson halts once no augmenting path remains. What happens if pipe capacities are irrational real numbers and paths are chosen arbitrarily?"
+  options={[
+    "It terminates in at most V · E iterations regardless of capacity values.",
+    "It always halts, because the flow value increases at every augmentation step.",
+    "It can run forever in an infinite loop, converging to an asymptote strictly below the true maximum capacity."
+  ]}
+  correct={2}
+  explain="With integer capacities, each step gains at least one unit, ensuring finite termination. But with irrational capacities, Ford & Fulkerson (1962) proved the algorithm can loop endlessly while augmentations shrink so fast that total flow converges to an erroneous fractional limit! Zwick (1995) constructed the minimal 6-vertex, 8-edge network displaying this pathology. Edmonds–Karp eliminates this trap entirely."
+/>
+
+## Driving the Residual Augmentation
+
+The seven pipes await your command. Step through the execution to watch Edmonds–Karp locate shortest residual routes, update primal flow, and track the shrinking duality gap.
+
+<PredictionPrompt
+  client:visible
+  question="Step the run to completion. Which exact set of conduits forms the saturated minimum cut?"
+  options={[
+    "Only c→t: the single high-capacity conduit (7) feeding the sink.",
+    "s→a and s→b: the source boundary with gross capacity 8.",
+    "s→a, b→c, and b→t: the pipes departing the partition S = {s, b}.",
+    "a→c, b→c, and b→t: the conduits departing the partition S = {s, a, b}."
+  ]}
+  correct={2}
+  explain="The intuition trap is to imagine either the source perimeter or the sink perimeter must choke first. Here, the true bottleneck slices through the interior: junction b remains connected to the source, but junction a falls to the sink side! The cut departs {s, b} through s→a (2), b→c (2), and b→t (3), totalling 7. Every one of these three pipes is completely gorged."
+/>
+
+<LPDualityDashboard
+  client:visible
+  nodes={[
+    { id: "s", x: 0, y: 0, label: "s" },
+    { id: "a", x: 1, y: 1, label: "a" },
+    { id: "b", x: 1, y: -1, label: "b" },
+    { id: "c", x: 2, y: 0, label: "c" },
+    { id: "t", x: 3, y: 0, label: "t" }
+  ]}
+  edges={[
+    { from: "s", to: "a", capacity: 2 },
+    { from: "s", to: "b", capacity: 6 },
+    { from: "a", to: "b", capacity: 2 },
+    { from: "a", to: "c", capacity: 3 },
+    { from: "b", to: "c", capacity: 2 },
+    { from: "c", to: "t", capacity: 7 },
+    { from: "b", to: "t", capacity: 3 }
+  ]}
+  source="s"
+  sink="t"
+  height={400}
+  caption="Edmonds–Karp on the seven pipes. Step through the augmentations: each green route is a shortest residual s-to-t path, the primal card is the flow value, the dual card is the best cut found so far, and the gap card falls to 0 on the last step. Toggle Show flow to watch saturation and the cut."
+/>
+
+Press step to augment along shortest residual paths. The green highlighter traces the active augmenting route, while residual capacities adjust in real time. Toggle **Show flow** to view physical load ratios $f_e / c_e$: saturated pipes turn solid gold, and the terminal cut edges glow with dashed outlines.
+
+After three augmentations, flow reaches 7 and no residual path survives. The duality gap drops from 8 to 0, certifying optimality not through exhaustive search, but through an indisputable physical witness.
+
+## From Rail Interdiction to Modern Vision
+
+Max-flow min-cut was born in a classified 1955 RAND study by T. E. Harris and F. S. Ross analyzing the vulnerability of Soviet railway networks. The US Air Force wanted to identify the minimum number of rail links to sever to paralyze transport from the Soviet heartland into Eastern Europe.
+
+Its reach extends across computer science. Add a supersource and supersink with unit-capacity edges, and max flow solves maximum bipartite matching, where the min-cut yields König's minimum vertex cover (König 1931; Hall 1935). With unit pipes, Menger's theorem (1927) on edge-disjoint paths falls out directly.
+
+In modern computer vision, graph cuts segment images into foreground and background in real time (Boykov & Kolmogorov 2004). Pixels become nodes, pairwise gradient affinities become capacities, and the minimum cut carves out pixel-perfect object silhouettes.
+
+## Circulations, Level Graphs, and Fractional Traps
+
+Hoffman's circulation theorem (1960) generalises max flow to closed networks with lower and upper capacity bounds $\ell_e \le f_e \le u_e$. A feasible circulation exists if and only if no cut demands more inbound capacity than outbound limits permit.
+
+Complementary slackness delivers a sharp visual signature: at optimality, every forward cut pipe is fully saturated ($f_e = c_e$) and every backward cut pipe is bone-dry ($f_e = 0$). That is why the cut edges highlighted on the dashboard are precisely the saturated links.
+
+Modern algorithms accelerate this search dramatically. Dinic (1970) pushes blocking flows through layered networks in $O(V^2 E)$ time, while push–relabel methods (Goldberg & Tarjan 1988) run in $O(V^3)$.
+
+## Attributions
+
+- **Harris & Ross 1955** — *Fundamentals of a Method for Evaluating Rail Net Capacities*: the classified RAND report formulating maximum network flow.
+- **Ford & Fulkerson 1956** — *Maximal flow through a network*: the augmenting-path method and the max-flow min-cut theorem.
+- **Elias, Feinstein & Shannon 1956** — *A note on the maximum flow through a network*: independent discovery of the theorem.
+- **Edmonds & Karp 1972** — Shortest augmenting paths via breadth-first search, establishing strongly polynomial network flow.
+- **Hoffman & Kruskal 1956** — Total unimodularity and integral polyhedra.
+- **Ford & Fulkerson 1962** and **Zwick 1995** — Pathological non-termination on irrational capacities.
+- **Boykov & Kolmogorov 2004** — Graph cut optimization for energy minimization in computer vision.

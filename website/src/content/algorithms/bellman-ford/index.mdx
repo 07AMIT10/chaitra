@@ -1,0 +1,202 @@
+---
+title: "Bellman–Ford"
+slug: bellman-ford
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a slower Dijkstra for broken edges. It is a deflationary gravity: a monotone operator pressing down on every road simultaneously until distances freeze into their least fixed point—or spiral endlessly into a negative abyss."
+oneLine: "Relax every edge in rounds; stop when nothing improves."
+tldr: ["The state is one distance vector; a round applies the relaxation operator to every edge at once.", "The operator is monotone and deflationary, so n−1 rounds reach the fixed point of the Bellman equation.", "The n-th round is the negative-cycle test, and a reachable negative cycle is exactly the case where no fixed point exists.", "In min-plus algebra the same run reads one row of the tropical closure, the sum of L^(k) for k up to n−1."]
+mathBranches: ["order-theory", "algebra", "fixed-point-theory"]
+primitives: ["GraphCanvas", "SemiringMatrix", "PredictionPrompt"]
+attributions: ["Shimbel 1955", "Bellman 1958", "Ford 1956", "Moore 1959"]
+relatedTopics: ["pagerank"]
+---
+
+import GraphCanvas from "@alg/GraphCanvas.tsx";
+import SemiringMatrix from "@alg/SemiringMatrix.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+## A Universe Falling Into Equilibrium
+
+Five towns, six one-way roads, and a downhill path that bends time backward. Press **step** and watch a single row of tentative distances collapse until it freezes into equilibrium.
+
+<GraphCanvas
+  client:visible
+  algorithm="bellman-ford"
+  directed
+  source="S"
+  nodes={[
+    { id: "S", x: 60, y: 150 },
+    { id: "P", x: 230, y: 70 },
+    { id: "Q", x: 230, y: 250 },
+    { id: "R", x: 420, y: 70 },
+    { id: "T", x: 590, y: 150 }
+  ]}
+  edges={[
+    { from: "R", to: "T", w: -4 },
+    { from: "P", to: "T", w: 8 },
+    { from: "P", to: "R", w: 3 },
+    { from: "Q", to: "P", w: 1 },
+    { from: "S", to: "P", w: 4 },
+    { from: "S", to: "Q", w: 5 }
+  ]}
+  caption="Six one-way roads and their weights. The negative edge R→T = −4 has no cycle through it, so this graph has a well-defined answer. Step through and watch the d row."
+/>
+
+The edge list is written back-to-front on purpose. Scanning it in this reverse order advances the wavefront by exactly one hop per round, making the round count visible.
+
+The distance vector under the graph holds one number per town. Each round replaces every label with the best route over its incoming roads, and no number ever rises.
+
+<PredictionPrompt
+  client:visible
+  question="Start with S at 0 and every other town at ∞. For 5 vertices, the theoretical guarantee is at most 4 rounds. How many rounds actually lower some distance before the table freezes?"
+  options={[
+    "2 rounds — because the graph is small with only 6 edges",
+    "3 rounds — the deepest shortest path requires 3 hops",
+    "4 rounds — the n−1 worst-case limit is always exhausted"
+  ]}
+  correct={1}
+  explain="Round 1 discovers P = 4 and Q = 5. Round 2 discovers R = 7 and tentative path T = 12 via P. Round 3 finds the shortcut S→P→R→T, dropping T to 3. Round 4 relaxes all edges but lowers nothing, certifying that the n−1 bound is merely an upper limit."
+  hint="Find the cheapest route to T and count how many edges it traverses."
+/>
+
+## The Failure of Dijkstra's Horizon
+
+Dijkstra assumes that any prefix of a shortest path must itself be a shortest path. A single negative edge shatters that foundation: a town settled early with a low score can later be undercut by a longer detour that gains time.
+
+Standard curricula frame Bellman–Ford as a sluggish fallback that repeatedly relaxes every edge until nothing changes. That framing hides the real mathematical object.
+
+The repeated passes are not crude brute force. They are successive iterations of a monotone contracting operator converging to its least fixed point.
+
+## The Deflationary Operator
+
+The state consists of a single vector $d \in (\mathbb{R} \cup \{+\infty\})^V$, pinned at $d(s)=0$. Between rounds, nothing else is stored.
+
+The final vector satisfies Bellman's equation for the principle of optimality (Bellman 1958):
+
+$$
+d(s)=0, \qquad d(v)=\min_{(u,v)\in E}\bigl(d(u)+w(u,v)\bigr)\quad(v\neq s)
+$$
+
+Define the relaxation operator $T$ by testing every incoming road against the current estimate:
+
+$$
+T(d)(v)=\min\Bigl\{\,d(v),\; \min_{(u,v)\in E}\bigl(d(u)+w(u,v)\bigr)\Bigr\}, \qquad T(d)(s)=0
+$$
+
+Then $T(d)=d$ means no road can be relaxed, and one round of Bellman–Ford is one application of $T$. The operator possesses two essential properties:
+
+- **Monotone.** If $d \le d'$ entrywise, then $T(d) \le T(d')$. Minimums and additions preserve order.
+- **Deflationary.** $T(d) \le d$ for every vector $d$. Each step either reduces a distance estimate or leaves it unchanged; a label never rises.
+
+Because $T$ is deflationary, distance estimates descend monotonically from $+\infty$ and can never fall beneath the true shortest paths. When a round produces no change, $T(d) = d$, certifying that the vector has reached its least fixed point.
+
+## The Finite Horizon and the Negative Abyss
+
+Start at $d^{(0)}$ with source at $0$ and all other entries at $+\infty$. The sequence $d^{(0)} \ge d^{(1)} \ge d^{(2)} \ge \cdots$ drops monotonically until it stabilizes.
+
+**Theorem (Shimbel 1955; Bellman 1958).** If no negative cycle is reachable from source $s$, then $d^{(n-1)}$ is the exact shortest-path vector. Any subsequent round changes nothing.
+
+The proof is a cycle-elimination argument. Any walk that visits more than $n-1$ edges must repeat a vertex, forming a cycle. Because no reachable cycle has negative weight, excising that cycle cannot increase total cost.
+
+Therefore, an optimal walk without cycles exists, containing at most $n-1$ edges. Each application of $T$ extends optimal paths by at least one edge, guaranteeing convergence within $n-1$ passes.
+
+### Tropical Matrix Powers
+
+Let $L$ be the adjacency matrix with $L[u][v]=w(u,v)$ and $+\infty$ otherwise. Under tropical operations $\oplus=\min$ and $\otimes=+$, the $k$-th power measures exact path lengths:
+
+$$
+\bigl(L^{(k)}\bigr)[u][v]=\text{cheapest cost of a walk } u\to v \text{ with exactly } k \text{ roads}, \qquad L^{(0)}=I
+$$
+
+where $I$ has $0$ on the diagonal and $+\infty$ off it. One Bellman–Ford round is the tropical affine mapping $d \mapsto d \oplus (d \otimes L)$. After $k$ rounds, the vector matches row $s$ of the partial closure $\bigoplus_{j=0}^{k} L^{(j)}$.
+
+The complete sum $L^{\star}=\bigoplus_{j\ge 0} L^{(j)}$ is the min-plus matrix closure. It satisfies $X = I \oplus (X \otimes L)$ and stabilizes at $j=n-1$ because simple paths have length at most $n-1$.
+
+<SemiringMatrix
+  client:visible
+  semiring="min-plus"
+  showSteps
+  rowLabels={["S", "P", "Q", "R", "T"]}
+  colLabels={["S", "P", "Q", "R", "T"]}
+  matrix={[
+    [Infinity, 4, 5, Infinity, Infinity],
+    [Infinity, Infinity, Infinity, 3, 8],
+    [Infinity, 1, Infinity, Infinity, Infinity],
+    [Infinity, Infinity, Infinity, Infinity, -4],
+    [Infinity, Infinity, Infinity, Infinity, Infinity]
+  ]}
+  caption="The same six roads as a min-plus matrix. The reflexivity the panel adds on the diagonal is the L^(0) = I term. Drag the slider and read row S: it finishes at 0, 4, 5, 7, 3, the distances the canvas reaches."
+/>
+
+The matrix panel uses a different scheduling order than Bellman–Ford. It computes the triple loop over intermediate vertices, whereas Bellman–Ford iterates over edge relaxations. Both converge to the identical fixed point because both compute the same algebraic closure.
+
+### The n-th Round: Detecting the Abyss
+
+Run one round past $n-1$. The test asks if any road still satisfies $d^{(n-1)}(u) + w(u,v) < d^{(n-1)}(v)$.
+
+If a label still drops, a walk with $n$ edges beats every shorter walk. Stripping cycles from that walk cannot increase weight unless the cycle itself has strictly negative weight (Ford 1956; Bellman 1958).
+
+When a negative cycle is reachable, no finite fixed point exists. Each lap around the cycle subtracts energy, driving distances toward $-\infty$. The $n$-th round fires an alarm precisely because the fixed point has vanished.
+
+Add road `T→P` with weight −10 to the picture. Now `P→R→T→P` is a cycle of total weight $3 - 4 - 10 = -11$, and every lap removes 11 from the labels it touches.
+
+<GraphCanvas
+  client:visible
+  algorithm="bellman-ford"
+  directed
+  source="S"
+  nodes={[
+    { id: "S", x: 60, y: 150 },
+    { id: "P", x: 230, y: 70 },
+    { id: "Q", x: 230, y: 250 },
+    { id: "R", x: 420, y: 70 },
+    { id: "T", x: 590, y: 150 }
+  ]}
+  edges={[
+    { from: "T", to: "P", w: -10 },
+    { from: "R", to: "T", w: -4 },
+    { from: "P", to: "T", w: 8 },
+    { from: "P", to: "R", w: 3 },
+    { from: "Q", to: "P", w: 1 },
+    { from: "S", to: "P", w: 4 },
+    { from: "S", to: "Q", w: 5 }
+  ]}
+  caption="The same five towns plus T→P = −10. The cycle P→R→T→P weighs −11, so the labels keep falling and the test round flags a reachable negative cycle."
+/>
+
+<PredictionPrompt
+  client:visible
+  question="Add road T→P = -10 to close the cycle P→R→T→P. What happens on the n-th round of relaxation?"
+  options={[
+    "Nothing. One extra road cannot move a table that already stabilized.",
+    "Road T→P relaxes again: 3 + (−10) = −7 beats d(P) = 4, proving no finite fixed point exists.",
+    "It reports d(T) = −8 as a newly discovered stable shortest path."
+  ]}
+  correct={1}
+  explain="Cycle P→R→T→P has total weight 3 + (−4) + (−10) = −11. Each pass around this loop reduces vertex labels by 11 without limit. On round 5 (the n-th round), T→P relaxes d(P) from 4 to 3 + (−10) = −7, proving the system is in an infinite gravitational collapse."
+  hint="Compare the new road's weight against the cycle it closes."
+/>
+
+## Distance Vectors and Currency Arbitrage
+
+Distance-vector routing protocols such as RIP implement Bellman–Ford across physical networks. Each router broadcasts its vector of distances to immediate neighbours, updating local routing tables according to the Bellman equation.
+
+The infamous 'count-to-infinity' failure mode occurs when a link breaks and routers bounce obsolete distances back and forth. This is the physical realization of a missing fixed point, requiring split-horizon rules and hop-count limits.
+
+Currency arbitrage is the exact inverse application. Set edge weights to $-\log(\text{exchange rate})$ so that multiplying currency conversions corresponds to summing weights. A profitable round trip becomes a negative cycle, transforming the $n$-th round test into an arbitrage detector.
+
+## Moore's Queue: Chasing the Active Frontier
+
+Relaxing all $E$ edges in every round costs $O(VE)$ operations. Moore (1959) introduced the Shortest Path Faster Algorithm (SPFA), keeping a queue of vertices whose distances recently decreased.
+
+Only edges leaving active vertices are relaxed. While worst-case complexity remains $O(VE)$, typical execution speeds rival Dijkstra on sparse graphs.
+
+## Attributions
+
+- **Shimbel 1955** — *Structural determination of the shortest route matrix*: the round-robin relaxation and its $O(VE)$ bound, the earliest form of the method.
+- **Bellman 1958** — *On a routing problem*: the principle of optimality framing, the Bellman equation $d(v)=\min_{(u,v)}(d(u)+w(u,v))$, and the iteration bound.
+- **Ford 1956** — *Network flow theory*, RAND report P-923: the edge-list, label-correcting version and its use in flow problems.
+- **Moore 1959** — *The shortest path through a maze*: the queue-based refinement of section 5, found independently.
+- **Tarski 1955** — the lattice fixed-point theorem behind "a monotone iteration from the top settles at a fixed point".
+- **Schrijver 2005** — *On the history of the shortest path problem*: the source for the priority of the 1955–1959 attributions above.

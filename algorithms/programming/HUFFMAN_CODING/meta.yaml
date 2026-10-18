@@ -1,0 +1,16 @@
+title: "Huffman Coding"
+slug: huffman-coding
+field: programming
+fieldLabel: "Programming"
+reframe: "Flip the message upside down. Pair the two rarest whispers in an alphabet, fuse them into a single stem, and climb upward until the entire language hangs from one root—its average cost pinioned within a single bit of Shannon's thermodynamic limit."
+oneLine: "Merge the two lightest roots; the accumulated cost is the average code length, and it lands within one bit of the entropy."
+tldr:
+  - "Every merge adds the two merged weights to a running total, so when a single tree remains that total equals the average code length sum of p_i times l_i. The panel accumulates it as you merge and shows it against H."
+  - "The two lightest roots are siblings in some optimal tree, by an exchange argument (Huffman 1952). Merge any heavier pair first and the axis prices the mistake in bits."
+  - "Shannon 1948 gave the entropy H as the lower bound for any prefix code, and Huffman's rule attains the minimum L*, so entropy is at most L* and L* is less than H + 1."
+  - "The one-bit gap is a worst case, not the rule. On the board's six weights H = 2.2037 and L* = 2.25, a gap of 0.05 bits; a two-symbol 0.99/0.01 source has H = 0.0808 against L = 1, a gap of 0.92."
+  - "Prefix-free is the whole requirement: no code word is a prefix of another, so the bit string decodes with no delimiters. Symbols sit at the leaves of the tree and that leaf placement is exactly what makes the property hold."
+mathBranches: [information-theory, combinatorics, optimization]
+primitives: [HuffmanMerge, SeriesChart, PredictionPrompt]
+attributions: ["Shannon 1948", "Kraft 1949", "Fano 1949", "Huffman 1952", "McMillan 1956", "Gallager 1978", "Rissanen 1976", "Larmore–Hirschberg 1990"]
+relatedTopics: [information-theory]

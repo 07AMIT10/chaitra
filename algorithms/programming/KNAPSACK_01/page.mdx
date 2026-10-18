@@ -1,0 +1,180 @@
+import DPHeatmap from "@alg/DPHeatmap.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+
+{/*
+  Primitive contracts this page relies on, matched to website/src/components/algorithms/:
+    PredictionPrompt  question · options (string[]) · correct (index) · explain · hint
+    DPHeatmap         problem="knapsack" · items ({ name, w, v }[]) · capacity · caption · height
+    DPHeatmap         problem="coin-change" · coins · amount · caption · height
+    SeriesChart       series ({ name, points: [x, y][] }[]) · title · xLabel · yLabel · logY  (static)
+  Interactive primitives carry an explicit Astro client directive; Astro islands cannot nest,
+  so each driven primitive is its own island. Every number below is exact arithmetic on the
+  instance stated, not a measurement.
+*/}
+
+## The Mountaineer's Dilemma
+
+A mountaineer's pack holds an unforgiving payload limit of ten kilograms. Three indivisible survival supplies lie on the ice before the summit bid:
+
+```
+          weight   value   value per kg
+tent         6       42        7.0
+stove        5       30        6.0
+food         5       28        5.6
+```
+
+The storm tent offers the highest value density by a commanding margin ($7.0$ points per kilo). Seize it greedily and you burn 6 kg, leaving a 4 kg void too small to fit the 5 kg stove or the 5 kg food. Your haul is locked at 42.
+
+<PredictionPrompt
+  client:visible
+  question="The rucksack holds 10 kg. What is the absolute maximum value achievable by any feasible subset of these three items?"
+  options={["42", "54", "58", "66"]}
+  correct={2}
+  hint="Compare the combined capacity of the two 5 kg items against the 6 kg item. Value density is not total value."
+  explain="58: pack the stove and the food together (5 + 5 = 10 kg, yielding 30 + 28 = 58). Although the tent boasts the best individual density at 7.0/kg, its awkward bulk leaves 4 kg of dead space that can fit nothing else. Any pack containing the tent and another item weighs at least 11 kg, so the greedy winner is completely absent from the true optimal packing!"
+/>
+
+Three candidate answers correspond to meaningful mathematical milestones: 42 from greedy density sorting, 58 from the true integer optimum, and 66 from continuous linear relaxation. The integer reality sits trapped between them.
+
+## The Density Trap
+
+The natural human instinct is greedy: sort candidates by value-to-weight ratio and cram items in until no more fit. George Dantzig (1957) proved this exact strategy solves the fractional problem where items can be sliced like butter.
+
+In the discrete world, however, items are indivisible atoms. Greedy density optimization falls into catastrophic dead-ends because it cannot foresee how leftover capacity creates stranded voids.
+
+Testing all $2^n$ subsets is viable for three items, but founders into computational oblivion at sixty items. The problem demands an exact method that bypasses combinatorial explosion without falling into greedy traps.
+
+## The Lattice DAG
+
+Let $V(i,c)$ denote the maximum value obtainable using a subset of the first $i$ items within capacity $c$. For every cell, there are only two possibilities:
+
+Either you skip item $i$ and inherit $V(i-1,c)$, or you commit $w_i$ kilograms to pack item $i$, pocketing $v_i$ value and inheriting $V(i-1, c-w_i)$:
+
+$$
+V(i,c) = \max\bigl\{\, V(i-1,c),\; v_i + V(i-1,c-w_i) \,\bigr\}, \qquad V(0,c)=0
+$$
+
+This $(n+1) \times (W+1)$ table is not just a ledger of numbers; it is a directed acyclic graph. Every cell is a vertex, downward edges represent decisions to skip, and diagonal jump edges represent decisions to take.
+
+Because every transition advances to the next item index, cycles are impossible. The optimal pack is literally the longest path through this state-space grid (Kellerer, Pferschy & Pisinger 2004).
+
+## The Integrality Gap and the Dantzig Relaxation
+
+Look at the complete table evaluated across all capacities:
+
+```
+capacity c:     0   1   2   3   4   5    6    7    8    9   10
+items: none     0   0   0   0   0   0    0    0    0    0    0
+     + tent     0   0   0   0   0   0   42   42   42   42   42
+     + stove    0   0   0   0   0  30   42   42   42   42   42
+     + food     0   0   0   0   0  30   42   42   42   42   58
+```
+
+The terminal cell at $(3,10)$ hits 58, illuminated by a diagonal transition originating from the stove cell at $(2,5)$.
+
+<PredictionPrompt
+  client:visible
+  question="Greedy ratio sorting selects the tent and terminates at 42. Which precise table entry refutes greedy optimality?"
+  options={[
+    "dp[3][10] = 58: the global optimum incorporating the third item at full capacity.",
+    "dp[1][6] = 42: the point where greedy commits its first choice.",
+    "dp[0][10] = 0: the boundary condition representing an empty rucksack.",
+    "No entry refutes it: 42 is already optimal under local capacity constraints."
+  ]}
+  correct={0}
+  explain="Cell dp[3][10] reads 58, tracing back to the stove and food (30 + 28). The row for the tent never exceeds 42 at any capacity up to 10. The table proves that greedily locking the tent blinds the search to the synchronized pair of 5 kg items."
+/>
+
+Now loosen the indivisibility requirement: allow each item to be fractionally included ($x_i \in [0,1]$). The linear programming relaxation is:
+
+$$
+\max \sum_i v_i x_i \qquad \text{subject to} \qquad \sum_i w_i x_i \le W, \qquad 0 \le x_i \le 1
+$$
+
+Dantzig's greedy ratio rule solves this continuous program with exact optimality. Sorting by density yields tent, then stove, then food; the continuous solver takes 100% of the tent (6 kg), then fills the remaining 4 kg with $\frac{4}{5}$ of the stove:
+
+$$
+\mathrm{LP}^{*} = 42 + \tfrac{4}{5} \cdot 30 = 66
+$$
+
+The gap between fractional relaxation (66) and integer optimum (58) is the **integrality gap** of 8. Because any discrete packing is a valid fractional packing, $\mathrm{IP}^* \le \mathrm{LP}^*$ holds without exception.
+
+## Stepping the Value Frontier
+
+Drive the interactive matrix below to observe how the dynamic program navigates choices.
+
+<DPHeatmap
+  client:visible
+  problem="knapsack"
+  items={[{ name: "tent", w: 6, v: 42 }, { name: "stove", w: 5, v: 30 }, { name: "food", w: 5, v: 28 }]}
+  capacity={10}
+  caption="Four rows, eleven capacity columns, 44 cells. Hover a cell to light the one or two edges that filled it, press play to fill them in dependency order, then press Trace solution from the bottom-right 58 to walk the winning pack back."
+/>
+
+Hover over any cell to illuminate the dependency arrows. Press **Trace solution** from $(3, 10)$: the recovery path steps $(3,10) \to (2,5) \to (1,0) \to (0,0)$, collecting the food and the stove while actively skipping the tent.
+
+Watch column 10 evolve across row iterations: 0, then 42, then 42, and finally jumping to 58. The table only updates when an item can complete a superior combination, cutting through exponential branches in $O(nW)$ operations.
+
+## Budgets, Crypto-Systems, and Cutting Stock
+
+The 0/1 knapsack recurrence lies at the core of resource allocation under hard ceilings.
+
+Capital budgeting treats funding limits as knapsack capacity, where projects yield discrete returns on fixed costs. In theoretical cryptography, Merkle & Hellman (1978) designed public-key cryptosystems around the knapsack problem, which Adi Shamir (1984) famously broke by transforming modular knapsacks into simultaneous lattice approximations.
+
+The cutting stock problem in manufacturing maps roll lengths directly to knapsack boundaries, trading off scrap waste against production schedules.
+
+## Pseudopolynomial Illusions and the FPTAS Scaling Magic
+
+Richard Karp (1972) proved that the 0/1 knapsack decision problem is NP-complete. Why then does our dynamic program execute so swiftly in $O(nW)$ steps?
+
+The nuance lies in how numbers are encoded. An integer capacity $W$ requires only $b = \lceil \log_2(W+1) \rceil$ bits to specify, meaning the table size $n \cdot 2^b$ is exponential in the length of the input! Algorithms polynomial in numeric magnitude but exponential in input bit-length are termed **pseudopolynomial**.
+
+<SeriesChart
+  title="Exact DP cell count against the length of the capacity — cells = n(W+1), W = 2^b"
+  xLabel="bits b used to write the capacity W"
+  yLabel="DP cells n(W + 1)"
+  logY
+  series={[
+    { name: "n = 1000 items", points: [[4, 17000], [8, 257000], [12, 4097000], [16, 65537000], [20, 1048577000], [24, 16777217000]] },
+    { name: "n = 100 items", points: [[4, 1700], [8, 25700], [12, 409700], [16, 6553700], [20, 104857700], [24, 1677721700]] },
+    { name: "n = 10 items", points: [[4, 170], [8, 2570], [12, 40970], [16, 655370], [20, 10485770], [24, 167772170]] },
+  ]}
+/>
+
+Because knapsack is only weakly NP-hard, we can build a Fully Polynomial Time Approximation Scheme (FPTAS). Scaling values by $K = \varepsilon v_{\max}/n$ and rounding to $v'_i = \lfloor v_i / K \rfloor$ produces a downscaled instance running in $O(n^2 / \varepsilon)$ time (Ibarra & Kim 1975; Sahni 1975):
+
+$$
+v(S') \ge K\,v'(S') \ge K\,v'(S^{*}) \ge v(S^{*}) - nK = (1-\varepsilon)\, v(S^{*})
+$$
+
+What happens when items can be selected repeatedly? In the **unbounded knapsack**, the state drops a dimension because previous item history no longer constrains future choices:
+
+$$
+U(c) = \max\Bigl\{\, U(c-1),\; \max_{i:\, w_i \le c}\bigl(\, v_i + U(c-w_i) \,\bigr) \,\Bigr\}, \qquad U(0)=0
+$$
+
+Coin change is the min-plus dual: minimise the number of denominations required to form amount $c$:
+
+$$
+C(c) = \min_i\bigl(\, 1 + C(c - \text{coin}_i) \,\bigr)
+$$
+
+<DPHeatmap
+  client:visible
+  problem="coin-change"
+  coins={[5, 6]}
+  amount={10}
+  caption="Five and six, making ten in two coins. Hover dp[2][6]: the arrow for 'use coin 6 again' comes from the same row, not the row above. That same-row arrow is the unbounded take, and comparing it with the knapsack table is the whole difference between the two problems."
+/>
+
+In the 0/1 knapsack table, take-arrows always pull diagonally from the row above to prevent item reuse. In the coin change panel, take-arrows run laterally across the *same row*, encoding the freedom to draw identical denominations indefinitely.
+
+## Attributions
+
+- **Dantzig 1957** — *Discrete-variable extremum problems*: greedy value-per-kilogram sorting, the continuous LP relaxation, and the discovery of the integrality gap.
+- **Karp 1972** — *Reducibility among combinatorial problems*: proving 0/1 knapsack is NP-complete, establishing weak NP-hardness.
+- **Ibarra & Kim 1975** and **Sahni 1975** — Value-scaling FPTAS algorithms delivering $(1-\varepsilon)$ guarantees in $O(n^2/\varepsilon)$ time.
+- **Kellerer, Pferschy & Pisinger 2004** — Structural analysis of knapsack variations as DAG longest-path problems.
+- **Merkle & Hellman 1978** — Public-key cryptography grounded on subset-sum trapdoors.
+- **Shamir 1984** — Cryptanalysis breaking the Merkle–Hellman system in polynomial time.

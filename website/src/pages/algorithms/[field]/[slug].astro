@@ -1,0 +1,55 @@
+---
+import AlgorithmsLayout from "../../../layouts/AlgorithmsLayout.astro";
+import { getCollection, render } from "astro:content";
+import catalog from "../../../data/algorithms.json";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("algorithms");
+  if (!entries.length) {
+    if (catalog.algorithms.length) {
+      throw new Error(
+        "Algorithms content missing — run `npm run sync:algorithms` before building."
+      );
+    }
+    return [];
+  }
+
+  const bySlug = new Map(entries.map((entry) => [entry.data.slug, entry]));
+  return catalog.algorithms
+    .filter((algorithm) => bySlug.has(algorithm.slug))
+    .map((algorithm) => ({
+      params: { field: algorithm.field, slug: algorithm.slug },
+    }));
+}
+
+const { slug } = Astro.params;
+const entries = await getCollection("algorithms");
+const entry = entries.find((item) => item.data.slug === slug);
+if (!entry) {
+  throw new Error(
+    `Unknown algorithm: ${slug}. Run \`npm run sync:algorithms\` to publish content.`
+  );
+}
+
+const { Content, headings } = await render(entry);
+const data = entry.data;
+
+const fieldMeta = catalog.fields.find((field) => field.id === data.field);
+const fieldLabel = fieldMeta?.label ?? data.fieldLabel;
+---
+
+<AlgorithmsLayout
+  title={data.title}
+  reframe={data.reframe}
+  oneLine={data.oneLine}
+  fieldLabel={data.fieldLabel}
+  tldr={data.tldr}
+  headings={headings}
+  crumbs={[
+    { label: "Algorithms", href: "/algorithms" },
+    { label: fieldLabel, href: `/algorithms/${data.field}` },
+    { label: data.title },
+  ]}
+>
+  <Content />
+</AlgorithmsLayout>

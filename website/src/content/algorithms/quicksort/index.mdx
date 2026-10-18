@@ -1,0 +1,237 @@
+---
+title: "Quicksort"
+slug: quicksort
+field: programming
+fieldLabel: "Programming"
+reframe: "Quicksort is not partitioning numbers on a chalkboard. It is a random binary search tree materialising in memory out of pure probability: every comparison creates an edge, and the execution time is the summed depth of that living tree."
+oneLine: "Every comparison is an edge in a tree; the bill is the tree's depth, summed."
+tldr: ["The pivot sequence is a binary search tree — the one built by inserting the keys in input order — and the comparison count is its internal path length.", "Linearity of expectation over the pair indicators gives the exact average E[C] = 2(n+1)H_n − 4n ≈ 1.39 n log₂ n; the constant is 2 ln 2.", "A 1:9 split is still Θ(n log n): the depth is log₁₀/₉ n ≈ 6.58 log₂ n, a constant factor, not a new class.", "Sorted input with a first-element pivot is a path: n(n−1)/2 ≈ n²/2 comparisons, and McIlroy's 1999 adversary forces that on any deterministic pivot rule."]
+mathBranches: ["probability", "combinatorics", "analysis"]
+primitives: ["RecursionTree", "SeriesChart", "PredictionPrompt"]
+attributions: ["Hoare 1961", "Knuth 1973", "McIlroy 1999", "Euler–Mascheroni"]
+relatedTopics: ["randomized-algorithms", "probability-theory"]
+---
+
+import SeriesChart from "@alg/SeriesChart.tsx";
+import RecursionTree from "@alg/RecursionTree.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Quicksort — primitive contract matched to website/src/components/algorithms/.
+    SeriesChart       series: { name, points: [x, y][] }[] · title · xLabel · yLabel · logY · annotations   (static, no directive)
+    RecursionTree     a · b · d · levels? · label? · caption      (draws T(n) = a·T(n/b) + n^d; interactive)
+    PredictionPrompt  question · options (string[]) · correct (index) · explain · hint?
+  SeriesChart is static and carries no directive; the two interactive primitives carry client:visible.
+  Islands cannot nest, so each interactive primitive is its own island.
+  Every comparison count below is exact arithmetic from E[C] = 2(n+1)H_n − 4n, not a hardware measurement.
+*/}
+
+## The ghost tree inside the partition
+
+In 1959, while developing machine translation systems in Moscow, Tony Hoare needed to sort words in a Russian-English dictionary. He conceived an algorithm so deceptively simple that his colleagues warned him it was impossible to implement. Beneath its simple partitioning loop hides an exact mathematical object: a random binary search tree.
+
+Eight keys sit in a row: `8, 3, 11, 1, 9, 4, 14, 7`. Take the first, compare it with every other key, and sweep smaller keys left and larger keys right.
+
+```
+   pivot  8   ->   left  [ 3,  1,  4,  7 ]        right [ 11,  9, 14 ]
+   pivot  3   ->   left  [ 1 ]                    right [  4,  7 ]
+   pivot 11   ->   left  [ 9 ]                    right [ 14 ]
+   pivot  4   ->   left  [   ]                    right [  7 ]
+
+   7 + 3 + 2 + 1 = 13 comparisons
+   depths  0 + 1 + 1 + 2 + 2 + 2 + 2 + 3 = 13
+```
+
+The sum of partition comparisons equals 13. The sum of node depths in the resulting binary search tree also equals 13.
+
+These two counts are not a coincidence. Every comparison creates an edge in a binary search tree, and total execution time is the tree's internal path length.
+
+## The unpredictability of the pivot
+
+Quicksort's operational recipe is famous: choose a pivot, partition smaller items left and larger items right, then recurse on each side. Once partitioned, the pivot never moves again.
+
+A single call on a subarray of size $m$ compares the pivot against the other $m-1$ elements. If the pivot lands at rank $k$, the array splits into subproblems of size $k$ and $n-1-k$:
+
+$$
+T(n) \;=\; T(k) + T(n-1-k) + (n-1)
+$$
+
+This recurrence reveals the central challenge of the algorithm: $k$ is not chosen by you. It is dictated entirely by whichever element you chose as the pivot.
+
+The imperative view—"choose a pivot and swap"—describes only the physical mechanism. The true mathematical object is the geometric structure of the pivot sequence itself.
+
+## The tree revealed: internal path length as runtime
+
+Record every comparison as a directed edge. The initial pivot is compared against all $n-1$ other keys. Every subsequent pivot is compared solely against elements that survived inside its assigned partition.
+
+Place each key into a binary search tree in the exact order pivots were selected:
+
+$$
+a_1 = \text{root}, \qquad a_t \text{ becomes a child of the last earlier pivot enclosing it}
+$$
+
+Every key except the root is compared to its parent exactly once. Therefore, the total comparison count $C$ is the sum of node depths—the internal path length:
+
+$$
+C \;=\; \sum_{v} \operatorname{depth}(v)
+$$
+
+For inputs in random order, this process builds a **random binary search tree**. The algorithm's running time is literally the shape of this tree.
+
+## Linearity of expectation and the 2 ln 2 barrier
+
+Instead of solving complex recurrence convolutions, analyze pairwise comparisons directly.
+
+For $1 \le i < j \le n$, let indicator $X_{ij} = 1$ if the $i$-th smallest and $j$-th smallest keys are ever compared. Total comparisons equal the sum of these indicators:
+
+$$
+C \;=\; \sum_{1 \le i < j \le n} X_{ij}, \qquad E[C] \;=\; \sum_{1 \le i < j \le n} \Pr[X_{ij} = 1]
+$$
+
+Linearity of expectation does not require independence. Consider the subset of keys with ranks $\{i, i+1, \dots, j\}$.
+
+They remain in the same subarray until one of them is picked as a pivot. If that first pivot is either $i$ or $j$, they are directly compared; if it is any key strictly between them, $i$ and $j$ separate into different partitions and are never compared:
+
+$$
+\Pr[X_{ij} = 1] \;=\; \frac{2}{j-i+1}
+$$
+
+Summing over all pairs by distance $d = j-i+1$:
+
+$$
+E[C] \;=\; \sum_{d=2}^{n} (n-d+1)\cdot\frac{2}{d} \;=\; 2(n+1)H_n - 4n
+$$
+
+Because $H_n = \ln n + \gamma + O(1/n)$, expanding the harmonic number gives:
+
+$$
+E[C] \;=\; 2n\ln n + (2\gamma - 4)n + O(\log n) \;=\; 2\ln 2 \cdot n\log_2 n + O(n)
+$$
+
+The leading constant is $2\ln 2 \approx 1.3863$. The average depth of a random binary search tree is approximately $1.39 \log_2 n$.
+
+<PredictionPrompt
+  client:visible
+  question="Quicksort randomly picks pivots. Compared to an ideal, perfectly balanced binary search tree (n log₂ n), how much deeper is Quicksort's average comparison tree?"
+  options={[
+    "Infinitely deeper: random pivots frequently pick the worst-case extremes.",
+    "Exactly 38.6% deeper: the leading constant is 2 ln 2 ≈ 1.386, meaning randomness adds only a small fixed constant factor.",
+    "Twice as deep: random pivot choices are on average at the 25th or 75th percentiles."
+  ]}
+  correct={1}
+  explain="Even though random pivots rarely hit the exact median, linearity of expectation proves the average comparison count is E[C] = 2(n+1)H_n - 4n ≈ 2n ln n = 2 ln 2 · n log₂ n ≈ 1.3863 n log₂ n. Randomness costs only a 38.6% constant overhead compared to an omniscient median-finding algorithm!"
+/>
+
+What happens on already-sorted input when choosing the first element as pivot? Every pivot is the absolute minimum, yielding an empty left partition:
+
+$$
+T(n) \;=\; T(n-1) + (n-1), \qquad T(n) \;=\; \frac{n(n-1)}{2} \;\approx\; \frac{n^2}{2}
+$$
+
+The binary search tree collapses into a single linear chain of depth $n$, and runtime degrades to quadratic.
+
+<PredictionPrompt
+  client:visible
+  question="You run basic quicksort (pivoting on the first element) on an array of 100,000 numbers that is already sorted. What happens?"
+  options={[
+    "It runs in lightning-fast O(n) time because no elements ever need to be swapped.",
+    "It takes roughly 1.4 million comparisons, matching the standard average case.",
+    "It degrades to almost 5 billion comparisons (n(n-1)/2) and blows the call stack with recursion depth 100,000."
+  ]}
+  correct={2}
+  explain="When the array is already sorted, the first element is always the minimum. Every partition peels off a single element, leaving an empty left subarray and an (n-1)-element right subarray. The recursion tree degenerates into a single spindly linked list of depth n. For n = 100,000, this performs 100,000 × 99,999 / 2 ≈ 5 × 10^9 comparisons—over 2,000 times slower than the randomized average!"
+/>
+
+Yet splits do not need to be symmetric to achieve $O(n \log n)$. Even a consistent 1:9 split shrinks subproblems by $9/10$ each step, bounding path depth by:
+
+$$
+\log_{10/9} n \;=\; \frac{\log_2 n}{\log_2(10/9)} \;\approx\; 6.58\,\log_2 n
+$$
+
+The total work across all levels remains $\Theta(n \log n)$, merely scaled by a constant factor of $6.58$.
+
+<SeriesChart
+  title="Comparisons to sort n keys — two curves of one class, one of another"
+  xLabel="log₂ n"
+  yLabel="comparisons"
+  logY
+  annotations={[
+    { x: 13, y: 124344, text: "random average" },
+    { x: 13, y: 700617, text: "all splits 1:9" },
+    { x: 13, y: 33550336, text: "sorted input" },
+  ]}
+  series={[
+    {
+      name: "average: 2(n+1)Hₙ − 4n",
+      points: [[7, 890], [8, 2124], [9, 4946], [10, 11298], [11, 25420], [12, 56502], [13, 124344], [14, 271382], [15, 588171], [16, 1267172]],
+    },
+    {
+      name: "average asymptote: 1.386 n log₂ n",
+      points: [[7, 1242], [8, 2839], [9, 6388], [10, 14196], [11, 31230], [12, 68139], [13, 147635], [14, 317983], [15, 681391], [16, 1453635]],
+    },
+    {
+      name: "all splits 1:9, at most: 6.58 n log₂ n",
+      points: [[7, 5895], [8, 13473], [9, 30315], [10, 67367], [11, 148208], [12, 323362], [13, 700617], [14, 1509022], [15, 3233618], [16, 6898386]],
+    },
+    {
+      name: "sorted input: n(n−1)/2",
+      points: [[7, 8128], [8, 32640], [9, 130816], [10, 523776], [11, 2096128], [12, 8386560], [13, 33550336], [14, 134209536], [15, 536854528], [16, 2147450880]],
+    },
+  ]}
+/>
+
+<PredictionPrompt
+  client:visible
+  question="Suppose every pivot happens to split its block 1:9 — ten percent left, ninety right. Does that change the asymptotic running time?"
+  options={[
+    "Yes — a 9:1 split is unbalanced, so it degrades to Θ(n²).",
+    "No — the depth is at most log₁₀/₉ n ≈ 6.58 log₂ n, a constant factor, so it stays Θ(n log n).",
+    "Only if the input is also sorted."
+  ]}
+  correct={1}
+  explain="The larger part is at most nine-tenths of its parent, so every root-to-leaf path shrinks by 9/10 per step and its length is at most log₁₀/₉ n. Each level touches at most n keys, so total work is bounded by n log₁₀/₉ n ≈ 6.58 n log₂ n—about 4.7 times the random average, but strictly Θ(n log n)."
+/>
+
+## Visualizing the balanced illusion
+
+The recursion tree panel depicts the idealized recurrence $a = 2$, $b = 2$, $d = 1$, where every pivot magically hits the exact median.
+
+<RecursionTree
+  client:visible
+  a={2}
+  b={2}
+  d={1}
+  levels={4}
+  label="two halves and one linear partition — the balanced idealisation"
+  caption="The panel draws T(n) = a·T(n/b) + n^d, modeling the hypothetical median pivot. Real quicksort splits dynamically into k and n-1-k."
+/>
+
+Each internal level does $n$ comparisons, yielding the flat ribbon of the balanced $\Theta(n \log n)$ case.
+
+In practice, quicksort's splits fluctuate stochastically. The actual tree is roughly 39% deeper than this idealized ribbon, but retains the identical asymptotic shape.
+
+Setting $d=2$ forces the root partition to dominate at $\Theta(n^2)$, mirroring the degenerate sorted case.
+
+## Why raw cache locality crowns Quicksort
+
+Merge sort executes fewer comparisons ($n \log_2 n - n + 1$) than Quicksort ($1.39 n \log_2 n$). Yet Quicksort regularly outperforms Merge Sort in production benchmarks.
+
+The reason lies in cache architecture. Hoare's partition scans inward from both ends of a contiguous array using sequential memory strides, triggering hardware cache prefetchers. It operates strictly in place, requiring only $O(\log n)$ auxiliary stack space.
+
+Merge Sort requires a separate auxiliary array of size $n$, causing cache evictions and memory allocation traffic. Standard C libraries choose Quicksort (or Introsort) for primitive arrays where raw throughput dominates.
+
+## McIlroy's anti-quicksort adversary and introsort
+
+Any deterministic pivot selection rule has an Achilles' heel.
+
+In 1999, Doug McIlroy constructed an adversary that constructs worst-case inputs on the fly. The adversary answers comparison queries dynamically, forcing any deterministic pivot strategy into $\Theta(n^2)$ behavior.
+
+Modern runtimes defeat this using Introsort (Musser 1997). Introsort begins with standard Quicksort, monitors recursion depth, and switches to Heapsort if the depth exceeds $2 \lfloor \log_2 n \rfloor$.
+
+## Historical provenance and attributions
+
+- **Hoare 1961** — *Algorithm 64: Quicksort*, Communications of the ACM: invented the partitioning algorithm and quickselect.
+- **Knuth 1973** — *The Art of Computer Programming*, Vol. 3, §5.2.2: formulated the exact average-case comparison analysis $2(n+1)H_n - 4n$.
+- **McIlroy 1999** — *A Killer Adversary for Quicksort*: proved all deterministic pivot strategies can be forced into quadratic degradation.
+- **Sedgewick and Flajolet 1996** — *An Introduction to the Analysis of Algorithms*: definitive treatment of random binary search trees.
+- **Musser 1997** — *Introspective Sorting and Selection Algorithms*: introduced Introsort, guaranteeing $O(n \log n)$ worst-case runtime.

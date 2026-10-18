@@ -7,6 +7,7 @@ import DrishtiTeaser from "../components/home/DrishtiTeaser.astro";
 import LearningPathProgress from "../components/LearningPathProgress.tsx";
 import topics from "../data/topics.json";
 import drishti from "../data/drishti.json";
+import algorithms from "../data/algorithms.json";
 import "../styles/home.css";
 import "../styles/drishti.css";
 
@@ -14,13 +15,14 @@ const topicCount = topics.length;
 const liveLabCount = topics.filter((t) => t.hasLab && (t.status === "live" || t.status === "golden")).length;
 const lensCount = drishti.lenses.length;
 const studyCount = drishti.studies.length;
+const algorithmCount = algorithms.algorithms.length;
 ---
 
 <BaseLayout title="Chaitra — Mechanisms + perception">
   <div class="home">
     <HomeHero topicCount={topicCount} liveLabCount={liveLabCount} lensCount={lensCount} studyCount={studyCount} />
 
-    <section class="home-pillars" aria-label="Two learning tracks">
+    <section class="home-pillars" aria-label="Three learning tracks">
       <div class="home-pillar home-pillar--curriculum">
         <p class="home-pillar__eyebrow">Curriculum</p>
         <h2>Learn the mechanisms</h2>
@@ -33,6 +35,19 @@ const studyCount = drishti.studies.length;
         <a class="home-pillar__cta" href="/catalog">Browse catalog →</a>
       </div>
       <DrishtiTeaser />
+      <section class="home-pillar home-pillar--algorithms" aria-labelledby="algorithms-teaser-title">
+        <p class="home-pillar__eyebrow">Algorithms</p>
+        <h2 id="algorithms-teaser-title">See the mathematics inside the algorithm</h2>
+        <p>
+          Not code traces — recurrences, semirings, lattices, and duality gaps you drive with your own hands.
+          Experience the eureka of algorithms as pure, tactile mathematics.
+        </p>
+        <p class="home-pillar__meta">
+          {algorithmCount} algorithm{algorithmCount === 1 ? "" : "s"} · {algorithms.mathBranches.length}
+          {" "}mathematical branch{algorithms.mathBranches.length === 1 ? "" : "es"}
+        </p>
+        <a class="home-pillar__cta" href="/algorithms">Explore algorithms →</a>
+      </section>
     </section>
 
     <section class="home-section home-explore" aria-labelledby="explore-title">
@@ -54,12 +69,39 @@ const studyCount = drishti.studies.length;
           <strong>{studyCount}</strong>
           <span>case studies</span>
         </li>
+        <li>
+          <strong>{algorithmCount}</strong>
+          <span>algorithms</span>
+        </li>
       </ul>
       <p>
         <a class="home-explore__link" href="/catalog">Curriculum catalog →</a>
         {" · "}
         <a class="home-explore__link" href="/drishti">Drishti hub →</a>
+        {" · "}
+        <a class="home-explore__link" href="/algorithms">Algorithms →</a>
       </p>
     </section>
   </div>
 </BaseLayout>
+
+<style>
+  .home-pillar--algorithms {
+    border-color: color-mix(in srgb, var(--color-algorithms) 35%, transparent);
+  }
+
+  .home-pillar--algorithms .home-pillar__eyebrow {
+    color: var(--color-algorithms);
+  }
+
+  .home-pillar--algorithms .home-pillar__cta {
+    background: var(--color-algorithms);
+    color: var(--color-bg);
+  }
+
+  @media (min-width: 56rem) {
+    .home-pillars {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

@@ -1,0 +1,15 @@
+title: "Longest Common Subsequence"
+slug: longest-common-subsequence
+field: programming
+fieldLabel: "Programming"
+reframe: "Lay two strings along the axes of a plane and watch their shared letters ignite into a constellation of points. The longest common subsequence is the maximal chain climbing through this poset—the highest monotone ridge connecting two divergent texts."
+oneLine: "The longest word that appears, in order, inside both strings."
+tldr:
+  - "A common subsequence is a chain in the product order on the matching cells (i, j) with a[i] = b[j]; the DP table writes the height of each rectangle into its corner."
+  - "With insert and delete only, the distance between the strings is exactly m + n − 2·LCS — the cost of the cheapest monotone staircase through the grid."
+  - "Computing the length is O(mn), but the number of distinct longest common subsequences can be 2^(n/2): polynomial to measure, exponential to list."
+  - "When one string is a rearrangement of the other, LCS is exactly the longest increasing subsequence of the position permutation."
+mathBranches: [order-theory, combinatorics, algorithms]
+primitives: [DPHeatmap, PredictionPrompt, SeriesChart]
+attributions: ["Wagner–Fischer 1974", "Hirschberg 1975", "Myers 1986"]
+featured: false

@@ -1,0 +1,15 @@
+title: "Newton's Method"
+slug: newton-method
+field: programming
+fieldLabel: "Programming"
+reframe: "Standard algorithms crawl toward truth one digit at a time. Newton's method rides a tangent line straight down to the coordinate axis: once inside the basin of attraction, every single step squares the error, doubling the count of correct decimal digits in a blinding geometric flash."
+oneLine: "Take the tangent at the current guess, read where it crosses the axis, and watch the correct digits double."
+tldr:
+  - "The step is one tangent line. Replace f by its tangent at (xₙ, f(xₙ)) and set the next guess where that line hits the axis; the panel draws exactly that segment from guess to axis."
+  - "A Taylor expansion at a simple root gives eₙ₊₁ = |f″(x*)/2f′(x*)|·eₙ², so the order is 2. At √2 with f(x) = x² − 2 the constant is 1/(2√2) = 0.3536, the number the panel's ratio column settles on."
+  - "Newton's map N(x) = x − f(x)/f′(x) is a fixed-point iteration, and N′(x*) = f(x*)f″(x*)/f′(x*)² vanishes at a simple root; the fixed point is superattracting (Fatou 1918, Julia 1918)."
+  - "Where the tangent is nearly flat the step is enormous: from x₀ = 0.82 on Wallis's cubic x³ − 2x − 5 the first iterate lands near 355, not near the root."
+  - "Bisection trades speed for a guarantee. A sign change is enough for a continuous f, and each step at least halves the error, order 1 against Newton's order 2."
+mathBranches: [analysis, numerical-analysis, geometry]
+primitives: [IterationLab, GrowthTable, PredictionPrompt]
+attributions: ["Newton 1669", "Raphson 1690", "Simpson 1740", "Cayley 1879", "Fatou 1918", "Julia 1918", "Kantorovich 1948", "Brent 1973", "Dennis–Schnabel 1983", "Smale 1986"]

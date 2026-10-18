@@ -1,0 +1,216 @@
+---
+title: "Karatsuba Multiplication"
+slug: karatsuba-multiplication
+field: programming
+fieldLabel: "Programming"
+reframe: "In 1960, Kolmogorov conjectured that multiplying two n-digit numbers fundamentally requires n² operations. Within a week, a 23-year-old student proved him wrong with three products instead of four: a single algebraic subtraction that cracked open the sub-quadratic universe."
+oneLine: "One product saved at each split, recursed into the exponent n^log₂3."
+tldr: ["Splitting an n-digit number in half turns four products into three: T(n) = 3T(n/2) + Θ(n), which solves to Θ(n^log₂3) ≈ Θ(n^1.585) against schoolbook's Θ(n²).", "The saving is one rank: the two-block product is a rank-4 bilinear map, and Karatsuba is a rank-3 decomposition — the move Strassen makes with two indices instead of one.", "The additions cost Θ(n), a lower polynomial degree than the rank's exponent, so they ride along as a constant factor and the rank shows through.", "Toom–Cook splits into r parts for 2r − 1 products per node and drops the exponent toward 1; Schönhage–Strassen's FFT reaches O(n log n log log n).", "The true complexity of integer multiplication is unknown: the only general lower bound is Ω(n), and the best known upper bound is O(n log n)."]
+mathBranches: ["algebra", "analysis", "information-theory"]
+primitives: ["RecursionTree", "GrowthTable", "PredictionPrompt"]
+attributions: ["Karatsuba–Ofman 1960/1962", "Toom 1963", "Cook 1966", "Schönhage–Strassen 1971", "Knuth 1981"]
+---
+
+import RecursionTree from "@alg/RecursionTree.tsx";
+import GrowthTable from "@alg/GrowthTable.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Karatsuba Multiplication — primitive contract matched to website/src/components/algorithms/.
+    RecursionTree     a · b · d · levels? · label? · caption        (draws T(n) = a·T(n/b) + n^d; interactive)
+    GrowthTable       highlight · rows? · accentColumn? · caption    (static, no directive)
+    PredictionPrompt  question · options (string[]) · correct (index) · explain · hint?
+  GrowthTable is static and carries no directive; RecursionTree and PredictionPrompt carry client:visible.
+  Islands cannot nest, so each interactive primitive is its own island.
+  Every multiplication count below is exact arithmetic from M(2^k) = 3^k, not a hardware measurement.
+*/}
+
+## The student who disproved Kolmogorov
+
+In the autumn of 1960, Andrey Kolmogorov—the titan of Soviet mathematics—convened a seminar at Moscow State University. He conjectured that multiplying two $n$-digit numbers fundamentally required $\Omega(n^2)$ elementary operations. Within one week, a 23-year-old student named Anatoly Karatsuba found an algebraic identity that demolished the conjecture on the spot.
+
+Multiply `1234` by `5678`. Cut each number in half at base $B = 100$, so $a_1 = 12$, $a_0 = 34$, $b_1 = 56$, $b_0 = 78$.
+
+```
+   schoolbook — four products              karatsuba — three products
+     12 × 56 =   672  ->  B²                z₂ = 12 × 56            =  672
+     12 × 78 =   936  ->  B                 z₀ = 34 × 78            = 2652
+     34 × 56 =  1904  ->  B                 46 × 134               = 6164
+     34 × 78 =  2652  ->  1                 z₁ = 6164 − 672 − 2652 = 2840
+
+   672·B² + (936 + 1904)·B + 2652        672·B² + 2840·B + 2652
+   = 7,006,652                           = 7,006,652
+```
+
+Both columns produce `7,006,652`. The right column arrives with three small multiplications instead of four, paying for the saving with simple additions and subtractions.
+
+At four digits, that saving looks modest. Applied recursively to million-digit numbers, it transforms the computational universe.
+
+## The quadratic illusion of grade school
+
+Grade school teaches us to multiply digit by digit: line up the rows, compute $n^2$ single-digit products, and sum the shifted rows.
+
+If you split each $n$-digit number into two halves and compute the four products $a_1 b_1$, $a_1 b_0$, $a_0 b_1$, $a_0 b_0$, nothing improves. Four subproblems of half the size yield $T(n) = 4T(n/2) + \Theta(n)$, which the master theorem reads right back as $\Theta(n^2)$.
+
+Loop unrolling, SIMD registers, and cache blocking change the constant factor, but cannot break the quadratic wall. The true bottleneck is not the schedule of additions, but the number of essential scalar multiplications.
+
+## The algebraic engine: dropping tensor rank from 4 to 3
+
+Write the two numbers as polynomials in the radix base: $x = \sum_i a_i B^i$ and $y = \sum_j b_j B^j$. Before carry propagation, the digits of the product form a discrete convolution:
+
+$$
+c_k = \sum_{i+j=k} a_i b_j
+$$
+
+Carries are resolved in a single linear pass afterwards. The only nonlinear operation in multiplication is this bilinear map of coefficient vectors.
+
+A bilinear algorithm using $r$ multiplications decomposes that map into $r$ rank-1 terms. Schoolbook multiplication evaluates four terms, establishing a rank of 4. Karatsuba rewrites the exact same polynomial product using only three rank-1 terms:
+
+$$
+a_1 b_1\,(B^2 - B) \;+\; a_0 b_0\,(1 - B) \;+\; (a_1 + a_0)(b_1 + b_0)\,B
+$$
+
+Multiply it out: the weights $B^2 - B$ and $1 - B$ cancel the unwanted cross terms gathered by the middle product. The algebraic rank of two-block polynomial multiplication is 3, not 4.
+
+## Deriving the identity and riding the recurrence
+
+Take the split $x = a_1 B^m + a_0$ and $y = b_1 B^m + b_0$, and expand their product:
+
+$$
+(a_1 B^m + a_0)(b_1 B^m + b_0) \;=\; a_1 b_1 B^{2m} + (a_1 b_0 + a_0 b_1)B^m + a_0 b_0
+$$
+
+The sum of cross terms $a_1 b_0 + a_0 b_1$ appears to require two multiplications. Karatsuba evaluates the product of the sums instead:
+
+$$
+(a_1 + a_0)(b_1 + b_0) \;=\; a_1 b_1 + a_1 b_0 + a_0 b_1 + a_0 b_0
+$$
+
+Solve directly for the cross pair by subtracting the outer products:
+
+$$
+a_1 b_0 + a_0 b_1 \;=\; (a_1 + a_0)(b_1 + b_0) - a_1 b_1 - a_0 b_0
+$$
+
+Substitute this back to evaluate the full product with three multiplications:
+
+$$
+x\,y \;=\; z_2 B^{2m} + z_1 B^m + z_0, \qquad z_2 = a_1 b_1,\quad z_0 = a_0 b_0,\quad z_1 = (a_1 + a_0)(b_1 + b_0) - z_2 - z_0
+$$
+
+Because $z_2$, $z_1$, and $z_0$ are each products of half-size integers, we recurse on all three:
+
+$$
+T(n) \;=\; 3\,T(n/2) + \Theta(n)
+$$
+
+The master theorem compares $\log_2 3 \approx 1.585$ against the linear overhead degree $d = 1$. Because $\log_2 3 > 1$, the recursion tree is leaf-dominated:
+
+$$
+T(n) \;=\; \Theta\!\left(n^{\log_2 3}\right) \;\approx\; \Theta\!\left(n^{1.585}\right)
+$$
+
+<PredictionPrompt
+  client:visible
+  question="You cut two 1,024-digit numbers in half. Instead of 4 half-size multiplications, you do 3. How much multiplication work is actually saved after full recursion?"
+  options={[
+    "About 25%, because saving 1 out of 4 multiplications per level leaves 75% of the work.",
+    "Over 94%, performing only 59,049 multiplications instead of the grade-school 1,048,576.",
+    "Nothing, because the extra additions at each level cancel out the multiplicative gain."
+  ]}
+  correct={1}
+  hint="1,024 = 2¹⁰, so there are ten levels of recursion and each level triples the count."
+  explain="Saving 1 in 4 feels like a modest 25% discount. But in recursion, savings compound exponentially! At n = 2¹⁰ = 1,024, the recursion runs 10 levels deep. Schoolbook executes 4¹⁰ = 1,048,576 base products, whereas Karatsuba executes 3¹⁰ = 59,049 products. That eliminates over 94% of all multiplications!"
+/>
+
+<GrowthTable
+  highlight="1,048,576"
+  accentColumn="logn"
+  caption="Exact counts at powers of two; log n is log₂ n. The note column carries the two multiplication counts and their ratio."
+  rows={[
+    { n: "256", logn: "8", note: "Karatsuba 3⁸ = 6,561 · schoolbook 256² = 65,536 · 10×" },
+    { n: "1,024", logn: "10", note: "Karatsuba 3¹⁰ = 59,049 · schoolbook 1,024² = 1,048,576 · 17.8×" },
+    { n: "8,192", logn: "13", note: "Karatsuba 3¹³ = 1,594,323 · schoolbook 8,192² = 67,108,864 · 42×" },
+    { n: "65,536", logn: "16", note: "Karatsuba 3¹⁶ = 43,046,721 · schoolbook 65,536² = 4,294,967,296 · 99.8×" },
+    { n: "1,048,576", logn: "20", note: "Karatsuba 3²⁰ = 3,486,784,401 · schoolbook 1,048,576² ≈ 1.1×10¹² · 315×" }
+  ]}
+/>
+
+At one million digits, the gap is greater than 300-fold. What looked like minor bookkeeping at 4 digits has broken the sound barrier.
+
+## The visual cascade: from quadratic wall to sub-quadratic tree
+
+The panel visualizes the recurrence seeded at $a = 3$, $b = 2$, $d = 1$: three half-size products and linear overhead per call.
+
+<RecursionTree
+  client:visible
+  a={3}
+  b={2}
+  d={1}
+  levels={4}
+  label="three half-size products and one linear recombination"
+  caption="The panel draws T(n) = a·T(n/b) + n^d. Seeded at (3, 2, 1) it is Karatsuba; move a to 4 and the same panel is schoolbook. Each dot is a recursive call and each ribbon bar is a level's total work."
+/>
+
+Level $k$ holds $3^k$ subproblems of size $n/2^k$. Total work per level grows by $3/2$ each step down, meaning the leaf level dominates the runtime.
+
+Drag $a$ from 3 to 4. The ribbon expansion quickens from $1.5\times$ to $2.0\times$ per level, and the asymptotic readout snaps from $\Theta(n^{1.585})$ to $\Theta(n^2)$. That single step on the slider is the barrier Kolmogorov thought impenetrable.
+
+<PredictionPrompt
+  client:visible
+  question="Karatsuba requires extra additions and subtractions (overhead d=1). What would happen to the asymptotic complexity if additions were quadratic (d=2)?"
+  options={[
+    "The complexity would remain Θ(n^1.585) because multiplications always outweigh additions.",
+    "The complexity would collapse back to Θ(n²) because root addition overhead would dominate the entire tree.",
+    "The complexity would become Θ(n^3.585) by multiplying the degrees."
+  ]}
+  correct={1}
+  explain="In the master theorem, runtime depends on max(log_b a, d). Karatsuba wins because linear addition (d=1) sits below log₂ 3 ≈ 1.585, keeping the tree leaf-dominated. If addition took quadratic time (d=2), then d > log₂ 3, the root would dominate, and the total cost would fall back to Θ(n²)—erasing the entire algebraic advantage of the 3-product trick!"
+/>
+
+## From CPython to RSA: where the trick lives
+
+Karatsuba is active code running on billions of machines daily.
+
+In CPython, Python's arbitrary-precision `int` type switches from schoolbook multiplication to Karatsuba as soon as integers exceed 70 digits. The GNU Multiple Precision Arithmetic Library (GMP) and Java's `BigInteger` rely on it across similar ranges. Every RSA key generation and Diffie-Hellman modular exponentiation executes chains of Karatsuba multiplications.
+
+The same algebraic principle applies identically to polynomial multiplication. Polynomial convolution in computer algebra systems evaluates using Karatsuba before switching to fast Fourier transforms.
+
+## Beyond Karatsuba: Toom-Cook, FFTs, and the open frontier
+
+Two-block splitting is only the first step. Splitting each operand into $r$ parts yields the Toom-Cook family of algorithms (Toom 1963, Cook 1966).
+
+$$
+T(n) \;=\; (2r - 1)\,T(n/r) + \Theta(n), \qquad T(n) \;=\; \Theta\!\left(n^{\log_r (2r - 1)}\right)
+$$
+
+<PredictionPrompt
+  client:visible
+  question="If splitting numbers into 2 parts reduces products from 4 to 3 (exponent log₂3 ≈ 1.585), what happens when splitting into 3 parts (Toom-3)?"
+  options={[
+    "You get 6 products instead of 9, giving exponent log₃6 ≈ 1.63 (slower than Karatsuba).",
+    "You get 5 products instead of 9, giving exponent log₃5 ≈ 1.465, beating Karatsuba asymptotically but requiring more complex interpolation.",
+    "You cannot evaluate degree-2 polynomials in fewer than 9 multiplications without imaginary numbers."
+  ]}
+  correct={1}
+  explain="Multiplying two degree-2 polynomials yields a degree-4 polynomial with 5 coefficients. By evaluating at 5 distinct points (e.g. 0, 1, -1, 2, ∞), computing 5 pointwise multiplications, and interpolating via matrix inversion, Toom-3 achieves T(n) = 5T(n/3) + Θ(n). Its exponent is log₃5 ≈ 1.465, beating Karatsuba, though its higher constant factor makes it profitable only above several hundred digits."
+/>
+
+Taking polynomial evaluation to the limit gives the Fast Fourier Transform (FFT). Evaluating polynomials at roots of unity drops multiplication to near-linear time:
+
+$$
+M(n) \;=\; O(n \log n \log \log n)
+$$
+
+Schönhage and Strassen (1971) established this bound over Fermat rings. In 2019, David Harvey and Joris van der Hoeven proved that $n$-digit integers can be multiplied in $O(n \log n)$ time.
+
+Whether $O(n \log n)$ is the ultimate lower bound remains one of the great open questions in theoretical computer science. The only universal lower bound known is $\Omega(n)$—the time required simply to read the digits.
+
+## Historical provenance and attributions
+
+- **Karatsuba and Ofman 1960/1962** — *Multiplication of Many-Digital Numbers by Automata*: discovered the 3-product identity in 1960, refuting Kolmogorov's conjecture; published in 1962.
+- **Toom 1963** — *The Complexity of a Scheme of Functional Elements Realizing the Multiplication of Integers*: generalized the evaluation-interpolation technique to $r$ blocks.
+- **Cook 1966** — *On the Minimum Computation Time of Functions*: formalized Toom's technique for random-access machines.
+- **Schönhage and Strassen 1971** — *Fast Multiplication of Large Numbers*: introduced the FFT multiplication algorithm over modular rings, achieving $O(n \log n \log \log n)$.
+- **Knuth 1981** — *The Art of Computer Programming*, Vol. 2, §4.3.3: classic exposition framing integer multiplication through multilinear rank.
+- **Harvey and van der Hoeven 2019/2021** — *Integer multiplication in time O(n log n)*: achieved the celebrated $O(n \log n)$ bound.

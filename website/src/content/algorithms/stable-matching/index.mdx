@@ -1,0 +1,141 @@
+---
+title: "Stable Matching"
+slug: stable-matching
+field: programming
+fieldLabel: "Programming"
+reframe: "Pair two warring camps where every individual harbours private desires and fierce rankings. What prevents revolt is not goodwill, but the cold geometry of deferred acceptance: an unshakeable equilibrium where no clandestine pair in the room would rather elope together than stay with their assigned partners."
+oneLine: "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes."
+tldr: ["Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted.", "It stops with no blocking pair: a left–right pair who both rank the other above the partner they were assigned. The board checks every pair and prints that count as zero (Gale–Shapley 1962).", "The result is proposer-optimal. Among all stable matchings it is best for every proposer at once and worst for every receiver; swap who proposes and the board recomputes the other extreme (Gale–Shapley 1962, Dubins–Freedman 1981).", "The stable matchings of one instance form a lattice (Knuth 1976). The board's four-by-four has exactly two, and the two extremes differ in two of the four assignments.", "Termination is counting: each proposer walks down its own list and never repeats a proposal, so the process stops after at most |L|·|R| proposals (McVitie–Wilson 1971)."]
+mathBranches: ["combinatorics", "game-theory", "order-theory"]
+primitives: ["MatchingBoard", "PredictionPrompt"]
+attributions: ["Gale–Shapley 1962", "Kuhn 1955", "Berge 1957", "McVitie–Wilson 1971", "Knuth 1976", "Dubins–Freedman 1981", "Roth 1984", "Roth 1986"]
+---
+
+import MatchingBoard from "@alg/MatchingBoard.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Primitive contracts this page relies on, matched to website/src/components/algorithms/:
+    MatchingBoard     left (string[]) · right (string[]) · leftPrefs (number[][]) · rightPrefs (number[][]) · problem ("stable-matching" | "bipartite-matching") · caption · height
+    PredictionPrompt  question · options (string[]) · correct (index) · explain
+  Interactive primitives need an explicit Astro client directive (`client:visible`).
+  Every number quoted below comes from the same board the panel runs:
+  deferred acceptance on the stated preference lists, whose two stable matchings are
+  the left-optimal and right-optimal extremes, and Kuhn's augmenting-path search in the other mode.
+*/}
+
+## The Courtship Standoff
+
+Four suitors and four hosts confront each other across an ideological divide, each armed with a strictly ordered list of private preferences. Pair them at random and chaos erupts: disaffected agents will swiftly conspire behind closed doors to abandon their assignments and defect together.
+
+A pairing is only viable if it resists rebellion. Can decentralized proposals and tentative holds guarantee an outcome where no clandestine alliance threatens the peace?
+
+<MatchingBoard
+  client:visible
+  left={["A", "B", "C", "D"]}
+  right={["w", "x", "y", "z"]}
+  leftPrefs={[[0, 1, 2, 3], [1, 0, 2, 3], [1, 2, 0, 3], [2, 1, 3, 0]]}
+  rightPrefs={[[1, 0, 2, 3], [0, 1, 2, 3], [3, 2, 1, 0], [2, 3, 0, 1]]}
+  problem="stable-matching"
+  height={380}
+  caption="The left side proposes: four rounds and three rejections end at A–w, B–x, C–z, D–y. Switch the proposing side and the panel recomputes from scratch to land on the other extreme. The board also opens on Kuhn's augmenting-path search."
+/>
+
+Step through the rounds to watch offers ripple down preference lists. Whenever a receiver receives a proposal, it tentatively holds its favourite suitor so far and coldly rejects the rest; discarded suitors immediately proceed to their next choice.
+
+<PredictionPrompt
+  client:visible
+  question="When the left side proposes and the dust settles, which variety of stable matching emerges?"
+  options={[
+    "A harmonious compromise splitting satisfaction evenly between both sides.",
+    "A ruthless proposer-optimal matching, best for every left agent simultaneously and worst for every receiver.",
+    "Whichever matching the arbitrary order of proposals happened to trigger first."
+  ]}
+  correct={1}
+  explain="Deferred acceptance is profoundly asymmetric: it returns the proposer-optimal matching! It gives every single proposer their best achievable partner in any stable matching, while condemning every receiver to their worst valid match. On this board, left proposers secure [A–w, B–x, C–z, D–y], ranking their partners strictly higher than or equal to what they would receive under receiver proposals."
+/>
+
+## The Anatomy of an Elopement
+
+Consider any proposed matching between two camps. What condition makes it unstable?
+
+A pair $(L, R)$ is a **blocking pair** if $L$ prefers $R$ over their assigned partner *and* $R$ prefers $L$ over their assigned partner. If even one such rogue pair exists, both individuals have active incentive to defect, shatter the social contract, and elope.
+
+A matching is **stable** if and only if it contains zero blocking pairs. Exhaustively auditing an existing matching is simple ($O(n^2)$ checks), but constructing an assignment guaranteed to possess no rogue pairs is a non-trivial feat of game theory.
+
+## The Conway–Knuth Lattice
+
+The mathematical input is not a standard graph, but two families of strict linear orders. The set of all valid stable matchings for a given market forms a geometric structure: a distributive **lattice** (Conway; Knuth 1976).
+
+Define a partial order on stable matchings by proposer welfare: matching $M_1 \succeq M_2$ if every proposer ranks their partner in $M_1$ at least as high as in $M_2$. Under this order, any two stable matchings possess a stable meet (the point-wise receiver compromise) and a stable join (the point-wise proposer compromise).
+
+The two extreme poles of this lattice are generated by swapping who proposes. When left proposes, you land on the lattice summit; when right proposes, you land on the lattice floor.
+
+## The Proposer Advantage and Asymmetric Equilibrium
+
+**Theorem (Gale & Shapley 1962).** The deferred acceptance algorithm always terminates, and the terminal assignment contains zero blocking pairs.
+
+Termination is guaranteed by simple monotonic counting. Proposers never propose to the same receiver twice, descending strictly down their preference lists. The process must halt in at most $|L| \times |R|$ total proposals (McVitie & Wilson 1971).
+
+Why is the terminal state immune to mutiny? Suppose a proposer $a$ and receiver $w$ secretly prefer each other over their assigned matches. Because $a$ ranks $w$ above their final match, $a$ must have already proposed to $w$ earlier in the run, only to be rejected in favour of someone $w$ desired even more.
+
+<PredictionPrompt
+  client:visible
+  question="Once the algorithm terminates, could a proposer 'a' and receiver 'w' still secretly prefer each other to their allocated partners?"
+  options={[
+    "Yes: stopping only ensures no proposers remain unassigned, not that all disputes are settled.",
+    "No: the exchange invariant guarantees every such pair was already tested and rejected by the receiver.",
+    "Only if the preference rankings contain cyclical ties."
+  ]}
+  correct={1}
+  explain="This is the central beauty of Gale–Shapley. If proposer 'a' preferred 'w' to their terminal match, 'a' must have proposed to 'w' prior to settling. Because 'w' rejected 'a', receiver 'w' was already holding an offer they valued strictly more than 'a'. Thus 'w' will never agree to defect with 'a'."
+/>
+
+**Proposer Optimality (Gale & Shapley 1962; Dubins & Freedman 1981).** Every proposer receives the best partner they could possibly secure in *any* stable matching, while every receiver receives their worst possible partner among all stable matchings.
+
+## Stepping the Deferred Proposal Wave
+
+Return to the interactive board and toggle the proposing side. Observe how the two runs map the extreme boundaries of the lattice: left-optimal produces `A–w, B–x, C–z, D–y`, while right-optimal yields `A–x, B–w, C–z, D–y`.
+
+Examine the blocking pair matrix beneath the completed run. Every cell audits a possible partnership; during intermediate rounds, blocking pairs proliferate in red. Only on the final round does the blocking tally drop to zero.
+
+Toggle the board to **augmenting paths** to see how the mathematical question transforms. Kuhn (1955) and Berge (1957) locate maximum cardinality matchings without regard to human preferences.
+
+<PredictionPrompt
+  client:visible
+  question="On the augmenting-path board, every left agent accepts every right agent. How does a maximum bipartite matching differ from a stable matching?"
+  options={[
+    "A maximum matching is always stable because it leaves zero agents unmatched.",
+    "A maximum matching maximizes pair count but can be riddled with blocking pairs.",
+    "They are mathematically identical problems under different terminologies."
+  ]}
+  correct={1}
+  explain="Cardinality maximization completely ignores preference rankings. Kuhn's search produces a 4-pair perfect matching, but pairs may intensely dislike each other and hold massive incentive to defect. Stable matching seeks game-theoretic equilibrium, not raw volumetric size."
+/>
+
+## Medical Residencies, Kidney Exchanges, and Market Design
+
+In 1952, American medical schools and residency hospitals faced rampant unraveling: hospitals made binding offers to medical students years in advance to preempt competitors. The National Resident Matching Program (NRMP) adopted deferred acceptance, revolutionising clinical assignments nationwide (Roth 1984).
+
+The same mechanism powers urban public school assignment systems in Boston and New York, matching hundreds of thousands of students to schools without black-market swaps.
+
+Paired kidney exchange registries adapt these equilibrium mechanics to save lives, clearing cyclical barter chains across incompatible donor-patient pairs.
+
+## Strategic Manipulation and the Rural Hospitals Invariant
+
+Deferred acceptance is **strategy-proof** for the proposing side: no proposer can improve their partner by misrepresenting their true preference rankings (Dubins & Freedman 1981; Roth 1982). Proposers have zero incentive to lie.
+
+Receivers, however, can game the system: a receiver can strategically truncate or permute their rankings to force proposers further down their lists, climbing higher up the lattice.
+
+**The Rural Hospitals Theorem (Roth 1986).** The exact set of agents matched is invariant across all stable matchings in the lattice! Rural hospitals that go unfilled in the doctor-optimal matching will also go unfilled in the hospital-optimal matching; changing who proposes never creates new matches for underserved institutions.
+
+## Attributions
+
+- **Gale & Shapley 1962** — *College Admissions and the Stability of Marriage*: formulated the deferred-acceptance algorithm, proving existence, stability, and proposer-optimality.
+- **Kuhn 1955** — The Hungarian method and augmenting-path search for maximum bipartite matching.
+- **Berge 1957** — The augmenting path theorem characterizing maximum matchings.
+- **McVitie & Wilson 1971** — Sequential proposer-driven implementation bounding execution at $|L| \times |R|$ steps.
+- **Knuth 1976** — *Marriages Stables*: structural discovery of the distributive lattice of stable matchings.
+- **Dubins & Freedman 1981** — Proof of strategy-proofness for proposing agents.
+- **Roth 1984** — Analysis of the National Resident Matching Program, establishing market design as an empirical discipline.
+- **Roth 1986** — The rural hospitals theorem, establishing match-invariance across the stable lattice.

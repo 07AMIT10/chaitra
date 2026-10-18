@@ -1,0 +1,202 @@
+---
+title: "Coin Change"
+slug: coin-change
+field: programming
+fieldLabel: "Programming"
+reframe: "The cashier's reflex to grab the largest coin is an arithmetic trap. Minimum coin change is a shortest path through a discrete lattice of debt, and greedy choices tumble into disaster the instant a currency ceases to be canonical."
+oneLine: "The fewest coins that sum to an amount, and the exact condition under which the largest-first rule finds them."
+tldr: ["Every cell of the table is a shortest-path distance on the amounts 0 to the amount, where each coin is an edge of weight one.", "Greedy spends 4 + 1 + 1 on 6 with coins 1, 3 and 4; the true minimum is 3 + 3, and the table's corner reads 2.", "Greedy is optimal for every amount exactly when the coin system is canonical, a property Pearson 2005 decides in O(n³) even though the largest coin may be huge.", "The general minimum-coin problem is only weakly NP-hard: the standard O(n·amount) table is polynomial once the amount is written in unary."]
+mathBranches: ["graph-theory", "number-theory", "complexity-theory"]
+primitives: ["DPHeatmap", "PredictionPrompt", "SeriesChart"]
+attributions: ["Sylvester 1882", "Lueker 1975", "Kannan 1992", "Kozen–Zaks 1994", "Pearson 2005", "Ramírez-Alfonsín 1996"]
+---
+
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import DPHeatmap from "@alg/DPHeatmap.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+
+{/*
+  Primitive contract, matched to website/src/components/algorithms/:
+    PredictionPrompt  question · options (string[]) · correct (index) · explain · hint
+    DPHeatmap         problem="coin-change" · coins (number[]) · amount · caption · height
+    SeriesChart       series: { name, points: [x, y][] }[] · title · xLabel · yLabel   (static)
+  Interaction belongs to the primitives: every interactive one carries client:visible, and
+  Astro islands never nest, so each primitive below is its own island.
+  The chart values are exact evaluations of a·b − a − b (Sylvester 1882), not measurements.
+*/}
+
+## Six Cents on the Counter
+
+Six cents to make, with coins of 1, 3 and 4, and as many of each as you like. Run the rule a cashier runs — take the largest coin that still fits.
+
+A 4 fits, so 2 cents remain. A 1 fits, then another 1. Three coins: `4 + 1 + 1`.
+
+Now set the rule aside and look at the tray. `3 + 3` is also six cents, in two coins. The largest-coin-first answer is a coin worse than the best answer, and nothing on the coins said so.
+
+<PredictionPrompt
+  client:visible
+  question="Take the largest coin that fits at each step and you spend 4, then 1, then 1 — three coins for six cents. What is the fewest coins of value 1, 3 and 4 that make six?"
+  options={["2", "3", "1", "4"]}
+  correct={0}
+  hint="Three plus three is six, and 3 is one of the coins. You are not obliged to start with the largest coin."
+  explain="Two: 3 + 3. The largest-first walk gives 4 + 1 + 1, three coins, and no reordering of that walk repairs it — 4 is simply the wrong first move. The table in section 4 reads 2 in its corner cell, and section 3 shows why a walk that never reconsiders the first move can land a coin high."
+/>
+
+Two is the answer; three is the rule. That gap is the page: the fewest coins is a property of the set of coins, and the largest-first rule is an algorithm that happens to be right on some sets and wrong on others.
+
+## The Cashier's Illusion
+
+Operationally you are handed a set of denominations `c₁ > c₂ > ⋯ > cₙ`, unlimited supply of each, and an amount $A$. You hand back the fewest coins that sum to $A$.
+
+"Spend the biggest coin first" is an algorithm, not the question, and it is the algorithm everyone reaches for because a cashier uses it. It is exact on the coins in your pocket and wrong on others, and it gives you no way to tell which case you are in. The real question is about the *set* of coins, not about the order an algorithm happens to pick them.
+
+## The Directed Graph of Debt
+
+Fix the coins and the amount $A$. The vertices are the amounts $0, 1, \dots, A$. For every coin $c$ and every amount $a \ge c$, draw an edge
+
+$$
+a \;\longrightarrow\; a-c,
+$$
+
+of weight one. The coins *are* the edge set; an amount is a vertex; making change for $a$ is walking from $a$ down to $0$.
+
+$$
+C(a) \;=\; \text{length of the shortest path from } a \text{ to } 0.
+$$
+
+This is the whole page in one sentence. The DP is a shortest-path computation on a graph whose edges are the coins, and the "fewest coins" you asked for is a distance.
+
+Every edge drops the vertex label, so the graph is acyclic and sweeping the amounts from $0$ upward visits each cell only after the cells it depends on — Bellman's relaxation in dependency order. The same table is one row of a min-plus closure, the subject of [Floyd–Warshall](/algorithms/programming/floyd-warshall) and [Dijkstra](/algorithms/programming/dijkstra). Distances here are small integers, so a plain sweep beats a priority queue.
+
+**Reachability is connectivity.** Amount $a$ is representable exactly when a path runs from $a$ down to $0$, and a cell that reads $\infty$ is a vertex no such path reaches.
+
+Let $g=\gcd(c_1,\dots,c_n)$. Every edge changes an amount by a multiple of $g$, so the amounts fall into the $g$ residue classes modulo $g$ and no edge leaves a class; only the class of $0$ can be representable at all.
+
+When $g=1$ that is the only class, and every amount past a finite threshold is reachable. That threshold is the next object.
+
+## Pearson's Test and Sylvester's Gap
+
+Give the recurrence first, then watch it disagree with the rule.
+
+**The recurrence.** Write $C(a)$ for the fewest coins summing to $a$. Standing at $0$ costs nothing, and every other amount is one coin plus the best way to cover the rest:
+
+$$
+C(0)=0, \qquad C(a) \;=\; 1 + \min_{c \,\le\, a} C(a-c) \quad (a \ge 1),
+$$
+
+with the minimum over the coins, and $+\infty$ when no coin fits. Unbounded supply is why the same $C$ appears on both sides: after spending a coin you may spend a copy of it again, so no coin count enters the state. Only the amount does — that is what makes the state space the vertices of section 2 and nothing more.
+
+**The greedy walk, and where it leaves the path.** Greedy commits: it takes the largest coin that fits and never reconsiders. On the coins `1, 3, 4` and amount $6$ that walk is $4 \to 1 \to 1$, three coins. The shortest path is $6 \to 3 \to 0$, two coins, and you can see it is shorter because reaching $0$ from $6$ never requires passing through $2$, while greedy's first move forces $2$ into the remainder.
+
+Greedy is not "the DP, done fast". It is a single path picked by a rule, and on the wrong coin system the rule picks a worse path. The failures do not come from rare amounts: for `1, 3, 4` the smallest is $6$, and Chang and Gill 1970 recorded a second one on `1, 5, 20, 25`, where 40 cents costs four greedy coins and two minimum ones.
+
+**Canonical systems — the rule's exact domain.** The literature has a name for the good case. A coin system is **canonical** when the greedy representation of *every* amount is a representation of minimum size (Pearson 2005, following Chang and Gill 1970). Read carefully, "greedy is optimal if and only if the system is canonical" is then not a theorem — canonicity *means* that greedy is optimal.
+
+The theorem is that this infinite condition is decidable by a finite check, and quickly. Kozen and Zaks 1994 showed the smallest amount where greedy fails, if one exists, lies below $c_1 + c_2$, so there is a finite set of candidates to test; Pearson 2005 built a test from $O(n^2)$ candidates that runs in $O(n^3)$ arithmetic operations, polynomial in the input size and independent of how large the coins are.
+
+Everyday systems — the 1-2-5 series, the US `1, 5, 10, 25` — are canonical, which is why the cashier's rule has never failed you. The pre-decimal British set `1, 3, 6, 12, 24, 30, 60, 240` was not: 48 pence is `30 + 12 + 6` by greedy and `24 + 24` in the minimum, both facts from Pearson 2005's account.
+
+So "does greedy work here" is a question about the set `1, 3, 4` — not about greedy — and it has a polynomial-time answer. Which coin systems are canonical is a theorem about numbers; that greedy is correct on exactly those is a definition.
+
+**The Frobenius number: the largest unreachable amount.** Representability is arithmetic: $a$ is reachable when $a = \sum x_i c_i$ with non-negative integers $x_i$. The amounts that cannot be written this way are finite exactly when $\gcd(c_1,\dots,c_n)=1$, and when they are finite the largest of them is the **Frobenius number** $g(c_1,\dots,c_n)$.
+
+A coin of value 1 saves every amount, so for `1, 3, 4` the set of gaps is empty and there is no Frobenius number to name — its graph has a single residue class and the table in section 4 has no $\infty$ cell.
+
+For two coprime coins there is a clean closed form,
+
+$$
+g(a,b) \;=\; a\,b - a - b \qquad (\gcd(a,b)=1, \text{ Sylvester 1882}),
+$$
+
+and exactly $(a-1)(b-1)/2$ amounts are missed (also Sylvester 1882). For `5, 7` that reads $35-5-7=23$, and indeed `23` is the largest amount five- and seven-cent coins cannot make.
+
+For three or more coins **no closed form is known in general**; the two-coin formula is the exception, not the rule. The chart below evaluates it exactly for twelve coprime pairs, in three families.
+
+<SeriesChart
+  title="Largest amount two coprime coins cannot make — exactly a·b − a − b (Sylvester 1882)"
+  xLabel="larger coin b"
+  yLabel="Frobenius number g(a, b)"
+  series={[
+    { name: "a = 2 (b odd)", points: [[11, 9], [23, 21], [47, 45], [101, 99]] },
+    { name: "a = 3", points: [[11, 19], [23, 43], [47, 91], [101, 199]] },
+    { name: "a = 5", points: [[11, 39], [23, 87], [47, 183], [101, 399]] },
+  ]}
+/>
+
+<PredictionPrompt
+  client:visible
+  question="A coin system is 4, 6 and 10 — one even coin, and in fact all three are even. Does this system have a largest amount it cannot make?"
+  options={[
+    "Yes: a coin system always has one",
+    "Yes: 5 is the largest amount it cannot make",
+    "No — every amount it makes is even, so it misses infinitely many odd amounts; a largest gap exists only when the gcd is 1",
+    "Yes, because 4 is even"
+  ]}
+  correct={2}
+  hint="Write down what the coins can make and look at the parity. Then ask what the gcd of 4, 6 and 10 is."
+  explain="No. Each representable amount is a sum of even coins, hence even, so 1, 3, 5, 7, … are all missed — there is no largest one. The condition is not parity but coprimality: the gaps are finite, and so have a largest element, exactly when gcd(c₁, …, cₙ) = 1. Compare the coins 4, 6 and 9 in section 6: even coins, gcd 1, and a largest gap of 11 you can read off the table."
+/>
+
+## Tracing Paths Across the Denomination Grid
+
+<DPHeatmap
+  client:visible
+  problem="coin-change"
+  coins={[1, 3, 4]}
+  amount={6}
+  caption="Hover any cell to read its recurrence. The row is the coin types considered so far, the column is the amount, and the corner cell is C(6). Press play to fill in dependency order, then Trace solution to walk the winning representation back."
+/>
+
+The rows are `none, ≤ 1, ≤ 3, ≤ 4` and the columns are amounts $0 \dots 6$. A cell $(i,j)$ is the fewest coins making $j$ using only the first $i$ coin types, so the bottom row is $C(a)$ for the full system and the corner is $C(6)$.
+
+Hover a filled cell and the two incoming edges light up. One is *skip* — climb a row, decline this coin type — and the other is *use*: step left by the coin's value along the same row, spending a copy of it. The leftward step is exactly the graph edge $a \to a-c$ from section 2; the row climb is the bookkeeping that turns the one-dimensional recurrence $C(a)=1+\min_c C(a-c)$ into a table.
+
+For your coins the corner reads 2, and the trace proves it: from `≤ 4` at amount 6 the winning chain drops to the `≤ 3` row at 6, then steps left by 3 twice, `6 → 3 → 0`, for the two threes. The 4 is never spent, which is the whole lesson of `4 + 1 + 1` versus `3 + 3` made visible.
+
+Watch the shape of the fill. Every cell depends on a cell above it and a cell to its left, so the row-major order fills each cell only after both of its parents — the table's own topological order. And greedy has no cell of its own: it is one path, chosen without looking at the alternatives the table keeps.
+
+## Currency Architecture and Integer Programs
+
+Four places this distance is the thing you compute.
+
+- **Dispensing machines.** A vending or ATM machine holds a fixed set of denominations and wants the fewest coins or notes per payout. That is exactly the corner cell of section 4, and a currency designer who knows the system is canonical may ship the greedy rule instead of a table.
+- **Currency design.** The "optimal denomination problem" asks which denominations minimize the average number of coins per transaction; the answer is a property of the set, computed by running the DP for every amount. Shallit 2003 argues for an 18-cent piece on these grounds.
+- **The simplest integer program.** Minimum coins is $\min \mathbf{1}^{\top}x$ subject to $\mathbf{c}^{\top}x = A$, $x \ge 0$ integer: one equality, non-negativity, integrality. Every technique of integer programming is tested on this one-row instance first, and fixing the number of coin types makes it integer programming in a fixed dimension, which is polynomial time.
+- **Min-plus closure, elsewhere in this section.** The same graph with weighted edges is least-cost routing; with $(\max,+)$ instead of $(\min,+)$ it is a longest path and Viterbi decoding. The coins are an adjacency matrix, and $C$ is a column of its closure.
+
+## Frobenius Numbers and Weak NP-Hardness
+
+Skip this section if you only want the representation; it is about the problem's place in complexity and about the largest gap, the Frobenius number.
+
+**Weakly NP-hard, not strongly.** Make the coin values and the amount part of the input and decide whether $A$ is representable using at most $k$ coins. This is NP-complete (Lueker 1975 introduced the family of unbounded decisions that contains it). The hardness is **weak**: the table of section 4 runs in $O(nA)$ time, which is polynomial in the amount itself, so it is polynomial when $A$ is written in unary and exponential only in the number of bits of $A$.
+
+That is the signature of weak NP-hardness — a pseudo-polynomial algorithm exists, and strong NP-hardness would forbid one unless $P = NP$. Fix the number of denominations instead of freeing it, and the problem returns to polynomial time: Kannan 1992 computes the Frobenius number in polynomial time for every fixed $n$, and the same fixed-dimension integer-programming route puts the minimum count back in polynomial time.
+
+**Compute the largest gap with a shortest path.** The Frobenius number needs no DP over all amounts if you route correctly. Let $m$ be the smallest coin and build a graph on the residues $0, 1, \dots, m-1$, with an edge $r \to (r + c) \bmod m$ of weight $c$ for every coin $c$. Then $\mathrm{dist}(0, r)$ is the smallest representable amount congruent to $r \bmod m$, so the largest non-representable amount is
+
+$$
+g \;=\; \Bigl(\max_{r} \mathrm{dist}(0, r)\Bigr) - m.
+$$
+
+This is the coins-as-edges reading once more, now over residues rather than amounts, and it answers the system `4, 6, 9` from prompt 2's explanation by hand: the farthest residue is $3$, at distance $15 = 9 + 6$, so $g = 15 - 4 = 11$. The table below is that same number, visible: the whole amount-11 column reads $\infty$.
+
+<DPHeatmap
+  client:visible
+  problem="coin-change"
+  coins={[4, 6, 9]}
+  amount={11}
+  caption="Coins 4, 6 and 9 — even coins with gcd 1. Every cell in the amount-11 column is infinite, and the panel names it: 11 is the Frobenius number of this system. Scroll the table sideways to reach the column."
+/>
+
+No closed form returns that 11 from `4, 6, 9`; the residue graph computed it, and even the smallest gap of a three-coin system is beyond a formula. In general the Frobenius problem is NP-hard (Ramírez-Alfonsín 1996) even though it is polynomial for fixed $n$ (Kannan 1992) — the same weak/strong split as the minimum-coin problem above.
+
+## Lineage & Attributions
+
+- **Sylvester 1882** — the Frobenius number of two coprime coins, $g(a,b)=ab-a-b$, and the count $(a-1)(b-1)/2$ of non-representable amounts.
+- **Lueker 1975** — *Two NP-complete problems in nonnegative integer programming*: the unbounded decision family that makes change-making NP-hard.
+- **Kannan 1992** — *Lattice translates of a polytope and the Frobenius problem*: a polynomial-time algorithm for the Frobenius number when the number of coins is fixed.
+- **Kozen–Zaks 1994** — the smallest counterexample to greedy lies below $c_1+c_2$, giving the first test polynomial in the largest coin.
+- **Pearson 2005** — *A polynomial-time algorithm for the change-making problem*: canonicity decided in $O(n^3)$, and the pre-decimal British counterexample.
+- **Ramírez-Alfonsín 1996** — the Frobenius problem is NP-hard in general, even for a fixed amount of work per coin.
+- **Chang and Gill 1970** — the first finite certificate that greedy is optimal for all amounts, polynomial in the largest coin.
+- **Shallit 2003** — *What this country needs is an 18c piece*: the optimal denomination problem and the average-coins criterion.

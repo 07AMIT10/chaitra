@@ -1,0 +1,170 @@
+import GraphCanvas from "@alg/GraphCanvas.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+
+{/*
+  Primitive contract used by this page, matched to website/src/components/algorithms/.
+    GraphCanvas      nodes · edges · algorithm: "toposort" · directed · caption · height
+    PredictionPrompt question · options (string[]) · correct (index) · explain
+    SeriesChart      series: { name, points: [x, y][] }[] · title · xLabel · yLabel · logY  (static)
+  GraphCanvas's "toposort" trace is Kahn's peeling and reports a directed cycle when one exists.
+  Interactive primitives carry an explicit Astro client directive; each is its own island.
+*/}
+
+## The Six-Stage Pipeline
+
+Six compilation tasks sit on a build server, constrained by seven directional dependency vectors. Task A must compile before B and C, both B and C are prerequisites for D, C must precede E, and both D and E must conclude before final link target F can run.
+
+Step the interactive player below. At every tick, the engine identifies tasks whose prerequisites are completely fulfilled, emits one of them into the timeline, and decrements the dependency counts of its successors.
+
+<GraphCanvas
+  client:visible
+  nodes={[
+    { id: "A", x: 0, y: 0 },
+    { id: "B", x: -1, y: 1 },
+    { id: "C", x: 1, y: 1 },
+    { id: "D", x: -1, y: 2 },
+    { id: "E", x: 1, y: 2 },
+    { id: "F", x: 0, y: 3 },
+  ]}
+  edges={[
+    { from: "A", to: "B" },
+    { from: "A", to: "C" },
+    { from: "B", to: "D" },
+    { from: "C", to: "D" },
+    { from: "C", to: "E" },
+    { from: "D", to: "F" },
+    { from: "E", to: "F" },
+  ]}
+  algorithm="toposort"
+  directed
+  caption="Kahn's peeling on six tasks. Each step the panel names the tasks whose prerequisites are all finished, emits one of them, and drops the in-degrees of its neighbours. The queue chips are the currently available set; the step log is the order being built."
+/>
+
+The sequence accumulating in the execution log is a valid build order. But it is only one possible reality among multiple valid chronological orderings.
+
+<PredictionPrompt
+  client:visible
+  question="Three of these candidate sequences honour every dependency arrow in the DAG above. Which single ordering commits a causal violation?"
+  options={[
+    "A, B, C, D, E, F",
+    "A, C, B, D, E, F",
+    "A, B, D, C, E, F",
+    "A, C, B, E, D, F",
+  ]}
+  correct={2}
+  explain="Examine the third sequence: D is scheduled immediately after B, prior to executing C! Because edge C→D exists, task D cannot start until C has concluded. The other three sequences correctly ensure A precedes both B and C, B and C precede D, C precedes E, and D and E precede F."
+/>
+
+## The Fallacy of the Single List
+
+Standard pedagogy models topological sorting as an imperative queue routine: calculate every node's in-degree, push zero-in-degree nodes into a FIFO queue, pop an element, decrement its neighbours, and repeat until the queue empties.
+
+While this procedure functions cleanly in $O(V+E)$ time, the framing conceals the true mathematical object. It builds *one* arbitrary linear sequence and discards the rich geometry of alternatives.
+
+Naming the problem "find a topological sort" creates the illusion of a unique target. In truth, the graph is a partially ordered set, and any valid schedule is merely one linear extension among an astronomical family of compatible orders.
+
+## Posets, Preorders, and the Linear Extension
+
+Define a reachability relation on vertices: write $u \le v$ if a directed path travels from $u$ to $v$, adopting $u \le u$ for zero-length paths. This relation is reflexive and transitive, establishing a **preorder**.
+
+If $u \le v$ and $v \le u$ simultaneously, both nodes belong to a mutual cycle—a strongly connected component. Collapsing every strongly connected component to a single point produces the *antisymmetric quotient*.
+
+In an acyclic directed graph (DAG), no non-trivial cycles exist; every component is a single vertex, and reachability forms an authentic **partial order** (poset).
+
+A **linear extension** of a poset $(P, \le)$ is a total order $\prec$ compatible with the partial order:
+
+$$
+x \le y \implies x \prec y
+$$
+
+A topological sort is precisely a linear extension of the reachability poset. The list is not the fundamental entity; the poset is the ground truth, and the list is one projection onto a 1D timeline.
+
+## Order Ideals, Birkhoff's Lattice, and #P-Hardness
+
+**Minimal Element Peeling (Arthur Kahn 1962).** A node with in-degree zero is an algebraic minimal element of the surviving sub-poset. Kahn's algorithm iteratively extracts minimal elements, extinguishing edges until the graph is empty.
+
+**The Lattice of Downsets (Garrett Birkhoff 1937).** A subset $I \subseteq P$ is an **order ideal** (or downset) if $x \in I$ and $y \le x$ implies $y \in I$. The set of all order ideals forms a distributive lattice $J(P)$ under set union and intersection.
+
+Every linear extension corresponds to a maximal chain ascending through the distributive lattice $J(P)$, starting from the empty set $\emptyset$ and culminating in $P$. The total count of linear extensions $e(P)$ equals the number of maximal chains in $J(P)$.
+
+For our six-node graph, exactly 5 valid linear extensions exist out of $6! = 720$ possible permutations.
+
+**The Intractability of Counting (Brightwell & Winkler 1991).** While constructing a single linear extension takes linear time $O(V+E)$, counting how many linear extensions exist is **#P-complete**! No polynomial-time algorithm can count the number of valid schedules unless $P = NP$.
+
+<PredictionPrompt
+  client:visible
+  question="Consider a diamond poset of four elements: a single root at the bottom, a single sink at the top, and two incomparable intermediate elements in between. How many linear extensions does it have?"
+  options={["1", "2", "4", "6"]}
+  correct={1}
+  explain="The root must precede everything, and the sink must succeed everything. The two middle nodes are completely independent: you can execute left-then-right or right-then-left. This yields exactly 2 linear extensions out of 4! = 24 total permutations."
+/>
+
+<SeriesChart
+  title="Two disjoint chains of length k: constraints cut the orderings from (2k)! down to C(2k, k)"
+  xLabel="elements n = 2k"
+  yLabel="number of orderings (log scale)"
+  logY
+  series={[
+    {
+      name: "linear extensions C(n, n/2)",
+      points: [[2, 2], [4, 6], [6, 20], [8, 70], [10, 252], [12, 924], [14, 3432]],
+    },
+    {
+      name: "all n! orders",
+      points: [[2, 2], [4, 24], [6, 720], [8, 40320], [10, 3628800], [12, 479001600], [14, 87178291200]],
+    },
+  ]}
+/>
+
+For two disjoint independent chains of length $k$, any valid topological ordering is an interleaving chosen by placing $k$ items into $2k$ slots, yielding exactly $\binom{2k}{k}$ linear extensions. As $n$ grows, the count explodes beyond practical enumeration, demonstrating why #P-hardness protects this combinatorial landscape.
+
+## Peeling Minimal Elements in Real Time
+
+Return to the pipeline visualizer above and step through execution. The active queue chips represent the current set of minimal elements eligible for immediate dispatch.
+
+A distinct construction uses Depth-First Search (Robert Tarjan 1976). By recording nodes in decreasing order of their DFS exit times, an equivalent linear extension is formed in $O(V+E)$ time.
+
+Kahn's approach peels forward from sources; Tarjan's approach works backward from sinks. Both produce valid linear extensions, exploring distinct trajectories through the underlying lattice of ideals.
+
+## Compilers, Spreadsheets, and Lamport Clocks
+
+Topological sorting governs modern computing architectures wherever prerequisites dictate execution.
+
+Compilers order compilation units to ensure definitions precede symbol resolutions. Reactive spreadsheet engines evaluate cell recalculation graphs along topological sweeps, preventing stale formula evaluations.
+
+In distributed computing, Leslie Lamport (1978) formalised the **happens-before** relation $(\to)$ across asynchronous message networks. The physical universe does not offer a single synchronized clock; a distributed timeline is simply a linear extension of the causal poset.
+
+## The Fractured Arrow of Time: Cycles as Condensations
+
+What happens when cyclical dependencies contaminate the dependency graph?
+
+<GraphCanvas
+  client:visible
+  nodes={[
+    { id: "P", x: 0, y: 0 },
+    { id: "Q", x: 1, y: 0 },
+    { id: "R", x: 0.5, y: 1 },
+  ]}
+  edges={[
+    { from: "P", to: "Q" },
+    { from: "Q", to: "R" },
+    { from: "R", to: "P" },
+  ]}
+  algorithm="toposort"
+  directed
+  caption="A three-cycle. No vertex has in-degree 0, so Kahn's queue starts empty and the trace reports the cycle instead of an order."
+/>
+
+When a graph contains a directed cycle, no vertex possesses an in-degree of zero. Kahn's queue initializes empty, immediately diagnosing the causal paradox.
+
+In modern build tools, detecting this failure halts compilation and reports the cyclic deadlock. Contracting the cycle into a single component condensation restores antisymmetry, enabling topological ordering across the coarsened graph.
+
+## Attributions
+
+- **Kahn 1962** — *Topological sorting of large networks*: Formulated in-degree queue peeling in $O(V+E)$ time with cycle detection.
+- **Tarjan 1976** — Depth-first search reverse-postorder construction of topological sequences.
+- **Birkhoff 1937** — Fundamental representation theorem establishing the distributive lattice of poset downsets.
+- **Brightwell & Winkler 1991** — *Counting linear extensions*: Proved that determining the number of linear extensions is #P-complete.
+- **Lamport 1978** — *Time, Clocks, and the Ordering of Events in a Distributed System*: Formulated the causal happens-before poset.
+- **Dean & Ghemawat 2004** — MapReduce workflow staging modeled as directed acyclic computation graphs.

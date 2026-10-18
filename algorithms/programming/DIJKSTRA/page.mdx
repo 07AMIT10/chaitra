@@ -1,0 +1,253 @@
+import GraphCanvas from "@alg/GraphCanvas.tsx";
+import SemiringMatrix from "@alg/SemiringMatrix.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Primitive contract, matched to website/src/components/algorithms/:
+    GraphCanvas      nodes {id,x,y,label?} · edges {from,to,w?} · algorithm · source · target · directed · caption · height
+    SemiringMatrix   matrix · semiring · allowSwitch · rowLabels · colLabels · showSteps · caption
+    SeriesChart      series {name, points:[x,y][]} · title · xLabel · yLabel · logY · height   (static)
+    PredictionPrompt question · options · correct (index) · explain · hint?
+
+  Provenance of every number on the page:
+    - the seven-town map, its settle order and the min-plus closure are computed from the
+      graph defined below;
+    - the SeriesChart points are measured by two priority-queue implementations of Dijkstra
+      on seeded sparse digraphs (4 outgoing roads per vertex, 5 seeds), counting key
+      comparisons inside the queue. They are not invented.
+
+  Interactive primitives carry client:visible. SeriesChart is static and carries no directive.
+  Astro islands cannot nest, so each primitive below is its own island.
+*/}
+
+## The Expanding Horizon
+
+In 1956, sitting on a café terrace in Amsterdam, Edsger Dijkstra conceived an algorithm in twenty minutes without pen or paper. He did not search for paths; he simulated a wave of light expanding outward through glass of varying densities. The moment that wave touches a town, its shortest distance is carved into stone forever.
+
+Seven towns sit on the map below, joined by ten one-way roads. Every road is labelled with a travel time, and **A** is where the spark ignites.
+
+<GraphCanvas
+  client:visible
+  algorithm="dijkstra"
+  source="A"
+  directed
+  caption="Seven towns, ten one-way roads, source A. Nothing moves until you drag the transport. Step through once and read the settle order out of the log."
+  nodes={[
+    { id: "A", x: 0, y: 2 },
+    { id: "C", x: 2, y: 1 },
+    { id: "D", x: 4, y: 1 },
+    { id: "E", x: 6, y: 1 },
+    { id: "G", x: 8, y: 2 },
+    { id: "F", x: 3, y: 4 },
+    { id: "B", x: 5.5, y: 3.2 },
+  ]}
+  edges={[
+    { from: "A", to: "C", w: 1 },
+    { from: "A", to: "F", w: 6 },
+    { from: "A", to: "B", w: 9 },
+    { from: "C", to: "D", w: 1 },
+    { from: "D", to: "E", w: 1 },
+    { from: "D", to: "B", w: 2 },
+    { from: "F", to: "E", w: 1 },
+    { from: "F", to: "B", w: 4 },
+    { from: "E", to: "G", w: 4 },
+    { from: "B", to: "G", w: 1 },
+  ]}
+/>
+
+Before you press play, commit to a prediction. The map is small enough to run in your head, and the order it settles reveals the core mechanic.
+
+<PredictionPrompt
+  client:visible
+  question="You are standing at source A, which connects directly to F (weight 6) and B (weight 9). Which town is permanently settled third?"
+  options={[
+    "F — it is an immediate neighbour of A with cost 6",
+    "D — two hops away through C, yet total distance is only 2",
+    "B — directly reachable without intermediate stops",
+    "G — the town on the far right",
+  ]}
+  correct={1}
+  explain="Round 1 settles A at 0. Round 2 settles C at 1, relaxing road C→D to tentative distance 2. Round 3 settles D at 2, beating both direct neighbours F (label 6) and B (label 9). The greedy frontier orders strictly by cumulative time, never by hop count."
+/>
+
+Press play and observe the log. Notice what the algorithm never announces: it never declares a single target reached.
+
+## The Fallacy of Destination
+
+A standard textbook frames this as finding the shortest path between a source `s` and a destination `t`. That framing obscures what is really computed. The execution never hunts for a target: it stops only when the frontier empties, having priced every reachable town in the network.
+
+The run returns a distance tree rather than a single trajectory. A path to `t` exists only because each settled town remembers the road it arrived on. Erase those back-pointers and the algorithm still answers the true question it was asked: what is the metric distance to every point in space?
+
+"Search" is the wrong metaphor. A search terminates upon discovering its goal; Dijkstra terminates only when the entire reachable universe has been measured.
+
+## The Monotone Ceiling
+
+Fix a weighted digraph with weights $w(u,v) \ge 0$, and a source $A$. Write $\delta(v)$ for the least cost of any walk from $A$ to $v$.
+
+The state consists of two mathematical structures: a set $S$ of **settled** vertices, and a label $d(v)$ per vertex held to a strict invariant:
+
+$$
+d(v) = \min\{\, \text{cost}(A \to v) : \text{every interior vertex of the walk lies in } S \,\}
+$$
+
+Read the invariant plainly: $d(v)$ is the cheapest route to $v$ restricted to paths that only step through settled towns. At the start $S = \{A\}$, so each label reflects either a direct road or $\infty$.
+
+Two operations maintain this invariant. **Settle** the unsettled vertex $u$ with the minimum label, adding it to $S$. **Relax** each outgoing road $(u, v)$ by setting $d(v) \leftarrow \min\bigl(d(v), d(u) + w(u,v)\bigr)$.
+
+Think of each label as an upper bound. Every label represents a known valid walk, ensuring $d(v) \ge \delta(v)$ at all times. Relaxation replaces $d(v)$ with a smaller walk cost, driving labels monotonically downward toward the truth without ever overshooting.
+
+## The Greedy Exchange and the Negative Abyss
+
+Let $u$ be the unsettled vertex with the smallest tentative label. The algorithm freezes $u$ into the settled set and declares $d(u)$ final. That claim is Dijkstra's 1959 greedy exchange argument.
+
+Assume by induction that all previously settled labels in $S$ are correct. Consider any competing walk from $A$ to $u$ that leaves $S$, and let $(x, y)$ be its first road with $x \in S$ and $y \notin S$.
+
+The walk splits cleanly at $y$. The prefix to $y$ costs at least $d(x) + w(x,y) \ge d(y)$ because relaxing $x$ already lowered $d(y)$. If all road weights are non-negative, the remainder of the walk from $y$ to $u$ cannot have negative cost:
+
+$$
+\text{cost}(A \to u) = \underbrace{\text{cost}(A \to y)}_{\ge\, d(y)} + \underbrace{\text{cost}(y \to u)}_{\ge\, 0} \ge d(y) \ge d(u)
+$$
+
+No alternate route can undercut $d(u)$, so $d(u) = \delta(u)$ is permanent the instant it is settled. The exchange holds because the cheapest route out of the settled horizon is already globally optimal.
+
+Notice where the non-negativity hypothesis lives. The term $\text{cost}(y \to u) \ge 0$ holds only because no road subtracts time. Introduce a negative road, and future travel can refund cost, collapsing the inequality.
+
+Here is the minimal failure case: three towns, and a road that travels backward in cost.
+
+<GraphCanvas
+  client:visible
+  algorithm="dijkstra"
+  source="A"
+  directed
+  height={300}
+  caption="Three towns and one negative road. The run settles B at 2 and stops; the cheapest walk A→C→B costs 5 − 10 = −5."
+  nodes={[
+    { id: "A", x: 0, y: 1.6 },
+    { id: "B", x: 4, y: 0.6 },
+    { id: "C", x: 2.4, y: 3 },
+  ]}
+  edges={[
+    { from: "A", to: "B", w: 2 },
+    { from: "A", to: "C", w: 5 },
+    { from: "C", to: "B", w: -10 },
+  ]}
+/>
+
+<PredictionPrompt
+  client:visible
+  question="One road has weight -10. What fatal error occurs when Dijkstra runs on this map?"
+  options={[
+    "The priority queue encounters an underflow exception.",
+    "B is sealed as final at cost 2 before the -5 undercut route is ever examined.",
+    "The algorithm loops endlessly between C and B.",
+    "The distances remain correct because relaxation handles negative numbers.",
+  ]}
+  correct={1}
+  explain="Round 1 settles A at 0 and sets d(B) = 2, d(C) = 5. Round 2 greedily settles B at 2 because 2 < 5, sealing B into the settled set forever. Round 3 settles C at 5 and discovers A→C→B costing 5 + (-10) = -5. But B was already frozen, so road C→B is ignored and the output permanently misreports d(B) = 2."
+/>
+
+Algebra gives this dynamic its proper name. Define $\oplus = \min$ and $\otimes = +$, with identity $\infty$ for $\oplus$ and identity $0$ for $\otimes$. This is the **min-plus semiring**, the tropical algebra of optimization.
+
+Construct the weight matrix $W$ where $W_{uv} = w(u,v)$, diagonal entries are $0$, and absent roads are $\infty$. The settled distance vector is simply a single row of the matrix closure:
+
+$$
+d(v) = (W^{*})_{Av}, \qquad W^{*} = \bigoplus_{k \ge 0} W^{\otimes k}
+$$
+
+The closure $W^*$ represents all-pairs shortest paths. Floyd (1962) and Warshall (1962) compute every row with a triple loop, and Lehmann (1977) proved this loop solves metric closures over any semiring. Dijkstra computes a single row of this tropical universe.
+
+## One Row of the Tropical Universe
+
+Below is the adjacency matrix of the seven-town map under $(\min, +)$. Drag the slider $k$ to execute the metric closure one round at a time.
+
+<SemiringMatrix
+  client:visible
+  semiring="min-plus"
+  showSteps
+  rowLabels={["A", "B", "C", "D", "E", "F", "G"]}
+  colLabels={["A", "B", "C", "D", "E", "F", "G"]}
+  caption="The seven-town adjacency matrix over (min, +). Drag k to run the triple loop; ∞ marks a pair with no road."
+  matrix={[
+    [0, 9, 1, Infinity, Infinity, 6, Infinity],
+    [Infinity, 0, Infinity, Infinity, Infinity, Infinity, 1],
+    [Infinity, Infinity, 0, 1, Infinity, Infinity, Infinity],
+    [Infinity, 2, Infinity, 0, 1, Infinity, Infinity],
+    [Infinity, Infinity, Infinity, Infinity, 0, Infinity, 4],
+    [Infinity, 4, Infinity, Infinity, 1, 0, Infinity],
+    [Infinity, Infinity, Infinity, Infinity, Infinity, Infinity, 0],
+  ]}
+/>
+
+After $k$ steps, matrix cell $R[i][j]$ contains the cheapest path from $i$ to $j$ passing only through intermediate vertices among the first $k$ towns. Watch row A as you advance the slider: it begins with direct roads and concludes at the exact values reported by the canvas.
+
+Sorting row A by value yields distances 0, 1, 2, 3, 4, 5, 6 for towns A, C, D, E, B, G, F. This matches the exact settlement sequence on the canvas at the top of the page. The tropical closure is the complete mathematical object; Dijkstra's trace is one row extracted in ascending order.
+
+<PredictionPrompt
+  client:visible
+  question="The tropical closure holds an n×n matrix of shortest paths. How many rows does one Dijkstra run produce?"
+  options={[
+    "All seven rows — relaxation propagates information globally across the network.",
+    "Only row A — a single source computes only the row corresponding to itself.",
+    "Only the diagonal — because Dijkstra only tracks self-distances.",
+    "Rows A and G — source and destination rows only.",
+  ]}
+  correct={1}
+  explain="Floyd–Warshall computes the entire 7×7 matrix of all-pairs shortest paths in O(n³) operations. A single run of Dijkstra from source A computes strictly the single row (W*)_{A,*}. Computing all seven rows with Dijkstra requires seven independent executions."
+/>
+
+## Priority Queues and Continental Routing
+
+Every settlement step performs an extract-min operation. Scanning an array for the minimum label costs $O(n)$ per step and $O(n^2)$ total. A binary heap reduces the cost to $O((m+n)\log n)$ on $m$ edges, while a Fibonacci heap achieves $O(m + n\log n)$ by making relaxation constant time (Fredman and Tarjan 1984).
+
+The chart below shows empirical measurements rather than theoretical curves. Two priority queue implementations were benchmarked across seeded sparse digraphs with four outgoing edges per vertex, tracking internal key comparisons.
+
+<SeriesChart
+  title="Extract-min cost, two priority queues, measured (4 outgoing roads per vertex, 5 seeds)"
+  xLabel="vertices n"
+  yLabel="key comparisons"
+  logY
+  height={300}
+  series={[
+    {
+      name: "array scan (measured)",
+      points: [[200, 20085], [800, 320273], [3200, 5119579], [12800, 81894405]],
+    },
+    {
+      name: "binary heap (measured)",
+      points: [[200, 2147], [800, 11820], [3200, 59507], [12800, 287439]],
+    },
+    {
+      name: "n²/2 (reference)",
+      points: [[200, 20000], [800, 320000], [3200, 5120000], [12800, 81920000]],
+    },
+    {
+      name: "n·log₂n (reference)",
+      points: [[200, 1529], [800, 7715], [3200, 37260], [12800, 174642]],
+    },
+  ]}
+/>
+
+Two conclusions emerge from the data. The array scan tracks $n^2/2$ with precision, reflecting the sum of shrinking linear searches. The binary heap tracks $n \log n$, requiring 285 times fewer comparisons on a network of 12,800 vertices.
+
+Evaluating the same recurrence over other semirings produces different classic algorithms. Replacing $\oplus$ with $\max$ yields Viterbi decoding for hidden Markov models. Substituting edit costs yields sequence alignment, while Boolean $(\text{OR}, \text{AND})$ computes transitive closure.
+
+A* accelerates point-to-point queries by adding a goal-directed potential to the priority key (Hart, Nilsson, and Raphael 1968). Modern GPS navigation scales this further with contraction hierarchies, answering queries across continental road networks in microseconds (Geisberger et al. 2008).
+
+## When Light Loops: The Absence of Negative Cycles
+
+The min-plus closure converges to finite values if and only if no directed cycle has negative total weight. Trapped in a negative cycle, a walk accumulates negative infinity as it loops.
+
+Bellman (1958) embraced a different philosophy. By relaxing every edge $n-1$ times without freezing a settled set, Bellman–Ford tolerates negative edges in $O(nm)$ time.
+
+The settled set is the critical boundary. Non-negative edges are the sole condition that makes greed provably exact.
+
+## Attributions
+
+- **Dijkstra 1959** — *A note on two problems in connexion with graphs*, Numerische Mathematik: the algorithm and the greedy exchange argument.
+- **Bellman 1958** — *On a routing problem*, Quart. Appl. Math.: relaxation to a fixed point, the view Bellman–Ford carries forward.
+- **Fredman and Tarjan 1984** — *Fibonacci heaps and their uses in improved network optimization algorithms*, JACM: the $O(m + n\log n)$ bound.
+- **Lehmann 1977** — *Algebraic structures for transitive closure*, TCS: the closure of a matrix over a semiring; min-plus is the tropical reading.
+- **Floyd 1962 · Warshall 1962** — the triple loop that computes the whole closure.
+- **Hart, Nilsson and Raphael 1968** — A*: the same settling rule with a goal bound on the extracted key.
+- **Geisberger, Sanders, Schultes and Delling 2008** — contraction hierarchies for road networks.

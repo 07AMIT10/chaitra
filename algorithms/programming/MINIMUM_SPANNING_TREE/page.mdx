@@ -1,0 +1,234 @@
+import GraphCanvas from "@alg/GraphCanvas.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+
+{/*
+  Primitive contracts, matched to website/src/components/algorithms/:
+    GraphCanvas      nodes {id,x,y,label?} · edges {from,to,w?} · algorithm (kruskal | prim) · source · caption · height
+    PredictionPrompt question · options (string[]) · correct (index) · explain
+    SeriesChart      series {name, points:[x,y][]} · title · xLabel · yLabel · logY · height   (static)
+
+  Provenance of every number on this page:
+    - The six-vertex, eight-edge graph below was chosen by brute force over all spanning
+      trees (Cayley-style enumeration, 24 of them): exactly 2 have minimum weight 6. Four
+      edges lie in every minimum tree; two lie in none, with triangle witnesses A–B–D and
+      E–F–C. The accept/reject orders and running totals in the two panels are read off each
+      GraphCanvas's own step log on this graph.
+    - The SeriesChart points are measured, not invented: three implementations on seeded
+      random connected graphs with m = 3n, mean over 20 graphs per n, one comparison of two
+      edge weights counted as one unit. The reference curve m·log2(m) is closed-form.
+    - Every interactive primitive carries client:visible and is its own island. Astro
+      islands cannot nest, so the two GraphCanvas panels are siblings, not nested.
+      SeriesChart is static and carries no directive.
+*/}
+
+## Two Greedy Orders, One Forced Weight
+
+Six vertices, eight weighted edges, and two competing algorithms that both seek the cheapest network to connect everything. One sorts all edges globally; the other grows a single tree outward from vertex A.
+
+<GraphCanvas
+  client:visible
+  algorithm="kruskal"
+  height={340}
+  caption="Kruskal. The transport is yours; nothing autoplays. Step once and the log sorts all eight edges by weight, then walks that order and asks a single question at each edge: are the two endpoints already in one component?"
+  nodes={[
+    { id: "A", x: 0.0, y: 0.0 },
+    { id: "B", x: 2.6, y: 0.0 },
+    { id: "D", x: 0.0, y: 2.4 },
+    { id: "E", x: 2.6, y: 2.4 },
+    { id: "F", x: 5.2, y: 2.4 },
+    { id: "C", x: 5.2, y: 0.0 },
+  ]}
+  edges={[
+    { from: "A", to: "D", w: 1 },
+    { from: "A", to: "B", w: 2 },
+    { from: "B", to: "D", w: 3 },
+    { from: "B", to: "E", w: 1 },
+    { from: "D", to: "E", w: 2 },
+    { from: "E", to: "F", w: 1 },
+    { from: "C", to: "F", w: 1 },
+    { from: "E", to: "C", w: 2 },
+  ]}
+/>
+
+<GraphCanvas
+  client:visible
+  algorithm="prim"
+  source="A"
+  height={340}
+  caption="Prim, same eight edges, starting at A. This player never sorts anything: it keeps one blob and repeatedly takes the cheapest edge leaving that blob. Watch the chip row — it holds the vertices already swallowed, not the components."
+  nodes={[
+    { id: "A", x: 0.0, y: 0.0 },
+    { id: "B", x: 2.6, y: 0.0 },
+    { id: "D", x: 0.0, y: 2.4 },
+    { id: "E", x: 2.6, y: 2.4 },
+    { id: "F", x: 5.2, y: 2.4 },
+    { id: "C", x: 5.2, y: 0.0 },
+  ]}
+  edges={[
+    { from: "A", to: "D", w: 1 },
+    { from: "A", to: "B", w: 2 },
+    { from: "B", to: "D", w: 3 },
+    { from: "B", to: "E", w: 1 },
+    { from: "D", to: "E", w: 2 },
+    { from: "E", to: "F", w: 1 },
+    { from: "C", to: "F", w: 1 },
+    { from: "E", to: "C", w: 2 },
+  ]}
+/>
+
+Both panels operate on the exact same graph. The left player sweeps a globally sorted list; the right player expands a connected component from vertex A.
+
+<PredictionPrompt
+  client:visible
+  question="Kruskal sweeps globally sorted edges, while Prim grows a local cluster from vertex A. Can their final trees finish with different total weights?"
+  options={[
+    "Yes — their search trajectories differ radically, so their final costs can vary.",
+    "No — any spanning tree on a connected graph has the exact same total weight.",
+    "No — both find a minimum-weight basis of the graphic matroid, where total weight is uniquely fixed by the graph."
+  ]}
+  correct={2}
+  explain="Both algorithms are guaranteed to produce a minimum spanning tree of weight exactly 6. The second option is an intuition trap: arbitrary spanning trees on this graph weigh up to 10. The total weight is an invariant of the matroid, not of the algorithmic route."
+/>
+
+## The Mystery of Unregretted Greed
+
+Greedy algorithms usually fail. In almost every combinatorial puzzle, seizing the immediate best local option leads directly to a suboptimal dead end.
+
+Yet for spanning trees, greed never fails. You can sort edges globally and greedily pick non-cycles, or expand locally and greedily take the cheapest exit; both arrive at mathematical perfection.
+
+The real question is not how to write these five lines of code. It is why a choice made at step two is never regretted at step ten, and what geometric structure makes that possible.
+
+## Whitney's Matroid and the Axiom of Exchange
+
+A **matroid** $M = (E,\mathcal{I})$ is a finite ground set $E$ of elements together with an independent set system $\mathcal{I}$ satisfying three conditions (Whitney 1935):
+
+- The empty set is independent: $\varnothing \in \mathcal{I}$.
+- Heredity: if $A \in \mathcal{I}$ and $A' \subseteq A$, then $A' \in \mathcal{I}$.
+- The **exchange axiom**: if $A, B \in \mathcal{I}$ with $|A| < |B|$, there exists an element $e \in B \setminus A$ such that $A \cup \{e\} \in \mathcal{I}$.
+
+$$
+\text{If } A,B\in\mathcal{I} \text{ and } |A| < |B|, \text{ then } \exists\, e\in B\setminus A \text{ with } A\cup\{e\}\in\mathcal{I}
+$$
+
+Whitney formulated this in 1935 to generalize linear independence from vector spaces to combinatorics. A smaller independent set can always absorb an element from a larger one without losing independence.
+
+In a graph, let $E$ be the edge set and declare an edge subset independent if and only if it is acyclic (a forest). A maximal independent set is a spanning tree, and the resulting structure is the **graphic matroid**. A minimum spanning tree is simply a minimum-weight basis of this matroid.
+
+To verify the exchange axiom on graphs, consider two forests $A$ and $B$ with $|A| < |B|$. Forest $A$ has $n - |A|$ connected components, while $B$ has $n - |B|$ components, meaning $A$ partitions vertices into strictly more pieces. Because $|B| > |A|$, some edge $e \in B$ must connect two distinct components of $A$, ensuring $A \cup \{e\}$ remains an acyclic forest.
+
+## The Cut and Cycle Duals
+
+Two fundamental theorems govern spanning trees, serving as dual expressions of Whitney's exchange axiom:
+
+**Cut property.** Partition vertices into two non-empty sets $S$ and $V \setminus S$. The lightest edge crossing this cut belongs to some minimum spanning tree. If it is uniquely lightest, it belongs to *every* minimum spanning tree.
+
+**Cycle property.** In any simple cycle $C$, the strictly heaviest edge cannot belong to any minimum spanning tree.
+
+Consider triangle **A–B–D** on screen with weights 1, 2, and 3. Edge **B–D** weighs 3, making it strictly the heaviest edge on that cycle.
+
+<PredictionPrompt
+  client:visible
+  question="Cycle A–B–D has edge weights 1, 2, and 3. Can edge B–D (weight 3) ever appear in an MST of this graph?"
+  options={[
+    "Yes — if the algorithm begins at vertex B, it must take its adjacent edge.",
+    "No — the cycle property strictly eliminates the heaviest edge of any cycle.",
+    "It depends on the tie-breaking order of the other edges."
+  ]}
+  correct={1}
+  explain="Deleting B–D from any candidate tree that contains it splits the tree into two components. Reconnecting them using either A–D (weight 1) or A–B (weight 2) produces a strictly lighter spanning tree. The cycle property guarantees that B–D is eliminated before search begins."
+/>
+
+The two theorems are two aspects of a single reality: an edge is safe when it is lightest across a cut, and eliminated when it is heaviest around a cycle.
+
+**Where greed shatters: the knapsack trap.** Matroid structure is the exact boundary where greed works. Remove the exchange axiom, and greed collapses immediately:
+
+- Consider items with weights $(5, 5, 6)$ and values $(7, 7, 8)$, with knapsack capacity 10.
+- A greedy strategy picks value 8 (weight 6) first, blocking the remaining items and scoring 8.
+- The optimal solution selects the two items of weight 5, scoring $7 + 7 = 14$.
+
+The knapsack system fails Whitney's exchange axiom. With independent sets $A=\{c\}$ of size 1 and $B=\{a,b\}$ of size 2, no item from $B$ can augment $A$. That failure is why 0/1 knapsack is NP-hard (Karp 1972) while MST runs in near-linear time.
+
+## The Twin Skeletons: Kruskal and Prim in Lockstep
+
+Both panels finish at five edges with total weight 6, but their logs reveal distinct routes:
+
+- Kruskal accepts edges in order: A–D (1), B–E (1), E–F (1), C–F (1), A–B (2), while rejecting cycles D–E, E–C, and B–D.
+- Prim grows outward from A: A–D (1), A–B (2), B–E (1), E–F (1), C–F (1).
+
+Their shared total is guaranteed by matroid theory. Whether their chosen edge *sets* match depends entirely on arbitrary tie-breaking between equal-weight edges.
+
+<PredictionPrompt
+  client:visible
+  question="There are 24 distinct spanning trees on this 6-vertex graph. Is the minimum spanning tree unique?"
+  options={[
+    "Yes — because both Kruskal and Prim returned the exact same tree.",
+    "No — there are exactly two minimum spanning trees of weight 6, differing by one edge.",
+    "No — all 24 spanning trees have weight 6."
+  ]}
+  correct={1}
+  explain="Two spanning trees achieve the minimum weight 6: one contains edge A–B and the other contains edge D–E, while sharing the other four edges. Both edges have weight 2 across the same cycle. The tie-break in the edge list selected A–B, but swapping it for D–E yields an equally optimal tree."
+/>
+
+Four edges — A–D, B–E, E–F, C–F — sit in *every* minimum tree. Each is the unique cheapest edge across a cut, pinned by the cut property.
+
+The chart below measures key comparisons across three implementations on seeded random graphs with $m = 3n$.
+
+<SeriesChart
+  title="Edge-weight comparisons to build one MST, measured (m = 3n, mean of 20 seeded graphs)"
+  xLabel="nodes n"
+  yLabel="weight comparisons"
+  logY
+  height={320}
+  series={[
+    {
+      name: "Kruskal, sort + union–find (measured)",
+      points: [[8, 83], [16, 210], [32, 516], [64, 1218], [128, 2819], [256, 6407]],
+    },
+    {
+      name: "Prim, rescan every edge each step (measured)",
+      points: [[8, 63], [16, 233], [32, 837], [64, 3242], [128, 12599], [256, 49845]],
+    },
+    {
+      name: "Prim, binary heap (measured)",
+      points: [[8, 104], [16, 269], [32, 704], [64, 1925], [128, 4649], [256, 11181]],
+    },
+    {
+      name: "m·log₂m (reference)",
+      points: [[8, 110], [16, 268], [32, 632], [64, 1456], [128, 3297], [256, 7361]],
+    },
+  ]}
+/>
+
+Kruskal tracks $m \log_2 m$ closely because sorting dominates runtime. Rescanning Prim examines every edge per added vertex, growing quadratically, while a binary heap restores performance to near-sorting speeds.
+
+## Electrifying Moravia: From Clusters to Traveling Salesmen
+
+Kruskal's cycle check uses disjoint-set union–find. Sorting $m$ edges costs $O(m \log m)$, followed by operations costing $O(m \alpha(n))$, absorbing union–find cost into sorting:
+
+$$
+O(m\log m) + O(m\,\alpha(n)) = O(m\log m)
+$$
+
+Borůvka conceived the first MST algorithm in 1926 to plan the regional electrical network of Moravia. His algorithm grows components in parallel, halving the component count each round. This parallel structure remains the standard method for graph connectivity in modern distributed systems (Kiveris et al. 2014).
+
+Removing the $k-1$ heaviest edges from an MST partitions vertices into $k$ optimal clusters, which is single-linkage clustering (Gower and Ross 1969). Christofides (1976) used an MST to guarantee a 1.5-approximation for the metric Traveling Salesperson Problem.
+
+## The Frontier of Linear Time and Matroid Intersections
+
+Chazelle (2000) established an $O(m \cdot \alpha(m, n))$ deterministic MST algorithm using soft heaps. Pettie and Ramachandran (2002) discovered an algorithm with provably optimal runtime, although its exact mathematical complexity remains an open problem.
+
+When an optimization problem requires independence across *two* matroids simultaneously, simple greed fails. Edmonds (1979) solved matroid intersection using augmenting paths, bridging bipartite matching and network synthesis.
+
+## Attributions
+
+- **Whitney 1935** — *On the abstract properties of linear dependence*: matroids and the exchange axiom. The object this page is about.
+- **Borůvka 1926** — the first minimum spanning tree algorithm, and the halving structure behind parallel and distributed versions.
+- **Jarník 1930** — the blob-growing algorithm, later rediscovered as Prim's. Pair it with Prim 1957 in any honest history.
+- **Kruskal 1956** — the sorted sweep, and the union–find phase it needs.
+- **Prim 1957** — the textbook presentation of Jarník's algorithm that gave it the common name.
+- **Rado 1957 · Edmonds 1971** — greedy is optimal on a matroid, and on nothing weaker. The exchange argument in section 3 is theirs.
+- **Karp 1972** — 0/1 knapsack is NP-hard, which is the price of losing the exchange axiom.
+- **Gower and Ross 1969** — an MST with its heaviest edges removed is single-linkage clustering. **Christofides 1976** — the MST-based 1.5-approximation for the travelling salesman.
+- **Karger, Klein and Tarjan 1995 · Chazelle 2000 · Pettie and Ramachandran 2002** — randomized linear time, $O(m\,\alpha(m,n))$, and the optimal deterministic algorithm respectively.
+- **Kiveris and others 2014** — Borůvka-style connectivity in MapReduce, where the MST structure reappears under a different machine model.

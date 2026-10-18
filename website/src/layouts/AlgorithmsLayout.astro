@@ -1,0 +1,250 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import MermaidInit from "../components/MermaidInit.tsx";
+import TldrBox from "../components/drishti/TldrBox.astro";
+import "../styles/tokens.css";
+import "../styles/narrative.css";
+import "../styles/algorithms.css";
+
+interface Crumb {
+  label: string;
+  href?: string;
+}
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  title: string;
+  reframe?: string;
+  oneLine?: string;
+  fieldLabel?: string;
+  tldr?: string[];
+  crumbs?: Crumb[];
+  headings?: Heading[];
+  wide?: boolean;
+}
+
+const {
+  title,
+  reframe,
+  oneLine,
+  fieldLabel = "Algorithms",
+  tldr = [],
+  crumbs = [{ label: "Algorithms", href: "/algorithms" }],
+  headings = [],
+  wide = false,
+} = Astro.props;
+
+const toc = headings.filter((heading) => heading.depth === 2);
+---
+
+<BaseLayout title={`${title} — Algorithms`}>
+  <div class:list={["alg-page", { "alg-page--wide": wide }]}>
+    <nav class="alg-page__breadcrumbs" aria-label="Breadcrumb">
+      <a href="/">Home</a>
+      {crumbs.map((crumb) => (
+        <>
+          <span class="alg-page__crumb-sep">/</span>
+          {crumb.href ? (
+            <a href={crumb.href}>{crumb.label}</a>
+          ) : (
+            <span class="alg-page__crumb-current">{crumb.label}</span>
+          )}
+        </>
+      ))}
+    </nav>
+
+    <header class="alg-page__header">
+      <p class="alg-page__eyebrow">{fieldLabel}</p>
+      <h1 class="alg-page__title">{title}</h1>
+      {reframe && <p class="alg-page__reframe">{reframe}</p>}
+      {oneLine && <p class="alg-page__oneline">{oneLine}</p>}
+    </header>
+
+    {toc.length > 0 && (
+      <nav class="alg-page__toc" aria-label="On this page">
+        <p class="alg-page__toc-label">On this page</p>
+        <ul>
+          {toc.map((heading) => (
+            <li>
+              <a href={`#${heading.slug}`}>{heading.text}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    )}
+
+    {tldr.length > 0 && <TldrBox items={tldr} />}
+
+    <article class="alg-page__prose prose">
+      <slot />
+      <MermaidInit client:load />
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .alg-page {
+    --alg-read-max: min(70ch, 100%);
+    width: 100%;
+    max-width: var(--alg-read-max);
+    margin: 0 auto;
+    min-width: 0;
+    overflow-x: clip;
+    box-sizing: border-box;
+  }
+
+  .alg-page--wide {
+    --alg-read-max: min(72rem, 100%);
+  }
+
+  .alg-page__breadcrumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-bottom: var(--space-4);
+    font-size: var(--font-size-sm);
+    color: var(--color-muted);
+  }
+
+  .alg-page__breadcrumbs a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0.15rem 0;
+  }
+
+  .alg-page__crumb-sep {
+    margin: 0 var(--space-2);
+    color: var(--color-muted);
+  }
+
+  .alg-page__crumb-current {
+    color: var(--color-text);
+  }
+
+  .alg-page__header {
+    margin-bottom: var(--space-6);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-algorithms, #a78bfa) 20%, transparent);
+  }
+
+  .alg-page__eyebrow {
+    margin: 0 0 var(--space-2);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-algorithms, #a78bfa);
+  }
+
+  .alg-page__title {
+    margin: 0 0 var(--space-3);
+    font-size: clamp(1.75rem, 4vw, 2.35rem);
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .alg-page__reframe {
+    margin: 0 0 var(--space-3);
+    font-size: clamp(1.05rem, 2.5vw, 1.25rem);
+    font-weight: 500;
+    line-height: 1.5;
+    color: var(--color-algorithms-hover, #c4b5fd);
+    border-left: 3px solid var(--color-algorithms, #a78bfa);
+    padding-left: var(--space-4);
+    background: color-mix(in srgb, var(--color-algorithms, #a78bfa) 6%, transparent);
+    padding-top: var(--space-2);
+    padding-bottom: var(--space-2);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+
+  .alg-page__oneline {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--color-muted);
+    line-height: 1.6;
+  }
+
+  .alg-page__toc {
+    margin-bottom: var(--space-6);
+    padding: var(--space-4);
+    border: 1px solid color-mix(in srgb, var(--color-algorithms, #a78bfa) 30%, transparent);
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--color-algorithms, #a78bfa) 8%, transparent);
+  }
+
+  .alg-page__toc-label {
+    margin: 0 0 var(--space-2);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-algorithms, #a78bfa);
+  }
+
+  .alg-page__toc ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    line-height: 1.6;
+  }
+
+  .alg-page__toc a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0.15rem 0;
+  }
+
+  .alg-page__toc li + li {
+    margin-top: var(--space-1);
+  }
+
+  .alg-page__prose {
+    max-width: var(--alg-read-max);
+    min-width: 0;
+    line-height: 1.65;
+    overflow-wrap: break-word;
+  }
+
+  .alg-page__prose :global(h2) {
+    margin-top: var(--space-8);
+  }
+
+  .alg-page__prose :global(h3) {
+    margin-top: var(--space-6);
+  }
+
+  .alg-page__prose :global(table) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .alg-page__prose :global(pre:not(.mermaid)) {
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .alg-page__prose :global(.katex-display) {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-block: var(--space-2);
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .alg-page__prose :global(.katex) {
+    max-width: 100%;
+  }
+</style>

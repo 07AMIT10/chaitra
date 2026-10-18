@@ -1,0 +1,970 @@
+{
+  "algorithms": [
+    {
+      "slug": "knapsack-0-1",
+      "folder": "KNAPSACK_01",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "0/1 Knapsack",
+      "reframe": "Pack a mountaineer's rucksack for a deadly ascent. Greedy heuristics chase density and starve on dead weight; the true optimum is a ghost threading a lattice DAG, leaving an insurmountable integrality gap between continuous relaxations and indivisible cargo.",
+      "oneLine": "Three items, a ten-kilogram pack, and a table whose bottom-right cell is the answer.",
+      "tldr": [
+        "The state is a cell (i, c): the best value from the first i items inside capacity c. The recurrence is V(i,c) = max(V(i−1,c), vᵢ + V(i−1, c−wᵢ)), and the cell grid is a DAG whose longest path is the optimum.",
+        "Value-per-kilogram greedy takes the tent and stops at 42; the optimum takes the stove and the food for 58. Greedy solves the fractional relaxation instead, whose optimum here is 66 — an integrality gap of 8.",
+        "The DP is O(nW): polynomial in the capacity's value and exponential in the bits that write it, so the problem is only weakly NP-hard (Karp 1972).",
+        "Scaling every value by ε·v_max/n turns the same DP into an O(n²/ε) scheme, fully polynomial because it is polynomial in 1/ε as well as n (Ibarra–Kim 1975, Sahni 1975)."
+      ],
+      "mathBranches": [
+        "optimization",
+        "graph-theory",
+        "complexity"
+      ],
+      "primitives": [
+        "DPHeatmap",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Dantzig 1957",
+        "Karp 1972",
+        "Ibarra–Kim 1975",
+        "Sahni 1975",
+        "Kellerer–Pferschy–Pisinger 2004",
+        "Merkle–Hellman 1978",
+        "Shamir 1984"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "bellman-ford",
+      "folder": "BELLMAN_FORD",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Bellman–Ford",
+      "reframe": "It is not a slower Dijkstra for broken edges. It is a deflationary gravity: a monotone operator pressing down on every road simultaneously until distances freeze into their least fixed point—or spiral endlessly into a negative abyss.",
+      "oneLine": "Relax every edge in rounds; stop when nothing improves.",
+      "tldr": [
+        "The state is one distance vector; a round applies the relaxation operator to every edge at once.",
+        "The operator is monotone and deflationary, so n−1 rounds reach the fixed point of the Bellman equation.",
+        "The n-th round is the negative-cycle test, and a reachable negative cycle is exactly the case where no fixed point exists.",
+        "In min-plus algebra the same run reads one row of the tropical closure, the sum of L^(k) for k up to n−1."
+      ],
+      "mathBranches": [
+        "order-theory",
+        "algebra",
+        "fixed-point-theory"
+      ],
+      "primitives": [
+        "GraphCanvas",
+        "SemiringMatrix",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Shimbel 1955",
+        "Bellman 1958",
+        "Ford 1956",
+        "Moore 1959"
+      ],
+      "relatedTopics": [
+        "pagerank"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "binary-search",
+      "folder": "BINARY_SEARCH",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Binary Search",
+      "reframe": "To search a billion records, a linear scan must traverse the continent of data footprint by footprint. Binary search cuts the entire continent in half thirty times. In thirty questions, a search space larger than humanity collapses to a single atom.",
+      "oneLine": "Halve the interval that still contains the answer, one comparison at a time.",
+      "tldr": [
+        "The state is an interval that always contains the answer; every comparison deletes at least half of what is left.",
+        "T(n) = T(n/2) + 1 solves to floor(log2 n) + 1, which is ceil(log2(n+1)) — the logarithm derived, not assumed.",
+        "k two-outcome comparisons reach at most 2^k leaves, so n + 1 possible answers force k >= ceil(log2(n+1)): binary search is exactly optimal in the comparison model, and the model is the fine print.",
+        "The same boundary search is bisection, because every false-then-true predicate has a first-true position."
+      ],
+      "mathBranches": [
+        "analysis",
+        "information-theory",
+        "order-theory"
+      ],
+      "primitives": [
+        "RecursionTree",
+        "GrowthTable",
+        "SeriesChart",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Knuth 1973",
+        "Bentley 1986",
+        "Bentley, Haken and Saxe 1980",
+        "Peterson 1957",
+        "van Emde Boas 1975",
+        "Bloch 2006"
+      ],
+      "relatedTopics": [
+        "information-theory"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "bipartite-matching",
+      "folder": "BIPARTITE_MATCHING",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Bipartite Matching",
+      "reframe": "Tether two disjoint universes through a web of fragile handshakes. Eager pairings leave orphaned nodes in the cold; true optimality surges through alternating paths of swapped commitments, pinned between Hall's suffocating neighborhood trap and König's impenetrable vertex shield.",
+      "oneLine": "Four applicants, four placements, six acceptable pairs, and a ceiling of three.",
+      "tldr": [
+        "A matching is a set of edges with no shared endpoints; greedy first-available pairing can strand a vertex that an augmenting path would have saved.",
+        "Hall's condition (Hall 1935) certifies impossibility from the left: the pair {Cara, Dan} shares a single neighbour, so no matching covers all four applicants.",
+        "Berge's condition (Berge 1957) certifies optimality from the search: with no augmenting path left, the size-3 matching is maximum.",
+        "König's theorem (König 1931) pins the same number from the cover side, and the unit-capacity flow reduction (Ford–Fulkerson 1956) makes it fall out of pipes."
+      ],
+      "mathBranches": [
+        "combinatorics",
+        "graph-theory",
+        "optimization"
+      ],
+      "primitives": [
+        "MatchingBoard",
+        "PredictionPrompt",
+        "LPDualityDashboard"
+      ],
+      "attributions": [
+        "Hall 1935",
+        "König 1931",
+        "Berge 1957",
+        "Ford–Fulkerson 1956",
+        "Hopcroft–Karp 1973",
+        "Birkhoff 1946"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "breadth-first-search",
+      "folder": "BREADTH_FIRST_SEARCH",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Breadth-First Search",
+      "reframe": "It is not a graph traversal. It is an unweighted shockwave detonating from a single spark: expanding in concentric spheres of integer distance, carving out the exact geodesic metric of the graph one frontier at a time.",
+      "oneLine": "One source, one queue, and the distance of every vertex — a level at a time.",
+      "tldr": [
+        "The output is a level function: the least fixed point of d(v) = 1 + min d(u) over neighbours — distance in the unweighted metric.",
+        "A plain queue is enough because the frontier stays sorted by distance and never spans more than two adjacent levels.",
+        "One sweep also decides bipartiteness: colouring by level parity is proper exactly when no edge joins two vertices of equal level (König 1936)."
+      ],
+      "mathBranches": [
+        "graph-theory",
+        "order-theory",
+        "combinatorics"
+      ],
+      "primitives": [
+        "GraphCanvas",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Moore 1959",
+        "Lee 1961",
+        "König 1936",
+        "Milgram 1967",
+        "Cohen 2009"
+      ],
+      "relatedTopics": [
+        "gossip-protocols",
+        "pagerank",
+        "mapreduce"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "coin-change",
+      "folder": "COIN_CHANGE",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Coin Change",
+      "reframe": "The cashier's reflex to grab the largest coin is an arithmetic trap. Minimum coin change is a shortest path through a discrete lattice of debt, and greedy choices tumble into disaster the instant a currency ceases to be canonical.",
+      "oneLine": "The fewest coins that sum to an amount, and the exact condition under which the largest-first rule finds them.",
+      "tldr": [
+        "Every cell of the table is a shortest-path distance on the amounts 0 to the amount, where each coin is an edge of weight one.",
+        "Greedy spends 4 + 1 + 1 on 6 with coins 1, 3 and 4; the true minimum is 3 + 3, and the table's corner reads 2.",
+        "Greedy is optimal for every amount exactly when the coin system is canonical, a property Pearson 2005 decides in O(n³) even though the largest coin may be huge.",
+        "The general minimum-coin problem is only weakly NP-hard: the standard O(n·amount) table is polynomial once the amount is written in unary."
+      ],
+      "mathBranches": [
+        "graph-theory",
+        "number-theory",
+        "complexity-theory"
+      ],
+      "primitives": [
+        "DPHeatmap",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Sylvester 1882",
+        "Lueker 1975",
+        "Kannan 1992",
+        "Kozen–Zaks 1994",
+        "Pearson 2005",
+        "Ramírez-Alfonsín 1996"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "depth-first-search",
+      "folder": "DEPTH_FIRST_SEARCH",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Depth-First Search",
+      "reframe": "It is not a blind plunge into the dark. It is a dual-clock crystallization: each vertex is entered with a timestamp and exited with an epitaph, freezing the chaos of a graph into a laminar geometry of perfectly nested time intervals.",
+      "oneLine": "Two time-stamps per vertex, and the way the intervals they bound stand to each other.",
+      "tldr": [
+        "Every vertex gets a discovery time and a finish time; the intervals they bound are either nested or disjoint, never partially overlapping (the parenthesis theorem).",
+        "A digraph has a cycle exactly when the search produces a back edge — an arc to a vertex still open on the stack.",
+        "Reverse the finishing order of a DAG and you have a topological sort; the same times give articulation points and strong components."
+      ],
+      "mathBranches": [
+        "graph-theory",
+        "order-theory",
+        "combinatorics"
+      ],
+      "primitives": [
+        "GraphCanvas",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Tarjan 1972",
+        "Hopcroft–Tarjan 1973",
+        "Knuth 1968"
+      ],
+      "relatedTopics": [
+        "pagerank"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "dijkstra",
+      "folder": "DIJKSTRA",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Dijkstra's Algorithm",
+      "reframe": "It is not a search for a path. It is a wave of light radiating through glass of different thicknesses: the moment a town is touched, its distance is carved in stone forever, because light cannot travel backward in time.",
+      "oneLine": "One source, one frontier, labels that only fall.",
+      "tldr": [
+        "The state is a vector of over-estimates plus a settled set; relaxation only lowers a label.",
+        "Greedy is exact because weights are non-negative: once the least label is settled, no later walk can undercut it.",
+        "The settled vector is one row of the min-plus closure of the weight matrix — Floyd–Warshall and Lehmann compute the whole closure, Dijkstra computes a row.",
+        "One negative edge breaks the exchange step: a later walk undercuts a settled vertex and the run reports a wrong distance."
+      ],
+      "mathBranches": [
+        "order-theory",
+        "algebra",
+        "optimization"
+      ],
+      "primitives": [
+        "GraphCanvas",
+        "SemiringMatrix",
+        "SeriesChart",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Dijkstra 1959",
+        "Bellman 1958",
+        "Fredman–Tarjan 1984",
+        "Lehmann 1977"
+      ],
+      "relatedTopics": [
+        "pagerank"
+      ],
+      "featured": true,
+      "hasPage": true
+    },
+    {
+      "slug": "edit-distance",
+      "folder": "EDIT_DISTANCE",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Edit Distance",
+      "reframe": "Every word is a coordinate in an infinite space of strings. Insert, delete, and mutate are unit vectors across its grid; edit distance is the exact geodesic, carving the shortest trek through a lattice of prefixes.",
+      "oneLine": "The fewest insertions, deletions and substitutions that turn one string into another.",
+      "tldr": [
+        "Every cell of the table is a shortest-path distance in the graph of strings, and hovering it lights the three edges that reach it.",
+        "With insert and delete only, the distance collapses to the identity m + n − 2·LCS.",
+        "A test for distance ≤ k needs only the diagonal band |i − j| ≤ k — O(nk) cells, not the O(n²) full table."
+      ],
+      "mathBranches": [
+        "graph-theory",
+        "metric-geometry",
+        "combinatorics"
+      ],
+      "primitives": [
+        "DPHeatmap",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Levenshtein 1965",
+        "Needleman–Wunsch 1970",
+        "Wagner–Fischer 1974"
+      ],
+      "relatedTopics": [
+        "spam-detection",
+        "information-theory"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "fixed-point-iteration",
+      "folder": "FIXED_POINT_ITERATION",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Fixed-Point Iteration",
+      "reframe": "Take any crumpled map and toss it onto the floor: exactly one point rests directly above the coordinate it represents. A contraction mapping folds an entire metric space inward, reeling every starting guess into an inescapable attractor at rate qⁿ.",
+      "oneLine": "Repeat x = cos x from any start and watch the cobweb spiral into the Dottie number.",
+      "tldr": [
+        "A map that shrinks every distance by a fixed factor q < 1 has exactly one fixed point, and plain iteration reaches it (Banach 1922).",
+        "The error halves geometrically: the panel's ratio column settles on q = 0.6736 for x = cos x, and the chart below plots the honest decay.",
+        "The check you actually run is calculus: if |g′(x)| ≤ q < 1 on an interval, the mean value theorem makes g a contraction there.",
+        "Newton's method is the special case g′(x*) = 0, which is why its error squares instead of shrinking geometrically."
+      ],
+      "mathBranches": [
+        "analysis",
+        "numerical-analysis",
+        "geometry"
+      ],
+      "primitives": [
+        "IterationLab",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Banach 1922",
+        "Picard 1890",
+        "Brouwer 1911",
+        "May 1976",
+        "Lagrange 1797"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "floyd-warshall",
+      "folder": "FLOYD_WARSHALL",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Floyd–Warshall",
+      "reframe": "It is not a road-trip calculator. It is a universal matrix inversion engine: swap out two algebraic symbols, and the exact same four-line loop morphs from pricing shortest paths into counting quantum walks, proving reachability, or decoding hidden Markov trellises.",
+      "oneLine": "One triple loop, four arithmetics, four different answers from the same grid.",
+      "tldr": [
+        "The four-line triple loop uses only ⊕, ⊗, 0 and 1; the semiring axioms are its entire hypothesis.",
+        "Swap the semiring and the same grid reads as cheapest routes, route counts, reachability, or longest routes.",
+        "The in-place update is exact when ⊕ is idempotent, so addition — the one non-idempotent choice — is the panel that over-counts.",
+        "The closure is a matrix inverse in a semiring: A* = I + A + A² + ⋯ = (I − A)⁻¹ when the series converges."
+      ],
+      "mathBranches": [
+        "algebra",
+        "order-theory",
+        "combinatorics"
+      ],
+      "primitives": [
+        "SemiringMatrix",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Floyd 1962",
+        "Warshall 1962",
+        "Kleene 1951",
+        "Lehmann 1977"
+      ],
+      "relatedTopics": [
+        "pagerank",
+        "gossip-protocols"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "huffman-coding",
+      "folder": "HUFFMAN_CODING",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Huffman Coding",
+      "reframe": "Flip the message upside down. Pair the two rarest whispers in an alphabet, fuse them into a single stem, and climb upward until the entire language hangs from one root—its average cost pinioned within a single bit of Shannon's thermodynamic limit.",
+      "oneLine": "Merge the two lightest roots; the accumulated cost is the average code length, and it lands within one bit of the entropy.",
+      "tldr": [
+        "Every merge adds the two merged weights to a running total, so when a single tree remains that total equals the average code length sum of p_i times l_i. The panel accumulates it as you merge and shows it against H.",
+        "The two lightest roots are siblings in some optimal tree, by an exchange argument (Huffman 1952). Merge any heavier pair first and the axis prices the mistake in bits.",
+        "Shannon 1948 gave the entropy H as the lower bound for any prefix code, and Huffman's rule attains the minimum L*, so entropy is at most L* and L* is less than H + 1.",
+        "The one-bit gap is a worst case, not the rule. On the board's six weights H = 2.2037 and L* = 2.25, a gap of 0.05 bits; a two-symbol 0.99/0.01 source has H = 0.0808 against L = 1, a gap of 0.92.",
+        "Prefix-free is the whole requirement: no code word is a prefix of another, so the bit string decodes with no delimiters. Symbols sit at the leaves of the tree and that leaf placement is exactly what makes the property hold."
+      ],
+      "mathBranches": [
+        "information-theory",
+        "combinatorics",
+        "optimization"
+      ],
+      "primitives": [
+        "HuffmanMerge",
+        "SeriesChart",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Shannon 1948",
+        "Kraft 1949",
+        "Fano 1949",
+        "Huffman 1952",
+        "McMillan 1956",
+        "Gallager 1978",
+        "Rissanen 1976",
+        "Larmore–Hirschberg 1990"
+      ],
+      "relatedTopics": [
+        "information-theory"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "karatsuba-multiplication",
+      "folder": "KARATSUBA_MULTIPLICATION",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Karatsuba Multiplication",
+      "reframe": "In 1960, Kolmogorov conjectured that multiplying two n-digit numbers fundamentally requires n² operations. Within a week, a 23-year-old student proved him wrong with three products instead of four: a single algebraic subtraction that cracked open the sub-quadratic universe.",
+      "oneLine": "One product saved at each split, recursed into the exponent n^log₂3.",
+      "tldr": [
+        "Splitting an n-digit number in half turns four products into three: T(n) = 3T(n/2) + Θ(n), which solves to Θ(n^log₂3) ≈ Θ(n^1.585) against schoolbook's Θ(n²).",
+        "The saving is one rank: the two-block product is a rank-4 bilinear map, and Karatsuba is a rank-3 decomposition — the move Strassen makes with two indices instead of one.",
+        "The additions cost Θ(n), a lower polynomial degree than the rank's exponent, so they ride along as a constant factor and the rank shows through.",
+        "Toom–Cook splits into r parts for 2r − 1 products per node and drops the exponent toward 1; Schönhage–Strassen's FFT reaches O(n log n log log n).",
+        "The true complexity of integer multiplication is unknown: the only general lower bound is Ω(n), and the best known upper bound is O(n log n)."
+      ],
+      "mathBranches": [
+        "algebra",
+        "analysis",
+        "information-theory"
+      ],
+      "primitives": [
+        "RecursionTree",
+        "GrowthTable",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Karatsuba–Ofman 1960/1962",
+        "Toom 1963",
+        "Cook 1966",
+        "Schönhage–Strassen 1971",
+        "Knuth 1981"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "longest-common-subsequence",
+      "folder": "LONGEST_COMMON_SUBSEQUENCE",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Longest Common Subsequence",
+      "reframe": "Lay two strings along the axes of a plane and watch their shared letters ignite into a constellation of points. The longest common subsequence is the maximal chain climbing through this poset—the highest monotone ridge connecting two divergent texts.",
+      "oneLine": "The longest word that appears, in order, inside both strings.",
+      "tldr": [
+        "A common subsequence is a chain in the product order on the matching cells (i, j) with a[i] = b[j]; the DP table writes the height of each rectangle into its corner.",
+        "With insert and delete only, the distance between the strings is exactly m + n − 2·LCS — the cost of the cheapest monotone staircase through the grid.",
+        "Computing the length is O(mn), but the number of distinct longest common subsequences can be 2^(n/2): polynomial to measure, exponential to list.",
+        "When one string is a rearrangement of the other, LCS is exactly the longest increasing subsequence of the position permutation."
+      ],
+      "mathBranches": [
+        "order-theory",
+        "combinatorics",
+        "algorithms"
+      ],
+      "primitives": [
+        "DPHeatmap",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Wagner–Fischer 1974",
+        "Hirschberg 1975",
+        "Myers 1986"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "longest-increasing-subsequence",
+      "folder": "LONGEST_INCREASING_SUBSEQUENCE",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Longest Increasing Subsequence",
+      "reframe": "Deal a shuffled deck into solitaire piles: each card must sit on a strictly larger predecessor, or start a new pile to the right. The moment the deck runs out, the count of piles is no mere card trick—it is the height of a hidden poset, locked in perfect duality with the longest ascending path through the chaos.",
+      "oneLine": "The height of the order on the points (i, pᵢ), and the fewest antichains that cover them.",
+      "tldr": [
+        "The state is a partial order on the points (i, pᵢ): comparable means the index and the value both grow. An increasing subsequence is a chain; a non-increasing one is an antichain.",
+        "Mirsky 1971: the height equals the fewest antichains that cover the poset. Patience sorting builds that cover, so the pile count is the LIS — and the pile tops stay sorted, so each card costs one binary search.",
+        "Dilworth 1950 is the dual, not the same statement: fewest chains equals largest antichain, the width. Credit the pile count to Mirsky, not to Dilworth.",
+        "Erdős–Szekeres 1935: more than (r−1)(s−1) numbers force an increasing run of length r or a non-increasing run of length s."
+      ],
+      "mathBranches": [
+        "order-theory",
+        "combinatorics",
+        "algorithms"
+      ],
+      "primitives": [
+        "ChainAntichain",
+        "DPHeatmap",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Mirsky 1971",
+        "Dilworth 1950",
+        "Erdős–Szekeres 1935",
+        "Schensted 1961",
+        "Baik–Deift–Johansson 1999"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "maximum-flow",
+      "folder": "MAXIMUM_FLOW",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Maximum Flow",
+      "reframe": "Pump fluid through a pipe network until the seams burst. The instant the flow chokes, the network reveals an invisible geometric fault-line: a razor-thin cut across the world where every single pipe is gorged to capacity.",
+      "oneLine": "Seven pipes, five junctions, and the cut that certifies the answer.",
+      "tldr": [
+        "The state is a feasible flow, and the maximum flow is the optimum of a linear program whose constraints are one row per junction.",
+        "The dual of that program is a cut, so every flow value is at most every cut capacity at every single step — weak duality, visible as a gap card that can never go negative.",
+        "Integral capacities give an integral optimum because the network matrix is totally unimodular, so no rounding is ever needed.",
+        "Ford–Fulkerson can fail to terminate on irrational capacities (Ford–Fulkerson 1962; Zwick 1995); Edmonds–Karp's shortest-path rule removes the danger at O(VE²)."
+      ],
+      "mathBranches": [
+        "linear-programming",
+        "optimization",
+        "graph-theory"
+      ],
+      "primitives": [
+        "LPDualityDashboard",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Ford–Fulkerson 1956",
+        "Elias–Feinstein–Shannon 1956",
+        "Edmonds–Karp 1972",
+        "Hoffman 1960",
+        "Zwick 1995"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "merge-sort",
+      "folder": "MERGE_SORT",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Merge Sort",
+      "reframe": "Sorting unordered chaos appears to require combinatorial omniscience. In 1945, John von Neumann proved it requires only a two-finger zipper: split the universe down to isolated atoms, then weave them back together one comparison at a time.",
+      "oneLine": "Every sort is a merge; every merge is one linear pass over two chains.",
+      "tldr": [
+        "Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does.",
+        "The recurrence T(n) = 2T(n/2) + Θ(n) sums to Θ(n log n): each of the log n levels touches every key exactly once.",
+        "For n = 2^k the worst case is exactly n log₂ n − n + 1 comparisons — a derived identity, not an estimate.",
+        "That matches the floor ⌈log₂(n!)⌉ = Θ(n log n) to a constant factor, so no comparison sort can beat it asymptotically."
+      ],
+      "mathBranches": [
+        "algebra",
+        "analysis",
+        "information-theory",
+        "order-theory"
+      ],
+      "primitives": [
+        "RecursionTree",
+        "SeriesChart",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "von Neumann 1945",
+        "Knuth 1973",
+        "Stirling 1730",
+        "Ford–Johnson 1959",
+        "decision-tree lower bound"
+      ],
+      "relatedTopics": [
+        "mapreduce",
+        "information-theory"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "minimum-spanning-tree",
+      "folder": "MINIMUM_SPANNING_TREE",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Minimum Spanning Tree",
+      "reframe": "It is not a cautious hoarder picking cheap twigs. It is the geometric miracle of a matroid: short-sighted, local greed is mathematically guaranteed to carve out the globally optimal skeleton without a single step of regret.",
+      "oneLine": "One weighted graph, two greedy orders, one forced total — and the axiom that makes greedy provably right.",
+      "tldr": [
+        "A spanning tree is a basis of the graphic matroid; a minimum spanning tree is a minimum-weight basis.",
+        "The cut property and the cycle property are the two faces of Whitney's exchange axiom, and each one proves greedy exact.",
+        "Ties decide the tree, never the weight: on the graph below there are exactly two minimum spanning trees, one edge-swap apart.",
+        "Greedy breaks the instant independence stops being a matroid — three items and one capacity are enough to see it."
+      ],
+      "mathBranches": [
+        "combinatorics",
+        "optimization",
+        "graph-theory"
+      ],
+      "primitives": [
+        "GraphCanvas",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Borůvka 1926",
+        "Kruskal 1956",
+        "Prim 1957",
+        "Whitney 1935"
+      ],
+      "relatedTopics": [
+        "randomized-algorithms",
+        "mapreduce"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "newton-method",
+      "folder": "NEWTON_METHOD",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Newton's Method",
+      "reframe": "Standard algorithms crawl toward truth one digit at a time. Newton's method rides a tangent line straight down to the coordinate axis: once inside the basin of attraction, every single step squares the error, doubling the count of correct decimal digits in a blinding geometric flash.",
+      "oneLine": "Take the tangent at the current guess, read where it crosses the axis, and watch the correct digits double.",
+      "tldr": [
+        "The step is one tangent line. Replace f by its tangent at (xₙ, f(xₙ)) and set the next guess where that line hits the axis; the panel draws exactly that segment from guess to axis.",
+        "A Taylor expansion at a simple root gives eₙ₊₁ = |f″(x*)/2f′(x*)|·eₙ², so the order is 2. At √2 with f(x) = x² − 2 the constant is 1/(2√2) = 0.3536, the number the panel's ratio column settles on.",
+        "Newton's map N(x) = x − f(x)/f′(x) is a fixed-point iteration, and N′(x*) = f(x*)f″(x*)/f′(x*)² vanishes at a simple root; the fixed point is superattracting (Fatou 1918, Julia 1918).",
+        "Where the tangent is nearly flat the step is enormous: from x₀ = 0.82 on Wallis's cubic x³ − 2x − 5 the first iterate lands near 355, not near the root.",
+        "Bisection trades speed for a guarantee. A sign change is enough for a continuous f, and each step at least halves the error, order 1 against Newton's order 2."
+      ],
+      "mathBranches": [
+        "analysis",
+        "numerical-analysis",
+        "geometry"
+      ],
+      "primitives": [
+        "IterationLab",
+        "GrowthTable",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Newton 1669",
+        "Raphson 1690",
+        "Simpson 1740",
+        "Cayley 1879",
+        "Fatou 1918",
+        "Julia 1918",
+        "Kantorovich 1948",
+        "Brent 1973",
+        "Dennis–Schnabel 1983",
+        "Smale 1986"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "quicksort",
+      "folder": "QUICKSORT",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Quicksort",
+      "reframe": "Quicksort is not partitioning numbers on a chalkboard. It is a random binary search tree materialising in memory out of pure probability: every comparison creates an edge, and the execution time is the summed depth of that living tree.",
+      "oneLine": "Every comparison is an edge in a tree; the bill is the tree's depth, summed.",
+      "tldr": [
+        "The pivot sequence is a binary search tree — the one built by inserting the keys in input order — and the comparison count is its internal path length.",
+        "Linearity of expectation over the pair indicators gives the exact average E[C] = 2(n+1)H_n − 4n ≈ 1.39 n log₂ n; the constant is 2 ln 2.",
+        "A 1:9 split is still Θ(n log n): the depth is log₁₀/₉ n ≈ 6.58 log₂ n, a constant factor, not a new class.",
+        "Sorted input with a first-element pivot is a path: n(n−1)/2 ≈ n²/2 comparisons, and McIlroy's 1999 adversary forces that on any deterministic pivot rule."
+      ],
+      "mathBranches": [
+        "probability",
+        "combinatorics",
+        "analysis"
+      ],
+      "primitives": [
+        "RecursionTree",
+        "SeriesChart",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Hoare 1961",
+        "Knuth 1973",
+        "McIlroy 1999",
+        "Euler–Mascheroni"
+      ],
+      "relatedTopics": [
+        "randomized-algorithms",
+        "probability-theory"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "stable-matching",
+      "folder": "STABLE_MATCHING",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Stable Matching",
+      "reframe": "Pair two warring camps where every individual harbours private desires and fierce rankings. What prevents revolt is not goodwill, but the cold geometry of deferred acceptance: an unshakeable equilibrium where no clandestine pair in the room would rather elope together than stay with their assigned partners.",
+      "oneLine": "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes.",
+      "tldr": [
+        "Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted.",
+        "It stops with no blocking pair: a left–right pair who both rank the other above the partner they were assigned. The board checks every pair and prints that count as zero (Gale–Shapley 1962).",
+        "The result is proposer-optimal. Among all stable matchings it is best for every proposer at once and worst for every receiver; swap who proposes and the board recomputes the other extreme (Gale–Shapley 1962, Dubins–Freedman 1981).",
+        "The stable matchings of one instance form a lattice (Knuth 1976). The board's four-by-four has exactly two, and the two extremes differ in two of the four assignments.",
+        "Termination is counting: each proposer walks down its own list and never repeats a proposal, so the process stops after at most |L|·|R| proposals (McVitie–Wilson 1971)."
+      ],
+      "mathBranches": [
+        "combinatorics",
+        "game-theory",
+        "order-theory"
+      ],
+      "primitives": [
+        "MatchingBoard",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Gale–Shapley 1962",
+        "Kuhn 1955",
+        "Berge 1957",
+        "McVitie–Wilson 1971",
+        "Knuth 1976",
+        "Dubins–Freedman 1981",
+        "Roth 1984",
+        "Roth 1986"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "strassen-matrix-multiplication",
+      "folder": "STRASSEN_MULTIPLICATION",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Strassen's Algorithm",
+      "reframe": "For centuries, multiplying four numbers in a square demanded eight multiplications — treated as an immutable law of arithmetic. Strassen discovered that eight is a lie: seven is enough. That single missing product permanently broke the cubic wall of linear algebra.",
+      "oneLine": "Seven products where the textbook needs eight, applied to half-size blocks over and over.",
+      "tldr": [
+        "Matrix multiplication is a bilinear map; the fewest scalar products that compute it is the rank of its tensor, and the textbook algorithm is an 8-term decomposition.",
+        "Strassen gave a 7-term one for 2×2 blocks, and Winograd proved seven is the least possible, so that rank is exactly 7 — you cannot do better at size 2.",
+        "Recursing gives T(n) = 7T(n/2) + Θ(n²), hence Θ(n^{log₂ 7}) ≈ Θ(n^2.807): the Θ(n²) additions enlarge the constant, not the exponent.",
+        "That exponent is ω, the object of a fifty-year race that has moved the bound many times and has never settled it."
+      ],
+      "mathBranches": [
+        "algebra",
+        "multilinear-algebra",
+        "complexity-theory"
+      ],
+      "primitives": [
+        "RecursionTree",
+        "GrowthTable",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Strassen 1969",
+        "Winograd 1971",
+        "Coppersmith–Winograd 1990",
+        "Alman–Williams 2021",
+        "Higham 2002"
+      ],
+      "relatedTopics": [],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "topological-sort",
+      "folder": "TOPOLOGICAL_SORT",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Topological Sort",
+      "reframe": "Thread an arrow of time through a tangled web of dependencies so that no consequence ever precedes its cause. The instant a circular dependency creeps in, causality fractures—revealing that sorting a DAG is the act of choosing one linear reality among an astronomical sea of valid futures.",
+      "oneLine": "Flatten a dependency DAG into a queue order, and see the orders you did not choose.",
+      "tldr": [
+        "Reachability is a preorder; quotient it by mutual reachability and you get the poset you are really sorting.",
+        "A topological order is a linear extension — one total order that never contradicts a prerequisite.",
+        "Kahn's peeling deletes minimal elements in O(V+E), yet counting how many linear extensions exist is #P-complete (Brightwell–Winkler 1991), so the count is not a construction."
+      ],
+      "mathBranches": [
+        "order-theory",
+        "combinatorics",
+        "graph-theory"
+      ],
+      "primitives": [
+        "GraphCanvas",
+        "PredictionPrompt",
+        "SeriesChart"
+      ],
+      "attributions": [
+        "Kahn 1962",
+        "Tarjan 1976",
+        "Birkhoff 1937",
+        "Brightwell–Winkler 1991"
+      ],
+      "relatedTopics": [
+        "pagerank",
+        "mapreduce",
+        "distributed-systems"
+      ],
+      "featured": false,
+      "hasPage": true
+    },
+    {
+      "slug": "union-find",
+      "folder": "UNION_FIND",
+      "field": "programming",
+      "fieldLabel": "Programming",
+      "title": "Union–Find",
+      "reframe": "Begin with a universe of isolated atoms. Every merge is an irreversible climb up a crystal mountain that can never be descended. By the summit, the cost of each step is governed by the slowest-growing function in human mathematics.",
+      "oneLine": "Two operations on the partitions of a finite set.",
+      "tldr": [
+        "The state is a partition; union is the join in the partition lattice.",
+        "A non-negative potential turns amortised cost into a balance you cannot overdraw.",
+        "Rank/size caps height and path compression kills repeats; together the bound is α(n) — smaller than any logarithm you have met."
+      ],
+      "mathBranches": [
+        "order-theory",
+        "algebra",
+        "analysis"
+      ],
+      "primitives": [
+        "LatticeClimb",
+        "PotentialBank",
+        "GrowthTable",
+        "SeriesChart",
+        "PredictionPrompt"
+      ],
+      "attributions": [
+        "Tarjan 1975",
+        "Knuth 1973"
+      ],
+      "relatedTopics": [
+        "crdts-plus-probability",
+        "pagerank",
+        "hyperloglog"
+      ],
+      "featured": true,
+      "hasPage": true
+    }
+  ],
+  "fields": [
+    {
+      "id": "programming",
+      "label": "Programming",
+      "count": 24
+    }
+  ],
+  "mathBranches": [
+    {
+      "id": "algebra",
+      "count": 7
+    },
+    {
+      "id": "algorithms",
+      "count": 2
+    },
+    {
+      "id": "analysis",
+      "count": 7
+    },
+    {
+      "id": "combinatorics",
+      "count": 12
+    },
+    {
+      "id": "complexity",
+      "count": 1
+    },
+    {
+      "id": "complexity-theory",
+      "count": 2
+    },
+    {
+      "id": "fixed-point-theory",
+      "count": 1
+    },
+    {
+      "id": "game-theory",
+      "count": 1
+    },
+    {
+      "id": "geometry",
+      "count": 2
+    },
+    {
+      "id": "graph-theory",
+      "count": 9
+    },
+    {
+      "id": "information-theory",
+      "count": 4
+    },
+    {
+      "id": "linear-programming",
+      "count": 1
+    },
+    {
+      "id": "metric-geometry",
+      "count": 1
+    },
+    {
+      "id": "multilinear-algebra",
+      "count": 1
+    },
+    {
+      "id": "number-theory",
+      "count": 1
+    },
+    {
+      "id": "numerical-analysis",
+      "count": 2
+    },
+    {
+      "id": "optimization",
+      "count": 6
+    },
+    {
+      "id": "order-theory",
+      "count": 12
+    },
+    {
+      "id": "probability",
+      "count": 1
+    }
+  ]
+}

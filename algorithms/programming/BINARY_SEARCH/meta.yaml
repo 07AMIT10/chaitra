@@ -1,0 +1,15 @@
+title: "Binary Search"
+slug: binary-search
+field: programming
+fieldLabel: "Programming"
+reframe: "To search a billion records, a linear scan must traverse the continent of data footprint by footprint. Binary search cuts the entire continent in half thirty times. In thirty questions, a search space larger than humanity collapses to a single atom."
+oneLine: "Halve the interval that still contains the answer, one comparison at a time."
+tldr:
+  - "The state is an interval that always contains the answer; every comparison deletes at least half of what is left."
+  - "T(n) = T(n/2) + 1 solves to floor(log2 n) + 1, which is ceil(log2(n+1)) — the logarithm derived, not assumed."
+  - "k two-outcome comparisons reach at most 2^k leaves, so n + 1 possible answers force k >= ceil(log2(n+1)): binary search is exactly optimal in the comparison model, and the model is the fine print."
+  - "The same boundary search is bisection, because every false-then-true predicate has a first-true position."
+mathBranches: [analysis, information-theory, order-theory]
+primitives: [RecursionTree, GrowthTable, SeriesChart, PredictionPrompt]
+attributions: ["Knuth 1973", "Bentley 1986", "Bentley, Haken and Saxe 1980", "Peterson 1957", "van Emde Boas 1975", "Bloch 2006"]
+relatedTopics: [information-theory]

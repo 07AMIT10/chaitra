@@ -1,0 +1,187 @@
+import GraphCanvas from "@alg/GraphCanvas.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+
+{/*
+  Primitive contract used by this page, matched to website/src/components/algorithms/.
+    GraphCanvas      nodes, edges, algorithm="dfs", source, directed, caption, height — self-driving player
+    PredictionPrompt question, options (string[]), correct (index), explain
+    SeriesChart      series: [{ name, points: [[x, y], ...] }], title, xLabel, yLabel, annotations (static)
+  Every trace number quoted in the prose below is read off the panel's own step log:
+  the main canvas has 28 frames, the DAG canvas 21, and the enter/leave lines in order
+  give d[v] and f[v]. Interactive primitives carry an explicit Astro client directive;
+  Astro islands cannot nest, so each primitive here is its own island.
+*/}
+
+## Six Vertices, Two Clocks
+
+Six vertices, nine directed arcs, and a recursion stack that serves as a chronological ledger. Step through the execution below before reading a single formal definition: the log is not a trace of work done, but the construction of a mathematical coordinate system.
+
+<GraphCanvas
+  client:visible
+  algorithm="dfs"
+  source="A"
+  directed
+  height={420}
+  caption="Depth-first search from A. The path row is the recursion stack; the history below it is every enter, every arc examined and every return."
+  nodes={[
+    { id: "A", x: 300, y: 50 },
+    { id: "B", x: 110, y: 160 },
+    { id: "C", x: 560, y: 160 },
+    { id: "D", x: 190, y: 280 },
+    { id: "E", x: 300, y: 430 },
+    { id: "F", x: 560, y: 320 },
+  ]}
+  edges={[
+    { from: "A", to: "B" },
+    { from: "A", to: "C" },
+    { from: "B", to: "D" },
+    { from: "C", to: "D" },
+    { from: "D", to: "E" },
+    { from: "E", to: "A" },
+    { from: "C", to: "F" },
+    { from: "F", to: "D" },
+    { from: "A", to: "E" },
+  ]}
+/>
+
+<PredictionPrompt
+  client:visible
+  question="Exactly one of these four arcs produces a back edge — pointing to an ancestor currently living on the active recursion stack. Which arc is the true cycle-closing back edge?"
+  options={["A → E", "E → A", "C → D", "F → D"]}
+  correct={1}
+  explain="Only E → A points to a vertex still active on the stack. When the search processes E, the stack contains [A, B, D, E], making A an active ancestor of E. Arcs C → D and F → D reach D long after its frame has closed, making them cross edges; A → E is a forward edge to a finished descendant."
+/>
+
+## Beyond the Cursor's Trail
+
+Ask a programmer what depth-first search does and you will hear a mechanical rule: dive as deep as possible, then backtrack. Ask what the algorithm produces and you will receive the sequence of visited vertices.
+
+That sequence is an arbitrary artefact of input ordering and dictionary sorting. Reordering adjacent arcs completely scrambles the visit sequence while leaving the underlying graph topology untouched.
+
+The algorithm's true output is not a path. It is a spanning forest decorated with two timestamps per vertex that encode the global connectivity of the network.
+
+## The Laminar World: Nested Time Intervals
+
+Strip the traversal of commentary and a rooted spanning forest remains. Every vertex except a tree root has a unique parent that discovered it, linked by tree edges.
+
+Assign each vertex two distinct timestamps. Let $d[v]$ be the tick when the search enters $v$, and let $f[v]$ be the tick when its subroutine returns. The clock advances on every event, allocating ticks 1 through 12 across the six vertices.
+
+| vertex | enter $d[v]$ | leave $f[v]$ | interval |
+|---|---|---|---|
+| A | 1 | 12 | 1 to 12 |
+| B | 2 | 7 | 2 to 7 |
+| D | 3 | 6 | 3 to 6 |
+| E | 4 | 5 | 4 to 5 |
+| C | 8 | 11 | 8 to 11 |
+| F | 9 | 10 | 9 to 10 |
+
+Each vertex owns an interval $[d[v], f[v]]$. This family of intervals is strictly **laminar**: any two intervals are either nested or completely disjoint, never partially overlapping. That single structural invariance drives every theorem on this page.
+
+## The Parenthesis Theorem and Arc Taxonomy
+
+### The Parenthesis Invariant
+
+$$
+u \ne v \implies [d_u, f_u] \subseteq [d_v, f_v] \text{ or } [d_v, f_v] \subseteq [d_u, f_u] \text{ or } [d_u, f_u] \cap [d_v, f_v] = \varnothing
+$$
+
+This is the **parenthesis theorem** (Cormen, Leiserson, Rivest, and Stein). A single call stack permits no third state: subroutine calls are entered and exited in strictly nested order.
+
+<SeriesChart
+  title="The same six vertices as dots: x is the enter time, y is the leave time"
+  xLabel="discovery time d[v]"
+  yLabel="finish time f[v]"
+  annotations={[{ x: 1, y: 12, text: "A closes last" }]}
+  series={[
+    { name: "A", points: [[1, 12]] },
+    { name: "B", points: [[2, 7]] },
+    { name: "D", points: [[3, 6]] },
+    { name: "E", points: [[4, 5]] },
+    { name: "C", points: [[8, 11]] },
+    { name: "F", points: [[9, 10]] },
+  ]}
+/>
+
+Each point shows one vertex coordinate $(d[v], f[v])$. One vertex nests inside another precisely when its point sits down and to the right of the ancestor point.
+
+<PredictionPrompt
+  client:visible
+  question="Vertices B and C are sibling subtrees under parent A, with B explored first. What spatial relationship must their intervals share?"
+  options={[
+    "B's interval must contain C's interval",
+    "They are strictly disjoint — B closes before C opens",
+    "They partially overlap along the time boundary"
+  ]}
+  correct={1}
+  explain="Subtree B fully terminates and leaves the stack at f = 7, whereas C is not entered until d = 8. Sibling branches are always disjoint in time. Nesting occurs exclusively between an ancestor and its descendants."
+/>
+
+### The Taxonomy of Four Arc Types
+
+Every directed arc $(u, v)$ is categorized the instant its tail $u$ inspects it:
+
+- **Tree edge.** Head $v$ is undiscovered ($d[v]$ unassigned), making $u$ the parent of $v$.
+- **Back edge.** Head $v$ is active on the stack ($d[v] < d[u] < f[u] < f[v]$), pointing to an ancestor.
+- **Forward edge.** Head $v$ is finished and was discovered after $u$ ($d[u] < d[v] < f[v] < f[u]$), skipping down to a descendant.
+- **Cross edge.** Head $v$ finished before $u$ was discovered ($d[v] < f[v] < d[u] < f[u]$), bridging between separate branches.
+
+The back edge alone governs cycles:
+
+$$
+G \text{ has a cycle} \iff \text{any depth-first search of } G \text{ produces a back edge}
+$$
+
+If arc $(u, v)$ is a back edge, the tree path from ancestor $v$ to $u$ combined with $(u, v)$ forms a closed cycle. Conversely, on any cycle, the earliest entered vertex $v$ must eventually receive a back edge from its cyclic predecessor.
+
+In a directed acyclic graph (DAG), sorting vertices in decreasing order of finish time $f[v]$ produces a valid topological order. Because a DAG has no back edges, every arc $(u, v)$ satisfies $f[u] > f[v]$.
+
+## Anatomy of Three Critical Frames
+
+Scrub the player to three revealing frames:
+
+- **Frame 9.** The stack holds $[A, B, D, E]$ when arc $E \to A$ is inspected. Vertex $A$ sits at the stack bottom, meaning this single frame captures the cycle $A \to B \to D \to E \to A$ as a back edge.
+- **Frame 26.** Arc $A \to E$ is examined after $E$ has already finished at time 5. This is a forward edge: an optimization shortcut rather than a cycle.
+- **Frame 18.** Arc $C \to D$ reaches $D$ after $D$'s entire subtree has closed. Because $D$ is neither ancestor nor descendant of $C$, this is a cross edge.
+
+## Topological Ordering, Cut-Vertices, and Strong Components
+
+Run the search on a DAG and the finishing order delivers a topological sort without additional bookkeeping:
+
+<GraphCanvas
+  client:visible
+  algorithm="dfs"
+  source="A"
+  directed
+  height={400}
+  caption="A DAG. Read the leave lines in order — E, D, B, C, A — and reverse them."
+  nodes={[
+    { id: "A", x: 300, y: 50 },
+    { id: "B", x: 110, y: 170 },
+    { id: "C", x: 560, y: 170 },
+    { id: "D", x: 300, y: 300 },
+    { id: "E", x: 300, y: 430 },
+  ]}
+  edges={[
+    { from: "A", to: "B" },
+    { from: "A", to: "C" },
+    { from: "B", to: "D" },
+    { from: "C", to: "D" },
+    { from: "D", to: "E" },
+  ]}
+/>
+
+Reversing the exit times $E, D, B, C, A$ yields the topological order $A, C, B, D, E$. Every directed edge points strictly forward in this sequence, generated without in-degree counting or queueing.
+
+Define $low[w]$ as the minimum discovery time reachable from $w$'s subtree via at most one non-tree arc. This single metric enables Tarjan's linear-time algorithms for cut-vertices and biconnectivity (Hopcroft and Tarjan 1973).
+
+The same timestamps identify Strongly Connected Components (SCCs) in a single $O(V + E)$ pass (Tarjan 1972). Modern optimizing compilers build dominator trees on control-flow graphs using this identical interval geometry (Lengauer and Tarjan 1979).
+
+## Attributions
+
+- **Tarjan 1972** — *Depth-first search and linear graph algorithms*, SIAM Journal on Computing: the linear-time strong-components algorithm, and the paper that made the forest plus two time-stamps the substrate of graph algorithms.
+- **Hopcroft and Tarjan 1973** — *Efficient algorithms for graph manipulation*, CACM: biconnected components and articulation points from the same discovery times, via the low-link values used above.
+- **Knuth 1968** — *The Art of Computer Programming*, Vol. 1: the systematic treatment of backtracking, of which depth-first search is the case on a graph.
+- **Cormen, Leiserson, Rivest and Stein** — *Introduction to Algorithms*: the parenthesis theorem, the white-path theorem and the four-way classification of arcs, stated here as they state them.
+- **Lengauer and Tarjan 1979** — dominator trees from a depth-first traversal of a control-flow graph.
+- **Trémaux 1882** — the maze-walking method, recorded in Lucas's *Récréations Mathématiques*, the earliest written depth-first traversal.

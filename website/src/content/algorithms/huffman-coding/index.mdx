@@ -1,0 +1,176 @@
+---
+title: "Huffman Coding"
+slug: huffman-coding
+field: programming
+fieldLabel: "Programming"
+reframe: "Flip the message upside down. Pair the two rarest whispers in an alphabet, fuse them into a single stem, and climb upward until the entire language hangs from one root—its average cost pinioned within a single bit of Shannon's thermodynamic limit."
+oneLine: "Merge the two lightest roots; the accumulated cost is the average code length, and it lands within one bit of the entropy."
+tldr: ["Every merge adds the two merged weights to a running total, so when a single tree remains that total equals the average code length sum of p_i times l_i. The panel accumulates it as you merge and shows it against H.", "The two lightest roots are siblings in some optimal tree, by an exchange argument (Huffman 1952). Merge any heavier pair first and the axis prices the mistake in bits.", "Shannon 1948 gave the entropy H as the lower bound for any prefix code, and Huffman's rule attains the minimum L*, so entropy is at most L* and L* is less than H + 1.", "The one-bit gap is a worst case, not the rule. On the board's six weights H = 2.2037 and L* = 2.25, a gap of 0.05 bits; a two-symbol 0.99/0.01 source has H = 0.0808 against L = 1, a gap of 0.92.", "Prefix-free is the whole requirement: no code word is a prefix of another, so the bit string decodes with no delimiters. Symbols sit at the leaves of the tree and that leaf placement is exactly what makes the property hold."]
+mathBranches: ["information-theory", "combinatorics", "optimization"]
+primitives: ["HuffmanMerge", "SeriesChart", "PredictionPrompt"]
+attributions: ["Shannon 1948", "Kraft 1949", "Fano 1949", "Huffman 1952", "McMillan 1956", "Gallager 1978", "Rissanen 1976", "Larmore–Hirschberg 1990"]
+relatedTopics: ["information-theory"]
+---
+
+import HuffmanMerge from "@alg/HuffmanMerge.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Primitive contracts this page relies on, matched to website/src/components/algorithms/:
+    HuffmanMerge      symbols ({ name, weight }[]) · caption · height · greedyHint?
+    SeriesChart       series ({ name, points [x, y][] }[]) · title · xLabel · yLabel · height · annotations   (static)
+    PredictionPrompt  question · options (string[]) · correct (index) · explain
+  Interactive primitives need an explicit Astro client directive (`client:visible`).
+  Every number quoted below is computed by the same rules the panel uses:
+  Huffman's merge rule on the stated weights, and the entropy and optimal Huffman length
+  of a Zipf(m) source for the chart.
+*/}
+
+## Six Letters on a Wire
+
+Six symbols wait on the board, each carrying a fixed frequency of occurrence. Pair any two roots and merge them: the tree branches out, labels its edges with 0 and 1, and accumulates the weight of their junction into a running bill.
+
+The running total is bits per symbol, and the axis underneath carries three markers: $H$ the entropy, $L^*$ the cost Huffman's rule achieves, and your current cost. The shaded band runs from $H$ up to $H + 1$.
+
+<HuffmanMerge
+  client:visible
+  symbols={[
+    { name: "A", weight: 40 },
+    { name: "B", weight: 25 },
+    { name: "C", weight: 15 },
+    { name: "D", weight: 10 },
+    { name: "E", weight: 5 },
+    { name: "F", weight: 5 },
+  ]}
+  height={340}
+  caption="Six roots to start. Merge any pair; the axis and the running total update at once. Huffman's own choice is marked while the hint is on."
+/>
+
+<PredictionPrompt
+  client:visible
+  question="Before making your first merge: if you mistakenly fuse the heaviest symbol (A = 40) with anything else, what minimum penalty will you pay across every encoded symbol?"
+  options={[
+    "At least 0.20 bits per symbol",
+    "At least 1.0 full bit per symbol",
+    "Zero penalty, because later merges can rebalance the tree"
+  ]}
+  correct={0}
+  hint="What depth does symbol A get in the optimal tree versus any tree where it is merged early?"
+  explain="In the optimal tree, symbol A sits at depth 1 (a 1-bit code) because its 40% frequency dominates. Merging A early forces it to depth ≥ 2, immediately adding at least 40 units of internal weight and degrading the final average length from 2.25 to 2.45 bits—a permanent 0.20-bit penalty that no subsequent merge can recover."
+/>
+
+## The Ambiguity of Unmarked Streams
+
+The ask is a code: one distinct bit string per symbol, so that the encoded stream is short and decodes without separators. Common symbols should get short strings, so you are minimising the average length $\sum_i p_i \ell_i$ over all assignments of strings.
+
+Brute force would try every assignment. The reason it is the wrong picture is that the strings are not independent — some assignments of lengths cannot be realised by any prefix-free code at all. The question is which lengths are allowed and which tree attains the best ones.
+
+## The Geometry of Prefix-Free Trees
+
+A prefix-free code, one where no code word begins another, is exactly a binary tree with the symbols at the leaves. The path from the root to a leaf spells that symbol's code word: left is 0 and right is 1. So the code and the tree are one object, and the length $\ell_i$ is the leaf's depth.
+
+Prefix-freedom is then automatic. A symbol sits at a leaf, no leaf is an ancestor of another, so no code word is a prefix of a different one, and decoding walks the tree reading bits until it lands on a leaf.
+
+The payoff of the tree view is a second way to add up the cost. Each leaf is counted once for every internal node above it, so regrouping the sum by internal nodes gives an identity.
+
+$$
+\sum_i p_i \ell_i \;=\; \sum_{\text{internal } v} w(v).
+$$
+
+The panel is this identity in motion: every merge creates one internal node, and the running total is the weight of that node added in. When one tree remains the total is the average code length, and until then it is a partial sum.
+
+## Pinioned Between Shannon and Kraft
+
+**Shannon 1948.** The entropy of the source is
+
+$$
+H \;=\; -\sum_i p_i \log_2 p_i,
+$$
+
+and no uniquely decodable code has average length below $H$. For a prefix code the depths must satisfy Kraft's inequality (Kraft 1949),
+
+$$
+\sum_i 2^{-\ell_i} \le 1,
+$$
+
+and McMillan 1956 showed the same inequality holds for every uniquely decodable code, prefix or not.
+
+Together those give the floor. Any lengths obeying Kraft satisfy $\sum_i p_i \ell_i \ge H$, so the axis cannot drop below the $H$ marker: every tree the panel can build has valid depths, and valid depths cost at least $H$.
+
+**Huffman 1952.** Merging the two lightest roots, over and over, produces a tree of minimum weighted path length $L^*$.
+
+The reason is an exchange argument. Take any optimal tree; its two least probable symbols can be made siblings at the deepest level without raising the cost, by swapping them with the deepest pair. So some optimal tree merges the two lightest first, and recursion finishes the proof.
+
+That bound and the floor sit one bit apart. Choosing the lengths $\ell_i = \lceil \log_2(1/p_i) \rceil$ costs at most $\log_2(1/p_i) + 1$ for each symbol and still obeys Kraft, so a prefix code exists with $L < H + 1$. Huffman's rule is optimal, hence
+
+$$
+H \;\le\; L^* \;<\; H + 1.
+$$
+
+Both ends of that inequality are honest in different ways. The floor is a theorem about all codes; the ceiling is a theorem about the greedy tree, and the gap between them can be as large as a whole bit.
+
+<PredictionPrompt
+  client:visible
+  question="On the board H = 2.2037 and Huffman's cost is L* = 2.25. Across sources, how large can the gap L* − H be forced?"
+  options={[
+    "It is always zero.",
+    "It can approach one bit but never reach it.",
+    "It grows without bound as the number of symbols rises."
+  ]}
+  correct={1}
+  hint="Can a non-trivial binary code word ever take less than 1 whole bit?"
+  explain="The bound H ≤ L* < H + 1 caps redundancy at strictly less than one bit per symbol. The extreme is a two-symbol source with probabilities 0.99 and 0.01: its entropy is 0.0808 bits, but any decodable binary code must spend at least 1 whole bit on each symbol, forcing the gap to 0.92 bits. On this six-symbol board the gap is only 0.05, close to the floor."
+/>
+
+## The Cost of Disobedience
+
+Go back to the board and build the code yourself. Turn the hint off and merge a heavy root with a light one first, then finish greedily; the axis shows your accumulated cost drifting above the $L^*$ marker, and the final total is worse than the rule's.
+
+Concretely, merging the weight-40 symbol with a weight-5 symbol first costs 45 bits of internal weight before any other merge, and the greedy finish lands at 2.45 against the rule's 2.25. That 0.20-bit spread is the greedy rule's value made visible, and no order does better.
+
+Reset, turn the hint back on, and merge the two marked lightest roots each time. The lengths come out 1, 2, 3, 4, 5, 5 for the weights 40, 25, 15, 10, 5, 5, and the total stops exactly on the $L^*$ marker.
+
+The chart below leaves the single board and sweeps a family of sources. For each size $m$ it plots the entropy of a Zipf source, the cost Huffman's rule achieves on it, and the ceiling $H + 1$.
+
+<SeriesChart
+  series={[
+    { name: "H, entropy", points: [[2, 0.9183], [3, 1.4354], [4, 1.7925], [5, 2.0639], [6, 2.2820], [7, 2.4639], [8, 2.6197], [9, 2.7558], [10, 2.8765], [11, 2.9848], [12, 3.0830], [13, 3.1728], [14, 3.2554], [15, 3.3320], [16, 3.4032]] },
+    { name: "L*, Huffman", points: [[2, 1.0000], [3, 1.4545], [4, 1.8000], [5, 2.1022], [6, 2.3333], [7, 2.5216], [8, 2.6816], [9, 2.8168], [10, 2.9340], [11, 3.0376], [12, 3.1306], [13, 3.2151], [14, 3.2928], [15, 3.3647], [16, 3.4332]] },
+    { name: "H + 1, the ceiling", points: [[2, 1.9183], [3, 2.4354], [4, 2.7925], [5, 3.0639], [6, 3.2820], [7, 3.4639], [8, 3.6197], [9, 3.7558], [10, 3.8765], [11, 3.9848], [12, 4.0830], [13, 4.1728], [14, 4.2554], [15, 4.3320], [16, 4.4032]] },
+  ]}
+  title="A Zipf source of m symbols: entropy, optimal Huffman cost, and the one-bit ceiling, in bits per symbol."
+  xLabel="m, symbols in the source"
+  yLabel="bits per symbol"
+  height={320}
+  annotations={[{ x: 4, y: 1.8, text: "gap 0.008 here" }]}
+/>
+
+The Huffman curve threads between the entropy curve and the ceiling the whole way. At $m = 4$ the Zipf probabilities 0.48, 0.24, 0.16, 0.12 have ideal lengths close to the whole-number lengths 1, 2, 3, 3, so the gap nearly closes to 0.008 bits; elsewhere it holds a small fraction of a bit.
+
+Heavier sources do not change the story. The entropy grows like $\log_2 m$ and the optimal code keeps paying almost exactly that, which is why the chart is three near-parallel lines.
+
+## The Engine Inside Every Archive
+
+Every general-purpose compressor runs a Huffman stage. DEFLATE, the format inside gzip and PNG, sends a Huffman table for its literals and then a second one for its match lengths and distances, all built by this merge. JPEG quantises then Huffman-codes; MP3 does the same on its spectral coefficients.
+
+The rule generalises without changing character. Merging the $k$ lightest roots at a time gives optimal $k$-ary codes, and when the code must fit a fixed field width, the package-merge method of Larmore and Hirschberg 1990 finds the best length-limited tree in nearly linear time.
+
+## The Tyranny of the Integer Bit
+
+The gap is an artefact of whole-bit code words. When a symbol's probability is far from a power of a half the nearest dyadic length overshoots, and no prefix code can split a bit.
+
+On the two-symbol 0.99/0.01 source the rare symbol carries almost all of the entropy — 6.64 bits of surprise worth 0.066 of the total. Yet it still costs a full bit, so the average length is 1 against an entropy of 0.0808.
+
+Arithmetic coding removes the artefact by coding a whole message into one number instead of one symbol at a time, reaching the entropy in the limit (Rissanen 1976). It wins precisely where Huffman loses, which is why modern compressors keep both and pick per block.
+
+## Lineage & Attributions
+
+- **Shannon 1948** — *A Mathematical Theory of Communication*: the entropy $H$ and the lower bound on the length of any decodable code.
+- **Kraft 1949** — the inequality satisfied by the depths of a prefix code, the constraint on which lengths a tree can realise.
+- **Fano 1949** — the top-down Shannon–Fano construction, the earlier method Huffman's rule improves on.
+- **Huffman 1952** — *A Method for the Construction of Minimum-Redundancy Codes*: merge the two lightest roots, and the exchange lemma that makes the result optimal.
+- **McMillan 1956** — the extension of Kraft's inequality to all uniquely decodable codes, not only prefix codes.
+- **Gallager 1978** — *Variations on a theme by Huffman*: the redundancy of Huffman codes, and the $H \le L^* < H + 1$ bound analysed.
+- **Rissanen 1976** — arithmetic coding, the method that reaches the entropy the one-bit bound leaves behind.
+- **Larmore–Hirschberg 1990** — package-merge, the length-limited Huffman tree, for codes constrained to a fixed bit width.

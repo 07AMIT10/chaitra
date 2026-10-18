@@ -1,0 +1,15 @@
+title: "Minimum Spanning Tree"
+slug: minimum-spanning-tree
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a cautious hoarder picking cheap twigs. It is the geometric miracle of a matroid: short-sighted, local greed is mathematically guaranteed to carve out the globally optimal skeleton without a single step of regret."
+oneLine: "One weighted graph, two greedy orders, one forced total — and the axiom that makes greedy provably right."
+tldr:
+  - "A spanning tree is a basis of the graphic matroid; a minimum spanning tree is a minimum-weight basis."
+  - "The cut property and the cycle property are the two faces of Whitney's exchange axiom, and each one proves greedy exact."
+  - "Ties decide the tree, never the weight: on the graph below there are exactly two minimum spanning trees, one edge-swap apart."
+  - "Greedy breaks the instant independence stops being a matroid — three items and one capacity are enough to see it."
+mathBranches: [combinatorics, optimization, graph-theory]
+primitives: [GraphCanvas, PredictionPrompt, SeriesChart]
+attributions: ["Borůvka 1926", "Kruskal 1956", "Prim 1957", "Whitney 1935"]
+relatedTopics: [randomized-algorithms, mapreduce]
