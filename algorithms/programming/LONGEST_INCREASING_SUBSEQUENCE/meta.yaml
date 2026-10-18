@@ -1,0 +1,14 @@
+title: "Longest Increasing Subsequence"
+slug: longest-increasing-subsequence
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a hunt for a subsequence. It is the tallest chain in a two-dimensional order, and patience sorting builds the antichain cover that matches it."
+oneLine: "The height of the order on the points (i, pᵢ), and the fewest antichains that cover them."
+tldr:
+  - "The state is a partial order on the points (i, pᵢ): comparable means the index and the value both grow. An increasing subsequence is a chain; a non-increasing one is an antichain."
+  - "Mirsky 1971: the height equals the fewest antichains that cover the poset. Patience sorting builds that cover, so the pile count is the LIS — and the pile tops stay sorted, so each card costs one binary search."
+  - "Dilworth 1950 is the dual, not the same statement: fewest chains equals largest antichain, the width. Credit the pile count to Mirsky, not to Dilworth."
+  - "Erdős–Szekeres 1935: more than (r−1)(s−1) numbers force an increasing run of length r or a non-increasing run of length s."
+mathBranches: [order-theory, combinatorics, algorithms]
+primitives: [ChainAntichain, DPHeatmap, PredictionPrompt]
+attributions: ["Mirsky 1971", "Dilworth 1950", "Erdős–Szekeres 1935", "Schensted 1961", "Baik–Deift–Johansson 1999"]

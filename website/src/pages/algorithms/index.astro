@@ -1,0 +1,304 @@
+---
+import AlgorithmsLayout from "../../layouts/AlgorithmsLayout.astro";
+import catalog from "../../data/algorithms.json";
+
+const { algorithms, fields, mathBranches } = catalog;
+const total = algorithms.length;
+---
+
+<AlgorithmsLayout
+  title="Algorithms, as mathematics"
+  reframe="It is not a code trace. It is a mathematical object you can manipulate."
+  oneLine="A browsable catalogue of algorithms explained through the mathematics underneath them — recurrences, semirings, lattices, potentials."
+  fieldLabel="Algorithms"
+  wide={true}
+  crumbs={[{ label: "Algorithms" }]}
+>
+  <section class="alg-hub__intro" aria-labelledby="alg-intro-heading">
+    <h2 id="alg-intro-heading">What this is</h2>
+    <p>
+      Each page takes one algorithm and rebuilds it around its mathematical object: a recurrence, a
+      semiring, a lattice, a potential function, a poset. Concrete artefact first, abstraction second;
+      you drive the interaction and control the pace.
+    </p>
+    <p class="alg-hub__stat">
+      <strong>{total}</strong> algorithm{total === 1 ? "" : "s"} · <strong>{fields.length}</strong>
+      {" "}field{fields.length === 1 ? "" : "s"} · <strong>{mathBranches.length}</strong> mathematical
+      branch{mathBranches.length === 1 ? "" : "es"}
+    </p>
+  </section>
+
+  {total === 0 && (
+    <p class="alg-hub__empty" role="status">
+      No algorithms are published yet. Authoring happens in <code>algorithms/</code>; run the
+      catalogue and sync scripts to publish.
+    </p>
+  )}
+
+  {fields.length > 0 && (
+    <section aria-labelledby="alg-fields-heading">
+      <h2 id="alg-fields-heading">Browse by field</h2>
+      <p>Where the algorithm is usually met — programming first, then systems, mathematics, and beyond.</p>
+      <ul class="alg-hub__fields">
+        {fields.map((field) => (
+          <li>
+            <a class="alg-hub__field-card" href={`/algorithms/${field.id}`}>
+              <span class="alg-hub__field-count">{field.count}</span>
+              <span class="alg-hub__field-label">{field.label}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {mathBranches.length > 0 && (
+    <section aria-labelledby="alg-branches-heading">
+      <h2 id="alg-branches-heading">Filter by mathematics</h2>
+      <p>
+        The same catalogue, sliced along the mathematical branch each algorithm leans on. Jump to a
+        branch below.
+      </p>
+      <ul class="alg-hub__branch-filter">
+        {mathBranches.map((branch) => (
+          <li>
+            <a href={`#branch-${branch.id}`}>
+              {branch.id} <span class="alg-hub__branch-count">{branch.count}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      {mathBranches.map((branch) => (
+        <div class="alg-hub__branch" id={`branch-${branch.id}`}>
+          <h3>{branch.id}</h3>
+          <ul class="alg-hub__branch-list">
+            {algorithms
+              .filter((a) => a.mathBranches.includes(branch.id))
+              .map((a) => (
+                <li>
+                  {a.hasPage ? (
+                    <a href={`/algorithms/${a.field}/${a.slug}`}>{a.title}</a>
+                  ) : (
+                    <span>{a.title}</span>
+                  )}
+                  <span class="alg-hub__branch-field">{a.fieldLabel}</span>
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+  )}
+
+  {total > 0 && (
+    <section aria-labelledby="alg-catalogue-heading">
+      <h2 id="alg-catalogue-heading">The full catalogue</h2>
+      {fields.map((field) => (
+        <div class="alg-hub__group">
+          <h3>
+            {field.label} <span class="alg-hub__group-count">{field.count}</span>
+          </h3>
+          <ul class="alg-hub__cards">
+            {algorithms
+              .filter((a) => a.field === field.id)
+              .map((a) => (
+                <li>
+                  {a.hasPage ? (
+                    <a class="alg-hub__card" href={`/algorithms/${a.field}/${a.slug}`}>
+                      <span class="alg-hub__card-badge">
+                        {a.featured ? "Featured" : "Algorithm"}
+                      </span>
+                      <h4>{a.title}</h4>
+                      <p class="alg-hub__card-one">{a.oneLine}</p>
+                      {a.reframe && <p class="alg-hub__card-reframe">{a.reframe}</p>}
+                      {a.mathBranches.length > 0 && (
+                        <p class="alg-hub__card-branches">{a.mathBranches.join(" · ")}</p>
+                      )}
+                    </a>
+                  ) : (
+                    <span class="alg-hub__card alg-hub__card--pending">
+                      <span class="alg-hub__card-badge">Draft</span>
+                      <h4>{a.title}</h4>
+                      <p class="alg-hub__card-one">Page not published yet.</p>
+                    </span>
+                  )}
+                </li>
+              ))}
+          </ul>
+        </div>
+      ))}
+    </section>
+  )}
+</AlgorithmsLayout>
+
+<style>
+  .alg-hub__intro {
+    max-width: 70ch;
+  }
+
+  .alg-hub__stat {
+    color: var(--color-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .alg-hub__empty {
+    padding: var(--space-4);
+    border: 1px dashed color-mix(in srgb, var(--color-muted) 40%, transparent);
+    border-radius: var(--radius-md);
+    color: var(--color-muted);
+  }
+
+  .alg-hub__fields {
+    list-style: none;
+    margin: 0 0 var(--space-6);
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  }
+
+  .alg-hub__field-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in srgb, var(--color-algorithms, #a78bfa) 35%, transparent);
+    background: var(--color-surface);
+    text-decoration: none;
+  }
+
+  .alg-hub__field-count {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--color-algorithms, #a78bfa);
+  }
+
+  .alg-hub__field-label {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .alg-hub__branch-filter {
+    list-style: none;
+    margin: 0 0 var(--space-5);
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .alg-hub__branch-filter a {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: 0.3rem 0.7rem;
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in srgb, var(--color-muted) 35%, transparent);
+    font-size: var(--font-size-sm);
+    text-decoration: none;
+  }
+
+  .alg-hub__branch-count {
+    color: var(--color-muted);
+    font-size: 0.75rem;
+  }
+
+  .alg-hub__branch {
+    margin-bottom: var(--space-4);
+    padding-top: var(--space-2);
+    scroll-margin-top: var(--space-6);
+  }
+
+  .alg-hub__branch h3 {
+    margin: 0 0 var(--space-2);
+    font-size: 1rem;
+    color: var(--color-algorithms, #a78bfa);
+  }
+
+  .alg-hub__branch-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    line-height: 1.7;
+  }
+
+  .alg-hub__branch-field {
+    margin-left: var(--space-2);
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+
+  .alg-hub__group {
+    margin-bottom: var(--space-6);
+  }
+
+  .alg-hub__group h3 {
+    margin: 0 0 var(--space-3);
+  }
+
+  .alg-hub__group-count {
+    color: var(--color-muted);
+    font-size: 0.85rem;
+    font-weight: 400;
+  }
+
+  .alg-hub__cards {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
+
+  .alg-hub__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    height: 100%;
+    padding: var(--space-4);
+    border-radius: var(--radius-md);
+    border: 1px solid color-mix(in srgb, var(--color-muted) 25%, transparent);
+    background: var(--color-surface);
+    text-decoration: none;
+  }
+
+  .alg-hub__card--pending {
+    opacity: 0.7;
+  }
+
+  .alg-hub__card-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-algorithms, #a78bfa);
+  }
+
+  .alg-hub__card h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--color-text);
+  }
+
+  .alg-hub__card-one {
+    margin: 0;
+    color: var(--color-text);
+    line-height: 1.55;
+  }
+
+  .alg-hub__card-reframe {
+    margin: 0;
+    color: var(--color-muted);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+  }
+
+  .alg-hub__card-branches {
+    margin: auto 0 0;
+    padding-top: var(--space-2);
+    font-size: 0.75rem;
+    color: var(--color-muted);
+  }
+</style>

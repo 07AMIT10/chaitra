@@ -1,0 +1,189 @@
+---
+title: "Topological Sort"
+slug: topological-sort
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a linear order of the vertices. It is a linear extension of a partial order."
+oneLine: "Flatten a dependency DAG into a queue order, and see the orders you did not choose."
+tldr: ["Reachability is a preorder; quotient it by mutual reachability and you get the poset you are really sorting.", "A topological order is a linear extension — one total order that never contradicts a prerequisite.", "Kahn's peeling deletes minimal elements in O(V+E), yet counting how many linear extensions exist is #P-complete (Brightwell–Winkler 1991), so the count is not a construction."]
+mathBranches: ["order-theory", "combinatorics", "graph-theory"]
+primitives: ["GraphCanvas", "PredictionPrompt", "SeriesChart"]
+attributions: ["Kahn 1962", "Tarjan 1976", "Birkhoff 1937", "Brightwell–Winkler 1991"]
+relatedTopics: ["pagerank", "mapreduce", "distributed-systems"]
+---
+
+import GraphCanvas from "@alg/GraphCanvas.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+
+{/*
+  Primitive contract used by this page, matched to website/src/components/algorithms/.
+    GraphCanvas      nodes · edges · algorithm: "toposort" · directed · caption · height
+    PredictionPrompt question · options (string[]) · correct (index) · explain
+    SeriesChart      series: { name, points: [x, y][] }[] · title · xLabel · yLabel · logY  (static)
+  GraphCanvas's "toposort" trace is Kahn's peeling and reports a directed cycle when one exists.
+  The counts below (5 linear extensions, 10 downsets, C(2k, k)) are hand-computed exact values,
+  not measured curves. Interactive primitives carry an explicit Astro client directive; each is
+  its own island, and Astro islands cannot nest.
+*/}
+
+## Topological sort is not a linear order of the vertices. It is a linear extension of a partial order.
+
+Six tasks sit in a build. Seven arrows say what must finish first: A before B and C, B and C before D, C before E, and D and E before F.
+
+<GraphCanvas
+  client:visible
+  nodes={[
+    { id: "A", x: 0, y: 0 },
+    { id: "B", x: -1, y: 1 },
+    { id: "C", x: 1, y: 1 },
+    { id: "D", x: -1, y: 2 },
+    { id: "E", x: 1, y: 2 },
+    { id: "F", x: 0, y: 3 },
+  ]}
+  edges={[
+    { from: "A", to: "B" },
+    { from: "A", to: "C" },
+    { from: "B", to: "D" },
+    { from: "C", to: "D" },
+    { from: "C", to: "E" },
+    { from: "D", to: "F" },
+    { from: "E", to: "F" },
+  ]}
+  algorithm="toposort"
+  directed
+  caption="Kahn's peeling on six tasks. Each step the panel names the tasks whose prerequisites are all finished, emits one of them, and drops the in-degrees of its neighbours. The queue chips are the currently available set; the step log is the order being built."
+/>
+
+Step it. Every tick the panel emits a task and lowers the in-degree of what it unblocks, and the log at the bottom grows into one sequence. That sequence is a valid build order — and it is not the only one.
+
+<PredictionPrompt
+  client:visible
+  question="Three of these four sequences respect every arrow in the graph above. Which one breaks a rule?"
+  options={[
+    "A, B, C, D, E, F",
+    "A, C, B, D, E, F",
+    "A, B, D, C, E, F",
+    "A, C, B, E, D, F",
+  ]}
+  correct={2}
+  explain="C must finish before D, and the third sequence runs D immediately after B, ahead of C. The other three keep both B and C before D, both D and E before F, and A before C, so each is a legal order."
+/>
+
+## 1 · The question
+
+Written operationally the problem is a loop. Count every vertex's in-degree, push the zeros into a queue, pop one, decrement its out-neighbours, and push any neighbour that just hit zero. What falls out is a list.
+
+That loop is what a first course teaches, and it works. But it answers a question you never asked: it builds *one* list and quietly throws away every other list it could have built.
+
+The rewrite "find a linear order" hides the structure twice, once in the word *find*, which pretends there is a single answer, and once in *linear order*, which pretends the constraints vanish the moment you start writing.
+
+## 2 · The real object: reachability, then its quotient
+
+Write $u \le v$ when a directed path runs from $u$ to $v$, and count paths of length zero so that $u \le u$. That relation is reflexive and transitive but not necessarily antisymmetric: it is a **preorder**, and it is the only order the bare arrows define.
+
+If $u \le v$ and $v \le u$, a path runs each way and the two vertices lie in one strongly connected component. Antisymmetry fails exactly when such a cycle exists.
+
+Now collapse each strongly connected component to a single point and read $\le$ on the result. Mutual reachability is an equivalence relation, and a preorder quotiented by it is antisymmetric by construction. The quotient is a **partial order** — the *antisymmetric quotient* of the preorder.
+
+On a DAG every component is one vertex, so the quotient does nothing and reachability is already a poset. That is the case the panel draws.
+
+A **linear extension** of a poset $(P, \le)$ is a total order $\prec$ on $P$ with $x \le y$ implying $x \prec y$. Writing the elements out in $\prec$-order is a topological order. The list is not the object; the poset is, and the list is one of its linear extensions.
+
+## 3 · The mathematics: peeling, ideals, and a count you cannot shortcut
+
+**Kahn's peeling is minimal-element removal (Kahn 1962).** A minimal element has no unfinished prerequisite. Kahn's algorithm removes one such element, then the next, until the poset is empty; a queue makes it $O(V+E)$, and it finishes exactly when the digraph has no cycle.
+
+On screen, "in-degree 0" and "minimal" name the same set. The queue chips are the minimal elements of what remains, and emitting one deletes it and lets its out-neighbours become minimal.
+
+**The downsets form a distributive lattice (Birkhoff 1937).** A downset, or order ideal, is a subset closed downward: $x \in I$ and $y \le x$ forces $y \in I$. Downsets are closed under union and intersection, so they form a lattice $J(P)$ that distributes; Birkhoff's representation theorem says every finite distributive lattice is $J(P)$ for exactly one poset $P$.
+
+Each downset is fixed by its maximal elements, which form an antichain. For the six-task poset above there are $10$ downsets and $10$ antichains — count both, they must agree.
+
+**Linear extensions are the maximal chains of $J(P)$.** Peel $x_1$, then $x_2$: the set emitted so far is always a downset, so an extension traces the chain $\emptyset \subset \{x_1\} \subset \{x_1, x_2\} \subset \cdots \subset P$. Every maximal chain of $J(P)$ is a linear extension, so the number of extensions $e(P)$ equals the number of maximal chains.
+
+For the drawn poset, $e(P) = 5$ — hand-counted, out of the $6! = 720$ total orders of six tasks. Watch the step log and you are walking one maximal chain.
+
+**Counting is hard (Brightwell–Winkler 1991).** Counting linear extensions of a poset is #P-complete. Construction and counting are different problems: Kahn builds one extension in $O(V+E)$, and no polynomial-time algorithm counts them unless FP equals #P.
+
+<PredictionPrompt
+  client:visible
+  question="The diamond poset has four elements: one bottom, one top, and two middles that are incomparable to each other. How many linear extensions does it have?"
+  options={["1", "2", "4", "6"]}
+  correct={1}
+  explain="The bottom lies below both middles, so it must come first; the top lies above both, so it must come last. That leaves only the two middles, which can appear in either order — exactly 2 linear extensions."
+/>
+
+<SeriesChart
+  title="Two disjoint chains of length k: constraints cut the orderings from (2k)! down to C(2k, k)"
+  xLabel="elements n = 2k"
+  yLabel="number of orderings (log scale)"
+  logY
+  series={[
+    {
+      name: "linear extensions C(n, n/2)",
+      points: [[2, 2], [4, 6], [6, 20], [8, 70], [10, 252], [12, 924], [14, 3432]],
+    },
+    {
+      name: "all n! orders",
+      points: [[2, 2], [4, 24], [6, 720], [8, 40320], [10, 3628800], [12, 479001600], [14, 87178291200]],
+    },
+  ]}
+/>
+
+Two disjoint chains of length $k$ have $e = \binom{2k}{k}$ linear extensions. That is a derived identity: an extension is an interleaving, fixed by which $k$ of the $2k$ slots hold the first chain.
+
+At $n = 14$ the two curves differ by about seven orders of magnitude, and both keep climbing. Even this modest constraint leaves a count far too large to enumerate, which is why #P-hardness bites.
+
+## 4 · The centrepiece: drive the peel
+
+Go back to the panel and step it slowly. The queue chips are the minimal elements; each log line names the vertex just emitted and the in-degree it just dropped.
+
+The finished log is one linear extension, picked by a tie-break you never saw. Five extensions exist for this poset, and the player prints A, B, C, D, E, F — one of them.
+
+A second construction replaces the queue with depth-first search. Finish every vertex, then read the vertices off in *decreasing finish time*. Along any edge $u \to v$ in a DAG, $v$ finishes before $u$, so $u$ lands earlier: the reverse of the finishing order is a linear extension (Tarjan 1976).
+
+The panel plays Kahn, not the DFS route, and the two orders can disagree. Both are valid, which is exactly the point — the poset permits several.
+
+## 5 · The payoff
+
+A linear extension is what a build system prints when it schedules targets, what a spreadsheet walks when it recalculates cells, and what MapReduce runs when it stages a job's tasks as a DAG (Dean and Ghemawat 2004).
+
+Distributed systems use the same structure from the other side. The happens-before relation of Lamport (1978) is a partial order, and a linear extension of it is one consistent reading of a global clock.
+
+Wherever a partial order must be flattened into a sequence without breaking a relation, this is the operation. How many ways you could have flattened it is the count that the hardness result above puts out of reach.
+
+## 6 · Advanced: when reachability is not a poset
+
+Skip this if you only need the DAG case.
+
+Replace the six-task graph with a cycle. Now some pair of vertices is mutually reachable, reachability is a preorder that is not antisymmetric, and the quotient is strictly smaller than the graph.
+
+<GraphCanvas
+  client:visible
+  nodes={[
+    { id: "P", x: 0, y: 0 },
+    { id: "Q", x: 1, y: 0 },
+    { id: "R", x: 0.5, y: 1 },
+  ]}
+  edges={[
+    { from: "P", to: "Q" },
+    { from: "Q", to: "R" },
+    { from: "R", to: "P" },
+  ]}
+  algorithm="toposort"
+  directed
+  caption="A three-cycle. No vertex has in-degree 0, so Kahn's queue starts empty and the trace reports the cycle instead of an order."
+/>
+
+The trace says it directly: the first line finds no in-degree-0 vertex, and the last names all three as stuck. A linear extension would have to place P before Q and Q before P at once, which no total order can do.
+
+Kahn's algorithm is also the standard acyclicity test. It returns a full order exactly when the digraph is a DAG, and a partial list plus the stuck set otherwise. Under the quotient those three vertices fold into one point, and sorting the condensation is the same problem on a smaller poset.
+
+## 7 · Attributions
+
+- **Kahn 1962** — *Topological sorting of large networks*, CACM: peeling minimal elements to build one extension in $O(V+E)$, and detecting cycles when the queue empties early.
+- **Tarjan 1976** — depth-first search and the reverse of finishing times as an alternative construction of a linear extension.
+- **Birkhoff 1937** — *Rings of sets*: downsets of a poset form a distributive lattice, and every finite distributive lattice arises this way.
+- **Brightwell and Winkler 1991** — *Counting linear extensions*: the number of linear extensions is #P-complete.
+- **Lamport 1978** — happens-before as a partial order. **Dean and Ghemawat 2004** — MapReduce stages a job's tasks as a DAG.

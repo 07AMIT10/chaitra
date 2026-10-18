@@ -1,0 +1,305 @@
+/* MatchingBoard — deferred acceptance and augmenting paths on one bipartite board.
+   Consumes tokens.css only; owns the `.alg-match` namespace. */
+
+.alg-match {
+  --alg-accent: var(--color-algorithms, #a78bfa);
+  --alg-accent-hover: color-mix(in srgb, var(--alg-accent) 75%, #ffffff);
+  --alg-accent-soft: color-mix(in srgb, var(--alg-accent) 15%, transparent);
+  --alg-accent-faint: color-mix(in srgb, var(--alg-accent) 8%, transparent);
+  --alg-accent-line: color-mix(in srgb, var(--alg-accent) 45%, transparent);
+  --alg-border: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  --alg-border-strong: color-mix(in srgb, var(--color-muted) 45%, transparent);
+  --alg-surface-2: color-mix(in srgb, var(--color-bg) 45%, var(--color-surface));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  min-width: 0;
+  font-family: var(--font-sans);
+}
+
+.alg-match__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+}
+
+.alg-match__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.alg-match__glabel {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  margin-right: var(--space-1);
+}
+
+.alg-match__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.alg-match__count {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-match__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-match__sidetitle {
+  fill: var(--color-muted);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+
+.alg-match__edge {
+  stroke: color-mix(in srgb, var(--color-muted) 26%, transparent);
+  stroke-width: 1.2;
+}
+
+.alg-match__edge--match {
+  stroke: var(--color-success);
+  stroke-width: 2.8;
+}
+
+.alg-match__edge--path {
+  stroke: var(--color-drishti);
+  stroke-width: 2.6;
+}
+
+.alg-match__edge--proposal {
+  stroke: var(--alg-accent);
+  stroke-width: 2.2;
+  stroke-dasharray: 6 4;
+}
+
+.alg-match__edge--rejected {
+  stroke: color-mix(in srgb, var(--color-error) 45%, transparent);
+  stroke-width: 1.1;
+  stroke-dasharray: 3 5;
+}
+
+.alg-match__pill {
+  fill: var(--color-surface);
+  stroke: var(--alg-border-strong);
+  stroke-width: 1.3;
+}
+
+.alg-match__pill--match {
+  fill: color-mix(in srgb, var(--color-success) 20%, var(--color-surface));
+  stroke: var(--color-success);
+}
+
+.alg-match__pill--seen {
+  fill: color-mix(in srgb, var(--color-drishti) 18%, var(--color-surface));
+  stroke: color-mix(in srgb, var(--color-drishti) 65%, transparent);
+}
+
+.alg-match__pill--now {
+  stroke-width: 2.4;
+  stroke: var(--color-drishti);
+}
+
+.alg-match__pilltext {
+  fill: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.alg-match__proplabel {
+  fill: var(--alg-accent-hover);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.alg-match__lists {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--space-3);
+}
+
+.alg-match__listcol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  background: var(--alg-surface-2);
+  min-width: 0;
+}
+
+.alg-match__listhead {
+  margin: 0 0 var(--space-1);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.alg-match__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.alg-match__rowname {
+  min-width: 5.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-text);
+}
+
+.alg-match__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.alg-match__chip {
+  padding: 0 0.35rem;
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-muted);
+}
+
+.alg-match__chip--cur {
+  border-color: var(--alg-accent);
+  background: var(--alg-accent-soft);
+  color: var(--color-text);
+}
+
+.alg-match__chip--done {
+  opacity: 0.55;
+}
+
+.alg-match__chip--rej {
+  color: color-mix(in srgb, var(--color-error) 80%, var(--color-text));
+  text-decoration: line-through;
+}
+
+.alg-match__hold {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-match__hold--on {
+  color: var(--color-success);
+}
+
+.alg-match__gridwrap,
+.alg-match__extremes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  background: var(--alg-surface-2);
+  min-width: 0;
+}
+
+.alg-match__grid {
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  width: 100%;
+}
+
+.alg-match__grid th,
+.alg-match__grid td {
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--alg-border);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.alg-match__grid th {
+  color: var(--color-muted);
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+
+.alg-match__grid td {
+  color: var(--color-muted);
+}
+
+.alg-match__cell--match {
+  background: color-mix(in srgb, var(--color-success) 20%, transparent);
+  color: var(--color-text) !important;
+}
+
+.alg-match__cell--block {
+  background: color-mix(in srgb, var(--color-error) 26%, transparent);
+  color: var(--color-text) !important;
+  font-weight: 600;
+}
+
+.alg-match__cell--okL {
+  background: color-mix(in srgb, var(--alg-accent) 14%, transparent);
+  color: var(--color-text) !important;
+}
+
+.alg-match__cell--okR {
+  background: color-mix(in srgb, var(--color-drishti) 14%, transparent);
+  color: var(--color-text) !important;
+}
+
+.alg-match__cell--no {
+  opacity: 0.5;
+}
+
+.alg-match__same {
+  color: var(--color-muted);
+}
+
+.alg-match__diff {
+  color: var(--color-drishti);
+  font-family: var(--font-mono);
+}
+
+.alg-match__verdict,
+.alg-match__crosscheck {
+  margin: var(--space-1) 0 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+.alg-match__verdict b,
+.alg-match__crosscheck b {
+  color: var(--color-text);
+}
+
+.alg-match__path {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alg-match__edge,
+  .alg-match__pill {
+    transition: none;
+  }
+}

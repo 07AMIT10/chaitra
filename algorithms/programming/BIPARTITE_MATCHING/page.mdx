@@ -1,0 +1,168 @@
+import MatchingBoard from "@alg/MatchingBoard.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import LPDualityDashboard from "@alg/LPDualityDashboard.tsx";
+
+{/*
+  Primitive contract used by this page, matched to website/src/components/algorithms/.
+    PredictionPrompt    question · options (string[]) · correct (index) · explain · hint?
+    MatchingBoard       left (string[]) · right (string[]) · leftPrefs (number[][]) · rightPrefs (number[][]) · problem · caption · height
+                        leftPrefs[i] / rightPrefs[j] list the other side's indices and define mutual acceptability.
+                        problem="bipartite-matching" steps Kuhn's augmenting-path search and draws the alternating path.
+    LPDualityDashboard  nodes ({ id, x, y, label? }[]) · edges ({ from, to, capacity }[]) · source · sink · caption · height
+                        Steps Edmonds-Karp; all capacities here are 1, so the flow value equals the matching size.
+  Board instance (indices count from 0 on each side):
+    left  Ana(0) Ben(1) Cara(2) Dan(3); right Wren(0) Xiu(1) Yara(2) Zed(3).
+    edges Ana-Wren, Ana-Xiu, Ana-Zed, Ben-Wren, Cara-Yara, Dan-Yara. Maximum size 3; min cover {Ana, Ben, Yara}.
+  Interactive primitives need an explicit Astro client directive (`client:visible`).
+  Astro islands cannot nest, so each interactive primitive is its own island.
+*/}
+
+## Bipartite matching is not pairing things up. It is a set of independent edges, pinned from both sides.
+
+Four applicants on the left: Ana, Ben, Cara, Dan. Four placements on the right: Wren, Xiu, Yara, Zed. Lines join each applicant to the placements they accept: Ana takes Wren, Xiu or Zed, Ben takes only Wren, and Cara and Dan take only Yara.
+
+Step the board and the pairing grows, stalls, and repairs itself. Nothing moves until you move it.
+
+## 1 · The question
+
+Walk down the left side and hand each applicant the first free placement they accept. That feels optimal, because every step does the obvious thing. It is not optimal, and the board catches it in the act.
+
+Ana moves first and takes Wren. Ben accepts only Wren, so Ben looks stranded while Xiu sits empty two lines away. A rule that never revisits a decision has no answer to this screen.
+
+## 2 · The real object: independent edges and the paths that repair them
+
+A **matching** is a set of edges with no shared endpoints. On the board, pairs in the matching glow and everything else is a candidate. The board's final matching has size 3 of a possible 4, and two theorems below certify that 3 is the ceiling, each from a different side.
+
+A vertex touched by no matched edge is **free**. At the end Dan is free on the left and Zed is free on the right, and that is not a loose end; free vertices are where repairs begin.
+
+An **alternating** path alternates between edges outside the matching and edges inside it. One that starts and ends at free vertices is **augmenting**, and flipping every edge along it turns each free edge into a matched one and vice versa, so the matching grows by exactly one. Watch for the gold path on the board: that is the flip, drawn before it happens.
+
+## 3 · The mathematics: three certificates and one pipeline
+
+Three theorems pin the answer, and the board shows all three working. Hall's condition says when the task is impossible. Berge's condition says when the search may stop. König's theorem says the same number falls out of a covering problem. Then the flow reduction turns all of it into plumbing.
+
+### Hall's condition: the shape of impossibility (Hall 1935)
+
+Write $N(S)$ for the neighbours of a set $S$ of left vertices. A matching that covers every left vertex exists if and only if every subset $S$ of the left side satisfies $|N(S)| \ge |S|$. That equivalence is Hall's marriage theorem (Hall 1935).
+
+One direction is counting: $S$ needs $|S|$ distinct partners inside $N(S)$, so a shortfall anywhere kills the whole task. The other direction is the substance, proved by induction on the size of the left side: either every proper subset has strict slack and any single edge keeps the condition alive, or some tight set splits the graph into two smaller instances that both inherit it.
+
+On the board, take $S$ to be Cara and Dan together. Both accept only Yara, so $|N(S)| = 1$, which is less than $|S| = 2$. No matching can place both of them, so no matching covers all four applicants.
+
+Step to the board's last screen and you see the condition live: Cara holds Yara while Dan's search exhausts its tree.
+
+<PredictionPrompt
+  client:visible
+  question="Cara and Dan both accept only Yara. Can any matching on this board still cover all four applicants?"
+  options={["Yes — the other three placements can absorb the overlap", "No — the pair {Cara, Dan} has one neighbour between them, so Hall's condition fails", "Yes — if Dan is processed before Cara"]}
+  correct={1}
+  hint="Count neighbours of the pair, not of each person alone."
+  explain="The pair {Cara, Dan} has neighbour set {Yara}, size 1, which is less than 2. Hall's condition (Hall 1935) is necessary, so no matching saturates the left side whatever order you try. The board's last step shows the same fact as a failed search."
+/>
+
+### Berge's condition: maximum means no repair left (Berge 1957)
+
+A matching is maximum if and only if it admits no augmenting path. That equivalence is Berge's lemma (Berge 1957). Flipping an augmenting path grows the matching, which gives one direction directly.
+
+The direction that matters is the converse. If $M$ is not maximum, lay it against any larger matching $M'$: their symmetric difference breaks into even cycles and paths, and a path with more $M'$ edges than $M$ edges starts and ends at vertices free in $M$. That path is an augmenting path for $M$, so a matching with no augmenting path cannot be beaten.
+
+Read the board's verdict through this lens. Each step tries one left vertex and reports the alternating path or its absence. When no step finds an augmenting path, Berge's condition is met and the size-3 matching is certified maximum: not "nothing more was tried" but "nothing more exists".
+
+### König's theorem: the same number, counted from the other side (König 1931)
+
+A **vertex cover** is a set of vertices touching every edge. In bipartite graphs only, the size of a maximum matching equals the size of a minimum vertex cover. That equality is König's theorem (König 1931).
+
+Check it on the board. The matching has size 3, and the set $\{$Ana, Ben, Yara$\}$ touches all six edges with 3 vertices: Ana covers her three edges, Ben covers his one, Yara covers the two on her side. No two vertices can do it, since Ben's edge, Yara's two edges and Ana's escape to Xiu and Zed need three separate witnesses.
+
+So the cover side agrees: 3 from below, 3 from above.
+
+Bipartiteness is doing real work here, and a triangle shows where it bites. Take three vertices with all three pairs joined: any matching holds 1 edge, but any single vertex leaves one edge uncovered, so the minimum cover has size 2. The equality fails exactly where the odd cycle lives.
+
+$$
+\text{maximum matching size} \;=\; \text{minimum vertex cover size} \qquad \text{(bipartite graphs only)}
+$$
+
+### The flow reduction: matching as plumbing (Ford–Fulkerson 1956)
+
+Hang a source before the left side and a sink after the right side. Give every source edge, every board edge and every sink edge capacity 1.
+
+Then every integer flow is a matching with value equal to its size, and every matching is a flow. The max-flow min-cut theorem (Ford–Fulkerson 1956) hands back König's equality as the cut side of the same computation.
+
+Integrality comes for free here, and that is the point worth slowing down for. Every augmentation pushes whole units through unit pipes, so the linear program never needs to split a person across two placements. The flow panel below is this exact network: the same six edges as pipes, the value climbing to 3, the best cut descending to meet it, the gap closing to zero.
+
+## 4 · The centrepiece: drive the search, then watch the pipes
+
+Before you touch the board, lock in a prediction about the greedy rule from section 1.
+
+<PredictionPrompt
+  client:visible
+  question="Ana grabs Wren on the first step, and Ben — who accepts only Wren — looks stranded. Is the matching stuck?"
+  options={["Yes — Wren is taken and Ben accepts nobody else", "No — flip the alternating path Ben–Wren, Ana–Xiu: Ana slides to Xiu and both end matched", "Only a rerun with Ben processed first can fix it"]}
+  correct={1}
+  hint="Look at Ana's second edge. A matched vertex is not a used-up vertex."
+  explain="Ben–Wren is a free edge and Ana–Wren is matched, so Ben–Wren–Ana–Xiu is an augmenting path ending at free Xiu. Flipping it matches Ben–Wren and Ana–Xiu together. Step the board to Ben's turn and watch the gold path draw exactly this flip."
+/>
+
+<MatchingBoard
+  client:visible
+  problem="bipartite-matching"
+  left={["Ana", "Ben", "Cara", "Dan"]}
+  right={["Wren", "Xiu", "Yara", "Zed"]}
+  leftPrefs={[[0, 1, 3], [0], [2], [2]]}
+  rightPrefs={[[0, 1], [0], [2, 3], [0]]}
+  caption="Kuhn's augmenting-path search on the board from section 0. Ana takes Wren first and strands Ben; Ben's step repairs it along Ben–Wren–Ana–Xiu; Dan's step finds nothing, which is Hall's shortfall drawn as a failed search."
+  height={300}
+/>
+
+Drive it in order and each screen matches one theorem. Step once: Ana takes Wren and Ben looks stranded, which is the greedy failure from section 1. Step to Ben: the gold path Ben–Wren–Ana–Xiu flips, and the matching grows to 2 without unpicking anything by hand.
+
+Step to Cara: Yara is free, the matching grows to 3. Step to Dan: every alternating route from Dan dies at Yara, and the size stays 3.
+
+That last screen is two certificates at once. It is Hall's condition failing on $\{$Cara, Dan$\}$, drawn as an exhausted search tree. It is Berge's condition holding everywhere, which proves the matching maximum.
+
+Read the alternating-path readout beside the board: "none" is the proof, not an apology.
+
+Now the same six edges as pipes, with the source on the left and the sink on the right. Step the flow panel and compare each augmentation with the board's flips above: one unit of flow is one matched pair, and the value stops at 3. The dual card tracks the best cut capacity down to 3, the reachable set at the end names the certificate, and the gap closes to zero exactly when no augmenting path remains.
+
+<LPDualityDashboard
+  client:visible
+  nodes={[{ id: "s", x: 0, y: 1.5, label: "s" }, { id: "Ana", x: 1, y: 0 }, { id: "Ben", x: 1, y: 1 }, { id: "Cara", x: 1, y: 2 }, { id: "Dan", x: 1, y: 3 }, { id: "Wren", x: 2, y: 0 }, { id: "Xiu", x: 2, y: 1 }, { id: "Yara", x: 2, y: 2 }, { id: "Zed", x: 2, y: 3 }, { id: "t", x: 3, y: 1.5, label: "t" }]}
+  edges={[{ from: "s", to: "Ana", capacity: 1 }, { from: "s", to: "Ben", capacity: 1 }, { from: "s", to: "Cara", capacity: 1 }, { from: "s", to: "Dan", capacity: 1 }, { from: "Ana", to: "Wren", capacity: 1 }, { from: "Ana", to: "Xiu", capacity: 1 }, { from: "Ana", to: "Zed", capacity: 1 }, { from: "Ben", to: "Wren", capacity: 1 }, { from: "Cara", to: "Yara", capacity: 1 }, { from: "Dan", to: "Yara", capacity: 1 }, { from: "Wren", to: "t", capacity: 1 }, { from: "Xiu", to: "t", capacity: 1 }, { from: "Yara", to: "t", capacity: 1 }, { from: "Zed", to: "t", capacity: 1 }]}
+  source="s"
+  sink="t"
+  caption="The board's instance as a unit-capacity flow network: source to applicants, the six acceptable pairs as pipes, placements to sink. Max flow 3, min cut 3, gap zero."
+  height={360}
+/>
+
+## 5 · The payoff
+
+Every assignment problem with yes-or-no acceptability is this board at scale. Students to placements, workers to shifts, advertisers to slots: tests of feasibility run Hall's condition, and the allocation itself is the matching. Timetabling adds the same structure once more, with rooms as the right side.
+
+König's equality turns up wherever the dual question is cheaper to answer. Minimum guards touching every corridor, minimum sensors covering every link, minimum vertices hitting every conflict: each is a vertex cover, and on bipartite ground each is one matching computation. Ask for the cover and the algorithm hands you the matching anyway.
+
+Speed matters at scale, and the naive one-path-at-a-time search costs $O(VE)$. The Hopcroft–Karp algorithm (Hopcroft–Karp 1973) works in phases: each phase grows a BFS layering from all free left vertices at once, then reaps a maximal set of disjoint shortest augmenting paths, all of the same minimal length.
+
+Each phase costs $O(E)$ and strictly lengthens the shortest remaining augmenting path, so after $\sqrt{V}$ phases every surviving augmenting path uses more than $\sqrt{V}$ vertices. The symmetric difference with a maximum matching then holds at most $\sqrt{V}$ disjoint paths still to find, so at most $\sqrt{V}$ further phases remain. That two-sided squeeze is the whole bound:
+
+$$
+O(E\sqrt{V}) \qquad \text{(Hopcroft–Karp 1973, argument sketch)}
+$$
+
+Treat the phase count above as a sketch, not a proof: the monotonicity of the shortest-path length across phases is the lemma doing the work. What the bound buys is concrete: it is the engine inside production bipartite matchers, where one BFS layering replaces thousands of lonely searches.
+
+## 6 · Advanced, skippable: counting matchings and the permanent
+
+Suppose you want the number of perfect matchings, not just one. Write the 0–1 biadjacency matrix $A$ with $A_{ij} = 1$ exactly for acceptable pairs. The number of perfect matchings is the **permanent** of $A$, the determinant's signless sibling: same sum over permutations, no alternating signs.
+
+That sum is hard in general, and the Birkhoff–von Neumann theorem (Birkhoff 1946, von Neumann 1953) explains the shape of the difficulty. Every doubly stochastic matrix, with non-negative entries and all rows and columns summing to 1, is a convex combination of permutation matrices.
+
+So the fractional perfect matchings form a polytope whose corners are exactly the true matchings: the same structure you stepped on the board, seen through the lens of convexity. Skip this section freely; nothing later needs it.
+
+## 7 · Attributions
+
+- **Hall 1935** — the marriage theorem: a left-saturating matching exists iff every left subset $S$ satisfies $|N(S)| \ge |S|$. Used to certify that Cara and Dan together cap the board at 3.
+- **König 1931** — maximum matching equals minimum vertex cover in bipartite graphs. Used to pin the board's answer from the cover side, with the triangle as the odd-cycle counterexample.
+- **Berge 1957** — a matching is maximum iff it admits no augmenting path. Used to turn the board's final screen into an optimality certificate.
+- **Ford–Fulkerson 1956** — the max-flow min-cut theorem and the augmenting-path method. Used for the unit-capacity reduction and the free integrality it gives.
+- **Hopcroft–Karp 1973** — the $O(E\sqrt{V})$ phased algorithm. Used for the payoff bound and its two-sided phase-count sketch.
+- **Birkhoff 1946, von Neumann 1953** — doubly stochastic matrices are convex combinations of permutation matrices. Used for the advanced section's second lens on perfect matchings.

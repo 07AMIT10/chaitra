@@ -1,0 +1,1972 @@
+/* Algorithms section — shared primitive library.
+   Consumes tokens.css only. Accent: --color-algorithms (#a78bfa), with a
+   local fallback so the primitives render even before the token lands. */
+
+.alg-shell,
+.alg-predict,
+.alg-pace,
+.alg-chart,
+.alg-grow,
+.alg-bank,
+.alg-lattice,
+.alg-semiring,
+.alg-mc {
+  --alg-accent: var(--color-algorithms, #a78bfa);
+  --alg-accent-hover: color-mix(in srgb, var(--alg-accent) 75%, #ffffff);
+  --alg-accent-soft: color-mix(in srgb, var(--alg-accent) 15%, transparent);
+  --alg-accent-faint: color-mix(in srgb, var(--alg-accent) 8%, transparent);
+  --alg-accent-line: color-mix(in srgb, var(--alg-accent) 45%, transparent);
+  --alg-border: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  --alg-border-strong: color-mix(in srgb, var(--color-muted) 45%, transparent);
+  --alg-surface-2: color-mix(in srgb, var(--color-bg) 45%, var(--color-surface));
+  --alg-mono: var(--font-mono);
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+/* ---------------------------------------------------------------- shell --- */
+
+.alg-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--alg-border);
+  border-left: 3px solid var(--alg-accent-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-family: var(--font-sans);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+.alg-shell--accent {
+  border-color: var(--alg-accent-line);
+  border-left-color: var(--alg-accent);
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--alg-accent) 9%, var(--color-surface)),
+    var(--color-surface)
+  );
+}
+
+.alg-shell--gold {
+  border-color: color-mix(in srgb, var(--color-drishti) 40%, transparent);
+  border-left-color: var(--color-drishti);
+}
+
+.alg-shell__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.alg-shell__headtext {
+  min-width: 0;
+}
+
+.alg-shell__title {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.25;
+  color: var(--color-text);
+}
+
+.alg-shell--accent .alg-shell__title {
+  color: var(--alg-accent-hover);
+}
+
+.alg-shell--gold .alg-shell__title {
+  color: var(--color-drishti);
+}
+
+.alg-shell__subtitle {
+  margin: var(--space-1) 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.alg-shell__right {
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.alg-shell__body {
+  min-width: 0;
+}
+
+/* ------------------------------------------------------------- generic ---- */
+
+.alg-btn {
+  font: inherit;
+  font-size: 0.85rem;
+  min-height: 38px;
+  min-width: 38px;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--alg-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--alg-surface-2);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.alg-btn:hover {
+  border-color: var(--alg-accent);
+  color: var(--alg-accent-hover);
+}
+
+.alg-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.alg-btn[aria-pressed="true"],
+.alg-btn--on {
+  border-color: var(--alg-accent);
+  background: var(--alg-accent-soft);
+  color: var(--alg-accent-hover);
+}
+
+.alg-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.alg-muted {
+  color: var(--color-muted);
+}
+
+.alg-mono {
+  font-family: var(--alg-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.alg-caption {
+  margin: var(--space-2) 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+/* ------------------------------------------------------ PredictionPrompt -- */
+
+.alg-predict {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border: 1px solid var(--alg-accent-line);
+  border-radius: var(--radius-md);
+  background: var(--alg-accent-faint);
+}
+
+.alg-predict__q {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+
+.alg-predict__opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.alg-predict__opt {
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  min-height: 38px;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid var(--alg-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.alg-predict__opt:hover:not(:disabled) {
+  border-color: var(--alg-accent);
+}
+
+.alg-predict__opt:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.alg-predict__opt:disabled {
+  cursor: default;
+}
+
+.alg-predict__opt--correct {
+  border-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 16%, transparent);
+  color: var(--color-text);
+}
+
+.alg-predict__opt--wrong {
+  border-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 16%, transparent);
+  color: var(--color-text);
+}
+
+.alg-predict__opt--picked {
+  box-shadow: inset 0 0 0 1px var(--alg-accent);
+}
+
+.alg-predict__verdict {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.alg-predict__verdict--right {
+  color: var(--color-success);
+}
+
+.alg-predict__verdict--wrong {
+  color: var(--color-error);
+}
+
+.alg-predict__explain {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--color-text);
+  padding: var(--space-3);
+  border-left: 3px solid var(--alg-accent);
+  background: color-mix(in srgb, var(--color-bg) 40%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+.alg-predict__hint {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+.alg-predict__hint-btn {
+  align-self: flex-start;
+}
+
+/* -------------------------------------------------------- PaceControls ---- */
+
+.alg-pace {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.alg-pace__count {
+  font-family: var(--alg-mono);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  min-width: 3.5rem;
+  text-align: center;
+}
+
+.alg-pace-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.alg-pace__label {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.alg-pace__child {
+  min-width: 0;
+}
+
+.alg-pace__speeds {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-md);
+}
+
+.alg-pace__speed {
+  font: inherit;
+  font-size: 0.8rem;
+  min-height: 30px;
+  min-width: 34px;
+  padding: 0 0.4rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+}
+
+.alg-pace__speed:hover {
+  color: var(--alg-accent-hover);
+}
+
+.alg-pace__speed[aria-pressed="true"] {
+  background: var(--alg-accent-soft);
+  color: var(--alg-accent-hover);
+  font-weight: 600;
+}
+
+.alg-pace__speed:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* ---------------------------------------------------------- SeriesChart --- */
+
+.alg-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.alg-chart__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-chart__grid {
+  stroke: color-mix(in srgb, var(--color-muted) 22%, transparent);
+  stroke-width: 1;
+}
+
+.alg-chart__axis {
+  stroke: color-mix(in srgb, var(--color-muted) 60%, transparent);
+  stroke-width: 1.2;
+}
+
+.alg-chart__tick-label {
+  fill: var(--color-muted);
+  font-family: var(--alg-mono);
+  font-size: 10px;
+}
+
+.alg-chart__axis-label {
+  fill: var(--color-muted);
+  font-size: 11px;
+}
+
+.alg-chart__line {
+  fill: none;
+  stroke-width: 2;
+}
+
+.alg-chart__dot {
+  stroke: none;
+}
+
+.alg-chart__anno {
+  stroke: var(--alg-accent);
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+  opacity: 0.8;
+}
+
+.alg-chart__anno-text {
+  fill: var(--alg-accent-hover);
+  font-size: 10px;
+  font-family: var(--font-sans);
+}
+
+.alg-chart__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-chart__swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.alg-chart__swatch i {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 2px;
+}
+
+.alg-chart__empty {
+  margin: 0;
+  padding: var(--space-4);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  text-align: center;
+  border: 1px dashed var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------------------------------------------------------- GrowthTable --- */
+
+.alg-grow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.alg-grow__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.alg-grow__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.alg-grow__table th,
+.alg-grow__table td {
+  padding: 0.45rem 0.7rem;
+  text-align: right;
+  border-bottom: 1px solid var(--alg-border);
+  white-space: nowrap;
+}
+
+.alg-grow__table th:first-child,
+.alg-grow__table td:first-child {
+  text-align: left;
+}
+
+.alg-grow__table thead th {
+  color: var(--color-muted);
+  font-weight: 600;
+  border-bottom-color: var(--alg-border-strong);
+}
+
+.alg-grow__col--accent {
+  color: var(--alg-accent-hover);
+  background: var(--alg-accent-faint);
+}
+
+.alg-grow__table thead .alg-grow__col--accent {
+  color: var(--alg-accent);
+}
+
+.alg-grow__row--hl td {
+  background: color-mix(in srgb, var(--color-drishti) 14%, transparent);
+}
+
+.alg-grow__row--hl td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-drishti);
+  font-weight: 600;
+}
+
+.alg-grow__note {
+  color: var(--color-muted);
+  font-size: 0.8rem;
+  white-space: normal;
+  min-width: 10rem;
+  text-align: left;
+}
+
+.alg-grow__n {
+  font-family: var(--alg-mono);
+}
+
+/* --------------------------------------------------------- PotentialBank -- */
+
+.alg-bank {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.alg-bank__scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.alg-bank__ledger {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.alg-bank__ledger th,
+.alg-bank__ledger td {
+  padding: 0.4rem 0.6rem;
+  text-align: right;
+  border-bottom: 1px solid var(--alg-border);
+  font-family: var(--alg-mono);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.alg-bank__ledger th:first-child,
+.alg-bank__ledger td:first-child {
+  text-align: left;
+  font-family: var(--font-sans);
+}
+
+.alg-bank__ledger thead th {
+  color: var(--color-muted);
+  font-weight: 600;
+}
+
+.alg-bank__amt {
+  color: var(--color-text);
+}
+
+.alg-bank__amt--pos {
+  color: var(--color-success);
+}
+
+.alg-bank__amt--neg {
+  color: var(--color-error);
+}
+
+.alg-bank__phi {
+  color: var(--alg-accent-hover);
+  font-weight: 600;
+}
+
+.alg-bank__phi--neg {
+  color: var(--color-error);
+}
+
+.alg-bank__tfoot td {
+  border-top: 1px solid var(--alg-border-strong);
+  border-bottom: none;
+  font-weight: 600;
+}
+
+.alg-bank__empty {
+  margin: 0;
+  padding: var(--space-4);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  border: 1px dashed var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-bank__empty code {
+  font-family: var(--alg-mono);
+  color: var(--alg-accent-hover);
+}
+
+.alg-bank__checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.alg-bank__assert {
+  flex: 1 1 16rem;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--alg-border);
+  border-left-width: 3px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.alg-bank__assert--ok {
+  border-left-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+}
+
+.alg-bank__assert--fail {
+  border-left-color: var(--color-error);
+  background: color-mix(in srgb, var(--color-error) 12%, transparent);
+}
+
+.alg-bank__assert-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.alg-bank__assert--ok .alg-bank__assert-label {
+  color: var(--color-success);
+}
+
+.alg-bank__assert--fail .alg-bank__assert-label {
+  color: var(--color-error);
+}
+
+.alg-bank__formula {
+  font-family: var(--alg-mono);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------- LatticeClimb --- */
+
+.alg-lattice {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.alg-lattice__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-lattice__edge {
+  stroke: color-mix(in srgb, var(--color-muted) 32%, transparent);
+  stroke-width: 1.2;
+}
+
+.alg-lattice__edge--path {
+  stroke: var(--alg-accent);
+  stroke-width: 2.5;
+}
+
+.alg-lattice__edge-hit {
+  stroke: transparent;
+  stroke-width: 12;
+  cursor: pointer;
+}
+
+.alg-lattice__node-box {
+  fill: var(--color-surface);
+  stroke: var(--alg-border-strong);
+  stroke-width: 1;
+}
+
+.alg-lattice__node--path .alg-lattice__node-box {
+  stroke: var(--alg-accent);
+  stroke-width: 1.6;
+}
+
+.alg-lattice__node--selected .alg-lattice__node-box {
+  fill: var(--alg-accent-soft);
+  stroke: var(--alg-accent);
+  stroke-width: 2;
+}
+
+.alg-lattice__node--bottom .alg-lattice__node-box {
+  stroke: var(--color-drishti);
+  stroke-width: 1.6;
+}
+
+.alg-lattice__node--hover .alg-lattice__node-box {
+  stroke: var(--alg-accent-hover);
+}
+
+.alg-lattice__node-text {
+  fill: var(--color-text);
+  font-family: var(--alg-mono);
+  font-size: 11px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.alg-lattice__node--selected .alg-lattice__node-text {
+  fill: var(--alg-accent-hover);
+  font-weight: 600;
+}
+
+.alg-lattice__node {
+  cursor: pointer;
+  outline: none;
+}
+
+.alg-lattice__node:focus-visible .alg-lattice__node-box {
+  stroke: var(--alg-accent);
+  stroke-width: 2.5;
+}
+
+.alg-lattice__readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.alg-lattice__readout b {
+  color: var(--color-text);
+  font-family: var(--alg-mono);
+  font-weight: 600;
+}
+
+.alg-lattice__readout .alg-lattice__sel b {
+  color: var(--alg-accent-hover);
+}
+
+.alg-lattice__join {
+  color: var(--alg-accent-hover);
+}
+
+/* -------------------------------------------------------- SemiringMatrix --- */
+
+.alg-semiring {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.alg-semiring__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.alg-semiring__loop {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+  border: 1px solid var(--alg-border);
+  font-family: var(--alg-mono);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+  white-space: pre;
+  overflow-x: auto;
+}
+
+.alg-semiring__loop .alg-semiring__loop-k {
+  color: var(--alg-accent-hover);
+  font-weight: 600;
+}
+
+.alg-semiring__grid {
+  display: grid;
+  gap: 2px;
+  justify-content: start;
+}
+
+.alg-semiring__cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2rem;
+  padding: 0.2rem 0.3rem;
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg) 60%, transparent);
+  color: var(--color-text);
+  font-family: var(--alg-mono);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.alg-semiring__cell--diag {
+  background: color-mix(in srgb, var(--color-muted) 18%, transparent);
+}
+
+.alg-semiring__cell--pivot {
+  outline: 1px solid var(--alg-accent-line);
+}
+
+.alg-semiring__cell--changed {
+  background: var(--alg-accent-soft);
+}
+
+.alg-semiring__cell--head {
+  background: transparent;
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.alg-semiring__corner {
+  min-height: 2rem;
+}
+
+.alg-semiring__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-semiring__legend code {
+  color: var(--alg-accent-hover);
+  font-family: var(--alg-mono);
+}
+
+.alg-semiring__step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.alg-semiring__step input[type="range"] {
+  flex: 1 1 12rem;
+  min-height: 32px;
+  accent-color: var(--alg-accent);
+}
+
+.alg-semiring__step output {
+  font-family: var(--alg-mono);
+  color: var(--color-text);
+}
+
+/* -------------------------------------------------------- MonteCarloBound -- */
+
+.alg-mc {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.alg-mc__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-mc__bar {
+  fill: var(--alg-accent);
+  fill-opacity: 0.5;
+  stroke: var(--alg-accent-line);
+  stroke-width: 0.8;
+}
+
+.alg-mc__bound {
+  fill: none;
+  stroke: var(--color-drishti);
+  stroke-width: 2;
+}
+
+.alg-mc__axis {
+  stroke: color-mix(in srgb, var(--color-muted) 60%, transparent);
+  stroke-width: 1.2;
+}
+
+.alg-mc__tick {
+  fill: var(--color-muted);
+  font-family: var(--alg-mono);
+  font-size: 10px;
+}
+
+.alg-mc__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.alg-mc__stats b {
+  color: var(--color-text);
+  font-family: var(--alg-mono);
+  font-weight: 600;
+}
+
+.alg-mc__empty {
+  margin: 0;
+  padding: var(--space-4);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+  text-align: center;
+  border: 1px dashed var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-mc__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alg-chart__line,
+  .alg-lattice__edge {
+    transition: none;
+  }
+}
+
+/* ================================================== GraphCanvas ========== */
+
+.alg-graph,
+.alg-dp,
+.alg-rec,
+.alg-ca,
+.alg-lp {
+  --alg-accent: var(--color-algorithms, #a78bfa);
+  --alg-accent-hover: color-mix(in srgb, var(--alg-accent) 75%, #ffffff);
+  --alg-accent-soft: color-mix(in srgb, var(--alg-accent) 15%, transparent);
+  --alg-accent-faint: color-mix(in srgb, var(--alg-accent) 8%, transparent);
+  --alg-accent-line: color-mix(in srgb, var(--alg-accent) 45%, transparent);
+  --alg-border: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  --alg-border-strong: color-mix(in srgb, var(--color-muted) 45%, transparent);
+  --alg-surface-2: color-mix(in srgb, var(--color-bg) 45%, var(--color-surface));
+  --alg-mono: var(--font-mono);
+  box-sizing: border-box;
+  min-width: 0;
+}
+
+.alg-graph {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.alg-graph__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+}
+
+.alg-graph__algo {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-graph__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-graph__edge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-muted) 42%, transparent);
+  stroke-width: 1.6;
+}
+
+.alg-graph__edge--candidate {
+  stroke: var(--alg-accent);
+  stroke-width: 1.8;
+  stroke-dasharray: 5 4;
+  stroke-opacity: 0.75;
+}
+
+.alg-graph__edge--accepted {
+  stroke: var(--color-success);
+  stroke-width: 2.4;
+}
+
+.alg-graph__edge--rejected {
+  stroke: color-mix(in srgb, var(--color-error) 55%, transparent);
+  stroke-width: 1.3;
+  stroke-dasharray: 3 4;
+  stroke-opacity: 0.8;
+}
+
+.alg-graph__edge--path {
+  stroke: var(--color-success);
+  stroke-width: 3.4;
+}
+
+.alg-graph__wlabel {
+  fill: var(--color-muted);
+  font-family: var(--alg-mono);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.alg-graph__node circle {
+  fill: var(--color-surface);
+  stroke: var(--alg-border-strong);
+  stroke-width: 1.4;
+}
+
+.alg-graph__node--frontier circle {
+  fill: var(--alg-accent-soft);
+  stroke: var(--alg-accent);
+}
+
+.alg-graph__node--settled circle {
+  fill: color-mix(in srgb, var(--color-success) 22%, var(--color-surface));
+  stroke: var(--color-success);
+}
+
+.alg-graph__node--current circle {
+  fill: color-mix(in srgb, var(--color-drishti) 30%, var(--color-surface));
+  stroke: var(--color-drishti);
+  stroke-width: 2.4;
+}
+
+.alg-graph__node--bad circle {
+  fill: color-mix(in srgb, var(--color-error) 25%, var(--color-surface));
+  stroke: var(--color-error);
+}
+
+.alg-graph__nlabel {
+  fill: var(--color-text);
+  font-family: var(--alg-mono);
+  font-size: 11px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.alg-graph__status {
+  min-height: 2.2rem;
+}
+
+.alg-graph__log {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.alg-graph__step {
+  font-family: var(--alg-mono);
+  color: var(--alg-accent-hover);
+}
+
+.alg-graph__note {
+  margin: 0.15rem 0 0;
+  font-size: 0.8rem;
+  color: var(--color-drishti);
+}
+
+.alg-graph__struct {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.alg-graph__struct-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-muted);
+}
+
+.alg-graph__chip {
+  font-family: var(--alg-mono);
+  font-size: 0.78rem;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  background: var(--alg-accent-faint);
+  color: var(--color-text);
+}
+
+.alg-graph__dist {
+  overflow-x: auto;
+}
+
+.alg-graph__dist table {
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.alg-graph__dist th,
+.alg-graph__dist td {
+  padding: 0.22rem 0.6rem;
+  border-bottom: 1px solid var(--alg-border);
+  text-align: center;
+  font-family: var(--alg-mono);
+}
+
+.alg-graph__dist th[scope="row"] {
+  text-align: left;
+  color: var(--color-muted);
+  font-family: var(--font-sans);
+}
+
+.alg-graph__dist-inf {
+  color: var(--color-muted);
+}
+
+.alg-graph__dist-cur {
+  color: var(--color-drishti);
+  font-weight: 600;
+}
+
+.alg-graph__history {
+  margin: 0;
+  padding-left: 1.4rem;
+  max-height: 8.5rem;
+  overflow-y: auto;
+  font-size: 0.76rem;
+  color: var(--color-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.12rem;
+}
+
+.alg-graph__history-cur {
+  color: var(--color-text);
+}
+
+/* ================================================== DPHeatmap ========== */
+
+.alg-dp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.alg-dp__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+}
+
+.alg-dp__count {
+  font-family: var(--alg-mono);
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+.alg-dp__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-dp__axis {
+  fill: var(--color-muted);
+  font-size: 11px;
+}
+
+.alg-dp__head {
+  fill: var(--color-muted);
+  font-family: var(--alg-mono);
+  font-size: 10px;
+}
+
+.alg-dp__border {
+  fill: none;
+  stroke: var(--alg-border);
+  stroke-width: 1;
+}
+
+.alg-dp__val {
+  fill: var(--color-text);
+  font-family: var(--alg-mono);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+.alg-dp__cell {
+  cursor: pointer;
+  outline: none;
+}
+
+.alg-dp__cell--inf .alg-dp__val {
+  fill: var(--color-error);
+}
+
+.alg-dp__cell--cur .alg-dp__border {
+  stroke: var(--color-drishti);
+  stroke-width: 2.4;
+}
+
+.alg-dp__cell--pred .alg-dp__border {
+  stroke: var(--alg-accent);
+  stroke-width: 2.4;
+}
+
+.alg-dp__cell--active .alg-dp__border {
+  stroke: var(--color-drishti);
+  stroke-width: 2.8;
+}
+
+.alg-dp__cell--sol .alg-dp__border {
+  stroke: var(--color-drishti);
+  stroke-width: 2;
+  stroke-dasharray: 3 2;
+}
+
+.alg-dp__cell:focus-visible .alg-dp__border {
+  stroke: var(--alg-accent);
+  stroke-width: 2.6;
+}
+
+.alg-dp__arrow {
+  fill: none;
+  stroke-width: 1.6;
+}
+
+.alg-dp__arrow--pred {
+  stroke: var(--alg-accent);
+  stroke-width: 2.2;
+}
+
+.alg-dp__arrow--trace {
+  stroke: var(--color-drishti);
+  stroke-opacity: 0.55;
+}
+
+.alg-dp__formula {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--alg-accent);
+  background: color-mix(in srgb, var(--color-bg) 40%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  line-height: 1.5;
+  font-family: var(--alg-mono);
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.alg-dp__formula-tag {
+  color: var(--alg-accent-hover);
+  font-weight: 600;
+}
+
+.alg-dp__readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+.alg-dp__readout b {
+  color: var(--color-text);
+  font-family: var(--alg-mono);
+  font-weight: 600;
+}
+
+.alg-dp__warn {
+  color: var(--color-error);
+}
+
+.alg-dp__sol {
+  color: var(--color-drishti);
+}
+
+/* ================================================== RecursionTree ======= */
+
+.alg-rec {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.alg-rec__sliders {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3) var(--space-5);
+}
+
+.alg-rec__slider {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1 1 8rem;
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-rec__slider b {
+  color: var(--alg-accent-hover);
+  font-family: var(--alg-mono);
+}
+
+.alg-rec__slider input[type="range"] {
+  min-height: 32px;
+  accent-color: var(--alg-accent);
+}
+
+.alg-rec__eq {
+  margin: 0;
+  font-family: var(--alg-mono);
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.alg-rec__trunc {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--color-muted);
+}
+
+.alg-rec__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-rec__edge {
+  stroke: color-mix(in srgb, var(--color-muted) 35%, transparent);
+  stroke-width: 1;
+}
+
+.alg-rec__node {
+  fill: var(--alg-accent);
+  stroke: var(--color-bg);
+  stroke-width: 0.8;
+}
+
+.alg-rec__node--dom {
+  fill: var(--color-drishti);
+}
+
+.alg-rec__node--leaf {
+  fill: var(--color-success);
+}
+
+.alg-rec__band {
+  fill: var(--alg-accent-soft);
+  stroke: var(--alg-accent-line);
+  stroke-dasharray: 4 3;
+}
+
+.alg-rec__bandtext {
+  fill: var(--alg-accent-hover);
+  font-family: var(--alg-mono);
+  font-size: 10px;
+}
+
+.alg-rec__level {
+  fill: var(--color-muted);
+  font-family: var(--alg-mono);
+  font-size: 9px;
+}
+
+.alg-rec__ribbon {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.alg-rec__ribbon-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.78rem;
+}
+
+.alg-rec__ribbon-k {
+  font-family: var(--alg-mono);
+  color: var(--color-muted);
+  min-width: 2.2rem;
+}
+
+.alg-rec__ribbon-track {
+  flex: 1 1 auto;
+  height: 0.7rem;
+  background: color-mix(in srgb, var(--color-bg) 60%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.alg-rec__ribbon-bar {
+  height: 100%;
+  background: var(--alg-accent);
+}
+
+.alg-rec__ribbon-bar--dom {
+  background: var(--color-drishti);
+}
+
+.alg-rec__ribbon-txt {
+  font-family: var(--alg-mono);
+  color: var(--color-muted);
+  min-width: 15rem;
+  text-align: right;
+}
+
+.alg-rec__ribbon-txt b {
+  color: var(--color-text);
+}
+
+.alg-rec__sum {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.alg-rec__sum p {
+  margin: 0;
+}
+
+.alg-rec__muted {
+  color: var(--color-muted);
+}
+
+.alg-rec__case {
+  padding: var(--space-3);
+  border: 1px solid var(--alg-border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+}
+
+.alg-rec__case--leaf {
+  border-left-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+}
+
+.alg-rec__case--balanced {
+  border-left-color: var(--alg-accent);
+  background: var(--alg-accent-faint);
+}
+
+.alg-rec__case--root {
+  border-left-color: var(--color-drishti);
+  background: color-mix(in srgb, var(--color-drishti) 10%, transparent);
+}
+
+.alg-rec__case-title {
+  margin: 0 0 0.3rem;
+  font-weight: 600;
+  font-family: var(--alg-mono);
+  font-size: 0.85rem;
+}
+
+.alg-rec__case-reason {
+  margin: 0;
+  font-size: 0.83rem;
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+.alg-rec__legend {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.78rem;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
+
+.alg-rec__legend-on {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* ================================================== ChainAntichain ====== */
+
+.alg-ca {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.alg-ca__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+}
+
+.alg-ca__count {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-ca__count b {
+  color: var(--color-text);
+  font-family: var(--alg-mono);
+}
+
+.alg-ca__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-ca__grid {
+  stroke: color-mix(in srgb, var(--color-muted) 20%, transparent);
+  stroke-width: 1;
+}
+
+.alg-ca__axis {
+  stroke: color-mix(in srgb, var(--color-muted) 60%, transparent);
+  stroke-width: 1.2;
+}
+
+.alg-ca__tick {
+  fill: var(--color-muted);
+  font-family: var(--alg-mono);
+  font-size: 9px;
+}
+
+.alg-ca__axis-label {
+  fill: var(--color-muted);
+  font-size: 10px;
+}
+
+.alg-ca__pileline {
+  fill: none;
+  stroke: var(--color-drishti);
+  stroke-width: 1.6;
+  stroke-dasharray: 5 4;
+  stroke-opacity: 0.7;
+}
+
+.alg-ca__pileline--alt {
+  stroke-opacity: 0.35;
+}
+
+.alg-ca__antiline {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 2.6;
+  stroke-dasharray: 6 4;
+}
+
+.alg-ca__chainline {
+  fill: none;
+  stroke: var(--alg-accent);
+  stroke-width: 3;
+}
+
+.alg-ca__pt {
+  fill: var(--color-muted);
+  stroke: var(--color-bg);
+  stroke-width: 1;
+}
+
+.alg-ca__pt--pile0 {
+  fill: var(--color-drishti);
+}
+
+.alg-ca__pt--pile1 {
+  fill: color-mix(in srgb, var(--color-drishti) 55%, var(--color-muted));
+}
+
+.alg-ca__pt--chain {
+  fill: var(--alg-accent);
+  stroke: var(--color-bg);
+  stroke-width: 1.6;
+}
+
+.alg-ca__pt--anti {
+  fill: var(--color-accent);
+}
+
+.alg-ca__pt--future {
+  fill: color-mix(in srgb, var(--color-muted) 35%, transparent);
+}
+
+.alg-ca__pt--cur {
+  stroke: var(--color-text);
+  stroke-width: 2;
+}
+
+.alg-ca__ptlabel {
+  fill: var(--color-muted);
+  font-family: var(--alg-mono);
+  font-size: 9px;
+}
+
+.alg-ca__cols {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.alg-ca__col {
+  flex: 1 1 14rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-md);
+}
+
+.alg-ca__colhead {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+.alg-ca__swatch {
+  display: inline-block;
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 2px;
+}
+
+.alg-ca__swatch--chain {
+  background: var(--alg-accent);
+}
+
+.alg-ca__swatch--anti {
+  background: var(--color-accent);
+}
+
+.alg-ca__colbody {
+  font-size: 0.8rem;
+  color: var(--color-text);
+  overflow-wrap: anywhere;
+}
+
+.alg-ca__colnum {
+  color: var(--alg-accent-hover);
+  font-weight: 600;
+}
+
+.alg-ca__identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.alg-ca__idbox {
+  flex: 1 1 8rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--alg-accent-line);
+  border-radius: var(--radius-md);
+  background: var(--alg-accent-faint);
+  text-align: center;
+}
+
+.alg-ca__idlabel {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+.alg-ca__idnum {
+  font-family: var(--alg-mono);
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--alg-accent-hover);
+}
+
+.alg-ca__ideq {
+  font-size: 1.4rem;
+  color: var(--color-muted);
+}
+
+.alg-ca__attrib {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+.alg-ca__dual {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-ca__dual b {
+  color: var(--color-text);
+  font-family: var(--alg-mono);
+}
+
+.alg-ca__ok {
+  color: var(--color-success);
+}
+
+.alg-ca__bad {
+  color: var(--color-error);
+}
+
+.alg-ca__piles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--space-2);
+  min-height: 3rem;
+}
+
+.alg-ca__pile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg) 40%, transparent);
+}
+
+.alg-ca__pile-top {
+  font-family: var(--alg-mono);
+  font-size: 0.72rem;
+  color: var(--color-drishti);
+}
+
+.alg-ca__pile-cards {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+}
+
+.alg-ca__card {
+  font-family: var(--alg-mono);
+  font-size: 0.75rem;
+  padding: 0.05rem 0.4rem;
+  border-radius: 2px;
+  background: var(--alg-accent-soft);
+  color: var(--color-text);
+  text-align: center;
+}
+
+.alg-ca__card--alt {
+  background: color-mix(in srgb, var(--color-drishti) 22%, transparent);
+}
+
+.alg-ca__pile-label {
+  font-size: 0.68rem;
+  color: var(--color-muted);
+}
+
+.alg-ca__pile-empty {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-ca__tops {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--color-muted);
+}
+
+.alg-ca__tops b {
+  color: var(--color-text);
+}
+
+/* ================================================== LPDualityDashboard = */
+
+.alg-lp {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.alg-lp__bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  align-items: center;
+}
+
+.alg-lp__iter {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-lp__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-lp__edge {
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.alg-lp__edge--fwd {
+  stroke: var(--color-accent);
+}
+
+.alg-lp__edge--bwd {
+  stroke: var(--color-drishti);
+  stroke-dasharray: 5 3;
+}
+
+.alg-lp__edge--idle {
+  stroke: color-mix(in srgb, var(--color-muted) 45%, transparent);
+}
+
+.alg-lp__edge--flow {
+  stroke: var(--color-accent);
+}
+
+.alg-lp__edge--sat {
+  stroke: var(--color-drishti);
+}
+
+.alg-lp__edge--path {
+  stroke: var(--color-success);
+  stroke-width: 3.6;
+}
+
+.alg-lp__edge--cut {
+  stroke: var(--color-drishti);
+  stroke-width: 3;
+  stroke-dasharray: 7 4;
+}
+
+.alg-lp__elabel {
+  fill: var(--color-muted);
+  font-family: var(--alg-mono);
+  font-size: 10px;
+  text-anchor: middle;
+}
+
+.alg-lp__node circle {
+  fill: var(--color-surface);
+  stroke: var(--alg-border-strong);
+  stroke-width: 1.4;
+}
+
+.alg-lp__node--s circle {
+  stroke: var(--color-accent);
+  stroke-width: 2.2;
+}
+
+.alg-lp__node--t circle {
+  stroke: var(--color-drishti);
+  stroke-width: 2.2;
+}
+
+.alg-lp__node--ins circle {
+  fill: var(--alg-accent-soft);
+}
+
+.alg-lp__node--outt circle {
+  fill: color-mix(in srgb, var(--color-muted) 12%, var(--color-surface));
+}
+
+.alg-lp__nlabel {
+  fill: var(--color-text);
+  font-family: var(--alg-mono);
+  font-size: 11px;
+  text-anchor: middle;
+  pointer-events: none;
+}
+
+.alg-lp__line {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.alg-lp__cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.alg-lp__card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  flex: 1 1 9rem;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--alg-border);
+  border-left-width: 3px;
+  border-radius: var(--radius-md);
+}
+
+.alg-lp__card--primal {
+  border-left-color: var(--color-accent);
+}
+
+.alg-lp__card--dual {
+  border-left-color: var(--color-drishti);
+}
+
+.alg-lp__card--closed {
+  border-left-color: var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+}
+
+.alg-lp__card-label {
+  font-size: 0.72rem;
+  color: var(--color-muted);
+}
+
+.alg-lp__card-num {
+  font-family: var(--alg-mono);
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.alg-lp__conclusion {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 3px solid var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  border-radius: var(--radius-sm);
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.alg-lp__tablewrap {
+  overflow-x: auto;
+}
+
+.alg-lp__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.alg-lp__table th,
+.alg-lp__table td {
+  padding: 0.25rem 0.5rem;
+  text-align: right;
+  border-bottom: 1px solid var(--alg-border);
+  white-space: nowrap;
+  font-family: var(--alg-mono);
+}
+
+.alg-lp__table th:first-child,
+.alg-lp__table td:first-child {
+  text-align: left;
+  font-family: var(--font-sans);
+}
+
+.alg-lp__table thead th {
+  color: var(--color-muted);
+}
+
+.alg-lp__row--cut td {
+  background: color-mix(in srgb, var(--color-drishti) 12%, transparent);
+}

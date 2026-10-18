@@ -1,0 +1,16 @@
+title: "Dijkstra's Algorithm"
+slug: dijkstra
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a search for a shortest path. It is a wavefront settling vertices in increasing distance: a one-sided metric closure."
+oneLine: "One source, one frontier, labels that only fall."
+tldr:
+  - "The state is a vector of over-estimates plus a settled set; relaxation only lowers a label."
+  - "Greedy is exact because weights are non-negative: once the least label is settled, no later walk can undercut it."
+  - "The settled vector is one row of the min-plus closure of the weight matrix — Floyd–Warshall and Lehmann compute the whole closure, Dijkstra computes a row."
+  - "One negative edge breaks the exchange step: a later walk undercuts a settled vertex and the run reports a wrong distance."
+mathBranches: [order-theory, algebra, optimization]
+primitives: [GraphCanvas, SemiringMatrix, SeriesChart, PredictionPrompt]
+attributions: ["Dijkstra 1959", "Bellman 1958", "Fredman–Tarjan 1984", "Lehmann 1977"]
+relatedTopics: [pagerank]
+featured: true

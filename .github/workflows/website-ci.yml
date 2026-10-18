@@ -5,11 +5,13 @@ on:
       - "website/**"
       - "topics/**"
       - "drishti/**"
+      - "algorithms/**"
   pull_request:
     paths:
       - "website/**"
       - "topics/**"
       - "drishti/**"
+      - "algorithms/**"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -27,7 +29,10 @@ jobs:
       - run: npm run catalog
       - run: npm run catalog:drishti
       - run: npm run sync:drishti
+      - run: npm run catalog:algorithms
+      - run: npm run sync:algorithms
       - run: npm run lint:drishti-content
+      - run: npm run lint:algorithms
       - run: npm run test:links
       - run: npm run test:drishti-pass
       - run: npm run build

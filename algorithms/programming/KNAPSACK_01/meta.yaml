@@ -1,0 +1,14 @@
+title: "0/1 Knapsack"
+slug: knapsack-0-1
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a hunt for the best value per kilogram. It is a longest path through a grid, and an integer program whose linear relaxation sits strictly above it."
+oneLine: "Three items, a ten-kilogram pack, and a table whose bottom-right cell is the answer."
+tldr:
+  - "The state is a cell (i, c): the best value from the first i items inside capacity c. The recurrence is V(i,c) = max(V(i−1,c), vᵢ + V(i−1, c−wᵢ)), and the cell grid is a DAG whose longest path is the optimum."
+  - "Value-per-kilogram greedy takes the tent and stops at 42; the optimum takes the stove and the food for 58. Greedy solves the fractional relaxation instead, whose optimum here is 66 — an integrality gap of 8."
+  - "The DP is O(nW): polynomial in the capacity's value and exponential in the bits that write it, so the problem is only weakly NP-hard (Karp 1972)."
+  - "Scaling every value by ε·v_max/n turns the same DP into an O(n²/ε) scheme, fully polynomial because it is polynomial in 1/ε as well as n (Ibarra–Kim 1975, Sahni 1975)."
+mathBranches: [optimization, graph-theory, complexity]
+primitives: [DPHeatmap, PredictionPrompt, SeriesChart]
+attributions: ["Dantzig 1957", "Karp 1972", "Ibarra–Kim 1975", "Sahni 1975", "Kellerer–Pferschy–Pisinger 2004", "Merkle–Hellman 1978", "Shamir 1984"]

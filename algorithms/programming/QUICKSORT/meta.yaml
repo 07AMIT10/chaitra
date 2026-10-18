@@ -1,0 +1,16 @@
+title: "Quicksort"
+slug: quicksort
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not choosing a pivot and partitioning. It is a random binary search tree built by comparison, and the running time is the depth of that tree."
+oneLine: "Every comparison is an edge in a tree; the bill is the tree's depth, summed."
+tldr:
+  - "The pivot sequence is a binary search tree — the one built by inserting the keys in input order — and the comparison count is its internal path length."
+  - "Linearity of expectation over the pair indicators gives the exact average E[C] = 2(n+1)H_n − 4n ≈ 1.39 n log₂ n; the constant is 2 ln 2."
+  - "A 1:9 split is still Θ(n log n): the depth is log₁₀/₉ n ≈ 6.58 log₂ n, a constant factor, not a new class."
+  - "Sorted input with a first-element pivot is a path: n(n−1)/2 ≈ n²/2 comparisons, and McIlroy's 1999 adversary forces that on any deterministic pivot rule."
+mathBranches: [probability, combinatorics, analysis]
+primitives: [RecursionTree, SeriesChart, PredictionPrompt]
+attributions: ["Hoare 1961", "Knuth 1973", "McIlroy 1999", "Euler–Mascheroni"]
+relatedTopics: [randomized-algorithms, probability-theory]
+featured: false

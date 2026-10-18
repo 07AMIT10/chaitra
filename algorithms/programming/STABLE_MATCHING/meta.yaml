@@ -1,0 +1,15 @@
+title: "Stable Matching"
+slug: stable-matching
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a search over matchings. It is deferred acceptance, and the matching that survives the process is the one no pair wants to leave."
+oneLine: "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes."
+tldr:
+  - "Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted."
+  - "It stops with no blocking pair: a left–right pair who both rank the other above the partner they were assigned. The board checks every pair and prints that count as zero (Gale–Shapley 1962)."
+  - "The result is proposer-optimal. Among all stable matchings it is best for every proposer at once and worst for every receiver; swap who proposes and the board recomputes the other extreme (Gale–Shapley 1962, Dubins–Freedman 1981)."
+  - "The stable matchings of one instance form a lattice (Knuth 1976). The board's four-by-four has exactly two, and the two extremes differ in two of the four assignments."
+  - "Termination is counting: each proposer walks down its own list and never repeats a proposal, so the process stops after at most |L|·|R| proposals (McVitie–Wilson 1971)."
+mathBranches: [combinatorics, game-theory, order-theory]
+primitives: [MatchingBoard, PredictionPrompt]
+attributions: ["Gale–Shapley 1962", "Kuhn 1955", "Berge 1957", "McVitie–Wilson 1971", "Knuth 1976", "Dubins–Freedman 1981", "Roth 1984", "Roth 1986"]

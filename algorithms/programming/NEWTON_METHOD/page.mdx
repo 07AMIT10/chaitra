@@ -1,0 +1,146 @@
+import IterationLab from "@alg/IterationLab.tsx";
+import GrowthTable from "@alg/GrowthTable.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Primitive contracts this page relies on, matched to website/src/components/algorithms/:
+    IterationLab      problem ("newton" | "bisection" | "fixed-point" | "secant") · target ("sqrt2" | "root-of-cubic" | "cos-fixed-point") · caption
+    GrowthTable       rows ({ n, logn?, logstarn?, alpha?, note? }[]) · highlight · accentColumn · caption   (static)
+    PredictionPrompt  question · options (string[]) · correct (index) · explain
+  Interactive primitives need an explicit Astro client directive (`client:visible`).
+  Every number quoted below is produced by the same rules the panel uses:
+  the Newton map on the baked-in functions, the true roots found by internal bisection,
+  and the step counts at the stated starting point.
+*/}
+
+## Newton's method is not the loop $x_{n+1} = x_n - f(x_n)/f'(x_n)$. It is the tangent line, followed down to the axis, and each step squares the error.
+
+The panel beside this paragraph is the whole method. It opens on $f(x) = x^2 - 2$ at the start $x_0 = 1.2$, and what it draws is no more than a curve, one tangent segment, and the point where that segment meets the axis.
+
+<IterationLab
+  client:visible
+  problem="newton"
+  target="sqrt2"
+  caption="Curve, current guess, tangent, axis. Step it and watch the tangent's crossing become the next guess."
+/>
+
+Press step once and read two columns. The `e_n` column is the distance from the guess to the true root $\sqrt{2}$; the ratio column divides the new error by the square of the old one.
+
+<PredictionPrompt
+  client:visible
+  question="A Newton step lands with error e_n = 0.019. Knowing only that the error is squared with a constant near 0.35, what is the error after one more step?"
+  options={["About the same, 0.019 again.", "About 0.00013.", "About 0.0095 — roughly halved."]}
+  correct={1}
+  explain="Squaring 0.019 gives 3.6×10⁻⁴, and the constant at √2 is 0.3536, so the next error is about 1.3×10⁻⁴. Halving is what bisection does; an iteration that merely keeps its error is order one at best. The panel's ratio column is this constant in decimal, and you can confirm it by stepping."
+/>
+
+## 1 · The question
+
+Asked to solve $f(x) = 0$, the operational answer is a loop. From a guess $x_n$, take $x_{n+1} = x_n - f(x_n)/f'(x_n)$ and stop when $|f(x_n)|$ is small.
+
+That rule is correct and it is still not the question. It says where to step without saying what the step *is*, so it hides both the reason the method is fast and the reason it can fail. Read as geometry, the same line of algebra becomes one picture.
+
+## 2 · The real object: the tangent line, and the map it defines
+
+Draw the tangent to the curve at the current point $(x_n, f(x_n))$.
+
+$$
+y = f(x_n) + f'(x_n)\,(x - x_n).
+$$
+
+Its zero is the next guess: setting $y = 0$ gives $x = x_n - f(x_n)/f'(x_n)$, which is the update rule recovered from a picture. So the state of the method is one point on the curve, and one step replaces the curve by its tangent and reads the crossing.
+
+The map $N(x) = x - f(x)/f'(x)$ sends a guess to the next guess. Its fixed points are exactly the roots of $f$, because $N(x) = x$ forces $f(x) = 0$, so the method is fixed-point iteration on $N$.
+
+Everything the method does — its speed, its failures, its cycles — is a property of that one map. Newton stated the tangent construction for a cubic in 1669 and published it in 1671; Raphson gave the algebraic form in 1690; Simpson wrote the calculus version using $f'$ in 1740, which is the form above.
+
+## 3 · The mathematics: Taylor squares the error
+
+Let $x^*$ be a root with $f'(x^*) \neq 0$ — a simple root — and write $e_n = x_n - x^*$. Expand $f$ at the root.
+
+$$
+f(x_n) = f'(x^*)\,e_n + \tfrac{1}{2} f''(x^*)\,e_n^2 + O(e_n^3), \qquad f'(x_n) = f'(x^*) + O(e_n).
+$$
+
+Substitute both into the update rule and the linear terms cancel, leaving the identity this page is about (Taylor 1715).
+
+$$
+e_{n+1} = \frac{f''(x^*)}{2\,f'(x^*)}\,e_n^2 + O(e_n^3).
+$$
+
+The next error is the square of the current one, scaled by a constant that depends only on the function and the root. At $\sqrt{2}$ with $f(x) = x^2 - 2$ we have $f'' = 2$ and $f'(\sqrt{2}) = 2\sqrt{2}$, so the constant is $1/(2\sqrt{2}) = 0.3536$.
+
+That is the number the panel's ratio column settles on once the iterates are close. It is also the whole promise of the method: two correct digits become four, then eight, then sixteen.
+
+Now differentiate the map itself.
+
+$$
+N'(x) = \frac{f(x)\,f''(x)}{f'(x)^2}.
+$$
+
+At a simple root $f(x^*) = 0$, so $N'(x^*) = 0$ and the fixed point is superattracting — the closer the iterate, the harder the map pulls it in. Fatou 1918 and Julia 1918 built the theory of such iterated maps, and the basins it describes are the subject of section 6.
+
+The constant is honest only near the root. Away from it the tangent can be almost flat, and then the algebra above is a warning rather than a promise.
+
+<PredictionPrompt
+  client:visible
+  question="Start Newton on Wallis's cubic f(x) = x³ − 2x − 5 at x₀ = 0.82, where f(0.82) = −6.0886 and f′(0.82) = 0.0172. What does the first step do?"
+  options={["It lands on the root 2.0946 in one step.", "It moves a little, to about 0.80.", "It jumps far away, to about 355."]}
+  correct={2}
+  explain="The step is f(x₀)/f′(x₀) = 6.0886/0.0172 ≈ 354, so the first iterate lands near 355, nowhere near the root. A near-zero derivative makes the tangent almost horizontal, and Newton has no guard against that. Bisection does: it needs only a sign change, which is why the two methods are shipped together."
+/>
+
+A different construction carries the guarantee. Bisection keeps an interval that brackets a sign change and halves it every step, so $e_{n+1} \le e_n/2$ whatever the shape of $f$, and the panel prints order $p = 1$ for it. That is one order below Newton, but a bracket cannot be thrown away.
+
+Kantorovich 1948 gave conditions under which Newton converges from a whole ball around the root. Smale 1986 sharpened this into the α-theory test that certifies whether a single starting point is good. Brent 1973 combined the two ideas into a bracket-respecting method that keeps bisection's safety and Newton's speed.
+
+## 4 · The centrepiece: one function, four ways to move
+
+Return to the panel and drive it. Switch the method to bisection and the geometry becomes a stack of shrinking brackets with the ratio column pinned at 0.5. Switch to secant and the tangent is replaced by the line through the last two guesses, an order of $p = 1.618$; the panel prints that order and the constant it predicts.
+
+Switch the function to $x^3 - 2x - 5$ and drag the start toward $0.8165$, where $f'$ vanishes. That reproduces the jump of the prediction above, and it is the clearest way to see why the guarantee matters.
+
+The table measures the squaring directly, on the panel's first function. The precision column is $n = 2^b$, so the exponent $b$ is the `log n` column, and each note is the Newton step count from $x_0 = 1.2$.
+
+<GrowthTable
+  highlight="2⁶⁴"
+  accentColumn="logn"
+  rows={[
+    { n: "2⁸", logn: "8", note: "2 steps" },
+    { n: "2¹⁶", logn: "16", note: "3 steps" },
+    { n: "2³²", logn: "32", note: "4 steps" },
+    { n: "2⁶⁴", logn: "64", note: "5 steps" },
+    { n: "2¹²⁸", logn: "128", note: "6 steps" },
+    { n: "2²⁵⁶", logn: "256", note: "7 steps" },
+  ]}
+  caption="The precision is n = 2^b, so b is log n; the note is the Newton steps from x₀ = 1.2 that pin all b bits. Eight bits take two steps and 256 bits take seven, so the step count grows like the logarithm of the precision, not like the precision."
+/>
+
+Eight bits to 256 bits is a factor of $2^{32}$ in precision and five extra steps. That gap is what makes Newton worth its fragility: the work is logarithmic in the answer's length.
+
+## 5 · The payoff
+
+Every root-finder in a numerical library is this tangent with a guard bolted on. Optimization uses it directly, since finding a stationary point means solving $\nabla f = 0$, and Newton's method in several variables is exactly this iteration with the Hessian in place of $f'$; the quadratic proof survives whenever the Hessian is nonsingular (Dennis and Schnabel 1983).
+
+Hardware uses it in miniature. A reciprocal square root is one Newton step on $y^2 = 1/x$, a staple of graphics pipelines, and the method's self-correcting nature means the initial guess only has to be close enough for the squaring to take over.
+
+The failure is a structure, not a bug. Cayley 1879 asked which starting point sends Newton's method to which root of the cubic $z^3 - 1$, found no clean answer, and opened the study of the map's basins of attraction.
+
+## 6 · Optional: the basins, and where Newton is not a solver
+
+Skippable. Colour every start in the plane by the root Newton reaches from it, and for $z^3 - 1$ the plane breaks into three interlocking basins whose shared boundary is fractal: no piece of it is a smooth curve. That boundary is the Julia set of the map, a repelling set that all three basins have in common.
+
+The picture is the honest edge of the method. Inside a basin a dozen steps finish the job; on the ridges between basins the iterates wander, and a bad start can cycle forever. Homotopy and continuation methods sidestep the ridges by moving a parameter, and damped Newton accepts a step only when it decreases $|f|$. The acceptance test, not the tangent, is what turns the local method into a global one.
+
+## 7 · Attributions
+
+- **Newton 1669, 1671** — the tangent construction for solving $x^3 - 2x - 5 = 0$: the geometric form of the step, and the object the panel draws.
+- **Raphson 1690** — the algebraic rearrangement into the update rule, reaching the same iterates without the tangent.
+- **Simpson 1740** — the calculus form using $f'$, and the extension to transcendental equations; the version the panel runs.
+- **Taylor 1715** — the expansion that turns the update rule into $e_{n+1} = |f''/2f'|\,e_n^2$, the squaring the ratio column shows.
+- **Cayley 1879** — the first study of which root Newton reaches from a given start, for the cubic $z^3 - 1$; the origin of the basin picture.
+- **Fatou 1918, Julia 1918** — the theory of iterated rational maps and their basins; the reason $N'(x^*) = 0$ is the right lens for the speed.
+- **Kantorovich 1948** — a convergence ball for Newton's method, giving a sufficient condition for a start to succeed.
+- **Brent 1973** — the bracket-respecting root-finder that keeps bisection's guarantee while borrowing faster steps.
+- **Dennis–Schnabel 1983** — Newton and quasi-Newton methods for systems, with the local quadratic-convergence proof in several variables.
+- **Smale 1986** — the α-theory test that certifies whether a given point is a good starting point.

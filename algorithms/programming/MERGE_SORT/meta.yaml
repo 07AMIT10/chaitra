@@ -1,0 +1,15 @@
+title: "Merge Sort"
+slug: merge-sort
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not splitting an array and stitching it back. It is the reduction of sorting to merging."
+oneLine: "Every sort is a merge; every merge is one linear pass over two chains."
+tldr:
+  - "Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does."
+  - "The recurrence T(n) = 2T(n/2) + Θ(n) sums to Θ(n log n): each of the log n levels touches every key exactly once."
+  - "For n = 2^k the worst case is exactly n log₂ n − n + 1 comparisons — a derived identity, not an estimate."
+  - "That matches the floor ⌈log₂(n!)⌉ = Θ(n log n) to a constant factor, so no comparison sort can beat it asymptotically."
+mathBranches: [algebra, analysis, information-theory, order-theory]
+primitives: [RecursionTree, SeriesChart, PredictionPrompt]
+attributions: ["von Neumann 1945", "Knuth 1973", "Stirling 1730", "Ford–Johnson 1959", "decision-tree lower bound"]
+relatedTopics: [mapreduce, information-theory]

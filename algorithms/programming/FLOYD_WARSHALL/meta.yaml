@@ -1,0 +1,15 @@
+title: "Floyd–Warshall"
+slug: floyd-warshall
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not all-pairs shortest paths. It closes one matrix over a semiring, and the arithmetic you choose is the problem you are solving."
+oneLine: "One triple loop, four arithmetics, four different answers from the same grid."
+tldr:
+  - "The four-line triple loop uses only ⊕, ⊗, 0 and 1; the semiring axioms are its entire hypothesis."
+  - "Swap the semiring and the same grid reads as cheapest routes, route counts, reachability, or longest routes."
+  - "The in-place update is exact when ⊕ is idempotent, so addition — the one non-idempotent choice — is the panel that over-counts."
+  - "The closure is a matrix inverse in a semiring: A* = I + A + A² + ⋯ = (I − A)⁻¹ when the series converges."
+mathBranches: [algebra, order-theory, combinatorics]
+primitives: [SemiringMatrix, PredictionPrompt, SeriesChart]
+attributions: ["Floyd 1962", "Warshall 1962", "Kleene 1951", "Lehmann 1977"]
+relatedTopics: [pagerank, gossip-protocols]

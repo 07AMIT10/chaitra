@@ -1,0 +1,14 @@
+title: "Topological Sort"
+slug: topological-sort
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a linear order of the vertices. It is a linear extension of a partial order."
+oneLine: "Flatten a dependency DAG into a queue order, and see the orders you did not choose."
+tldr:
+  - "Reachability is a preorder; quotient it by mutual reachability and you get the poset you are really sorting."
+  - "A topological order is a linear extension — one total order that never contradicts a prerequisite."
+  - "Kahn's peeling deletes minimal elements in O(V+E), yet counting how many linear extensions exist is #P-complete (Brightwell–Winkler 1991), so the count is not a construction."
+mathBranches: [order-theory, combinatorics, graph-theory]
+primitives: [GraphCanvas, PredictionPrompt, SeriesChart]
+attributions: ["Kahn 1962", "Tarjan 1976", "Birkhoff 1937", "Brightwell–Winkler 1991"]
+relatedTopics: [pagerank, mapreduce, distributed-systems]

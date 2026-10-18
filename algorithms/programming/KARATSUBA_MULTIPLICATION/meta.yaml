@@ -1,0 +1,15 @@
+title: "Karatsuba Multiplication"
+slug: karatsuba-multiplication
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a faster way to multiply big numbers. It is the rank of polynomial multiplication dropping from four to three."
+oneLine: "One product saved at each split, recursed into the exponent n^log₂3."
+tldr:
+  - "Splitting an n-digit number in half turns four products into three: T(n) = 3T(n/2) + Θ(n), which solves to Θ(n^log₂3) ≈ Θ(n^1.585) against schoolbook's Θ(n²)."
+  - "The saving is one rank: the two-block product is a rank-4 bilinear map, and Karatsuba is a rank-3 decomposition — the move Strassen makes with two indices instead of one."
+  - "The additions cost Θ(n), a lower polynomial degree than the rank's exponent, so they ride along as a constant factor and the rank shows through."
+  - "Toom–Cook splits into r parts for 2r − 1 products per node and drops the exponent toward 1; Schönhage–Strassen's FFT reaches O(n log n log log n)."
+  - "The true complexity of integer multiplication is unknown: the only general lower bound is Ω(n), and the best known upper bound is O(n log n)."
+mathBranches: [algebra, analysis, information-theory]
+primitives: [RecursionTree, GrowthTable, PredictionPrompt]
+attributions: ["Karatsuba–Ofman 1960/1962", "Toom 1963", "Cook 1966", "Schönhage–Strassen 1971", "Knuth 1981"]

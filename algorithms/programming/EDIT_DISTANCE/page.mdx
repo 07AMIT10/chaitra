@@ -1,0 +1,157 @@
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import DPHeatmap from "@alg/DPHeatmap.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+
+{/*
+  Primitive contract, matched to website/src/components/algorithms/:
+    PredictionPrompt  question · options (string[]) · correct (index) · explain · hint
+    DPHeatmap         problem="edit-distance" · a · b · caption · height   (hover a cell, step the fill)
+    SeriesChart       series: { name, points: [x, y][] }[] · title · xLabel · yLabel · logY   (static)
+  Interaction lives in the primitives; every interactive one carries client:visible.
+  Astro islands do not nest, so each interactive primitive is its own island.
+  The chart numbers are exact arithmetic on the band formula (diagonal band |i-j| within k), not a measurement.
+*/}
+
+## Edit distance is not a count of differing characters. It is the geodesic distance in the graph of all strings.
+
+Take the pair **emotions** and **demotion**, and stack them:
+
+```
+e m o t i o n s
+d e m o t i o n
+```
+
+Every one of the eight columns disagrees. A reader who scores columns answers eight; a reader who is allowed to *edit* does better. Insert a `d` at the front, delete the trailing `s`, and the first word has become the second in two moves.
+
+<PredictionPrompt
+  client:visible
+  question="Position by position, all eight characters of emotions and demotion disagree. What is the edit distance — the fewest unit edits that turn one word into the other?"
+  options={["8", "3", "2", "6"]}
+  correct={2}
+  hint="You are not obliged to compare columns in order. Insertions and deletions slide the two strings past each other, choosing the alignment as they go."
+  explain="Two. Insert a d at the front (emotions → demotions), then delete the trailing s (demotions → demotion). Comparing columns assumes the strings already line up; once inserts and deletes slide them, eight apparent mismatches become two real moves."
+/>
+
+Eight apparent differences, two real edits. That gap is the whole page: edit distance is the price of a path, not the size of a difference.
+
+## 1 · The question
+
+Operationally you are handed two strings and asked for one number — the fewest **unit edits** that turn the first into the second. Three moves count as a single edit each: delete a character, insert a character, replace a character. (Damerau 1964 would later add a fourth, the adjacent swap.)
+
+"Count the characters that differ" is a different question, and a worse one. It is undefined when the lengths differ, and it is wrong even when they agree, as the two words above show. The strings never arrive with an alignment attached; choosing the alignment is part of the problem.
+
+## 2 · The real object: a graph whose vertices are strings
+
+Fix a finite alphabet $\Sigma$. The vertices are **all finite strings** $\Sigma^{*}$: every word, every prefix, the empty string $\varepsilon$, every piece of garbage you can type. Join two strings with an edge when one is the other with a single character inserted, deleted, or replaced.
+
+$$ G = \bigl(\Sigma^{*},\,E\bigr), \qquad (u,v)\in E \iff v \text{ is } u \text{ with one character inserted, deleted, or replaced} $$
+
+Every edge is one unit edit, so edit distance is graph distance:
+
+$$ d(a,b) \;=\; \min\{\,\text{edges on a path from } a \text{ to } b\,\}. $$
+
+The graph is infinite, and you never build it: you ask for one shortest path between two of its vertices. That is what makes $d$ a **geodesic** — the length of the shortest route through a space where "nearby" means "one typo away".
+
+The framing is not decoration. Graph distance is a metric, so $d$ inherits the triangle inequality for free, and that one property is what makes nearest-word search and error correction work. Levenshtein 1965 built the distance for exactly that purpose.
+
+## 3 · The mathematics: three edges, one alignment
+
+The table you drive below is this infinite graph, cut down to the two strings in hand.
+
+**The product graph, and the recurrence.** Write $a[1..i]$ for the prefix of $a$ of length $i$, and $b[1..j]$ likewise. A node $(i,j)$ stands for the pair of prefixes $(a[1..i],\,b[1..j])$; the node $(0,0)$ is $(\varepsilon,\varepsilon)$ and the node $(m,n)$ is the pair $(a,b)$. To *reach* $(i,j)$, the last edit was one of exactly three moves, and each is an edge of $G$:
+
+$$ d(i,j) \;=\; \min\Bigl\{\, \underbrace{d(i-1,j)+1}_{\text{delete } a_i},\;\; \underbrace{d(i,j-1)+1}_{\text{insert } b_j},\;\; \underbrace{d(i-1,j-1)+[\,a_i \ne b_j\,]}_{\text{substitute or match}} \,\Bigr\} $$
+
+with $d(i,0)=i$ and $d(0,j)=j$. This is the recurrence of Wagner and Fischer 1974, and its three terms are the three arrows that light up when you hover a cell. No fourth term exists: those three moves exhaust the ways one string can be a single edit from another.
+
+**A path is an alignment.** A monotone walk from $(0,0)$ to $(m,n)$ selects matched pairs $(i_1,j_1),\dots,(i_t,j_t)$ with both coordinates strictly increasing. Each unpaired index on the $a$-side is a deletion, each unpaired index on the $b$-side is an insertion, and a matched pair costs one when its two characters disagree:
+
+$$ \text{cost} \;=\; \underbrace{(m-t)}_{\text{deletions}} \;+\; \underbrace{(n-t)}_{\text{insertions}} \;+\; \underbrace{\#\{\,r : a_{i_r} \ne b_{j_r}\,\}}_{\text{substitutions}}. $$
+
+The distance $d(a,b)$ is the minimum of that cost over all matchings — the alignment view of Needleman and Wunsch 1970. You do not compare column by column; you thread the two strings together and pay for every unthreaded character and every mismatched pair. Needleman and Wunsch wrote the same recurrence for amino-acid sequences, with a general score per pairing.
+
+**Insert and delete only, and the longest common subsequence.** Drop substitution. A matched pair is now free and each unmatched position costs one, so you match as many as you can. With $t^{*}=\mathrm{LCS}(a,b)$ the length of a longest common subsequence,
+
+$$ d_{\text{ins/del}}(a,b) \;=\; (m-t^{*}) + (n-t^{*}) \;=\; m + n - 2\,\mathrm{LCS}(a,b). $$
+
+This is a derived identity — put $t=t^{*}$ into the alignment cost above — and it is the honest answer to the next prompt. For the two words on this page $\mathrm{LCS}=7$ (the shared `emotion`), so $8+8-2\cdot 7 = 2$: removing substitution changes nothing here, because the optimal script was already one insertion and one deletion.
+
+<PredictionPrompt
+  client:visible
+  question="Delete substitution from the toolbox. Only insertions and deletions remain. What is the distance from emotions to demotion now?"
+  options={["Still 2", "3", "4", "8"]}
+  correct={0}
+  explain="Still 2, and you can point at why: the optimal script was already an insert and a delete, so removing substitution costs nothing here. In general, with insert and delete only the distance is m + n − 2·LCS, and LCS(emotions, demotion) = 7 (the shared string emotion), so 8 + 8 − 2·7 = 2."
+/>
+
+**The metric axioms, and how the costs decide them.** Three properties make $d$ a metric.
+
+- Identity: $d(a,a)=0$, along the diagonal that matches every character, and $d(a,b)=0$ forces $a=b$.
+- Symmetry: $d(a,b)=d(b,a)$. Every edge has an inverse of the same weight — an insertion undone by a deletion — so reversing a script preserves its cost.
+- Triangle inequality: $d(a,c) \le d(a,b)+d(b,c)$. Run the script for $a \to b$, then the script for $b \to c$; concatenating them is a script for $a \to c$ (Levenshtein 1965).
+
+Change the costs and the axioms change with them, because the metric is a property of the operations, not of the strings. Give deletion weight 1 and insertion weight 2 and symmetry dies — an insert can no longer undo a delete at equal cost — leaving a directed quasimetric. Raise substitution to weight 2, the price of a delete plus an insert, and it is never worth using, so $d$ collapses to $m+n-2\,\mathrm{LCS}$ again. Unit insertion, deletion, and substitution sit strictly between those two extremes, and that is the choice this page makes.
+
+**Two bounds you can read off the picture.** Each edit changes the length of a string by at most one, so $d(a,b) \ge |m-n|$, and padding the shorter string with substitutions and insertions costs at most $\max(m,n)$, so $d(a,b) \le \max(m,n)$. For `emotions` and `demotion` that sandwich is $0 \le 2 \le 8$, and the alignment bound $m+n-2\,\mathrm{LCS}$ makes it exact at 2.
+
+## 4 · The centrepiece: drive the table
+
+<DPHeatmap
+  client:visible
+  problem="edit-distance"
+  a="emotions"
+  b="demotion"
+  caption="Hover any cell to light its incoming edges: delete from above, insert from the left, substitute from the diagonal. Press play to fill the 81 cells in dependency order, then Trace solution to walk the winning script back from the corner."
+/>
+
+The top-left cell is $(\varepsilon,\varepsilon)$, and the top row and left column are pure insertions and deletions, so they read `1, 2, 3, …` across and down. Every interior cell is its cheapest predecessor plus one, unless the two characters agree, in which case the diagonal is free and the cell copies its upper-left neighbour.
+
+For your two words the bottom-right cell reads 2. Turn on **Trace solution** and the highlighted chain walks the script out: the path steps right once along the top row (insert `d`), runs seven diagonal cells through the shared `emotion`, then drops one cell down the last column (delete `s`). The eight column mismatches never mattered, because the optimal path never steps on the diagonal through them.
+
+Watch which cells the trace avoids. A shortest path leaves the main diagonal only by paying, and every step away costs an edit; the further off-diagonal a cell sits, the more edits already spent reaching it. That observation becomes the band in section 6.
+
+## 5 · The payoff
+
+Four tools run on this one number.
+
+- **Error-correcting codes.** Levenshtein 1965 asked how far apart binary codewords must be when insertions and deletions are the enemy. A code with minimum distance $d_{\min}$ corrects up to $\lfloor (d_{\min}-1)/2 \rfloor$ errors, and the proof is the triangle inequality: balls of that radius around the codewords are disjoint, so a corrupted word has at most one nearest codeword.
+- **Spelling and diff.** The correction of a misspelling is the dictionary word at least edit distance away; `diff` and `git blame` run the same DP over lines, and Myers' $O(nd)$ walk (1986) makes the cost track the size of the change rather than the size of the files.
+- **Sequence alignment.** Needleman and Wunsch 1970 align proteins with this recurrence and a substitution matrix; Smith and Waterman 1981 relax the requirement to span both sequences and align locally. Every alignment score in bioinformatics is this table.
+- **Record linkage and near-duplicates.** Comparing a name, an address, or a product title across two databases is a small edit distance with character-dependent costs, which is exactly where the operation weights start to matter.
+
+## 6 · Advanced (optional): the band, and the quadratic wall
+
+The table has $(m+1)(n+1)$ cells, so it costs $O(nm)$ time and space. Two consequences are worth carrying away.
+
+**A bounded-distance test needs only a band.** Suppose you do not want $d(a,b)$ itself but only the answer to "is $d(a,b) \le k$?" for a small $k$. Every step of a path changes $i-j$ by at most one, and the path starts at $i-j=0$, so any node $(i,j)$ on a path of cost at most $k$ must satisfy $|i-j| \le k$. Cells outside that diagonal band already carry a cost above $k$, so a bounded-distance search can ignore them (Ukkonen 1985).
+
+For equal lengths the band holds $(n+1)^2-(n-k)(n-k+1)$ cells — $O(nk)$, not $O(n^2)$. The chart below counts them for the full table and three fixed thresholds; the counts are exact arithmetic on that formula.
+
+<SeriesChart
+  title="Cells a distance-≤-k test must fill — exact counts, band |i − j| ≤ k"
+  xLabel="string length n"
+  yLabel="DP cells"
+  logY
+  series={[
+    { name: "full table", points: [[32, 1089], [64, 4225], [128, 16641], [256, 66049], [512, 263169], [1024, 1050625]] },
+    { name: "band k = 16", points: [[32, 817], [64, 1873], [128, 3985], [256, 8209], [512, 16657], [1024, 33553]] },
+    { name: "band k = 8", points: [[32, 489], [64, 1033], [128, 2121], [256, 4297], [512, 8649], [1024, 17353]] },
+    { name: "band k = 2", points: [[32, 159], [64, 319], [128, 639], [256, 1279], [512, 2559], [1024, 5119]] },
+  ]}
+/>
+
+The full table grows like $n^2$ and the bands grow like $n$: at $n=1024$ the full grid is over a million cells and the width-2 band is under six thousand. Myers 1986 sharpens the same idea to $O(nd)$ by walking the diagonals greedily, where $d$ is the answer itself — the algorithm inside `diff`.
+
+**You cannot in general beat the quadratic.** Computing edit distance on length-$n$ strings has no known $O(n^{2-\epsilon})$ algorithm, and if one existed the Strong Exponential Time Hypothesis would fail (Backurs and Indyk 2015; Bringmann and Künnemann 2015). State that at the strength it deserves: this is a conditional lower bound, not a proof that no fast algorithm exists. It is why the quadratic table has stood for fifty years.
+
+## 7 · Attributions
+
+- **Levenshtein 1965** — *Binary codes capable of correcting deletions, insertions, and reversals*: defines the distance and its metric property, motivated by error-correcting codes.
+- **Needleman and Wunsch 1970** — *A general method applicable to the search for similarities in the amino acid sequence of two proteins*: the alignment recurrence and the global-alignment lineage.
+- **Wagner and Fischer 1974** — *The string-to-string correction problem*: the $O(nm)$ dynamic program that computes the distance.
+- **Damerau 1964** — *A technique for computer detection and correction of spelling errors*: adds the adjacent transposition as a fourth edit.
+- **Ukkonen 1985** — the diagonal-band cutoff for bounded-distance search.
+- **Myers 1986** — the $O(nd)$ greedy diagonal algorithm, the engine inside `diff`.
+- **Smith and Waterman 1981** — local sequence alignment, the same table without the requirement to span both sequences.
+- **Backurs and Indyk 2015 · Bringmann and Künnemann 2015** — conditional quadratic lower bounds for edit distance under the Strong Exponential Time Hypothesis.
+- **Deza and Deza 2009** — *Encyclopedia of Distances*: the metric-space framing of edit distance among string metrics.

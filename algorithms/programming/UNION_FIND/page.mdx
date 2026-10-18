@@ -1,0 +1,211 @@
+import LatticeClimb from "@alg/LatticeClimb.tsx";
+import PotentialBank from "@alg/PotentialBank.tsx";
+import SeriesChart from "@alg/SeriesChart.tsx";
+import GrowthTable from "@alg/GrowthTable.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Primitive contract used by this page, matched to website/src/components/algorithms/.
+    PredictionPrompt  question · options (string[]) · correct (index) · explain
+    LatticeClimb      n (3 | 4) · caption
+    PotentialBank     trace: { label, actual, delta }[] · caption   (Phi_0 = 0; amortised = actual + delta)
+    SeriesChart       series: { name, points: [x, y][] }[] · title · xLabel · yLabel · logY
+    GrowthTable       highlight (row key, e.g. "10^80")
+  The numbers below are measured by the simulation described in the prose, not invented.
+  Interactive primitives need an explicit Astro client directive (`client:visible`).
+  Astro islands cannot nest, so each interactive primitive is its own island.
+*/}
+
+## Union–Find is not an algorithm. It is a partition, climbing a lattice.
+
+Six objects sit on a table. Press **merge** and two of them become one clump; a clump can never split. That is the entire data structure, and this page is about the mathematical object you just changed and what changing it again costs.
+
+<PredictionPrompt
+  client:visible
+  question="Six objects merge into clumps. Before you count: how many merges does it take to gather all six into a single clump?"
+  options={["3", "5", "6", "9"]}
+  answer="5"
+  explanation="Each merge fuses exactly two clumps, so the clump count falls by exactly one. Six down to one is five merges — never more, and a merge of two objects already in one clump changes nothing at all."
+/>
+
+Any two objects are either in the same clump or not, so the clumps are an equivalence relation waiting to be named. Kruskal's minimum spanning tree uses the two operations to ask "is this edge redundant?"; image segmenters use them to fuse neighbouring pixel regions; percolation sweeps use them to ask whether water has reached the bottom of a rock. The same pair of operations carries all of it.
+
+## 1 · The question
+
+Fix a finite set `S` of `n` elements. You will be asked, over and over, two questions: are **x** and **y** in the same block, and can you merge the block of **x** with the block of **y**. A first course calls this "disjoint sets" and moves on.
+
+The naive answers are worse than they look. Keep a label array and relabel every member of the smaller block on each merge: one merge can cost Θ(n), so a sequence of `n` merges costs Θ(n²).
+
+Keep a member list per set and concatenate: the same trap, the same quadratic. Neither is slow because the idea is bad; both are slow because they store the *answer to a query* and call it the state.
+
+## 2 · The real object: a partition, climbing a lattice
+
+The state is a **partition** π of `S`: a set of non-empty, pairwise disjoint blocks whose union is `S`. **find** reads the block containing an element; **merge** fuses two blocks. Nothing else is ever stored.
+
+Partitions of a fixed set are partially ordered by **refinement**: π refines σ when every block of π lies inside a block of σ.
+
+$$ \pi \le \sigma \iff \text{every block of } \pi \text{ lies inside a block of } \sigma $$
+
+Under that order the partitions form a lattice, the **partition lattice** $\Pi_n$, which is graded and semimodular (Birkhoff, *Lattice Theory*, 1940). The bottom $\bot$ is all singletons, the top $\top$ is the single block `S`, the meet is the common refinement, and the join $\pi \vee \sigma$ has as blocks the connected components of the graph joining elements that share a block in π or in σ.
+
+A **merge(a, b)** is not a new operation. It is the join with the two-block partition that puts **a** and **b** together:
+
+$$ \pi \;\longmapsto\; \pi \vee \pi_{ab}, \qquad \pi_{ab}=\{\{a,b\}\}\cup\{\{x\}: x \ne a,b\} $$
+
+Only two blocks move, so the join is just "fuse block(a) with block(b)". And because a join can only fuse, **every run of merges is a monotone climb up the lattice** — it can never come back down. Since the two-block partition $\pi_{ab}$ has rank 1, joining with it either fuses two blocks, a single cover step, or fuses nothing, when **a** and **b** already share a block.
+
+Now the number you would have written into the code as a counter:
+
+$$\rho(\pi) \;=\; n - |\pi| \;=\; \text{blocks fused away} \;=\; \text{successful unions}$$
+
+The lattice rank and the merge counter are the same number. A runtime statistic is a coordinate of where the state sits in an order-theoretic diagram.
+
+<LatticeClimb
+  client:visible
+  n={4}
+  caption="Partitions of {1,2,3,4} by refinement. The gold path runs from the bottom (four singletons) to the top (one block). Each upward cover edge fuses exactly two blocks. Click a pair of elements to take the join."
+/>
+
+For `n = 4` the diagram has 15 nodes, the Bell number $B_4$, and 31 cover edges. "Reachable above" the current partition is $B_{|\pi|}$: from the bottom, every partition of four objects is still ahead of you. Nothing autoplays here — the climb is yours to drive.
+
+## 3 · The mathematics: equivalence relations, and a balance you cannot overdraw
+
+Two facts carry the page.
+
+**Fact 1 — equivalence relations are partitions.** A relation on `S` that is reflexive, symmetric and transitive splits `S` into its classes, and every partition of `S` arises from exactly one such relation. That correspondence is exact: the fibres of **find** are the blocks. Union–Find is not computing connectivity, it is *representing an equivalence relation* and taking its join with the relation $a \sim b$.
+
+**Fact 2 — the physicist's potential method.** Give the state a non-negative number $\Phi$, computable from the state, that you are allowed to spend. If operation $t$ costs $c_t$ real units of work and moves the balance by $\Delta \Phi_t$, call $\hat c_t = c_t + \Delta \Phi_t$ its **amortised** cost. Because the balance never goes below zero,
+
+$$ \sum_t c_t \;=\; \sum_t \hat c_t \;-\; \Phi_{\text{end}} \;+\; \Phi_0 \;\le\; \sum_t \hat c_t \;+\; \Phi_0 $$
+
+When $\Phi_0 = 0$ the statement is the clean one: total real work is at most total amortised work. The balance *is* the proof. You do not have to trust a lemma that lives off-screen; you have to watch a line that never dips below zero.
+
+<PredictionPrompt
+  client:visible
+  question="You will spend the balance on expensive operations and refill it on cheap ones. For that balance to be a proof, what must be true of the running balance line?"
+  options={[
+    "It should end back at zero.",
+    "It must never dip below zero at any moment.",
+    "It only ever goes up."
+  ]}
+  answer="It must never dip below zero at any moment."
+  explanation="The bound needs Phi >= 0 at every step, not just at the end. If the line goes negative the account has spent credit it never deposited, and the inequality sum(c) <= sum(chat) + Phi0 no longer follows."
+/>
+
+Two balances do the engineering work, and they fund different things.
+
+- **Rank potential** $\Phi_R = \sum_x \operatorname{rank}(x)$: sum the ranks over all nodes, freezing a node's rank once it stops being a root.
+- A merge of two *unequal* ranks changes nothing. A merge of two *equal* ranks raises one root's rank by one, so $\Delta\Phi = +1$, a deposit.
+- That deposit turns an actual cost of 1 into an amortised cost of at most 2. Ranks never fall and a root of rank $r$ heads a tree of at least $2^r$ nodes, so the height obeys $h \le \lfloor \log_2 n \rfloor$.
+- The rank balance funds the *merges* and caps the *height*. It does nothing for a find that walks a long path twice.
+
+- **Doubling budget** $\Phi_D = \sum_x \bigl(\lfloor \log_2 n \rfloor - \operatorname{spent}(x)\bigr)$: charge **x** once each time its parent pointer changes.
+- Between two charges the subtree headed by **x**'s parent has at least *doubled*. A node stops being a direct child of a root only when its whole tree is attached beneath a tree at least as large.
+- Subtree sizes never exceed `n`, so no node is charged more than $\lfloor \log_2 n \rfloor$ times, and $\Phi_D \ge 0$.
+- The doubling balance funds the *finds*, at amortised $O(\log n)$.
+
+<PotentialBank
+  client:visible
+  caption="Doubling budget on eight elements. The endowment deposits Φ₀ = 8·⌊log₂ 8⌋ = 24 tokens; each re-hang withdraws one. Read the last row: Σ amortised − Σ actual = Φ_end."
+  trace={[
+    { label: "endowment Φ₀ = 8·⌊log₂ 8⌋", actual: 0, delta: 24 },
+    { label: "union(0,1)", actual: 3, delta: 0 },
+    { label: "union(2,3)", actual: 3, delta: 0 },
+    { label: "union(4,5)", actual: 3, delta: 0 },
+    { label: "union(6,7)", actual: 3, delta: 0 },
+    { label: "union(0,2)", actual: 3, delta: 0 },
+    { label: "union(4,6)", actual: 3, delta: 0 },
+    { label: "union(0,4)", actual: 3, delta: 0 },
+    { label: "find(1)", actual: 2, delta: 0 },
+    { label: "find(3)", actual: 3, delta: -1 },
+    { label: "find(5)", actual: 3, delta: -1 },
+    { label: "find(7)", actual: 4, delta: -2 },
+    { label: "find(1) again", actual: 2, delta: 0 },
+    { label: "find(7) again", actual: 2, delta: 0 },
+  ]}
+/>
+
+The ledger is the doubling budget on eight elements, union by size with compression. The endowment deposits Φ₀ = 8·⌊log₂ 8⌋ = 24 tokens, each re-hang withdraws one, and the running balance never touches the axis. Read the last row rather than the first: Σ amortised − Σ actual equals Φ_end, exactly.
+
+Neither balance alone gives the final bound. Ascending from node sizes to their *levels* $L(x) = \log_2^{*}\,\lvert \text{subtree}(x) \rvert$ is what composes them, because a node can be re-hung many times without its level rising, and a level that does rise climbs the iterated logarithm, which has only $\alpha(n)$ rungs.
+
+## 4 · The centrepiece: two repairs, two enemies
+
+Union by rank or size attacks **height**. Path compression attacks **re-walking the same path**. They are not two ways of saying "make it fast"; running one without the other leaves a different term standing.
+
+$$ \underbrace{O(\log n)}_{\text{rank/size alone}} \qquad \underbrace{O(\log n)}_{\text{compression alone}} \qquad \underbrace{O(\alpha(n))}_{\text{both (Tarjan 1975)}} $$
+
+<SeriesChart
+  title="Four policies, one workload — n = 512, 12 000 operations, 35% unions, seeded"
+  xLabel="operations"
+  yLabel="cumulative nodes visited"
+  logY
+  series={[
+    {
+      name: "neither",
+      points: [[1000, 3615], [2000, 50804], [3000, 133070], [4000, 225047], [5000, 313663], [6000, 404715], [7000, 496047], [8000, 589135], [9000, 679547], [10000, 769404], [11000, 859244], [12000, 951001]],
+    },
+    {
+      name: "rank only",
+      points: [[1000, 2432], [2000, 6397], [3000, 10623], [4000, 14953], [5000, 19090], [6000, 23359], [7000, 27716], [8000, 32110], [9000, 36398], [10000, 40612], [11000, 44872], [12000, 49134]],
+    },
+    {
+      name: "compression only",
+      points: [[1000, 2608], [2000, 7181], [3000, 11488], [4000, 15276], [5000, 18328], [6000, 21380], [7000, 24484], [8000, 27662], [9000, 30750], [10000, 33783], [11000, 36850], [12000, 39933]],
+    },
+    {
+      name: "both",
+      points: [[1000, 2339], [2000, 5384], [3000, 8434], [4000, 11551], [5000, 14543], [6000, 17587], [7000, 20692], [8000, 23873], [9000, 26965], [10000, 29996], [11000, 33057], [12000, 36139]],
+    },
+  ]}
+/>
+
+Same workload, same order, four policies. The measured averages come out ordered exactly as the theory says — neither 79.3, rank-only 4.1, compression-only 3.3, both 3.0 nodes per operation. The mean gap between the two single repairs is small at n = 512, which is why the honest separator is the worst single operation: neither walks 101 nodes at once, compression-only walks 7, rank-only and the pair walk 5.
+
+<GrowthTable highlight="10^80" />
+
+The bound is the **inverse Ackermann function**. Build the Ackermann hierarchy
+
+$$ A_0(j)=j+1,\quad A_1(j)=2j+1,\quad A_2(j)=2^{\,j+1}-1,\quad\text{and for } k\ge 3,\quad A_k(j)=A_{k-1}^{(j+1)}(j) $$
+
+and define $\alpha(n) = \min\{\,k : A_k(1) \ge n\,\}$. Then $A_3(1) = 15$, and $A_4(1) = A_3(15)$ is a power tower of twos about twenty storeys high.
+
+Every set you will ever hold has fewer than $A_4(1)$ elements, so $\alpha(n) \le 4$ throughout. In particular $\alpha(10^{80}) = 4$, and $10^{80}$ already exceeds the number of atoms in the observable universe. Reaching $\alpha = 5$ needs $n > A_4(1)$, a number no computer can write down.
+
+Do not confuse $\alpha$ with the iterated logarithm. The iterated logarithm $\log_2^{*} n = \min\{\,k : 2 \uparrow\uparrow k \ge n\,\}$ ticks once per *doubling of a tower*, and $\log_2^{*}(10^{80}) = 5$ while $\alpha(10^{80}) = 4$. The two functions are constantly conflated; the table keeps them in separate columns for that reason.
+
+<PredictionPrompt
+  client:visible
+  question="Keep the worst workload and scale n from 10^9 to 10^18. How much more work does each operation do?"
+  options={[
+    "About twice as much — doubling n roughly doubles log n.",
+    "About 5% more.",
+    "Nothing measurable — the cost tracks alpha(n), which does not move here."
+  ]}
+  answer="Nothing measurable — the cost tracks alpha(n), which does not move here."
+  explanation="Between 10^9 and 10^18 the inverse Ackermann function is flat at 4. A bound that grows with log n would move; this one does not, which is the whole point of the section."
+/>
+
+The bound is tight, not merely an upper bound. A class of algorithms needs $\Omega(m\,\alpha(m,n))$ time (Tarjan 1979), and in the cell-probe model the lower bound holds with no restrictions (Fredman and Saks 1989).
+
+So Union–Find is genuinely not linear. It is the slowest function you will ever actually meet.
+
+The step from the doubling budget to $\alpha(n)$ is the one place this page cites instead of derives. Composing the two balances into $O(m\,\alpha(n))$ is an intricate level argument, and the honest response to an intricate step is to attribute it and show you where the cost goes, not to wave at a proof.
+
+## 5 · The payoff
+
+Kruskal's algorithm sorts the `E` edges once, at cost $O(E \log E)$, then asks for each edge in that order whether its two endpoints are already in one block (Kruskal 1956). The question is **find** and accepting the edge is **merge**. With both repairs the second phase costs $O(E\,\alpha(V))$, so it vanishes into the sort:
+
+$$ O(E \log E) \;+\; O(E\,\alpha(V)) \;=\; O(E \log E) $$
+
+The same predicate answers image segmentation, where union–find is literally the inner loop of a greedy region merge (Felzenszwalb and Huttenlocher 2004), and cluster labelling, where you sweep the open sites of a lattice, merge neighbours, and ask whether two boundaries fell into one block (Hoshen and Kopelman 1976). The partition does the logic; the sort does the cost.
+
+## 6 · Attributions
+
+- **Tarjan 1975** — *Efficiency of a good but not linear set union algorithm*, JACM: the $O(m\,\alpha(m,n))$ upper bound for union by rank with path compression.
+- **Knuth 1973** — *The Art of Computer Programming*, Vol. 1: the early systematic treatment of the equivalence problem whose cost Tarjan then pinned down.
+- **Hopcroft and Ullman 1973** — *Set merging algorithms*: union by rank with the $O(m \log^{*} n)$ bound that precedes the inverse-Ackermann result.
+- **Tarjan and van Leeuwen 1984** — *Worst-case analysis of set union algorithms*: the full taxonomy of link and compression policies.
+- **Tarjan 1979 · Fredman and Saks 1989** — matching $\Omega(m\,\alpha(m,n))$ lower bounds, on pointer machines and in the cell-probe model respectively.
+- **Birkhoff 1940** — *Lattice Theory*: the partition lattice, graded and semimodular.
+- **Kruskal 1956** — minimum spanning trees. **Felzenszwalb and Huttenlocher 2004** — graph-based image segmentation. **Hoshen and Kopelman 1976** — cluster labelling.

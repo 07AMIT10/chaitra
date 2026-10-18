@@ -1,0 +1,131 @@
+---
+title: "Stable Matching"
+slug: stable-matching
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a search over matchings. It is deferred acceptance, and the matching that survives the process is the one no pair wants to leave."
+oneLine: "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes."
+tldr: ["Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted.", "It stops with no blocking pair: a left–right pair who both rank the other above the partner they were assigned. The board checks every pair and prints that count as zero (Gale–Shapley 1962).", "The result is proposer-optimal. Among all stable matchings it is best for every proposer at once and worst for every receiver; swap who proposes and the board recomputes the other extreme (Gale–Shapley 1962, Dubins–Freedman 1981).", "The stable matchings of one instance form a lattice (Knuth 1976). The board's four-by-four has exactly two, and the two extremes differ in two of the four assignments.", "Termination is counting: each proposer walks down its own list and never repeats a proposal, so the process stops after at most |L|·|R| proposals (McVitie–Wilson 1971)."]
+mathBranches: ["combinatorics", "game-theory", "order-theory"]
+primitives: ["MatchingBoard", "PredictionPrompt"]
+attributions: ["Gale–Shapley 1962", "Kuhn 1955", "Berge 1957", "McVitie–Wilson 1971", "Knuth 1976", "Dubins–Freedman 1981", "Roth 1984", "Roth 1986"]
+---
+
+import MatchingBoard from "@alg/MatchingBoard.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Primitive contracts this page relies on, matched to website/src/components/algorithms/:
+    MatchingBoard     left (string[]) · right (string[]) · leftPrefs (number[][]) · rightPrefs (number[][]) · problem ("stable-matching" | "bipartite-matching") · caption · height
+    PredictionPrompt  question · options (string[]) · correct (index) · explain
+  Interactive primitives need an explicit Astro client directive (`client:visible`).
+  Every number quoted below comes from the same board the panel runs:
+  deferred acceptance on the stated preference lists, whose two stable matchings are
+  the left-optimal and right-optimal extremes, and Kuhn's augmenting-path search in the other mode.
+*/}
+
+## Stable matching is not a search over matchings. It is deferred acceptance, and the matching that survives the process is the one no pair wants to leave.
+
+The board holds two sides of four names, plus the ranked list each name carries. A join is allowed only when both sides name each other, and the rankings decide how much each name wants it.
+
+<MatchingBoard
+  client:visible
+  left={["A", "B", "C", "D"]}
+  right={["w", "x", "y", "z"]}
+  leftPrefs={[[0, 1, 2, 3], [1, 0, 2, 3], [1, 2, 0, 3], [2, 1, 3, 0]]}
+  rightPrefs={[[1, 0, 2, 3], [0, 1, 2, 3], [3, 2, 1, 0], [2, 3, 0, 1]]}
+  problem="stable-matching"
+  height={380}
+  caption="The left side proposes: four rounds and three rejections end at A–w, B–x, C–z, D–y. Switch the proposing side and the panel recomputes from scratch to land on the other extreme. The board also opens on Kuhn's augmenting-path search."
+/>
+
+Press step and watch offers move down the rankings. A right name that already holds an offer keeps whichever of the two it ranks higher; the one it drops is free to propose again.
+
+<PredictionPrompt
+  client:visible
+  question="The left side proposes and the board settles. Which of the two stable matchings does it land on?"
+  options={["The one the left side prefers, at every left name at once.", "The one the right side prefers.", "Whichever the proposal order happens to give first."]}
+  correct={0}
+  explain="Deferred acceptance returns the proposer-optimal matching: it is best for every proposer simultaneously, not merely on average, and worst for every receiver. On this instance that is A–w, B–x, C–z, D–y, and every left name ranks its final partner at least as high as the partner it would get in the other stable matching."
+/>
+
+## 1 · The question
+
+Suppose a matching is handed to you: each name paired with a partner or left alone. What would make it acceptable? The only test that asks anything of the unmatched ties is whether some left-out pair would rather defect.
+
+Call a pair a **blocking pair** when the left name ranks that right name above its current partner *and* the right name ranks that left name above its own. Such a pair would both prefer to swap, so a matching that contains one is not an equilibrium. A matching with no blocking pair is **stable**.
+
+Checking a finished matching is easy: inspect every left-out pair once. Producing one that passes is the question, and it is not obvious that a stable matching exists at all.
+
+## 2 · The real object: a two-sided market, and the lattice of its outcomes
+
+The input is not a graph. It is two families of preference orders, one order per name, with mutual acceptability meaning that each order lists the other name.
+
+The output is not a single matching either. It is the whole set of matchings that pass the blocking-pair test; on the board that set has exactly two members. So the object to describe is that family, not one element of it.
+
+The family has shape. Order the stable matchings by what the left side wants, writing one matching below another when every left name ranks its partner at least as high. Under this order the family is a **lattice**: any two stable matchings have a stable meet and a stable join.
+
+Knuth 1976 placed that lattice in the theory, following Conway's observation. Its two ends are exactly the matchings the algorithm produces when each side proposes in turn.
+
+## 3 · The mathematics: termination, stability, and the two extremes
+
+**Gale–Shapley 1962.** Run deferred acceptance to its end. The process stops, and the matching it stops on has no blocking pair.
+
+Termination is a counting argument you can point at in the panel. Each proposer walks down its own list and never proposes to the same receiver twice, so the total number of proposals is at most $|L| \times |R|$, and a bounded supply of proposals cannot fuel an endless loop.
+
+Stability is an exchange argument on the final round. Suppose some left name $a$ prefers right name $w$ to its final partner, and $w$ in turn prefers $a$ to its own. Then $a$ proposed to $w$ before the run ended, and $w$ must have turned $a$ down for someone it ranks higher; that someone is $w$'s final partner, contradicting the assumption.
+
+**Proposer optimality (Gale–Shapley 1962; Dubins–Freedman 1981).** The matching that deferred acceptance returns is the left side's favourite: no stable matching gives any left name a partner it prefers to the one it gets.
+
+That is why the panel labels its two directions "optimal for left" and "optimal for right". Swap who proposes and the algorithm walks the lattice to the opposite end, so the two runs together expose both extremes.
+
+<PredictionPrompt
+  client:visible
+  question="The run has stopped with every left name holding a partner. Could a left name a and a right name w still both prefer each other to the partners they ended with?"
+  options={["Yes — stopping only means no proposer is left without a partner.", "No — that pair is exactly the one the finished run rules out.", "Only if some name's ranking is incomplete."]}
+  correct={1}
+  explain="A pair that both prefers the other is a blocking pair, and the exchange argument above says a finished run has none. Stopping is stronger than 'no free proposer': the run ends when every receiver holds its best offer, so there is nothing left to trade."
+/>
+
+## 4 · The centrepiece: drive the board from both ends
+
+Go back to the board and switch the proposing side. The panel recomputes from the start, and the two runs land on the two extremes: left-optimal A–w, B–x, C–z, D–y, and right-optimal A–x, B–w, C–z, D–y.
+
+Read the blocking grid under a finished run. Each cell is the final match, a pair that would block, a case where one side already holds someone it ranks higher, or a pair that is not mutually acceptable; the count of blocking pairs is printed below the grid and it is zero. The extremes table puts both partners side by side and marks the two positions where the extremes disagree.
+
+The grid is only meaningful once the run has finished, because until then the matching is provisional. Step through the early rounds and the blocking count is positive; it falls to zero exactly at the last round.
+
+Switch the board to augmenting paths and the question changes. Kuhn 1955 grows a matching by finding an alternating path that begins and ends at unmatched names and flipping it, which is Berge's criterion 1957: a matching is maximum exactly when no such path exists.
+
+Here every left name accepts every right name, so a matching of size four is available and the search reaches it. Notice what that mode does *not* claim: it maximises the number of pairs and says nothing about stability, so a maximum matching can be riddled with blocking pairs.
+
+<PredictionPrompt
+  client:visible
+  question="In the augmenting-path board every left name accepts every right name, so a full matching of size four is possible. What does Kuhn's search return?"
+  options={["A matching of size 3.", "A perfect matching of size 4.", "A matching whose size depends on which left name you start the search from."]}
+  correct={1}
+  explain="When every pair is acceptable a perfect matching exists, and each augmenting path raises the size by one until none can be found; the panel reaches four. The start vertex only changes the order in which paths are tried, not the size the search can attain."
+/>
+
+## 5 · The payoff
+
+The medical residency match is deferred acceptance at national scale. The National Resident Matching Program assigns graduates to hospitals every year, and its redesign is why the algorithm sits at the centre of the labour-market literature (Roth 1984).
+
+School choice, course assignment and kidney exchange reuse the same skeleton. Each project chooses its variant for what the mechanism must guarantee, which is usually a statement about who gets the best end of the lattice.
+
+## 6 · Optional: what the mechanism does not promise
+
+Skippable. Deferred acceptance is strategy-proof for the proposing side: no proposer can improve its own outcome by misreporting its list (Dubins–Freedman 1981). Receivers carry no such guarantee, and the same instance can be gamed from the other direction.
+
+The set of names matched at all is the same in every stable matching, a fact known as the rural hospitals theorem (Roth 1986); only the partners move from one extreme to the other. When one side's preference lists are all identical, the lattice collapses to a single matching.
+
+## 7 · Attributions
+
+- **Gale–Shapley 1962** — *College Admissions and the Stability of Marriage*: the deferred-acceptance algorithm, its termination, the stability of its output, and proposer-optimality.
+- **Kuhn 1955** — the bipartite matching step of the Hungarian method: augmenting paths grow a maximum matching.
+- **Berge 1957** — the augmenting-path criterion: a matching is maximum exactly when no alternating path can enlarge it.
+- **McVitie–Wilson 1971** — the proposer-driven form of deferred acceptance and its bound of $|L| \times |R|$ proposals.
+- **Knuth 1976** — *Marriages Stables*: the lattice of stable matchings, after Conway's observation.
+- **Dubins–Freedman 1981** — the short proof of proposer-optimality and the strategy-proofness of the proposing side.
+- **Roth 1984** — the residency-match study that ties deferred acceptance to real labour markets.
+- **Roth 1986** — the rural hospitals theorem: the set of matched names is invariant across stable matchings.

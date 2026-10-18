@@ -1,0 +1,15 @@
+title: "Fixed-Point Iteration"
+slug: fixed-point-iteration
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not the loop xₙ₊₁ = g(xₙ). It is a contraction of a complete metric space, pulled to its one fixed point at rate qⁿ."
+oneLine: "Repeat x = cos x from any start and watch the cobweb spiral into the Dottie number."
+tldr:
+  - "A map that shrinks every distance by a fixed factor q < 1 has exactly one fixed point, and plain iteration reaches it (Banach 1922)."
+  - "The error halves geometrically: the panel's ratio column settles on q = 0.6736 for x = cos x, and the chart below plots the honest decay."
+  - "The check you actually run is calculus: if |g′(x)| ≤ q < 1 on an interval, the mean value theorem makes g a contraction there."
+  - "Newton's method is the special case g′(x*) = 0, which is why its error squares instead of shrinking geometrically."
+mathBranches: [analysis, numerical-analysis, geometry]
+primitives: [IterationLab, PredictionPrompt, SeriesChart]
+attributions: ["Banach 1922", "Picard 1890", "Brouwer 1911", "May 1976", "Lagrange 1797"]
+featured: false

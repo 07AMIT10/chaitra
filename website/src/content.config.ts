@@ -47,9 +47,28 @@ const drishtiFramework = defineCollection({
   }),
 });
 
+const algorithms = defineCollection({
+  loader: glob({ pattern: "**/index.mdx", base: "./src/content/algorithms" }),
+  schema: z.object({
+    title: z.string(),
+    slug: z.string(),
+    field: z.string(),
+    fieldLabel: z.string(),
+    reframe: z.string(),
+    oneLine: z.string(),
+    tldr: z.array(z.string()).min(1),
+    mathBranches: z.array(z.string()),
+    primitives: z.array(z.string()),
+    attributions: z.array(z.string()),
+    relatedTopics: z.array(z.string()).optional(),
+    featured: z.boolean().optional(),
+  }),
+});
+
 export const collections = {
   topics,
   drishtiLenses,
   drishtiStudies,
   drishtiFramework,
+  algorithms,
 };

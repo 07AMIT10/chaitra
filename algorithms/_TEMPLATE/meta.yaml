@@ -1,0 +1,20 @@
+# Copy this directory to algorithms/<field>/<ALGORITHM_NAME>/ and edit every field.
+# Folder name is SCREAMING_SNAKE_CASE; slug is kebab-case.
+# Required: title, slug, field, fieldLabel, reframe, oneLine, tldr (>= 3), mathBranches, primitives, attributions.
+# Optional: relatedTopics (real topic slugs only — see website/src/data/topics.json), featured.
+
+title: "Binary Search"
+slug: binary-search
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a loop. It is a halving of a totally ordered set."
+oneLine: "One comparison per halving of the candidate set."
+tldr:
+  - "The invariant is a ≤ target < b, and every step preserves it."
+  - "The cost is the number of halvings, so it is Θ(log n)."
+  - "Each comparison buys at most one bit, so Ω(log n) is unavoidable."
+mathBranches: [analysis, information-theory, order-theory]
+primitives: [PredictionPrompt, GrowthTable]
+attributions: ["Knuth 1973", "Bentley 1986"]
+relatedTopics: [information-theory]
+featured: false

@@ -5,9 +5,9 @@ import { fileURLToPath } from "node:url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const websiteRoot = path.join(__dirname, "..");
 
-/** Legacy GitHub paths (topic folder at repo root, not under topics/). */
-const LEGACY_TREE = /github\.com\/07AMIT10\/chaitra\/tree\/main\/(?!topics\/)[A-Z][A-Z0-9_]*/;
-const LEGACY_BLOB = /github\.com\/07AMIT10\/chaitra\/blob\/main\/(?!topics\/)[A-Z][A-Z0-9_]*/;
+/** Legacy GitHub paths (topic folder at repo root, not under topics/ or algorithms/). */
+const LEGACY_TREE = /github\.com\/07AMIT10\/chaitra\/tree\/main\/(?!topics\/|algorithms\/)[A-Z][A-Z0-9_]*/;
+const LEGACY_BLOB = /github\.com\/07AMIT10\/chaitra\/blob\/main\/(?!topics\/|algorithms\/)[A-Z][A-Z0-9_]*/;
 
 function walk(dir, out = []) {
   for (const name of fs.readdirSync(dir)) {

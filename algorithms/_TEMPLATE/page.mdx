@@ -1,0 +1,61 @@
+{/*
+  TEMPLATE page — a filled-in example (Binary Search) that already follows the skeleton.
+  Copy it beside meta.yaml, then replace the content. Keep these rules:
+    - no frontmatter (the sync script prepends it from meta.yaml)
+    - import primitives by the "@alg/<Name>.tsx" alias, never a relative path
+    - only reference primitives that exist in website/src/components/algorithms/
+    - every interactive primitive needs an explicit client directive (client:visible)
+      or it is server-rendered to static HTML and never hydrates; SeriesChart,
+      GrowthTable and PrimitiveShell are static and carry no directive
+    - islands cannot nest: never put one client:* component inside another
+  Available now: PrimitiveShell, PredictionPrompt, PaceControls, SeriesChart, GrowthTable,
+  PotentialBank, LatticeClimb, SemiringMatrix, MonteCarloBound.
+  Delete the comments and this block when you copy.
+*/}
+
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import GrowthTable from "@alg/GrowthTable.tsx";
+
+## Binary search is not a loop. It is a halving of a totally ordered set.
+
+A phone book falls open near the middle. You read one name and throw away half the book. That single gesture is the algorithm, and this page is about the object it acts on: a totally ordered set and the interval of candidates still consistent with every comparison so far.
+
+<PredictionPrompt
+  client:visible
+  question="A sorted list has 1,000,000 entries. Roughly how many comparisons does binary search need before one candidate is left?"
+  options={["About 1,000", "About 20", "About 500,000"]}
+  correct={1}
+  explain="Each comparison discards half the candidates, so the count is the number of halvings: about log2(10^6), which is 20."
+/>
+
+## 1 · The question
+
+Given a sorted sequence $a_0 \le a_1 \le \dots \le a_{n-1}$ and a target `t`, return an index `i` with $a_i = t$, or report that none exists. The linear answer, scan from the left, costs up to `n` comparisons. The interesting question is how much of that work the sortedness lets you skip.
+
+## 2 · The real object
+
+The state is not a loop counter. It is an interval of candidate indices together with the promise that every index outside the interval is known not to be the answer. Sortedness makes that promise checkable with one comparison: if the midpoint value is too small, every index at or below it is too small.
+
+## 3 · The mathematics
+
+The algorithm is correct because of one invariant and one shrink:
+
+$$ a_l \le t < a_r \qquad\text{(invariant)}, \qquad r - l \text{ at least halves each step} $$
+
+Read the invariant as "the answer, if it exists, lies in the half-open interval". The midpoint test moves one endpoint to the midpoint, and either way the invariant survives. A bounded, strictly shrinking interval must terminate, and it can only terminate at the answer (Knuth 1973).
+
+The cost is the number of halvings, so it is $\Theta(\log n)$. The lower bound is information-theoretic: a comparison has two outcomes, so `k` comparisons distinguish at most $2^k$ positions, and separating `n` positions needs $k \ge \log_2 n$. Binary search pays exactly the price of the information, no more.
+
+<GrowthTable
+  caption="The first two columns are the whole story: the candidate set doubles, the number of comparisons goes up by one."
+  highlight="10⁹"
+/>
+
+## 4 · The payoff
+
+The same halving appears wherever a monotone predicate splits a domain: locating a boundary in a sorted file, finding the first failing test in a bisect run, inverting a monotone function numerically, and the binary-lifting step inside balanced trees. Wherever the question is monotone, the answer costs a logarithm.
+
+## 5 · Attributions
+
+- **Knuth 1973** — *The Art of Computer Programming*, Vol. 3: searching, and the classical treatment of the comparison lower bound.
+- **Bentley 1986** — *Programming Pearls*: the famous account of binary search implementations that get the interval arithmetic wrong.

@@ -1,0 +1,216 @@
+import SeriesChart from "@alg/SeriesChart.tsx";
+import RecursionTree from "@alg/RecursionTree.tsx";
+import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+
+{/*
+  Quicksort — primitive contract matched to website/src/components/algorithms/.
+    SeriesChart       series: { name, points: [x, y][] }[] · title · xLabel · yLabel · logY · annotations   (static, no directive)
+    RecursionTree     a · b · d · levels? · label? · caption      (draws T(n) = a·T(n/b) + n^d; interactive)
+    PredictionPrompt  question · options (string[]) · correct (index) · explain · hint?
+  SeriesChart is static and carries no directive; the two interactive primitives carry client:visible.
+  Islands cannot nest, so each interactive primitive is its own island.
+  Every comparison count below is exact arithmetic from E[C] = 2(n+1)H_n − 4n, not a hardware measurement.
+*/}
+
+## Quicksort is not "choose a pivot and partition". It is a random binary search tree, and its running time is the depth of that tree.
+
+Eight keys sit in a row: `8, 3, 11, 1, 9, 4, 14, 7`. Take the first, compare it with every other key, herd the smaller ones left and the larger right. Then repeat inside each pile, first key first.
+
+```
+   pivot  8   ->   left  [ 3,  1,  4,  7 ]        right [ 11,  9, 14 ]
+   pivot  3   ->   left  [ 1 ]                    right [  4,  7 ]
+   pivot 11   ->   left  [ 9 ]                    right [ 14 ]
+   pivot  4   ->   left  [   ]                    right [  7 ]
+
+   7 + 3 + 2 + 1 = 13 comparisons
+   depths  0 + 1 + 1 + 2 + 2 + 2 + 2 + 3 = 13
+```
+
+The two 13s are not a coincidence and not a second measurement. They are the same 13, counted two ways.
+
+You never wrote a tree down. You built one anyway: 8 is the root, the small pile is its left subtree, the large pile its right, and every key you compared to 8 hangs below it. The whole run is one tree, and its depth decides the bill.
+
+## 1 · The question
+
+Sort `n` keys by comparing them two at a time. Quicksort's recipe: choose a pivot, border the smaller keys to its left and the larger to its right, then repeat on each side. After a partition the pivot is in its final place and never moves again.
+
+Cost one call on a block of size `m`. It compares the pivot with the other `m−1` keys, so the call does linear work. The pivot lands at some rank `k` and the block splits into sizes `k` and `n−1−k`:
+
+$$ T(n) \;=\; T(k) + T(n-1-k) + (n-1) \qquad\text{(Hoare 1961)} $$
+
+That recurrence is already the whole difficulty, because $k$ is not yours to choose. It is whatever the input hands the pivot, and it changes from call to call.
+
+The operational framing — choose a pivot and partition — answers none of it. It describes the mechanism and hides the only thing that matters: what the sequence of pivots *is*, as a structure.
+
+## 2 · The real object: the pivots are a binary search tree
+
+Write down every comparison as an edge. The first pivot is compared with all `n−1` other keys. A key chosen as a later pivot is compared only with the keys its ancestors herded into its block.
+
+Place each key where a binary search tree would put it: root first, then smaller keys left and larger keys right of what is already there. The insertion order is the order the pivots were chosen, which with a first-element pivot is the input order.
+
+$$ a_1 = \text{root}, \qquad a_t \text{ becomes a child of the last earlier pivot that still encloses it} $$
+
+Every key except the root is compared, exactly once, to its parent — the pivot that first separated it. So the edges of the tree are the comparisons, one for one, and the comparison count is the depth summed over the keys:
+
+$$ C \;=\; \sum_{v} \operatorname{depth}(v) \;=\; \text{the internal path length of the tree} $$
+
+For an input read in uniformly random order this is the **random binary search tree** of the analysis literature (Sedgewick 1978; Sedgewick and Flajolet 1996). So the running time is not *like* the depth of a tree. It is the depth of a tree, and the average case and the worst case become statements about a random tree's shape.
+
+## 3 · The mathematics: one sum of tiny probabilities
+
+The obvious attack is to average the recurrence over $k$, which drags you into a convolution of distributions. The honest attack is to stop asking about $C$ and ask about the pairs.
+
+For $1 \le i < j \le n$, let $X_{ij}$ be the indicator that the $i$-th smallest and the $j$-th smallest key are ever compared. Every comparison is between exactly one such pair, so the count is a sum of indicators:
+
+$$ C \;=\; \sum_{1 \le i < j \le n} X_{ij}, \qquad E[C] \;=\; \sum_{1 \le i < j \le n} \Pr[X_{ij} = 1] $$
+
+Linearity of expectation needs nothing to be independent. That is the entire trick, and it turns one hard distribution into $\binom{n}{2}$ easy ones.
+
+Fix $i < j$ and watch only the keys with ranks $i, i+1, \dots, j$. While none of them has been a pivot they stay in one block, because their ranks are consecutive; the first of them to be chosen as a pivot is equally likely to be any of the $j-i+1$ of them.
+
+If that first pivot is $i$ or $j$, the two keys are compared on the spot, as parent and child of the same block. If it is any key strictly between them, then $i$ goes left and $j$ goes right and no later call ever sees them together. The probability is therefore exactly
+
+$$ \Pr[X_{ij} = 1] \;=\; \frac{2}{j-i+1} $$
+
+Sum over the pairs, grouping by the gap $d = j-i+1$, of which there are $n-d+1$:
+
+$$ E[C] \;=\; \sum_{d=2}^{n} (n-d+1)\cdot\frac{2}{d} \;=\; 2(n+1)(H_n - 1) - 2(n-1) \;=\; 2(n+1)H_n - 4n $$
+
+The harmonic number $H_n = 1 + \tfrac12 + \cdots + \tfrac1n$ obeys $H_n = \ln n + \gamma + O(1/n)$, with $\gamma = 0.57721\ldots$ the Euler–Mascheroni constant (Euler 1734; Mascheroni 1790). Substituting,
+
+$$ E[C] \;=\; 2n\ln n + (2\gamma - 4)n + O(\log n) \;=\; 2\ln 2 \cdot n\log_2 n + O(n) $$
+
+and $2\ln 2 = 1.38629\ldots$. The leading constant is $\mathbf{2\ln 2}$ written in base 2, or plainly `2` in base $e$: $E[C] \approx 2n\ln n \approx 1.39\, n\log_2 n$. Since the total is $n$ times the average depth, the average depth of the random tree is the same constant, $\approx 1.39\log_2 n$.
+
+<PredictionPrompt
+  client:visible
+  question="The exact average is E[C] = 2(n+1)H_n − 4n. As n grows, which multiple of n log₂ n is that?"
+  options={["about 0.69 n log₂ n", "about 1.39 n log₂ n", "about 2.00 n log₂ n", "about 4.31 n log₂ n"]}
+  correct={1}
+  explain="Substituting H_n = ln n + γ gives 2n ln n, and 2 ln 2 = 1.386, so about 1.39. The 0.69 is ln 2, the factor you reach by dividing where the derivation multiplies. The 2.00 is the constant 2 in the wrong base, the natural-log value read as base 2. The 4.31 is the expected height of a random search tree (4.311 ln n, Devroye 1986), which is a path length rather than the sum of all of them, and it too is a natural-log constant."
+/>
+
+Now the other end. The recurrence has no floor on how uneven $k$ can be. Sort an already-sorted array with the first key as pivot: the pivot is the smallest key, so the left block is empty and the right block holds the other $n-1$. The recurrence collapses to
+
+$$ T(n) \;=\; T(n-1) + (n-1), \qquad T(n) \;=\; \sum_{m=1}^{n-1} m \;=\; \frac{n(n-1)}{2} \;\approx\; \frac{n^2}{2} $$
+
+The tree is a path of right children, and the internal path length is $0+1+2+\cdots+(n-1) = n(n-1)/2$.
+
+<PredictionPrompt
+  client:visible
+  question="You sort an already-sorted array, always pivoting on the first key. What does quicksort do?"
+  options={[
+    "It is fast — sorted input is the easy case.",
+    "Every partition peels off one key: T(n) = T(n−1) + (n−1), so the count is n(n−1)/2 ≈ n²/2.",
+    "It is the average case, about 1.39 n log₂ n."
+  ]}
+  correct={1}
+  explain="The first key is the smallest, so the left block is empty and each call removes exactly one key. The depth is n and the total is 1 + 2 + ⋯ + (n−1) = n(n−1)/2, which is Θ(n²). At n = 100,000 that is about 5 × 10⁹ comparisons against the random average's 2.3 × 10⁶ — a factor of two thousand, from the same program."
+/>
+
+So how uneven can a split be before the class changes? Let a split be *bounded* if both parts are at least some fixed fraction of the parent. For a 1:9 split the larger part is at most $9/10$ of the parent, so along any root-to-leaf path the sizes shrink by $9/10$ at every step and the path length is at most
+
+$$ \log_{10/9} n \;=\; \frac{\log_2 n}{\log_2(10/9)} \;\approx\; 6.58\,\log_2 n $$
+
+Every level touches at most `n` keys, because its blocks are disjoint, so the work is at most $n\log_{10/9} n \approx 6.58\, n\log_2 n$. Compare that with the random average: $6.58/1.386 \approx 4.7$ times more, and the same $\Theta(n\log n)$.
+
+<SeriesChart
+  title="Comparisons to sort n keys — two curves of one class, one of another"
+  xLabel="log₂ n"
+  yLabel="comparisons"
+  logY
+  annotations={[
+    { x: 13, y: 124344, text: "random average" },
+    { x: 13, y: 700617, text: "all splits 1:9" },
+    { x: 13, y: 33550336, text: "sorted input" },
+  ]}
+  series={[
+    {
+      name: "average: 2(n+1)Hₙ − 4n",
+      points: [[7, 890], [8, 2124], [9, 4946], [10, 11298], [11, 25420], [12, 56502], [13, 124344], [14, 271382], [15, 588171], [16, 1267172]],
+    },
+    {
+      name: "average asymptote: 1.386 n log₂ n",
+      points: [[7, 1242], [8, 2839], [9, 6388], [10, 14196], [11, 31230], [12, 68139], [13, 147635], [14, 317983], [15, 681391], [16, 1453635]],
+    },
+    {
+      name: "all splits 1:9, at most: 6.58 n log₂ n",
+      points: [[7, 5895], [8, 13473], [9, 30315], [10, 67367], [11, 148208], [12, 323362], [13, 700617], [14, 1509022], [15, 3233618], [16, 6898386]],
+    },
+    {
+      name: "sorted input: n(n−1)/2",
+      points: [[7, 8128], [8, 32640], [9, 130816], [10, 523776], [11, 2096128], [12, 8386560], [13, 33550336], [14, 134209536], [15, 536854528], [16, 2147450880]],
+    },
+  ]}
+/>
+
+Read the slopes, not the heights. The top curve is quadratic in `n`, so on this log axis it climbs at twice the rate of the others — that is what a different asymptotic class looks like. The 1:9 curve is the average curve lifted by a constant, $6.58$ against $1.386$, and lifting a curve never changes its slope. The exact average and its asymptote sit on top of each other, which is the point: $1.386$ is the leading term, not an estimate with slack.
+
+<PredictionPrompt
+  client:visible
+  question="Suppose every pivot happens to split its block 1:9 — ten percent left, ninety right. Does that change the asymptotic running time?"
+  options={[
+    "Yes — a 9:1 split is unbalanced, so it degrades to Θ(n²).",
+    "No — the depth is at most log₁₀/₉ n ≈ 6.58 log₂ n, a constant factor, so it stays Θ(n log n).",
+    "Only if the input is also sorted."
+  ]}
+  correct={1}
+  explain="The larger part is at most nine tenths of its parent, so every root-to-leaf path shrinks by 9/10 per step and its length is at most log₁₀/₉ n. Each level still touches at most n keys, so the work is at most n log₁₀/₉ n ≈ 6.58 n log₂ n — about 4.7 times the random average and the same Θ(n log n). Uneven splits ruin quicksort only when a part can be a vanishing fraction of its parent. The sorted case leaves nothing on one side, and there the depth is n."
+/>
+
+## 4 · The centrepiece: drive the recurrence, then see why it is the wrong shape
+
+The panel is the recurrence with the sliders set to two calls on half the data plus one linear partition: `a = 2`, `b = 2`, `d = 1`.
+
+<RecursionTree
+  client:visible
+  a={2}
+  b={2}
+  d={1}
+  levels={4}
+  label="two halves and one linear partition — the balanced idealisation"
+  caption="The panel draws T(n) = a·T(n/b) + n^d, so it shows the case where every pivot is a median, never the case quicksort meets. Real quicksort splits a block into k and n−1−k, which is not of that form, and neither is the path of the sorted case. Measure the random tree against this panel; do not expect the panel to draw it."
+/>
+
+Read the ribbon. Level `k` holds $2^k$ blocks of size $n/2^k$, each doing $n/2^k$ comparisons, so every level totals `n` and the sum is $n\log_2 n$. The flat ribbon is the whole reason a logarithm appears, and the panel names the case *balanced*, $\Theta(n^d\log n)$.
+
+Now move the sliders. Set `d = 0` and the partition is free, level totals shrink geometrically, the leaves dominate and the panel reads $\Theta(n)$. Set `d = 2` and the root dominates and the panel reads $\Theta(n^2)$ — the same class as the sorted-input collapse, though the collapse is a path $T(n) = T(n-1) + (n-1)$, not a tree of that shape.
+
+The panel is a *bound* in both directions but it is not quicksort. The pivot's rank is not `n/2`; it is a random variable whose distribution is what section 3 summed. The panel shows the tree the random one is measured against.
+
+## 5 · The payoff
+
+The correspondence is the whole analysis, and it travels.
+
+- **The average is a constant factor, not a mystery.** The random tree is not balanced: its average depth is $\approx 1.39\log_2 n$ against the balanced $\log_2 n$, and its height is $\approx 4.31\ln n \approx 2.99\log_2 n$ (Devroye 1986). Deeper by a constant, never by a polynomial — which is why quicksort is used at all.
+- **Structurally identical trees.** A treap is a binary search tree whose priorities make the shape exactly the random tree of a permutation (Seidel and Aragon 1996); a Cartesian tree of a permutation is the same object; a CART tree is built by the same recursive split. All of them buy the $2\ln 2$ constant.
+- **One root-to-leaf path instead of the whole tree.** To find the $m$-th smallest key, partition and recurse into the side that holds rank $m$ only — quickselect (Hoare 1961). The expected work is a single path, $\Theta(n)$, because the depth there is a sum of geometric ratios rather than a sum over all nodes.
+- **The count is concentrated.** Randomising the pivot makes $C$ a random variable with variance $\approx (7 - 2\pi^2/3)n^2 \approx 0.42\,n^2$, so its standard deviation is $O(n)$ against a mean $\Theta(n\log n)$ (Régnier 1989). Fluctuations do not scale with the answer.
+
+Quicksort trades comparisons for cache. Merge sort needs $n\log_2 n - n + 1$; quicksort's average is $1.39\, n\log_2 n$, roughly 39 percent more, but it partitions in place with a predictable access pattern and needs only $O(\log n)$ stack. That trade is why the sorted function of a primitive-type library is often quicksort, while the object overloads stay stable and use a merge sort.
+
+## 6 · Advanced and optional
+
+Skip this section; nothing later depends on it.
+
+**A deterministic pivot has an enemy.** Any rule that decides the pivot from the keys alone has a killer input, and the input can be built *while the algorithm runs*. McIlroy's adversary (1999) answers each comparison to steer the pivot to an extreme rank, using a second run of the same algorithm as its oracle; it drives median-of-three quicksort to $\Theta(n^2)$, and a fixed-seed randomised quicksort too, because the seed is part of the program.
+
+**Randomising the pivot is the fix, and the tail is thin.** Choose the pivot uniformly from the current block, so no fixed input can force the bad split. Call a split *good* if each part is at most $3/4$ of the parent, which happens with probability at least $1/2$.
+
+After $\log_{4/3} n$ good splits the block has shrunk to size 1, and a Chernoff bound says the number of splits needed to collect that many is at most $8\log_{4/3} n$ with probability at least $1 - n^{-2}$ (the textbook recipe is Motwani and Raghavan 1995; the arithmetic is this page's). Union over the tree's paths, and the work is $O(n\log n)$ with probability $1 - O(n^{-2})$. The expected $1.39\, n\log_2 n$ is a concentration, not an average that hides a disaster.
+
+**A guaranteed median costs a constant.** Median-of-medians finds a pivot with a guaranteed linear-time bound, so a quicksort built on it is worst-case $O(n\log n)$ (Blum, Floyd, Pratt, Rivest and Tarjan 1973). The constant is large, which is why it is the fallback of last resort.
+
+Introspective sort takes the other route: it watches the recursion depth and switches to heapsort when the depth exceeds a multiple of $\log_2 n$ (Musser 1997).
+
+## 7 · Attributions
+
+- **Hoare 1961** — *Algorithm 64: Quicksort*, CACM, and *Quicksort*, Computer Journal 5 (1962): the algorithm, the partition recurrence, and quickselect.
+- **McIlroy 1999** — *A Killer Adversary for Quicksort*, Software: Practice and Experience: the adaptive input that forces quadratic time on any deterministic pivot rule.
+- **Euler 1734 · Mascheroni 1790** — the constant $\gamma = 0.57721\ldots$ in $H_n = \ln n + \gamma + O(1/n)$.
+- **Knuth 1973** — *The Art of Computer Programming*, Vol. 3, §5.2.2: the classical average-case analysis of quicksort, from which the $2(n+1)H_n - 4n$ count is assembled.
+- **Sedgewick 1978 · Sedgewick and Flajolet 1996** — the pivot sequence as a random binary search tree, and the analytic treatment of that tree's depth.
+- **Devroye 1986** — the expected height of a random binary search tree, $4.311\ln n$: the deepest path, distinct from the summed depth.
+- **Régnier 1989** — the limiting distribution of the comparison count, variance $\approx (7 - 2\pi^2/3)n^2$.
+- **Blum, Floyd, Pratt, Rivest and Tarjan 1973** — median-of-medians, the linear-time pivot behind worst-case $O(n\log n)$ quicksort.
+- **Motwani and Raghavan 1995** — *Randomized Algorithms*: the good-split and Chernoff recipe used for the high-probability bound. **Seidel and Aragon 1996** — treaps. **Musser 1997** — introsort.

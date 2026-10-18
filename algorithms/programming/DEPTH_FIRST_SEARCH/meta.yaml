@@ -1,0 +1,14 @@
+title: "Depth-First Search"
+slug: depth-first-search
+field: programming
+fieldLabel: "Programming"
+reframe: "It is not a plunge down one path. It is a spanning forest whose vertices carry nested time intervals."
+oneLine: "Two time-stamps per vertex, and the way the intervals they bound stand to each other."
+tldr:
+  - "Every vertex gets a discovery time and a finish time; the intervals they bound are either nested or disjoint, never partially overlapping (the parenthesis theorem)."
+  - "A digraph has a cycle exactly when the search produces a back edge — an arc to a vertex still open on the stack."
+  - "Reverse the finishing order of a DAG and you have a topological sort; the same times give articulation points and strong components."
+mathBranches: [graph-theory, order-theory, combinatorics]
+primitives: [GraphCanvas, PredictionPrompt, SeriesChart]
+attributions: ["Tarjan 1972", "Hopcroft–Tarjan 1973", "Knuth 1968"]
+relatedTopics: [pagerank]

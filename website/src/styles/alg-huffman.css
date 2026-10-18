@@ -1,0 +1,344 @@
+/* HuffmanMerge — a priority-queue merging board with the entropy floor on one axis.
+   Consumes tokens.css only; owns the `.alg-huff` namespace. */
+
+.alg-huff {
+  --alg-accent: var(--color-algorithms, #a78bfa);
+  --alg-accent-hover: color-mix(in srgb, var(--alg-accent) 75%, #ffffff);
+  --alg-accent-soft: color-mix(in srgb, var(--alg-accent) 15%, transparent);
+  --alg-accent-faint: color-mix(in srgb, var(--alg-accent) 8%, transparent);
+  --alg-accent-line: color-mix(in srgb, var(--alg-accent) 45%, transparent);
+  --alg-border: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  --alg-border-strong: color-mix(in srgb, var(--color-muted) 45%, transparent);
+  --alg-surface-2: color-mix(in srgb, var(--color-bg) 45%, var(--color-surface));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  min-width: 0;
+  font-family: var(--font-sans);
+}
+
+.alg-huff__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.alg-huff__group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.alg-huff__count {
+  font-size: 0.8rem;
+  color: var(--color-muted);
+}
+
+.alg-huff__hint {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+.alg-huff__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-huff__edge {
+  stroke: color-mix(in srgb, var(--color-muted) 55%, transparent);
+  stroke-width: 1.5;
+}
+
+.alg-huff__bit {
+  fill: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.alg-huff__node {
+  fill: var(--color-surface);
+  stroke: var(--alg-border-strong);
+  stroke-width: 1.4;
+  transition: stroke 0.12s ease;
+}
+
+.alg-huff__node--root {
+  cursor: pointer;
+}
+
+.alg-huff__node--root:hover {
+  stroke: var(--alg-accent);
+}
+
+.alg-huff__node--root:focus-visible {
+  outline: none;
+  stroke: var(--color-accent);
+  stroke-width: 2.4;
+}
+
+.alg-huff__node--hint {
+  stroke: var(--color-drishti);
+  stroke-dasharray: 3 2;
+}
+
+.alg-huff__node--sel {
+  fill: var(--alg-accent-soft);
+  stroke: var(--alg-accent);
+  stroke-width: 2.4;
+}
+
+.alg-huff__node--new {
+  stroke: var(--color-success);
+  stroke-width: 2.2;
+}
+
+.alg-huff__nodetext {
+  fill: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  pointer-events: none;
+}
+
+.alg-huff__leafname {
+  fill: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.alg-huff__roots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.alg-huff__rootbtn {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  font: inherit;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  padding: 0.25rem 0.6rem;
+  min-height: 34px;
+  border: 1px solid var(--alg-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--alg-surface-2);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.alg-huff__rootbtn:hover {
+  border-color: var(--alg-accent);
+}
+
+.alg-huff__rootbtn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.alg-huff__rootbtn[aria-pressed="true"] {
+  border-color: var(--alg-accent);
+  background: var(--alg-accent-soft);
+  color: var(--alg-accent-hover);
+}
+
+.alg-huff__rootweight {
+  color: var(--color-muted);
+  font-size: 0.72rem;
+}
+
+.alg-huff__axis {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.alg-huff__track {
+  position: relative;
+  height: 26px;
+}
+
+.alg-huff__rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 10px;
+  height: 8px;
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  background: var(--alg-surface-2);
+}
+
+.alg-huff__band {
+  position: absolute;
+  top: 10px;
+  height: 8px;
+  background: color-mix(in srgb, var(--color-algorithms) 16%, transparent);
+}
+
+.alg-huff__marke {
+  position: absolute;
+  top: 4px;
+  height: 20px;
+  width: 0;
+  border-left: 2px solid var(--color-muted);
+}
+
+.alg-huff__marke--h {
+  border-left-color: var(--color-drishti);
+}
+
+.alg-huff__marke--opt {
+  border-left-color: var(--color-success);
+}
+
+.alg-huff__marke--you {
+  border-left-color: var(--alg-accent);
+  border-left-width: 3px;
+}
+
+.alg-huff__legend {
+  margin: 0;
+  font-size: 0.78rem;
+  font-family: var(--font-mono);
+  color: var(--color-muted);
+  line-height: 1.9;
+}
+
+.alg-huff__sw {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 2px;
+  vertical-align: middle;
+}
+
+.alg-huff__sw--h {
+  background: var(--color-drishti);
+}
+
+.alg-huff__sw--opt {
+  background: var(--color-success);
+}
+
+.alg-huff__sw--you {
+  background: var(--alg-accent);
+}
+
+.alg-huff__axiscaption {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--color-muted);
+}
+
+.alg-huff__axiscaption b {
+  color: var(--color-text);
+}
+
+.alg-huff__readout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--space-2);
+}
+
+.alg-huff__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-2);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+  background: var(--alg-surface-2);
+  min-width: 0;
+}
+
+.alg-huff__k {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--color-muted);
+}
+
+.alg-huff__v {
+  font-size: 0.92rem;
+  color: var(--color-text);
+}
+
+.alg-huff__tablewrap {
+  overflow-x: auto;
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+.alg-huff__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.78rem;
+}
+
+.alg-huff__table th,
+.alg-huff__table td {
+  padding: 0.3rem 0.55rem;
+  text-align: right;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--alg-border);
+}
+
+.alg-huff__table thead th {
+  color: var(--color-muted);
+  background: var(--alg-surface-2);
+}
+
+.alg-huff__table tbody th,
+.alg-huff__table tfoot th {
+  text-align: left;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-weight: 600;
+}
+
+.alg-huff__table tfoot td {
+  border-bottom: none;
+}
+
+.alg-huff__code {
+  color: var(--alg-accent-hover);
+  letter-spacing: 0.08em;
+}
+
+.alg-huff__warn {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.55;
+  color: var(--color-warning);
+}
+
+.alg-huff__verdict {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  color: var(--color-muted);
+}
+
+.alg-huff__verdict b {
+  color: var(--color-text);
+}
+
+.alg-huff__log {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.7;
+  color: var(--color-muted);
+}
