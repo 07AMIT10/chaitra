@@ -10,6 +10,6 @@ tldr:
   - "Greedy is optimal for every amount exactly when the coin system is canonical, a property Pearson 2005 decides in O(n³) even though the largest coin may be huge."
   - "The general minimum-coin problem is only weakly NP-hard: the standard O(n·amount) table is polynomial once the amount is written in unary."
 mathBranches: [graph-theory, number-theory, complexity-theory]
-primitives: [DPHeatmap, PredictionPrompt, SeriesChart]
+primitives: [DPHeatmap, PredictionPrompt, SeriesChart, Afterimage]
 attributions: ["Sylvester 1882", "Lueker 1975", "Kannan 1992", "Kozen–Zaks 1994", "Pearson 2005", "Ramírez-Alfonsín 1996"]
 featured: false

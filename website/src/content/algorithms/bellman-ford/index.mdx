@@ -7,7 +7,7 @@ reframe: "It is not a slower Dijkstra for broken edges. It is a deflationary gra
 oneLine: "Relax every edge in rounds; stop when nothing improves."
 tldr: ["The state is one distance vector; a round applies the relaxation operator to every edge at once.", "The operator is monotone and deflationary, so n−1 rounds reach the fixed point of the Bellman equation.", "The n-th round is the negative-cycle test, and a reachable negative cycle is exactly the case where no fixed point exists.", "In min-plus algebra the same run reads one row of the tropical closure, the sum of L^(k) for k up to n−1."]
 mathBranches: ["order-theory", "algebra", "fixed-point-theory"]
-primitives: ["GraphCanvas", "SemiringMatrix", "PredictionPrompt"]
+primitives: ["Afterimage", "GraphCanvas", "SemiringMatrix", "PredictionPrompt"]
 attributions: ["Shimbel 1955", "Bellman 1958", "Ford 1956", "Moore 1959"]
 relatedTopics: ["pagerank"]
 ---
@@ -15,10 +15,15 @@ relatedTopics: ["pagerank"]
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import SemiringMatrix from "@alg/SemiringMatrix.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 ## A Universe Falling Into Equilibrium
 
-Five towns, six one-way roads, and a downhill path that bends time backward. Press **step** and watch a single row of tentative distances collapse until it freezes into equilibrium.
+A negative cycle is a currency loop that pays 11 on every lap, and no number of relaxations will settle it. Without one, 3 rounds lower the labels on this board, and the 4th certifies the freeze.
+
+The board holds five towns, six one-way roads, and one negative edge that closes no loop. Call the picture **the snowfield**: each round lowers every point to the lowest height its neighbours allow, and a negative cycle is a hole with no floor.
+
+Before you touch the transport, commit to a prediction below.
 
 <GraphCanvas
   client:visible
@@ -42,6 +47,8 @@ Five towns, six one-way roads, and a downhill path that bends time backward. Pre
   ]}
   caption="Six one-way roads and their weights. The negative edge R→T = −4 has no cycle through it, so this graph has a well-defined answer. Step through and watch the d row."
 />
+
+Watch the distance row: it only falls, and the round that changes nothing is the certificate that the snowfield has settled.
 
 The edge list is written back-to-front on purpose. Scanning it in this reverse order advances the wavefront by exactly one hop per round, making the round count visible.
 
@@ -185,6 +192,13 @@ Distance-vector routing protocols such as RIP implement Bellman–Ford across ph
 The infamous 'count-to-infinity' failure mode occurs when a link breaks and routers bounce obsolete distances back and forth. This is the physical realization of a missing fixed point, requiring split-horizon rules and hop-count limits.
 
 Currency arbitrage is the exact inverse application. Set edge weights to $-\log(\text{exchange rate})$ so that multiplying currency conversions corresponds to summing weights. A profitable round trip becomes a negative cycle, transforming the $n$-th round test into an arbitrage detector.
+
+<Afterimage
+  object="Five towns under a snowfield of labels, one per town."
+  motion="Each round presses every label down to the lowest height its incoming roads allow."
+  invariant="The operator only lowers labels and stops only when no road improves, so the frozen row is the least fixed point."
+  number="3 rounds lower the labels; the 4th certifies the freeze."
+/>
 
 ## Moore's Queue: Chasing the Active Frontier
 

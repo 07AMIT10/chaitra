@@ -10,6 +10,6 @@ tldr:
   - "The in-place update is exact when ⊕ is idempotent, so addition — the one non-idempotent choice — is the panel that over-counts."
   - "The closure is a matrix inverse in a semiring: A* = I + A + A² + ⋯ = (I − A)⁻¹ when the series converges."
 mathBranches: [algebra, order-theory, combinatorics]
-primitives: [SemiringMatrix, PredictionPrompt, SeriesChart]
+primitives: [Afterimage, SemiringMatrix, PredictionPrompt, SeriesChart]
 attributions: ["Floyd 1962", "Warshall 1962", "Kleene 1951", "Lehmann 1977"]
 relatedTopics: [pagerank, gossip-protocols]

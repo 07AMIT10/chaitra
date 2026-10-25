@@ -10,6 +10,6 @@ tldr:
   - "Recursing gives T(n) = 7T(n/2) + Θ(n²), hence Θ(n^{log₂ 7}) ≈ Θ(n^2.807): the Θ(n²) additions enlarge the constant, not the exponent."
   - "That exponent is ω, the object of a fifty-year race that has moved the bound many times and has never settled it."
 mathBranches: [algebra, multilinear-algebra, complexity-theory]
-primitives: [RecursionTree, GrowthTable, PredictionPrompt]
+primitives: [RecursionTree, GrowthTable, PredictionPrompt, Afterimage, MentalImage]
 attributions: ["Strassen 1969", "Winograd 1971", "Coppersmith–Winograd 1990", "Alman–Williams 2021", "Higham 2002"]
 featured: false

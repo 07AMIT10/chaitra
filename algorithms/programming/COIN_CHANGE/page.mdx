@@ -1,6 +1,7 @@
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contract, matched to website/src/components/algorithms/:
@@ -45,13 +46,13 @@ $$
 a \;\longrightarrow\; a-c,
 $$
 
-of weight one. The coins *are* the edge set; an amount is a vertex; making change for $a$ is walking from $a$ down to $0$.
+of weight one. The coins *are* the edge set; an amount is a vertex; making change for $a$ is walking from $a$ down to $0$. Call this **the debt graph**: its vertices are amounts, its downward edges are coins, and the fewest coins is the shortest path.
 
 $$
 C(a) \;=\; \text{length of the shortest path from } a \text{ to } 0.
 $$
 
-This is the whole page in one sentence. The DP is a shortest-path computation on a graph whose edges are the coins, and the "fewest coins" you asked for is a distance.
+This is the whole page in one sentence. The DP is a shortest-path computation on the debt graph, whose edges are the coins, and the "fewest coins" you asked for is a distance.
 
 Every edge drops the vertex label, so the graph is acyclic and sweeping the amounts from $0$ upward visits each cell only after the cells it depends on — Bellman's relaxation in dependency order. The same table is one row of a min-plus closure, the subject of [Floyd–Warshall](/algorithms/programming/floyd-warshall) and [Dijkstra](/algorithms/programming/dijkstra). Distances here are small integers, so a plain sweep beats a priority queue.
 
@@ -87,7 +88,7 @@ So "does greedy work here" is a question about the set `1, 3, 4` — not about g
 
 **The Frobenius number: the largest unreachable amount.** Representability is arithmetic: $a$ is reachable when $a = \sum x_i c_i$ with non-negative integers $x_i$. The amounts that cannot be written this way are finite exactly when $\gcd(c_1,\dots,c_n)=1$, and when they are finite the largest of them is the **Frobenius number** $g(c_1,\dots,c_n)$.
 
-A coin of value 1 saves every amount, so for `1, 3, 4` the set of gaps is empty and there is no Frobenius number to name — its graph has a single residue class and the table in section 4 has no $\infty$ cell.
+A coin of value 1 saves every amount, so for `1, 3, 4` the set of gaps is empty and there is no Frobenius number to name — the debt graph has a single residue class and the table in section 4 has no $\infty$ cell.
 
 For two coprime coins there is a clean closed form,
 
@@ -136,7 +137,7 @@ For three or more coins **no closed form is known in general**; the two-coin for
 
 The rows are `none, ≤ 1, ≤ 3, ≤ 4` and the columns are amounts $0 \dots 6$. A cell $(i,j)$ is the fewest coins making $j$ using only the first $i$ coin types, so the bottom row is $C(a)$ for the full system and the corner is $C(6)$.
 
-Hover a filled cell and the two incoming edges light up. One is *skip* — climb a row, decline this coin type — and the other is *use*: step left by the coin's value along the same row, spending a copy of it. The leftward step is exactly the graph edge $a \to a-c$ from section 2; the row climb is the bookkeeping that turns the one-dimensional recurrence $C(a)=1+\min_c C(a-c)$ into a table.
+Hover a filled cell and the two incoming edges light up. One is *skip* — climb a row, decline this coin type — and the other is *use*: step left by the coin's value along the same row, spending a copy of it. The leftward step is exactly the debt-graph edge $a \to a-c$ from section 2; the row climb is the bookkeeping that turns the one-dimensional recurrence $C(a)=1+\min_c C(a-c)$ into a table.
 
 For your coins the corner reads 2, and the trace proves it: from `≤ 4` at amount 6 the winning chain drops to the `≤ 3` row at 6, then steps left by 3 twice, `6 → 3 → 0`, for the two threes. The 4 is never spent, which is the whole lesson of `4 + 1 + 1` versus `3 + 3` made visible.
 
@@ -150,6 +151,13 @@ Four places this distance is the thing you compute.
 - **Currency design.** The "optimal denomination problem" asks which denominations minimize the average number of coins per transaction; the answer is a property of the set, computed by running the DP for every amount. Shallit 2003 argues for an 18-cent piece on these grounds.
 - **The simplest integer program.** Minimum coins is $\min \mathbf{1}^{\top}x$ subject to $\mathbf{c}^{\top}x = A$, $x \ge 0$ integer: one equality, non-negativity, integrality. Every technique of integer programming is tested on this one-row instance first, and fixing the number of coin types makes it integer programming in a fixed dimension, which is polynomial time.
 - **Min-plus closure, elsewhere in this section.** The same graph with weighted edges is least-cost routing; with $(\max,+)$ instead of $(\min,+)$ it is a longest path and Viterbi decoding. The coins are an adjacency matrix, and $C$ is a column of its closure.
+
+<Afterimage
+  object="The debt graph: one vertex per amount from 0 to 6, one downward edge per coin."
+  motion="A walk from 6 down to 0 spends one coin per edge; greedy takes 4, then 1, then 1, while the shortest walk takes two 3s."
+  invariant="Every walk to 0 sums to the amount, so the fewest coins is the debt graph's shortest-path distance and no longer walk can beat it."
+  number="2 coins, not 3: 3 + 3 beats 4 + 1 + 1 at 6¢."
+/>
 
 ## Frobenius Numbers and Weak NP-Hardness
 

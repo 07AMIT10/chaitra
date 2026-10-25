@@ -10,5 +10,5 @@ tldr:
   - "The DP is O(nW): polynomial in the capacity's value and exponential in the bits that write it, so the problem is only weakly NP-hard (Karp 1972)."
   - "Scaling every value by ε·v_max/n turns the same DP into an O(n²/ε) scheme, fully polynomial because it is polynomial in 1/ε as well as n (Ibarra–Kim 1975, Sahni 1975)."
 mathBranches: [optimization, graph-theory, complexity]
-primitives: [DPHeatmap, PredictionPrompt, SeriesChart]
+primitives: [Afterimage, DPHeatmap, PredictionPrompt, SeriesChart]
 attributions: ["Dantzig 1957", "Karp 1972", "Ibarra–Kim 1975", "Sahni 1975", "Kellerer–Pferschy–Pisinger 2004", "Merkle–Hellman 1978", "Shamir 1984"]

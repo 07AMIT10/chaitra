@@ -1,6 +1,7 @@
 import ChainAntichain from "@alg/ChainAntichain.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contracts this page relies on, matched to website/src/components/algorithms/:
@@ -13,9 +14,9 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
 ## The Solitaire Shuffle
 
-Six numbers stand on a board in scrambled order: `4 1 5 2 6 3`. You may pick any subset of these values, preserving their left-to-right order of arrival, provided every chosen value strictly exceeds its predecessor.
+Every diff engine finds the longest increasing subsequence of matched line numbers and calls everything outside it an insertion or a deletion. Six numbers stand on a board in scrambled order: `4 1 5 2 6 3`. Pick any subset, keep their left-to-right order, and require every chosen value to exceed its predecessor.
 
-At first glance, this feels like an arbitrary game of search and backtrack across $2^n$ possible subsets. Lock in a guess at the longest ascending run hidden inside this sequence.
+Enumerating the subsequences of a 100,000-element sequence means $2^{100{,}000}$ candidates, a 30,103-digit number. Patience sorting needs 1.66M comparisons. Lock in a guess at the longest ascending run hidden inside the six numbers.
 
 <PredictionPrompt
   client:visible
@@ -25,7 +26,7 @@ At first glance, this feels like an arbitrary game of search and backtrack acros
   explain="The best climbing runs ending at each position have lengths 1, 1, 2, 2, 3, 3. The maximum length anywhere is 3. Both [4, 5, 6] and [1, 2, 3] attain it, and neither can be extended further: following the final 6, no larger number remains to its right."
 />
 
-Plot the six numbers as coordinates $(i, p_i)$ in the Cartesian plane. The panel paints one longest ascending run in gold, one longest descending run in blue, and deals the numbers into solitaire piles below.
+Plot the six numbers as **the skyline**: six points $(i, p_i)$ in the plane, where a chain that climbs northeast is an increasing subsequence. The panel deals the same numbers into **the piles**, the patience-sorting rows below the skyline.
 
 <ChainAntichain
   client:visible
@@ -33,7 +34,7 @@ Plot the six numbers as coordinates $(i, p_i)$ in the Cartesian plane. The panel
   caption="Six points (i, pᵢ). Gold: a longest increasing subsequence. Blue: a longest non-increasing one. The transport at the top steps the patience piles card by card."
 />
 
-A quiet miracle unfolds in that panel: the number of patience piles equals the exact length of the gold climbing run. That equality is not an accident of arithmetic; it is a fundamental theorem of partially ordered sets.
+Watch the piles as you step the deal: each card lands on a pile or starts a new one, and when the last number lands the pile count equals the length of the gold chain on the skyline. That equality is the quiet miracle of the page. It is a theorem of partially ordered sets, not an accident of arithmetic.
 
 ## The Quadratic Illusion
 
@@ -119,7 +120,7 @@ Consider a nine-element sequence where the primal chain and the dual antichain d
   caption="Nine points. The gold chain has length 6 and the pile count is 6 — Mirsky's antichain cover. The blue antichain has length 3 and the greedy chain cover also has 3 chains — Dilworth's dual. Six and three, from one set of points."
 />
 
-Step through the solitaire deal. The gold chain is `2 → 5 → 7 → 8 → 10 → 13` of length 6, and exactly 6 piles emerge; this is Mirsky's theorem in action. Meanwhile, the longest non-increasing antichain is `11 → 8 → 6` of length 3, and the points can be covered by 3 chains; this confirms Dilworth's dual.
+Step through the deal. The gold chain is `2 → 5 → 7 → 8 → 10 → 13` of length 6, and exactly 6 piles emerge; this is Mirsky's theorem in action. Meanwhile, the longest non-increasing antichain is `11 → 8 → 6` of length 3, and the points can be covered by 3 chains; this confirms Dilworth's dual.
 
 Now observe the same sequence evaluated by dynamic programming.
 
@@ -147,6 +148,13 @@ The height of a two-dimensional poset governs real-world systems constrained by 
 Box nesting models this directly: box $A$ nests inside box $B$ when both dimensions are strictly smaller, turning maximum tower height into an LIS chain. Similarly, missile defence scheduling uses Mirsky's theorem to calculate the minimum number of non-increasing interception batteries needed to neutralize an inbound missile barrage.
 
 In file comparison algorithms, diff engines locate identical lines between two documents, order them by line number, and find the longest increasing subsequence. The elements outside that LIS identify the exact insertions and deletions.
+
+<Afterimage
+  object="The skyline of points (i, pᵢ), with the gold chain climbing northeast and the piles dealt below it."
+  motion="Each number lands on the leftmost pile whose top is at least its value, and a new pile starts only when no top is large enough."
+  invariant="Each pile is an antichain, so the pile count equals the height of the skyline — the length of the gold chain."
+  number="1.66M comparisons, not 2^100,000 candidates."
+/>
 
 ## Beyond the First Row: Young Tableaux and Random Matrices
 

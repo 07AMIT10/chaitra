@@ -9,7 +9,7 @@ tldr:
   - "A non-negative potential turns amortised cost into a balance you cannot overdraw."
   - "Rank/size caps height and path compression kills repeats; together the bound is α(n) — smaller than any logarithm you have met."
 mathBranches: [order-theory, algebra, analysis]
-primitives: [LatticeClimb, PotentialBank, GrowthTable, SeriesChart, PredictionPrompt]
+primitives: [LatticeClimb, PotentialBank, GrowthTable, SeriesChart, PredictionPrompt, Afterimage]
 attributions: ["Tarjan 1975", "Knuth 1973"]
 relatedTopics: [crdts-plus-probability, pagerank, hyperloglog]
 featured: true

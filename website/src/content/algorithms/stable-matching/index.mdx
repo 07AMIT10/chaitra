@@ -7,12 +7,13 @@ reframe: "Pair two warring camps where every individual harbours private desires
 oneLine: "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes."
 tldr: ["Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted.", "It stops with no blocking pair: a left–right pair who both rank the other above the partner they were assigned. The board checks every pair and prints that count as zero (Gale–Shapley 1962).", "The result is proposer-optimal. Among all stable matchings it is best for every proposer at once and worst for every receiver; swap who proposes and the board recomputes the other extreme (Gale–Shapley 1962, Dubins–Freedman 1981).", "The stable matchings of one instance form a lattice (Knuth 1976). The board's four-by-four has exactly two, and the two extremes differ in two of the four assignments.", "Termination is counting: each proposer walks down its own list and never repeats a proposal, so the process stops after at most |L|·|R| proposals (McVitie–Wilson 1971)."]
 mathBranches: ["combinatorics", "game-theory", "order-theory"]
-primitives: ["MatchingBoard", "PredictionPrompt"]
+primitives: ["MatchingBoard", "PredictionPrompt", "Afterimage"]
 attributions: ["Gale–Shapley 1962", "Kuhn 1955", "Berge 1957", "McVitie–Wilson 1971", "Knuth 1976", "Dubins–Freedman 1981", "Roth 1984", "Roth 1986"]
 ---
 
 import MatchingBoard from "@alg/MatchingBoard.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contracts this page relies on, matched to website/src/components/algorithms/:
@@ -24,24 +25,15 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   the left-optimal and right-optimal extremes, and Kuhn's augmenting-path search in the other mode.
 */}
 
-## The Courtship Standoff
+## Match Day
 
-Four suitors and four hosts confront each other across an ideological divide, each armed with a strictly ordered list of private preferences. Pair them at random and chaos erupts: disaffected agents will swiftly conspire behind closed doors to abandon their assignments and defect together.
+Each year the National Resident Matching Program places tens of thousands of graduating doctors into hospital posts with one promise: no blocking pair. No applicant and hospital would rather have each other than the partners they were given.
 
-A pairing is only viable if it resists rebellion. Can decentralized proposals and tentative holds guarantee an outcome where no clandestine alliance threatens the peace?
+Four applicants and four hospitals sit on the board below, each with a ranked list. Deferred acceptance settles it in four rounds, and three rejections are the whole cost of the promise.
 
-<MatchingBoard
-  client:visible
-  left={["A", "B", "C", "D"]}
-  right={["w", "x", "y", "z"]}
-  leftPrefs={[[0, 1, 2, 3], [1, 0, 2, 3], [1, 2, 0, 3], [2, 1, 3, 0]]}
-  rightPrefs={[[1, 0, 2, 3], [0, 1, 2, 3], [3, 2, 1, 0], [2, 3, 0, 1]]}
-  problem="stable-matching"
-  height={380}
-  caption="The left side proposes: four rounds and three rejections end at A–w, B–x, C–z, D–y. Switch the proposing side and the panel recomputes from scratch to land on the other extreme. The board also opens on Kuhn's augmenting-path search."
-/>
+The picture is **the waterfall**: offers fall from the proposing side, each hospital holds the best offer it has seen, and the rest go back down. A hospital only ever swaps up, so the water only falls.
 
-Step through the rounds to watch offers ripple down preference lists. Whenever a receiver receives a proposal, it tentatively holds its favourite suitor so far and coldly rejects the rest; discarded suitors immediately proceed to their next choice.
+The waterfall lands on one end of the lattice, not on a unique matching. Switch the proposing side to stand at the other end.
 
 <PredictionPrompt
   client:visible
@@ -55,11 +47,26 @@ Step through the rounds to watch offers ripple down preference lists. Whenever a
   explain="Deferred acceptance is profoundly asymmetric: it returns the proposer-optimal matching! It gives every single proposer their best achievable partner in any stable matching, while condemning every receiver to their worst valid match. On this board, left proposers secure [A–w, B–x, C–z, D–y], ranking their partners strictly higher than or equal to what they would receive under receiver proposals."
 />
 
-## The Anatomy of an Elopement
+<MatchingBoard
+  client:visible
+  left={["A", "B", "C", "D"]}
+  right={["w", "x", "y", "z"]}
+  leftPrefs={[[0, 1, 2, 3], [1, 0, 2, 3], [1, 2, 0, 3], [2, 1, 3, 0]]}
+  rightPrefs={[[1, 0, 2, 3], [0, 1, 2, 3], [3, 2, 1, 0], [2, 3, 0, 1]]}
+  problem="stable-matching"
+  height={380}
+  caption="The left side proposes: four rounds and three rejections end at A–w, B–x, C–z, D–y. Switch the proposing side and the panel recomputes from scratch to land on the other extreme. The board also opens on Kuhn's augmenting-path search."
+/>
 
-Consider any proposed matching between two camps. What condition makes it unstable?
+Step through the rounds to watch offers fall down the preference lists. Each receiver holds its favourite proposal so far and rejects the rest; a rejected proposer immediately moves to its next choice.
 
-A pair $(L, R)$ is a **blocking pair** if $L$ prefers $R$ over their assigned partner *and* $R$ prefers $L$ over their assigned partner. If even one such rogue pair exists, both individuals have active incentive to defect, shatter the social contract, and elope.
+Watch the held column; when a hospital swaps one offer for a better one, the invariant is that the displaced offer drops to its next choice and no accepted offer is ever withdrawn.
+
+## The Pair That Would Rather Swap
+
+Consider any proposed matching between two sides. What condition makes it unstable?
+
+A pair $(L, R)$ is a **blocking pair** if $L$ prefers $R$ over their assigned partner *and* $R$ prefers $L$ over their assigned partner. If even one such pair exists, both individuals have active incentive to defect and leave together.
 
 A matching is **stable** if and only if it contains zero blocking pairs. Exhaustively auditing an existing matching is simple ($O(n^2)$ checks), but constructing an assignment guaranteed to possess no rogue pairs is a non-trivial feat of game theory.
 
@@ -93,7 +100,7 @@ Why is the terminal state immune to mutiny? Suppose a proposer $a$ and receiver 
 
 **Proposer Optimality (Gale & Shapley 1962; Dubins & Freedman 1981).** Every proposer receives the best partner they could possibly secure in *any* stable matching, while every receiver receives their worst possible partner among all stable matchings.
 
-## Stepping the Deferred Proposal Wave
+## Stepping the Waterfall
 
 Return to the interactive board and toggle the proposing side. Observe how the two runs map the extreme boundaries of the lattice: left-optimal produces `A–w, B–x, C–z, D–y`, while right-optimal yields `A–x, B–w, C–z, D–y`.
 
@@ -120,6 +127,13 @@ In 1952, American medical schools and residency hospitals faced rampant unraveli
 The same mechanism powers urban public school assignment systems in Boston and New York, matching hundreds of thousands of students to schools without black-market swaps.
 
 Paired kidney exchange registries adapt these equilibrium mechanics to save lives, clearing cyclical barter chains across incompatible donor-patient pairs.
+
+<Afterimage
+  object="Four applicants, four hospitals, and the ranked lists that turn every offer into one falling column."
+  motion="Each round, every free applicant proposes to the next hospital on their list, and each hospital keeps the best offer and sends the rest back down."
+  invariant="Each hospital only ever trades up, so when the proposals stop no applicant and hospital can prefer each other to what they hold."
+  number="0 blocking pairs after 4 rounds and 3 rejections."
+/>
 
 ## Strategic Manipulation and the Rural Hospitals Invariant
 

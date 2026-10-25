@@ -7,7 +7,7 @@ reframe: "To search a billion records, a linear scan must traverse the continent
 oneLine: "Halve the interval that still contains the answer, one comparison at a time."
 tldr: ["The state is an interval that always contains the answer; every comparison deletes at least half of what is left.", "T(n) = T(n/2) + 1 solves to floor(log2 n) + 1, which is ceil(log2(n+1)) — the logarithm derived, not assumed.", "k two-outcome comparisons reach at most 2^k leaves, so n + 1 possible answers force k >= ceil(log2(n+1)): binary search is exactly optimal in the comparison model, and the model is the fine print.", "The same boundary search is bisection, because every false-then-true predicate has a first-true position."]
 mathBranches: ["analysis", "information-theory", "order-theory"]
-primitives: ["RecursionTree", "GrowthTable", "SeriesChart", "PredictionPrompt"]
+primitives: ["RecursionTree", "GrowthTable", "SeriesChart", "PredictionPrompt", "Afterimage"]
 attributions: ["Knuth 1973", "Bentley 1986", "Bentley, Haken and Saxe 1980", "Peterson 1957", "van Emde Boas 1975", "Bloch 2006"]
 relatedTopics: ["information-theory"]
 ---
@@ -16,6 +16,7 @@ import RecursionTree from "@alg/RecursionTree.tsx";
 import GrowthTable from "@alg/GrowthTable.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Binary Search — primitive contract matched to website/src/components/algorithms/.
@@ -30,6 +31,8 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 ## Thirty questions to locate an atom
 
 In 1986, Jon Bentley challenged professional programmers at Bell Labs and IBM to write binary search. Over ninety percent introduced off-by-one errors or infinite loops, despite having hours to test their work. The algorithm requires scarcely twenty lines of code, yet its precision punishes the slightest careless assumption.
+
+At $10^{18}$ records, a scan from the left costs 31.7 years at its worst. The average is 15.8 years. Halving the interval needs 60 comparisons.
 
 Eight sorted numbers sit in a row: `[3, 9, 14, 21, 27, 33, 41, 58]`. You want the 27.
 
@@ -100,7 +103,7 @@ $$
 
 This matches the balanced master theorem case with $a = 1$, $b = 2$, and $d = 0$, giving $\Theta(\log n)$.
 
-Why is this optimal? Any comparison algorithm forms a decision tree where $k$ two-way questions yield at most $2^k$ leaves.
+Why is this optimal? Any comparison algorithm forms **the decision tree**: each internal node is a comparison, each leaf is a candidate, and $k$ two-way questions yield at most $2^k$ leaves. At $n = 10^{18}$ its depth is 60.
 
 An array of size $n$ has $n + 1$ potential outcomes ($n$ indices plus "absent"). To distinguish every outcome, the tree must have at least $n+1$ distinct leaves:
 
@@ -159,7 +162,7 @@ The recurrence panel sets $a = 1$, $b = 2$, $d = 0$: one child branch of half th
   caption="Every level costs n⁰ = 1. The total work across L + 1 levels is simply L + 1, yielding Θ(log n)."
 />
 
-Level $k$ holds a single node of size $n/2^k$, spending $(n/2^k)^0 = 1$ work. Every bar on the ribbon has equal width 1, summing across $L + 1$ levels to $\Theta(\log n)$.
+Level $k$ holds a single node of size $n/2^k$, spending $(n/2^k)^0 = 1$ work. Every bar on the ribbon has equal width 1, summing across $L + 1$ levels to $\Theta(\log n)$. Watch the ribbon: it is flat at one comparison per level, so the cost is the depth of the tree, not the number of leaves.
 
 Now adjust the branching slider to $a = 2$.
 
@@ -194,6 +197,13 @@ Computing the midpoint as `mid = (lo + hi) / 2` contains a subtle flaw. When $lo
 This bug persisted unnoticed inside Java's `java.util.Arrays.binarySearch` for over nine years (Bloch 2006). The bug-free formulation is `mid = lo + (hi - lo) / 2` or `(lo + hi) >>> 1`.
 
 Precision in endpoint updates is essential. An incorrect endpoint update either enters an infinite loop or skips the target entirely.
+
+<Afterimage
+  object="The decision tree: one comparison at each internal node, one candidate at each leaf."
+  motion="Each answer follows one edge and discards the other half of the candidates, so the search walks a single root-to-leaf path."
+  invariant="Every leaf is still a possible outcome, so the path's depth is exactly the number of comparisons needed to name one."
+  number="60 comparisons against 31.7 years for a worst-case scan of 10^18 records."
+/>
 
 ## Historical provenance and attributions
 

@@ -2118,6 +2118,90 @@
   background: color-mix(in srgb, var(--color-drishti) 12%, transparent);
 }
 
+/* ================================================== Afterimage */
+
+.alg-after {
+  margin: var(--space-8) 0;
+  padding: var(--space-5) var(--space-5) var(--space-4);
+  border: 1px solid var(--alg-border);
+  border-left: 3px solid var(--alg-accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background:
+    radial-gradient(
+      120% 140% at 0% 0%,
+      color-mix(in srgb, var(--alg-accent) 10%, transparent) 0%,
+      transparent 62%
+    ),
+    var(--alg-surface-2);
+}
+
+.alg-after__kicker {
+  margin: 0 0 var(--space-3);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--alg-accent-hover);
+}
+
+.alg-after__list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+
+.alg-after__row {
+  display: grid;
+  grid-template-columns: 5.6rem minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+.alg-after__row dt {
+  font-family: var(--alg-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.alg-after__row dd {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.alg-after__number {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: var(--space-4) 0 0;
+  padding-top: var(--space-3);
+  border-top: 1px dashed var(--alg-border);
+}
+
+.alg-after__number-label {
+  font-family: var(--alg-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+.alg-after__number-value {
+  font-family: var(--alg-mono);
+  font-size: 0.92rem;
+  color: var(--alg-accent-hover);
+}
+
+@media (max-width: 520px) {
+  .alg-after__row {
+    grid-template-columns: 1fr;
+    gap: 0.15rem;
+  }
+}
+
 /* ================================================== Mobile SVG Scalability */
 
 @media (max-width: 600px) {
@@ -2200,5 +2284,277 @@
   }
   .alg-lp__edge {
     stroke-width: 2.6px;
+  }
+}
+
+/* ===== MentalImage ===== */
+
+.alg-mi {
+  --alg-accent: var(--color-algorithms, var(--color-accent));
+  --alg-accent-hover: var(--color-algorithms-hover, var(--color-accent-hover));
+  --alg-accent-soft: color-mix(in srgb, var(--alg-accent) 15%, transparent);
+  --alg-accent-faint: color-mix(in srgb, var(--alg-accent) 8%, transparent);
+  --alg-accent-line: color-mix(in srgb, var(--alg-accent) 45%, transparent);
+  --alg-border: color-mix(in srgb, var(--color-muted) 28%, transparent);
+  --alg-border-strong: color-mix(in srgb, var(--color-muted) 45%, transparent);
+  --alg-mono: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-6) 0;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.alg-mi__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: color-mix(in srgb, var(--color-bg) 70%, transparent);
+  border: 1px solid var(--alg-border);
+  border-radius: var(--radius-sm);
+}
+
+/* The Strassen plate carries seven formulas; below 520 px it scrolls rather
+   than shrinking the type into illegibility. */
+.alg-mi__scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border-radius: var(--radius-sm);
+}
+
+.alg-mi__scroll:focus-visible {
+  outline: 2px solid var(--alg-accent);
+  outline-offset: 2px;
+}
+
+.alg-mi__scroll .alg-mi__svg {
+  min-width: 600px;
+}
+
+.alg-mi__caption {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+
+/* -- type ---------------------------------------------------------------- */
+
+.alg-mi__title {
+  fill: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.alg-mi__label {
+  fill: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+}
+
+.alg-mi__sub {
+  fill: var(--color-muted);
+  font-family: var(--font-sans);
+  font-size: 12px;
+}
+
+.alg-mi__tiny {
+  fill: var(--color-muted);
+  font-family: var(--font-sans);
+  font-size: 11px;
+}
+
+.alg-mi__mono {
+  fill: var(--color-text);
+  font-family: var(--alg-mono);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.alg-mi__mono--accent {
+  fill: var(--alg-accent-hover);
+  font-weight: 600;
+}
+
+.alg-mi__mono--quad {
+  font-size: 15px;
+}
+
+.alg-mi__mono--head {
+  fill: var(--color-muted);
+  font-weight: 600;
+}
+
+.alg-mi__mono--formula {
+  font-size: 12px;
+}
+
+.alg-mi__mono--weight {
+  fill: var(--color-muted);
+  font-size: 12px;
+}
+
+.alg-mi__mono--track {
+  font-size: 13px;
+}
+
+.alg-mi__plus {
+  fill: var(--alg-accent-hover);
+  font-family: var(--alg-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.alg-mi__minus {
+  fill: var(--color-drishti);
+  font-family: var(--alg-mono);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* -- marks --------------------------------------------------------------- */
+
+.alg-mi__rule {
+  fill: none;
+  stroke: var(--alg-border);
+  stroke-width: 1;
+}
+
+.alg-mi__edge {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-muted) 48%, transparent);
+  stroke-width: 1.2;
+  stroke-linecap: round;
+}
+
+.alg-mi__edge--arc {
+  stroke-width: 1.4;
+}
+
+.alg-mi__edge--weld {
+  stroke: var(--alg-accent);
+  stroke-width: 3;
+}
+
+.alg-mi__node {
+  fill: var(--color-surface);
+  stroke: var(--alg-border-strong);
+  stroke-width: 1.4;
+}
+
+.alg-mi__node-text {
+  fill: var(--color-text);
+  font-family: var(--alg-mono);
+  font-size: 12.5px;
+  text-anchor: middle;
+}
+
+.alg-mi__block {
+  fill: none;
+  stroke: var(--alg-border-strong);
+  stroke-width: 1.2;
+}
+
+.alg-mi__block--cross {
+  fill: var(--alg-accent-soft);
+  stroke: var(--alg-accent-line);
+}
+
+.alg-mi__bracket {
+  fill: none;
+  stroke: var(--alg-accent-line);
+  stroke-width: 1.4;
+}
+
+.alg-mi__dot {
+  fill: var(--color-muted);
+  opacity: 0.3;
+}
+
+.alg-mi__cut {
+  fill: none;
+  stroke: var(--color-drishti);
+  stroke-width: 1.6;
+  stroke-dasharray: 6 5;
+  stroke-linecap: round;
+}
+
+.alg-mi__leader {
+  stroke: color-mix(in srgb, var(--color-muted) 60%, transparent);
+  stroke-width: 1;
+}
+
+.alg-mi__tag {
+  fill: var(--color-surface);
+  stroke: var(--alg-accent-line);
+  stroke-width: 1;
+}
+
+.alg-mi__tagtext {
+  fill: var(--alg-accent-hover);
+  font-family: var(--alg-mono);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.alg-mi__legend {
+  stroke: color-mix(in srgb, var(--color-muted) 60%, transparent);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.alg-mi__legend--weld {
+  stroke: var(--alg-accent);
+  stroke-width: 3;
+}
+
+.alg-mi__arrowhead {
+  fill: color-mix(in srgb, var(--color-muted) 60%, transparent);
+}
+
+@media (max-width: 520px) {
+  .alg-mi__title {
+    font-size: 15.5px;
+  }
+  .alg-mi__label {
+    font-size: 15px;
+  }
+  .alg-mi__sub {
+    font-size: 14px;
+  }
+  .alg-mi__tiny {
+    font-size: 12.5px;
+  }
+  .alg-mi__mono {
+    font-size: 14px;
+  }
+  .alg-mi__mono--quad {
+    font-size: 16px;
+  }
+  .alg-mi__mono--head {
+    font-size: 14px;
+  }
+  .alg-mi__mono--formula {
+    font-size: 13px;
+  }
+  .alg-mi__mono--weight {
+    font-size: 14px;
+  }
+  .alg-mi__mono--track {
+    font-size: 14px;
+  }
+  .alg-mi__node-text {
+    font-size: 14.5px;
+  }
+  .alg-mi__plus,
+  .alg-mi__minus {
+    font-size: 16px;
+  }
+  .alg-mi__tagtext {
+    font-size: 12.5px;
   }
 }

@@ -10,5 +10,5 @@ tldr:
   - "Berge's condition (Berge 1957) certifies optimality from the search: with no augmenting path left, the size-3 matching is maximum."
   - "König's theorem (König 1931) pins the same number from the cover side, and the unit-capacity flow reduction (Ford–Fulkerson 1956) makes it fall out of pipes."
 mathBranches: [combinatorics, graph-theory, optimization]
-primitives: [MatchingBoard, PredictionPrompt, LPDualityDashboard]
+primitives: [MatchingBoard, PredictionPrompt, LPDualityDashboard, Afterimage]
 attributions: ["Hall 1935", "König 1931", "Berge 1957", "Ford–Fulkerson 1956", "Hopcroft–Karp 1973", "Birkhoff 1946"]

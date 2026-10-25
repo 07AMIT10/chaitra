@@ -11,5 +11,5 @@ tldr:
   - "Where the tangent is nearly flat the step is enormous: from x₀ = 0.82 on Wallis's cubic x³ − 2x − 5 the first iterate lands near 355, not near the root."
   - "Bisection trades speed for a guarantee. A sign change is enough for a continuous f, and each step at least halves the error, order 1 against Newton's order 2."
 mathBranches: [analysis, numerical-analysis, geometry]
-primitives: [IterationLab, GrowthTable, PredictionPrompt]
+primitives: [IterationLab, GrowthTable, PredictionPrompt, Afterimage]
 attributions: ["Newton 1669", "Raphson 1690", "Simpson 1740", "Cayley 1879", "Fatou 1918", "Julia 1918", "Kantorovich 1948", "Brent 1973", "Dennis–Schnabel 1983", "Smale 1986"]

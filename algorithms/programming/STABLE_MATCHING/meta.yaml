@@ -11,5 +11,5 @@ tldr:
   - "The stable matchings of one instance form a lattice (Knuth 1976). The board's four-by-four has exactly two, and the two extremes differ in two of the four assignments."
   - "Termination is counting: each proposer walks down its own list and never repeats a proposal, so the process stops after at most |L|·|R| proposals (McVitie–Wilson 1971)."
 mathBranches: [combinatorics, game-theory, order-theory]
-primitives: [MatchingBoard, PredictionPrompt]
+primitives: [MatchingBoard, PredictionPrompt, Afterimage]
 attributions: ["Gale–Shapley 1962", "Kuhn 1955", "Berge 1957", "McVitie–Wilson 1971", "Knuth 1976", "Dubins–Freedman 1981", "Roth 1984", "Roth 1986"]

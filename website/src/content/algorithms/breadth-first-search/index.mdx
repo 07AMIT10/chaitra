@@ -7,11 +7,12 @@ reframe: "It is not a graph traversal. It is an unweighted shockwave detonating 
 oneLine: "One source, one queue, and the distance of every vertex — a level at a time."
 tldr: ["The output is a level function: the least fixed point of d(v) = 1 + min d(u) over neighbours — distance in the unweighted metric.", "A plain queue is enough because the frontier stays sorted by distance and never spans more than two adjacent levels.", "One sweep also decides bipartiteness: colouring by level parity is proper exactly when no edge joins two vertices of equal level (König 1936)."]
 mathBranches: ["graph-theory", "order-theory", "combinatorics"]
-primitives: ["GraphCanvas", "PredictionPrompt", "SeriesChart"]
+primitives: ["GraphCanvas", "PredictionPrompt", "SeriesChart", "Afterimage"]
 attributions: ["Moore 1959", "Lee 1961", "König 1936", "Milgram 1967", "Cohen 2009"]
 relatedTopics: ["gossip-protocols", "pagerank", "mapreduce"]
 ---
 
+import Afterimage from "@alg/Afterimage.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -28,7 +29,19 @@ import SeriesChart from "@alg/SeriesChart.tsx";
 
 ## Concentric Rings of Integer Distance
 
-Eight vertices, one source $S$. Step through the canvas and watch the search propagate in expanding ripples—first one vertex, then two, then two, then three. Redraw the network and the visiting order may scramble, but the concentric metric rings are immutable invariants.
+On the network below, G sits three hops from the source S, not four. The chord C–G cuts the corner, and every route that hugs the outside of the drawing pays an extra hop for the privilege.
+
+That is the trap. Follow one path to the end and call the first arrival shortest: the route through E can reach G first, four hops out, and nothing in that traversal revises the number.
+
+The picture is **the rings**: the level sets around S. The graph fixes them, and the order the queue visits them does not.
+
+<PredictionPrompt
+  client:visible
+  question="The rightmost vertex G terminates two prominent perimeter chains that are each 4 hops from S. At what depth does the expanding BFS wave actually swallow vertex G?"
+  options={["Depth 2", "Depth 3", "Depth 4", "Depth 5"]}
+  correct={1}
+  explain="Depth 3. Chord C–G connects from vertex C, which settles at level 2. When C is processed, G is immediately added to the level-3 wave, bypassing the longer 4-hop perimeter routes S–A–C–E–G and S–B–D–F–G. BFS discovers true geodesic distance, ignoring longer visual paths."
+/>
 
 <GraphCanvas
   client:visible
@@ -60,13 +73,7 @@ Eight vertices, one source $S$. Step through the canvas and watch the search pro
   ]}
 />
 
-<PredictionPrompt
-  client:visible
-  question="The rightmost vertex G terminates two prominent perimeter chains that are each 4 hops from S. At what depth does the expanding BFS wave actually swallow vertex G?"
-  options={["Depth 2", "Depth 3", "Depth 4", "Depth 5"]}
-  correct={1}
-  explain="Depth 3. Chord C–G connects from vertex C, which settles at level 2. When C is processed, G is immediately added to the level-3 wave, bypassing the longer 4-hop perimeter routes S–A–C–E–G and S–B–D–F–G. BFS discovers true geodesic distance, ignoring longer visual paths."
-/>
+Watch the queue order scramble while the ring number stays fixed. The level of a vertex is the invariant; its position in the queue is not.
 
 ## The Tour vs. The Level Metric
 
@@ -202,6 +209,13 @@ The chart below shows level sizes across three canonical topologies: a linear pa
 The path frontier requires only 1 vertex in memory. The square grid expands diamond-like to 11 vertices before shrinking, while the star graph demands storing all 20 leaves in a single burst.
 
 The resulting BFS tree is one witness among many. While tie-breaking produces different tree pointers, the underlying metric distances are absolute invariants.
+
+<Afterimage
+  object="The rings: one level set per hop count, drawn around S."
+  motion="The queue drains ring k and fills ring k+1, and the chips inside a ring swap places freely."
+  invariant="Every edge joins rings that differ by at most one, and the queue drains ring k before k+1, so first arrival is the least hop count."
+  number="3 hops to G through C–G, against 4 around the perimeter."
+/>
 
 ## Attributions
 

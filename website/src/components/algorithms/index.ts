@@ -15,6 +15,8 @@ export { default as LPDualityDashboard } from "./LPDualityDashboard";
 export { default as IterationLab } from "./IterationLab";
 export { default as MatchingBoard } from "./MatchingBoard";
 export { default as HuffmanMerge } from "./HuffmanMerge";
+export { default as MentalImage } from "./MentalImage";
+export { default as Afterimage } from "./Afterimage";
 
 export type { Series, SeriesPoint, Annotation } from "./SeriesChart";
 export type { GrowthRow } from "./GrowthTable";
@@ -26,3 +28,4 @@ export type { DpProblem } from "./DPHeatmap";
 export type { IterationProblem, IterationTarget } from "./IterationLab";
 export type { MatchingProblem } from "./MatchingBoard";
 export type { HuffmanSymbol } from "./HuffmanMerge";
+export type { MentalImageKind } from "./MentalImage";

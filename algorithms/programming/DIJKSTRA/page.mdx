@@ -1,3 +1,4 @@
+import Afterimage from "@alg/Afterimage.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import SemiringMatrix from "@alg/SemiringMatrix.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -23,9 +24,11 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
 ## The Expanding Horizon
 
-In 1956, sitting on a café terrace in Amsterdam, Edsger Dijkstra conceived an algorithm in twenty minutes without pen or paper. He did not search for paths; he simulated a wave of light expanding outward through glass of varying densities. The moment that wave touches a town, its shortest distance is carved into stone forever.
+The obvious frontier is a linear scan, and at $10^8$ towns that scan performs $5 \times 10^{15}$ probes. At a billion probes a second it runs for 58 days. The map below has seven towns, ten roads, and a spark at **A**.
 
-Seven towns sit on the map below, joined by ten one-way roads. Every road is labelled with a travel time, and **A** is where the spark ignites.
+A binary heap does the same job with 285 times fewer key comparisons at 12,800 towns. That figure is measured on two queues; the 58 days is an array probe count.
+
+The picture is **the expanding horizon**: a front that advances one town at a time, taking the least label next. Dijkstra 1959 described it as light spreading through glass of varying density.
 
 <GraphCanvas
   client:visible
@@ -55,6 +58,8 @@ Seven towns sit on the map below, joined by ten one-way roads. Every road is lab
     { from: "B", to: "G", w: 1 },
   ]}
 />
+
+Watch the settle order, not the geometry: a town is final the moment the least tentative label is popped, and non-negative weights are why no later wave can undercut it.
 
 Before you press play, commit to a prediction. The map is small enough to run in your head, and the order it settles reveals the core mechanic.
 
@@ -233,6 +238,13 @@ Two conclusions emerge from the data. The array scan tracks $n^2/2$ with precisi
 Evaluating the same recurrence over other semirings produces different classic algorithms. Replacing $\oplus$ with $\max$ yields Viterbi decoding for hidden Markov models. Substituting edit costs yields sequence alignment, while Boolean $(\text{OR}, \text{AND})$ computes transitive closure.
 
 A* accelerates point-to-point queries by adding a goal-directed potential to the priority key (Hart, Nilsson, and Raphael 1968). Modern GPS navigation scales this further with contraction hierarchies, answering queries across continental road networks in microseconds (Geisberger et al. 2008).
+
+<Afterimage
+  object="The expanding horizon: a settled core ringed by tentative labels."
+  motion="Extract the least label, settle that town, relax its roads, and the front pushes outward."
+  invariant="Non-negative weights make every later wave cost at least as much, so a settled label is permanent."
+  number="58 days of scans at 10^8 towns; 285× fewer comparisons under a heap at 12,800."
+/>
 
 ## When Light Loops: The Absence of Negative Cycles
 

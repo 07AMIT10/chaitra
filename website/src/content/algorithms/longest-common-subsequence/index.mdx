@@ -7,13 +7,14 @@ reframe: "Lay two strings along the axes of a plane and watch their shared lette
 oneLine: "The longest word that appears, in order, inside both strings."
 tldr: ["A common subsequence is a chain in the product order on the matching cells (i, j) with a[i] = b[j]; the DP table writes the height of each rectangle into its corner.", "With insert and delete only, the distance between the strings is exactly m + n − 2·LCS — the cost of the cheapest monotone staircase through the grid.", "Computing the length is O(mn), but the number of distinct longest common subsequences can be 2^(n/2): polynomial to measure, exponential to list.", "When one string is a rearrangement of the other, LCS is exactly the longest increasing subsequence of the position permutation."]
 mathBranches: ["order-theory", "combinatorics", "algorithms"]
-primitives: ["DPHeatmap", "PredictionPrompt", "SeriesChart"]
+primitives: ["Afterimage", "DPHeatmap", "PredictionPrompt", "SeriesChart"]
 attributions: ["Wagner–Fischer 1974", "Hirschberg 1975", "Myers 1986"]
 ---
 
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contract, matched to website/src/components/algorithms/:
@@ -27,6 +28,8 @@ import SeriesChart from "@alg/SeriesChart.tsx";
 */}
 
 ## The Surviving Thread
+
+`git diff` decides which lines you added and which you deleted by measuring one number between the two files. The obvious method — list every subsequence and keep the longest shared one — is exponential. The prefix table that answers it is quadratic: 4,225 cells for two 64-character strings with $2^{32}$ distinct longest common subsequences.
 
 Read the two strings as rows, and cross out characters until the survivors agree.
 
@@ -48,6 +51,8 @@ The word `BCAB` survives in each: the top row keeps positions 2, 3, 4, 6, the bo
 
 Four is a **length**, not a word. That gap runs the whole page: measuring the length is cheap, printing one word is cheap, and counting all the words is not.
 
+Keep one picture: **the staircase**, a monotone path from the top-left corner of the prefix grid to the bottom-right. A diagonal step lands on a matching pair, a step down or right skips a character of one string. The staircase is the common subsequence, and its height is the length.
+
 ## The Naive Power-Set Trap
 
 Operationally you are handed two strings, $a$ of length $m$ and $b$ of length $n$, and asked for the longest word that is a **subsequence** — a selection of positions in order, not necessarily adjacent — of both. Brute force lists all $2^m$ subsequences of $a$ and keeps the longest that also sits in $b$. That is exponential work for an answer that is one integer.
@@ -60,7 +65,7 @@ $$
 
 That recurrence is correct, and it never mentions a subsequence. It compares prefixes and takes maxima. What it measures is a *height* in an order built from the two strings, and that order is the object we actually want.
 
-## The Constellation of Matching Cells
+## The Matching Cells
 
 Take the prefixes of $a$ in order: $\varepsilon \subset a[1..1] \subset \dots \subset a[1..m]$. Prefixes order by extension, so this is a chain — a totally ordered set — with $m+1$ elements. The prefixes of $b$ form a second chain with $n+1$ elements.
 
@@ -193,11 +198,13 @@ Both curves are exact arithmetic, not measurements: the lower one is the $(n+1)^
   caption="Hover any cell to light the moves that filled it: from above (skip a character of a), from the left (skip a character of b), or from the diagonal on a match. Press play to fill the 56 cells in dependency order, then Trace solution to read one longest common subsequence out of the grid."
 />
 
+Watch the arrows: a match is a diagonal arrow and a mismatch is one of two skips; press **Trace solution** and check that the chosen arrows form one staircase, not a scatter of every matching letter.
+
 The top row and left column are all zero, because an empty prefix shares no character with anything. An interior matching cell copies its upper-left neighbour and adds one, tracing a diagonal staircase step.
 
 Off a match, a cell inherits the maximum of its neighbours above and to the left. The bottom-right cell for these words reads 4.
 
-Turn on **Trace solution** and the chain walks out one witness: four matched cells joined into a staircase, spelling `BCAB`. Different tie-breaks inside the table produce different witnesses of the same length — that ambiguity is the seed of section 3.4, where the witnesses can outnumber the words.
+Turn on **Trace solution** and the trace walks one witness out: four matched cells joined into a staircase, spelling `BCAB`. Different tie-breaks inside the table produce different witnesses of the same length — that ambiguity is the seed of section 3.4, where the witnesses can outnumber the words.
 
 ## Where Posets Power Modern Toolchains
 
@@ -205,6 +212,13 @@ Turn on **Trace solution** and the chain walks out one witness: four matched cel
 - **Sequence alignment.** Needleman and Wunsch 1970 scored this recurrence over amino acids, and Smith and Waterman 1981 dropped the requirement to span both strings. Flip a mismatch to a negative score and the same grid aligns locally. Every alignment score in bioinformatics is this table.
 - **Longest increasing subsequence.** When $b$ is a rearrangement of $a$, map each character of $b$ to its position in $a$ to obtain permutation $\pi$. Then $\mathrm{LCS}(a,b) = \mathrm{LIS}(\pi)$, connecting string alignment directly to the [Longest Increasing Subsequence](/algorithms/programming/longest-increasing-subsequence) page.
 - **Plagiarism and duplicate detection.** Comparing documents, source files, or product titles is an LCS or an edit distance over tokens, and the same staircase decides which spans match.
+
+<Afterimage
+  object="A prefix grid of two strings with one staircase climbing from the top-left corner to the bottom-right."
+  motion="A diagonal step takes a matching pair, a step down or right skips a character, and the trace follows the highest staircase."
+  invariant="Every staircase spells a common subsequence, so the tallest one is the LCS and the corner cell holds its length."
+  number="4,225 cells, not 2^32 distinct longest common subsequences."
+/>
 
 ## Bit-Parallel Speedups and the SETH Barrier
 

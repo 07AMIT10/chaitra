@@ -7,11 +7,12 @@ reframe: "It is not a blind plunge into the dark. It is a dual-clock crystalliza
 oneLine: "Two time-stamps per vertex, and the way the intervals they bound stand to each other."
 tldr: ["Every vertex gets a discovery time and a finish time; the intervals they bound are either nested or disjoint, never partially overlapping (the parenthesis theorem).", "A digraph has a cycle exactly when the search produces a back edge — an arc to a vertex still open on the stack.", "Reverse the finishing order of a DAG and you have a topological sort; the same times give articulation points and strong components."]
 mathBranches: ["graph-theory", "order-theory", "combinatorics"]
-primitives: ["GraphCanvas", "PredictionPrompt", "SeriesChart"]
+primitives: ["GraphCanvas", "PredictionPrompt", "SeriesChart", "Afterimage"]
 attributions: ["Tarjan 1972", "Hopcroft–Tarjan 1973", "Knuth 1968"]
 relatedTopics: ["pagerank"]
 ---
 
+import Afterimage from "@alg/Afterimage.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -29,7 +30,19 @@ import SeriesChart from "@alg/SeriesChart.tsx";
 
 ## Six Vertices, Two Clocks
 
-Six vertices, nine directed arcs, and a recursion stack that serves as a chronological ledger. Step through the execution below before reading a single formal definition: the log is not a trace of work done, but the construction of a mathematical coordinate system.
+One pass with two clocks per vertex classifies every arc of a digraph, and a single back edge certifies a cycle. Add one low-link number per vertex, and the same ledger finds every strongly connected component in linear time (Tarjan 1972). The same intervals build the dominator tree that optimising compilers use (Lengauer and Tarjan 1979).
+
+Mark vertices visited and keep no leave time, and you have a list in the order you happened to walk it. Shuffle the adjacency lists and the list changes; the graph does not. The panel below runs the ledger on six vertices and nine arcs.
+
+The picture is **the two clocks**: one ticks on entry, one on return, and a vertex's pair of ticks reads as a parenthesis pair — it opens when the vertex is entered and closes when its frame returns.
+
+<PredictionPrompt
+  client:visible
+  question="Exactly one of these four arcs produces a back edge — pointing to an ancestor currently living on the active recursion stack. Which arc is the true cycle-closing back edge?"
+  options={["A → E", "E → A", "C → D", "F → D"]}
+  correct={1}
+  explain="Only E → A points to a vertex still active on the stack. When the search processes E, the stack contains [A, B, D, E], making A an active ancestor of E. Arcs C → D and F → D reach D long after its frame has closed, making them cross edges; A → E is a forward edge to a finished descendant."
+/>
 
 <GraphCanvas
   client:visible
@@ -59,13 +72,7 @@ Six vertices, nine directed arcs, and a recursion stack that serves as a chronol
   ]}
 />
 
-<PredictionPrompt
-  client:visible
-  question="Exactly one of these four arcs produces a back edge — pointing to an ancestor currently living on the active recursion stack. Which arc is the true cycle-closing back edge?"
-  options={["A → E", "E → A", "C → D", "F → D"]}
-  correct={1}
-  explain="Only E → A points to a vertex still active on the stack. When the search processes E, the stack contains [A, B, D, E], making A an active ancestor of E. Arcs C → D and F → D reach D long after its frame has closed, making them cross edges; A → E is a forward edge to a finished descendant."
-/>
+Watch B and C, not the drawn arcs: siblings get disjoint intervals, while a back edge points at an ancestor that is still open on the stack.
 
 ## Beyond the Cursor's Trail
 
@@ -190,6 +197,13 @@ Reversing the exit times $E, D, B, C, A$ yields the topological order $A, C, B, 
 Define $low[w]$ as the minimum discovery time reachable from $w$'s subtree via at most one non-tree arc. This single metric enables Tarjan's linear-time algorithms for cut-vertices and biconnectivity (Hopcroft and Tarjan 1973).
 
 The same timestamps identify Strongly Connected Components (SCCs) in a single $O(V + E)$ pass (Tarjan 1972). Modern optimizing compilers build dominator trees on control-flow graphs using this identical interval geometry (Lengauer and Tarjan 1979).
+
+<Afterimage
+  object="Six vertices, each with two ticks, laid out as brackets on one clock."
+  motion="The clock advances on every entry and every return, so the brackets close in the reverse order they opened."
+  invariant="The intervals are nested or disjoint and never partly overlap, so one ledger classifies every arc and certifies acyclicity; one low-link number adds components."
+  number="12 timestamps for 6 vertices: two clocks each, one back edge."
+/>
 
 ## Attributions
 

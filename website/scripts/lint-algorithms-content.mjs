@@ -42,7 +42,13 @@ const REQUIRED_FIELDS = [
  * standalone markup and need no hydration. Everything else imported through the
  * `@alg/*` alias must carry an explicit Astro client directive.
  */
-export const STATIC_PRIMITIVES = new Set(["SeriesChart", "GrowthTable", "PrimitiveShell"]);
+export const STATIC_PRIMITIVES = new Set([
+  "SeriesChart",
+  "GrowthTable",
+  "PrimitiveShell",
+  "Afterimage",
+  "MentalImage",
+]);
 
 const CLIENT_DIRECTIVE_RE = /(?:^|\s)client:(visible|load|idle|only)(?=[\s/>=]|$)/;
 

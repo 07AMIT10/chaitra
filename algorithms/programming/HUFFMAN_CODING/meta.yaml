@@ -11,6 +11,6 @@ tldr:
   - "The one-bit gap is a worst case, not the rule. On the board's six weights H = 2.2037 and L* = 2.25, a gap of 0.05 bits; a two-symbol 0.99/0.01 source has H = 0.0808 against L = 1, a gap of 0.92."
   - "Prefix-free is the whole requirement: no code word is a prefix of another, so the bit string decodes with no delimiters. Symbols sit at the leaves of the tree and that leaf placement is exactly what makes the property hold."
 mathBranches: [information-theory, combinatorics, optimization]
-primitives: [HuffmanMerge, SeriesChart, PredictionPrompt]
+primitives: [HuffmanMerge, SeriesChart, PredictionPrompt, Afterimage]
 attributions: ["Shannon 1948", "Kraft 1949", "Fano 1949", "Huffman 1952", "McMillan 1956", "Gallager 1978", "Rissanen 1976", "Larmore–Hirschberg 1990"]
 relatedTopics: [information-theory]

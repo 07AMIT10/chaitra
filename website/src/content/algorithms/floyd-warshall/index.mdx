@@ -7,7 +7,7 @@ reframe: "It is not a road-trip calculator. It is a universal matrix inversion e
 oneLine: "One triple loop, four arithmetics, four different answers from the same grid."
 tldr: ["The four-line triple loop uses only ⊕, ⊗, 0 and 1; the semiring axioms are its entire hypothesis.", "Swap the semiring and the same grid reads as cheapest routes, route counts, reachability, or longest routes.", "The in-place update is exact when ⊕ is idempotent, so addition — the one non-idempotent choice — is the panel that over-counts.", "The closure is a matrix inverse in a semiring: A* = I + A + A² + ⋯ = (I − A)⁻¹ when the series converges."]
 mathBranches: ["algebra", "order-theory", "combinatorics"]
-primitives: ["SemiringMatrix", "PredictionPrompt", "SeriesChart"]
+primitives: ["Afterimage", "SemiringMatrix", "PredictionPrompt", "SeriesChart"]
 attributions: ["Floyd 1962", "Warshall 1962", "Kleene 1951", "Lehmann 1977"]
 relatedTopics: ["pagerank", "gossip-protocols"]
 ---
@@ -15,6 +15,7 @@ relatedTopics: ["pagerank", "gossip-protocols"]
 import SemiringMatrix from "@alg/SemiringMatrix.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contracts used here, matched to website/src/components/algorithms/.
@@ -27,7 +28,9 @@ import SeriesChart from "@alg/SeriesChart.tsx";
 
 ## Four Lines, Four Universes
 
-Four towns, five one-way roads, and a tiny grid of numbers. Under standard arithmetic, cell A→D is a distance. Alter two algebraic definitions, and the exact same numbers answer four unrelated branches of computer science.
+A thousand towns put $10^9$ updates inside one triple loop. The same loop answers four different problems, and only the arithmetic changes: $(\min,+)$, $(+,\times)$, $(\mathrm{OR},\mathrm{AND})$, $(\max,+)$.
+
+Here the board is smaller: four towns, five one-way roads, and a tiny grid of numbers. Under standard arithmetic, cell A→D is a distance. Alter two algebraic definitions, and the exact same numbers answer four unrelated branches of computer science.
 
 ```
 A --1--> B --1--> D
@@ -48,6 +51,8 @@ The roads form a matrix $R$, where $R[i][j]$ is the cost of traveling directly f
 ```
 
 That grid is the entire input. Focus on cell A→D and consider what value belongs there.
+
+The picture is **the sequence of lenses**: each round lets paths pass through one more vertex, and every lens either takes the new hub or bypasses it.
 
 <PredictionPrompt
   client:visible
@@ -143,6 +148,8 @@ The four-line loop is simply Gaussian elimination computing a matrix inverse in 
 
 Below is your grid. Start in $(\min,+)$ and drag the $k$ slider from 0 to 4. The same four lines run over the same numbers, updating rows and columns through intermediate vertex $k$.
 
+Watch cell A→D through the lenses in $(\min,+)$ as you drag $k$ from 0 upward: exactly one off-diagonal cell changes, and under $(+,\times)$ that same cell counts routes.
+
 <SemiringMatrix
   client:visible
   matrix={[[null,1,1,null],[null,null,1,1],[null,null,null,1],[null,null,null,null]]}
@@ -180,6 +187,13 @@ Switch to $(\max,+)$ and drag the slider again. Round 2 sets A→D = 2, but roun
 **Capacity and bottleneck.** The bottleneck algebra $(\max,\min)$ maximizes the minimal edge capacity along a route. This computes maximum-bandwidth paths across communication backbones.
 
 **Counting.** $(+,\times)$ counts walks. While counting walks in a graph with cycles is polynomial, counting *simple* paths without repeated vertices is #P-complete (Valiant 1979).
+
+<Afterimage
+  object="One 4×4 grid and a slider that admits vertices one at a time."
+  motion="Round k lets every route pass through vertex k, then keeps the cheaper of detour and bypass."
+  invariant="After round k no route needs a hub outside the first k vertices, so after n rounds nothing is left to improve."
+  number="10^9 updates at n = 1,000, four arithmetics from one loop."
+/>
 
 ## The Boundary of Convergence: When the Star Diverges
 
