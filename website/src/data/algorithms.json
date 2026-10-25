@@ -7,7 +7,7 @@
       "fieldLabel": "Programming",
       "title": "0/1 Knapsack",
       "reframe": "Pack a mountaineer's rucksack for a deadly ascent. Greedy heuristics chase density and starve on dead weight; the true optimum is a ghost threading a lattice DAG, leaving an insurmountable integrality gap between continuous relaxations and indivisible cargo.",
-      "oneLine": "Three items, a ten-kilogram pack, and a table whose bottom-right cell is the answer.",
+      "oneLine": "Greedy density starves at 42 while fractional promises 66: how a lattice DAG captures the true 58-value pack.",
       "tldr": [
         "The state is a cell (i, c): the best value from the first i items inside capacity c. The recurrence is V(i,c) = max(V(i−1,c), vᵢ + V(i−1, c−wᵢ)), and the cell grid is a DAG whose longest path is the optimum.",
         "Value-per-kilogram greedy takes the tent and stops at 42; the optimum takes the stove and the food for 58. Greedy solves the fractional relaxation instead, whose optimum here is 66 — an integrality gap of 8.",
@@ -20,6 +20,12 @@
         "complexity"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "Afterimage",
         "DPHeatmap",
         "PredictionPrompt",
@@ -45,7 +51,7 @@
       "fieldLabel": "Programming",
       "title": "Bellman–Ford",
       "reframe": "It is not a slower Dijkstra for broken edges. It is a deflationary gravity: a monotone operator pressing down on every road simultaneously until distances freeze into their least fixed point—or spiral endlessly into a negative abyss.",
-      "oneLine": "Relax every edge in rounds; stop when nothing improves.",
+      "oneLine": "Dijkstra freezes T at 12; relax all edges across 4 rounds to uncover the -11 siphon.",
       "tldr": [
         "The state is one distance vector; a round applies the relaxation operator to every edge at once.",
         "The operator is monotone and deflationary, so n−1 rounds reach the fixed point of the Bellman equation.",
@@ -58,6 +64,12 @@
         "fixed-point-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "Afterimage",
         "GraphCanvas",
         "SemiringMatrix",
@@ -82,7 +94,7 @@
       "fieldLabel": "Programming",
       "title": "Binary Search",
       "reframe": "To search a billion records, a linear scan must traverse the continent of data footprint by footprint. Binary search cuts the entire continent in half thirty times. In thirty questions, a search space larger than humanity collapses to a single atom.",
-      "oneLine": "Halve the interval that still contains the answer, one comparison at a time.",
+      "oneLine": "Scan 10^18 records for 31.7 years, or split the sorted horizon in 60 comparisons flat.",
       "tldr": [
         "The state is an interval that always contains the answer; every comparison deletes at least half of what is left.",
         "T(n) = T(n/2) + 1 solves to floor(log2 n) + 1, which is ceil(log2(n+1)) — the logarithm derived, not assumed.",
@@ -95,6 +107,12 @@
         "order-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "RecursionTree",
         "GrowthTable",
         "SeriesChart",
@@ -122,7 +140,7 @@
       "fieldLabel": "Programming",
       "title": "Bipartite Matching",
       "reframe": "Tether two disjoint universes through a web of fragile handshakes. Eager pairings leave orphaned nodes in the cold; true optimality surges through alternating paths of swapped commitments, pinned between Hall's suffocating neighborhood trap and König's impenetrable vertex shield.",
-      "oneLine": "Four applicants, four placements, six acceptable pairs, and a ceiling of three.",
+      "oneLine": "Greedy pairing strands Ben and locks only two bays: how alternating resignation chains achieve the maximum of three.",
       "tldr": [
         "A matching is a set of edges with no shared endpoints; greedy first-available pairing can strand a vertex that an augmenting path would have saved.",
         "Hall's condition (Hall 1935) certifies impossibility from the left: the pair {Cara, Dan} shares a single neighbour, so no matching covers all four applicants.",
@@ -135,6 +153,12 @@
         "optimization"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "MatchingBoard",
         "PredictionPrompt",
         "LPDualityDashboard",
@@ -159,7 +183,7 @@
       "fieldLabel": "Programming",
       "title": "Breadth-First Search",
       "reframe": "It is not a graph traversal. It is an unweighted shockwave detonating from a single spark: expanding in concentric spheres of integer distance, carving out the exact geodesic metric of the graph one frontier at a time.",
-      "oneLine": "One source, one queue, and the distance of every vertex — a level at a time.",
+      "oneLine": "DFS circles the rim in 4 hops; expand in concentric ripples to hit the 3-hop chord.",
       "tldr": [
         "The output is a level function: the least fixed point of d(v) = 1 + min d(u) over neighbours — distance in the unweighted metric.",
         "A plain queue is enough because the frontier stays sorted by distance and never spans more than two adjacent levels.",
@@ -171,6 +195,12 @@
         "combinatorics"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "GraphCanvas",
         "PredictionPrompt",
         "SeriesChart",
@@ -198,7 +228,7 @@
       "fieldLabel": "Programming",
       "title": "Coin Change",
       "reframe": "The cashier's reflex to grab the largest coin is an arithmetic trap. Minimum coin change is a shortest path through a discrete lattice of debt, and greedy choices tumble into disaster the instant a currency ceases to be canonical.",
-      "oneLine": "The fewest coins that sum to an amount, and the exact condition under which the largest-first rule finds them.",
+      "oneLine": "Greedy burns three coins (4+1+1) where two (3+3) settle the debt: how shortest paths solve non-canonical change.",
       "tldr": [
         "Every cell of the table is a shortest-path distance on the amounts 0 to the amount, where each coin is an edge of weight one.",
         "Greedy spends 4 + 1 + 1 on 6 with coins 1, 3 and 4; the true minimum is 3 + 3, and the table's corner reads 2.",
@@ -211,6 +241,12 @@
         "complexity-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "DPHeatmap",
         "PredictionPrompt",
         "SeriesChart",
@@ -235,7 +271,7 @@
       "fieldLabel": "Programming",
       "title": "Depth-First Search",
       "reframe": "It is not a blind plunge into the dark. It is a dual-clock crystallization: each vertex is entered with a timestamp and exited with an epitaph, freezing the chaos of a graph into a laminar geometry of perfectly nested time intervals.",
-      "oneLine": "Two time-stamps per vertex, and the way the intervals they bound stand to each other.",
+      "oneLine": "Visited flags blur ancestry; log 12 timestamps across 6 vertices to catch the single back edge.",
       "tldr": [
         "Every vertex gets a discovery time and a finish time; the intervals they bound are either nested or disjoint, never partially overlapping (the parenthesis theorem).",
         "A digraph has a cycle exactly when the search produces a back edge — an arc to a vertex still open on the stack.",
@@ -247,6 +283,12 @@
         "combinatorics"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "GraphCanvas",
         "PredictionPrompt",
         "SeriesChart",
@@ -270,7 +312,7 @@
       "fieldLabel": "Programming",
       "title": "Dijkstra's Algorithm",
       "reframe": "It is not a search for a path. It is a wave of light radiating through glass of different thicknesses: the moment a town is touched, its distance is carved in stone forever, because light cannot travel backward in time.",
-      "oneLine": "One source, one frontier, labels that only fall.",
+      "oneLine": "Linear scans probe 58 days across 10^8 towns; pull the least label from a heap with zero regrets.",
       "tldr": [
         "The state is a vector of over-estimates plus a settled set; relaxation only lowers a label.",
         "Greedy is exact because weights are non-negative: once the least label is settled, no later walk can undercut it.",
@@ -283,6 +325,12 @@
         "optimization"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "GraphCanvas",
         "SemiringMatrix",
         "SeriesChart",
@@ -308,7 +356,7 @@
       "fieldLabel": "Programming",
       "title": "Edit Distance",
       "reframe": "Every word is a coordinate in an infinite space of strings. Insert, delete, and mutate are unit vectors across its grid; edit distance is the exact geodesic, carving the shortest trek through a lattice of prefixes.",
-      "oneLine": "The fewest insertions, deletions and substitutions that turn one string into another.",
+      "oneLine": "A single shifted byte shows 8 false mismatches; tile the prefix grid to find the true distance of 2.",
       "tldr": [
         "Every cell of the table is a shortest-path distance in the graph of strings, and hovering it lights the three edges that reach it.",
         "With insert and delete only, the distance collapses to the identity m + n − 2·LCS.",
@@ -320,6 +368,12 @@
         "combinatorics"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "Afterimage",
         "DPHeatmap",
         "PredictionPrompt",
@@ -344,7 +398,7 @@
       "fieldLabel": "Programming",
       "title": "Fixed-Point Iteration",
       "reframe": "Take any crumpled map and toss it onto the floor: exactly one point rests directly above the coordinate it represents. A contraction mapping folds an entire metric space inward, reeling every starting guess into an inescapable attractor at rate qⁿ.",
-      "oneLine": "Repeat x = cos x from any start and watch the cobweb spiral into the Dottie number.",
+      "oneLine": "At q=0.9999 one digit costs 23,025 steps; at q=0.6736 it takes 5.8: how the cobweb spiral converges to a fixed point.",
       "tldr": [
         "A map that shrinks every distance by a fixed factor q < 1 has exactly one fixed point, and plain iteration reaches it (Banach 1922).",
         "The error halves geometrically: the panel's ratio column settles on q = 0.6736 for x = cos x, and the chart below plots the honest decay.",
@@ -357,6 +411,12 @@
         "geometry"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "IterationLab",
         "PredictionPrompt",
         "SeriesChart",
@@ -380,7 +440,7 @@
       "fieldLabel": "Programming",
       "title": "Floyd–Warshall",
       "reframe": "It is not a road-trip calculator. It is a universal matrix inversion engine: swap out two algebraic symbols, and the exact same four-line loop morphs from pricing shortest paths into counting quantum walks, proving reachability, or decoding hidden Markov trellises.",
-      "oneLine": "One triple loop, four arithmetics, four different answers from the same grid.",
+      "oneLine": "Four lines and 10^9 updates solve all-pairs distances for 1,000 towns: how three nested loops sweep a network.",
       "tldr": [
         "The four-line triple loop uses only ⊕, ⊗, 0 and 1; the semiring axioms are its entire hypothesis.",
         "Swap the semiring and the same grid reads as cheapest routes, route counts, reachability, or longest routes.",
@@ -393,6 +453,12 @@
         "combinatorics"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "Afterimage",
         "SemiringMatrix",
         "PredictionPrompt",
@@ -418,7 +484,7 @@
       "fieldLabel": "Programming",
       "title": "Huffman Coding",
       "reframe": "Flip the message upside down. Pair the two rarest whispers in an alphabet, fuse them into a single stem, and climb upward until the entire language hangs from one root—its average cost pinioned within a single bit of Shannon's thermodynamic limit.",
-      "oneLine": "Merge the two lightest roots; the accumulated cost is the average code length, and it lands within one bit of the entropy.",
+      "oneLine": "An early merge levies 0.20 bits/symbol forever; graft the two lightest to save 125 MB per billion.",
       "tldr": [
         "Every merge adds the two merged weights to a running total, so when a single tree remains that total equals the average code length sum of p_i times l_i. The panel accumulates it as you merge and shows it against H.",
         "The two lightest roots are siblings in some optimal tree, by an exchange argument (Huffman 1952). Merge any heavier pair first and the axis prices the mistake in bits.",
@@ -432,6 +498,12 @@
         "optimization"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "HuffmanMerge",
         "SeriesChart",
         "PredictionPrompt",
@@ -460,7 +532,7 @@
       "fieldLabel": "Programming",
       "title": "Karatsuba Multiplication",
       "reframe": "In 1960, Kolmogorov conjectured that multiplying two n-digit numbers fundamentally requires n² operations. Within a week, a 23-year-old student proved him wrong with three products instead of four: a single algebraic subtraction that cracked open the sub-quadratic universe.",
-      "oneLine": "One product saved at each split, recursed into the exponent n^log₂3.",
+      "oneLine": "At 2^20 digits, 4^20=1.1×10^12 products drops to 3^20=3.49×10^9: how three multiplications beat four.",
       "tldr": [
         "Splitting an n-digit number in half turns four products into three: T(n) = 3T(n/2) + Θ(n), which solves to Θ(n^log₂3) ≈ Θ(n^1.585) against schoolbook's Θ(n²).",
         "The saving is one rank: the two-block product is a rank-4 bilinear map, and Karatsuba is a rank-3 decomposition — the move Strassen makes with two indices instead of one.",
@@ -474,6 +546,12 @@
         "information-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "RecursionTree",
         "GrowthTable",
         "PredictionPrompt",
@@ -498,7 +576,7 @@
       "fieldLabel": "Programming",
       "title": "Longest Common Subsequence",
       "reframe": "Lay two strings along the axes of a plane and watch their shared letters ignite into a constellation of points. The longest common subsequence is the maximal chain climbing through this poset—the highest monotone ridge connecting two divergent texts.",
-      "oneLine": "The longest word that appears, in order, inside both strings.",
+      "oneLine": "4,225 cells replace 2^32 brute-force candidates: how git diff extracts identical lines from diverging files.",
       "tldr": [
         "A common subsequence is a chain in the product order on the matching cells (i, j) with a[i] = b[j]; the DP table writes the height of each rectangle into its corner.",
         "With insert and delete only, the distance between the strings is exactly m + n − 2·LCS — the cost of the cheapest monotone staircase through the grid.",
@@ -511,6 +589,12 @@
         "algorithms"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "Afterimage",
         "DPHeatmap",
         "PredictionPrompt",
@@ -532,7 +616,7 @@
       "fieldLabel": "Programming",
       "title": "Longest Increasing Subsequence",
       "reframe": "Deal a shuffled deck into solitaire piles: each card must sit on a strictly larger predecessor, or start a new pile to the right. The moment the deck runs out, the count of piles is no mere card trick—it is the height of a hidden poset, locked in perfect duality with the longest ascending path through the chaos.",
-      "oneLine": "The height of the order on the points (i, pᵢ), and the fewest antichains that cover them.",
+      "oneLine": "1.66M comparisons beat 10^30103 brute-force paths: how patience sorting extracts the longest ascending run.",
       "tldr": [
         "The state is a partial order on the points (i, pᵢ): comparable means the index and the value both grow. An increasing subsequence is a chain; a non-increasing one is an antichain.",
         "Mirsky 1971: the height equals the fewest antichains that cover the poset. Patience sorting builds that cover, so the pile count is the LIS — and the pile tops stay sorted, so each card costs one binary search.",
@@ -545,6 +629,12 @@
         "algorithms"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "Afterimage",
         "ChainAntichain",
         "DPHeatmap",
@@ -568,7 +658,7 @@
       "fieldLabel": "Programming",
       "title": "Maximum Flow",
       "reframe": "Pump fluid through a pipe network until the seams burst. The instant the flow chokes, the network reveals an invisible geometric fault-line: a razor-thin cut across the world where every single pipe is gorged to capacity.",
-      "oneLine": "Seven pipes, five junctions, and the cut that certifies the answer.",
+      "oneLine": "Greedy routing chokes on saturated pipes; push residual flow to close the duality gap from 8 to 0.",
       "tldr": [
         "The state is a feasible flow, and the maximum flow is the optimum of a linear program whose constraints are one row per junction.",
         "The dual of that program is a cut, so every flow value is at most every cut capacity at every single step — weak duality, visible as a gap card that can never go negative.",
@@ -581,6 +671,12 @@
         "graph-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "LPDualityDashboard",
         "PredictionPrompt",
         "SeriesChart",
@@ -604,7 +700,7 @@
       "fieldLabel": "Programming",
       "title": "Merge Sort",
       "reframe": "Sorting unordered chaos appears to require combinatorial omniscience. In 1945, John von Neumann proved it requires only a two-finger zipper: split the universe down to isolated atoms, then weave them back together one comparison at a time.",
-      "oneLine": "Every sort is a merge; every merge is one linear pass over two chains.",
+      "oneLine": "Scanning 10^9 keys takes 15.8 years; von Neumann's two-finger merge does it in 28.9 seconds with n log n passes.",
       "tldr": [
         "Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does.",
         "The recurrence T(n) = 2T(n/2) + Θ(n) sums to Θ(n log n): each of the log n levels touches every key exactly once.",
@@ -618,6 +714,12 @@
         "order-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "RecursionTree",
         "SeriesChart",
         "PredictionPrompt",
@@ -644,7 +746,7 @@
       "fieldLabel": "Programming",
       "title": "Minimum Spanning Tree",
       "reframe": "It is not a cautious hoarder picking cheap twigs. It is the geometric miracle of a matroid: short-sighted, local greed is mathematically guaranteed to carve out the globally optimal skeleton without a single step of regret.",
-      "oneLine": "One weighted graph, two greedy orders, one forced total — and the axiom that makes greedy provably right.",
+      "oneLine": "Cayley counts 10^196 spanning trees for 100 cities; Kruskal finds the cheapest in 60,700 comparisons without regret.",
       "tldr": [
         "A spanning tree is a basis of the graphic matroid; a minimum spanning tree is a minimum-weight basis.",
         "The cut property and the cycle property are the two faces of Whitney's exchange axiom, and each one proves greedy exact.",
@@ -657,6 +759,12 @@
         "graph-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "Afterimage",
         "GraphCanvas",
         "MentalImage",
@@ -683,7 +791,7 @@
       "fieldLabel": "Programming",
       "title": "Newton's Method",
       "reframe": "Standard algorithms crawl toward truth one digit at a time. Newton's method rides a tangent line straight down to the coordinate axis: once inside the basin of attraction, every single step squares the error, doubling the count of correct decimal digits in a blinding geometric flash.",
-      "oneLine": "Take the tangent at the current guess, read where it crosses the axis, and watch the correct digits double.",
+      "oneLine": "Bisection takes 3,322 steps for 1,000 digits; shoot the tangent line to double precision in 11.",
       "tldr": [
         "The step is one tangent line. Replace f by its tangent at (xₙ, f(xₙ)) and set the next guess where that line hits the axis; the panel draws exactly that segment from guess to axis.",
         "A Taylor expansion at a simple root gives eₙ₊₁ = |f″(x*)/2f′(x*)|·eₙ², so the order is 2. At √2 with f(x) = x² − 2 the constant is 1/(2√2) = 0.3536, the number the panel's ratio column settles on.",
@@ -697,6 +805,12 @@
         "geometry"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "IterationLab",
         "GrowthTable",
         "PredictionPrompt",
@@ -725,7 +839,7 @@
       "fieldLabel": "Programming",
       "title": "Quicksort",
       "reframe": "Quicksort is not partitioning numbers on a chalkboard. It is a random binary search tree materialising in memory out of pure probability: every comparison creates an edge, and the execution time is the summed depth of that living tree.",
-      "oneLine": "Every comparison is an edge in a tree; the bill is the tree's depth, summed.",
+      "oneLine": "A naive pivot burns 5×10^9 comparisons on sorted input; partition around pivots to sort in 2M steps.",
       "tldr": [
         "The pivot sequence is a binary search tree — the one built by inserting the keys in input order — and the comparison count is its internal path length.",
         "Linearity of expectation over the pair indicators gives the exact average E[C] = 2(n+1)H_n − 4n ≈ 1.39 n log₂ n; the constant is 2 ln 2.",
@@ -738,6 +852,12 @@
         "analysis"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "RecursionTree",
         "SeriesChart",
         "PredictionPrompt",
@@ -764,7 +884,7 @@
       "fieldLabel": "Programming",
       "title": "Stable Matching",
       "reframe": "Pair two warring camps where every individual harbours private desires and fierce rankings. What prevents revolt is not goodwill, but the cold geometry of deferred acceptance: an unshakeable equilibrium where no clandestine pair in the room would rather elope together than stay with their assigned partners.",
-      "oneLine": "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes.",
+      "oneLine": "Greedy pairings collapse to rogue defectors; deferred acceptance settles in 4 rounds with 0 blocking pairs.",
       "tldr": [
         "Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted.",
         "It stops with no blocking pair: a left–right pair who both rank the other above the partner they were assigned. The board checks every pair and prints that count as zero (Gale–Shapley 1962).",
@@ -778,6 +898,12 @@
         "order-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "MatchingBoard",
         "PredictionPrompt",
         "Afterimage"
@@ -803,7 +929,7 @@
       "fieldLabel": "Programming",
       "title": "Strassen's Algorithm",
       "reframe": "For centuries, multiplying four numbers in a square demanded eight multiplications — treated as an immutable law of arithmetic. Strassen discovered that eight is a lie: seven is enough. That single missing product permanently broke the cubic wall of linear algebra.",
-      "oneLine": "Seven products where the textbook needs eight, applied to half-size blocks over and over.",
+      "oneLine": "At n=2^30, 1.24×10^27 products drops to 2.25×10^25: how seven products broke the cubic wall of linear algebra.",
       "tldr": [
         "Matrix multiplication is a bilinear map; the fewest scalar products that compute it is the rank of its tensor, and the textbook algorithm is an 8-term decomposition.",
         "Strassen gave a 7-term one for 2×2 blocks, and Winograd proved seven is the least possible, so that rank is exactly 7 — you cannot do better at size 2.",
@@ -816,6 +942,12 @@
         "complexity-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "RecursionTree",
         "GrowthTable",
         "PredictionPrompt",
@@ -840,7 +972,7 @@
       "fieldLabel": "Programming",
       "title": "Topological Sort",
       "reframe": "Thread an arrow of time through a tangled web of dependencies so that no consequence ever precedes its cause. The instant a circular dependency creeps in, causality fractures—revealing that sorting a DAG is the act of choosing one linear reality among an astronomical sea of valid futures.",
-      "oneLine": "Flatten a dependency DAG into a queue order, and see the orders you did not choose.",
+      "oneLine": "Only 5 of 720 execution orders prevent catastrophic engine stall: how Kahn's queue peels a DAG into a schedule.",
       "tldr": [
         "Reachability is a preorder; quotient it by mutual reachability and you get the poset you are really sorting.",
         "A topological order is a linear extension — one total order that never contradicts a prerequisite.",
@@ -852,6 +984,12 @@
         "graph-theory"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "Afterimage",
         "GraphCanvas",
         "MentalImage",
@@ -879,7 +1017,7 @@
       "fieldLabel": "Programming",
       "title": "Union–Find",
       "reframe": "Begin with a universe of isolated atoms. Every merge is an irreversible climb up a crystal mountain that can never be descended. By the summit, the cost of each step is governed by the slowest-growing function in human mathematics.",
-      "oneLine": "Two operations on the partitions of a finite set.",
+      "oneLine": "Rewrite every block label in 31.7 years, or climb the partition lattice in 4 seconds with the Ackermann bound.",
       "tldr": [
         "The state is a partition; union is the join in the partition lattice.",
         "A non-negative potential turns amortised cost into a balance you cannot overdraw.",
@@ -891,6 +1029,12 @@
         "analysis"
       ],
       "primitives": [
+        "Transmission",
+        "MissionCard",
+        "ChapterMark",
+        "NextUp",
+        "NextMission",
+        "MissionScore",
         "LatticeClimb",
         "PotentialBank",
         "GrowthTable",

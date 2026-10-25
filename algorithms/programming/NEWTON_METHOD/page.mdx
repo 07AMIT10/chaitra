@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 import IterationLab from "@alg/IterationLab.tsx";
 import GrowthTable from "@alg/GrowthTable.tsx";
@@ -14,7 +20,30 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   and the step counts at the stated starting point.
 */}
 
+{/* Scenario mapping for newton-method */}
+<Transmission from="Ship System" code="NAV-TLM 02">
+Orbital insertion thruster requires precision alignment to one thousand decimal digits.
+Binary bisection is stepping linearly, logging three thousand three hundred iterations on telemetry.
+The tangent line projection squares the residual error on every firing cycle.
+Can eleven Newton steps lock orbital trajectory before the thruster runs dry?
+</Transmission>
+
+<MissionCard
+  number="06"
+  objective="Harness the tangent line operator to double precision digits on every iteration and reach one thousand digits in eleven steps."
+  steps={[
+    "Step the tangent projection to watch residual errors square",
+    "Compare the quadratic doubling rate against linear bisection",
+    "Drive the iterate near inflection points to witness flat-slope divergence"
+  ]}
+  minutes={8}
+  bailout="The IterationLab interactive panel in §1"
+  after="You can solve non-linear roots and compute fast reciprocal square roots with quadratic convergence."
+/>
+
+
 ## The tangent line that doubles your digits
+<ChapterMark minutes={3} tag="the hook" />
 
 Eleven Newton steps reach 1,000 correct digits. Bisection needs 3,322 steps. A contraction with $q = 0.9999$ needs 23,025 steps per digit, so the derivative is what buys the doubling.
 
@@ -45,13 +74,21 @@ Before you touch the transport, commit to a prediction below.
 
 Press step once and watch the columns update. The `e_n` column tracks distance to the true root $\sqrt{2}$; the ratio column divides the new error by the square of the previous error. Watch that ratio: it should settle near 0.3536 for $\sqrt{2}$, while a linear method's ratio would settle near a constant.
 
+<NextUp text="Why does bisection require thousands of steps where the tangent line takes eleven?" />
+
+
 ## The algebraic recipe versus the geometric truth
+<ChapterMark minutes={2} tag="the trap" />
 
 Textbooks often introduce root-finding as an imperative loop: compute $x_{n+1} = x_n - f(x_n)/f'(x_n)$ until $|f(x_n)| < \varepsilon$.
 
 That algebraic formula tells you what to calculate, but obscures what the step actually is. Treating the update as a formula hides both why it converges so furiously and why it can violently diverge.
 
+<NextUp text="How does the derivative construct a local linear model of the target function?" />
+
+
 ## The Newton map and its superattracting fixed points
+<ChapterMark minutes={2} tag="the invariant" />
 
 Construct the tangent line to $f(x)$ at the current point $(x_n, f(x_n))$:
 
@@ -71,7 +108,11 @@ $$
 
 At any simple root $f(x^*) = 0$ with $f'(x^*) \neq 0$, the derivative vanishes: $N'(x^*) = 0$. In dynamical systems, a fixed point with zero derivative is **superattracting**: iterates do not merely approach the root, they are sucked in with quadratic velocity (Fatou 1918, Julia 1918).
 
+<NextUp text="What superattracting fixed point causes digits of precision to double every step?" />
+
+
 ## Quadratic convergence: why digits double at every step
+<ChapterMark minutes={2} tag="the algebra" />
 
 Let $x^*$ be a simple root and define error $e_n = x_n - x^*$. Expanding $f(x)$ and $f'(x)$ in Taylor series around $x^*$:
 
@@ -89,6 +130,7 @@ The subsequent error is proportional to the *square* of the previous error. For 
 
 This squaring means precision compounds exponentially: 2 correct digits become 4, then 8, 16, 32, and 64.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Wallis's polynomial f(x) = x³ - 2x - 5 has its real root near x ≈ 2.0946. If you start Newton's method at x₀ = 0.82 (where f'(0.82) = 0.0172), what happens on step 1?"
@@ -101,7 +143,11 @@ This squaring means precision compounds exponentially: 2 correct digits become 4
   explain="The Newton step is Δx = -f(x)/f'(x). When the derivative f'(x₀) is nearly zero (0.0172), dividing by this tiny slope creates a catastrophic step: -(-6.0886)/0.0172 ≈ 354. The tangent line is nearly horizontal, sending the iterate hurtling hundreds of units away from the true root!"
 />
 
+<NextUp text="What happens when the iterate wanders near a local extremum with zero derivative?" />
+
+
 ## Driving the lab: tangents, secants, and the abyss of flat slopes
+<ChapterMark minutes={2} tag="the simulation" />
 
 Switch the interactive lab to Bisection. The geometry shifts from dynamic tangent projections to shrinking brackets, with the error ratio locked at $0.5$. Bisection provides order $p = 1$: safe and guaranteed, but linearly plodding.
 
@@ -125,7 +171,11 @@ Switch to $x^3 - 2x - 5$ and drag the starting point near $0.8165$, where $f'(x)
 
 Advancing from 8-bit precision to 256-bit precision scales accuracy by $2^{32}$, yet demands only five additional iterations. The computational cost is logarithmic in the number of accurate bits.
 
+<NextUp text="How does Newton's iteration accelerate square roots in 3D graphics hardware?" />
+
+
 ## The engine of numerical computing: from fast inverse square roots to ML
+<ChapterMark minutes={2} tag="systems" />
 
 Newton's method forms the bedrock of modern numerical algorithms:
 
@@ -133,12 +183,21 @@ Newton's method forms the bedrock of modern numerical algorithms:
 - **Multivariate optimization.** In machine learning and scientific computing, finding extrema of loss functions solves $\nabla f(x) = 0$ using Newton-Raphson, stepping along $H^{-1}\nabla f$ with the Hessian matrix.
 - **Hybrid root solvers.** Production libraries run Brent's method (Brent 1973), which combines the guaranteed convergence of bisection with the superlinear speed of secant and inverse quadratic interpolation.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The tangent line at the current guess, meeting the axis one step closer to the root."
   motion="Each step replaces the curve with that line and reads a new guess at its crossing."
   invariant="At a simple root the Newton map has derivative zero, so the error is squared rather than merely shrunk."
   number="11 steps to 1,000 digits, against 3,322 bisections."
 />
+
+<NextMission
+  href="/algorithms/programming/huffman-coding/"
+  title="Huffman Coding"
+  teaser="An early merge levies 0.20 bits/symbol forever; graft the two lightest to save 125 MB per billion."
+/>
+
 
 ## The fractal frontier: Cayley's problem and Julia sets
 

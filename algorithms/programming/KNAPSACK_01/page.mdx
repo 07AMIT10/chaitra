@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -14,7 +20,35 @@ import Afterimage from "@alg/Afterimage.tsx";
   instance stated, not a measurement.
 */}
 
+{/* Scenario mapping:
+  - 10 kg harness shear limit = knapsack capacity W = 10.
+  - Density gauge grabbing shelter (7 kg, value 42) = greedy ratio heuristic trapping state at 42.
+  - Indivisible survival modules = binary 0/1 restriction x_i in {0, 1}.
+  - Fractional promise 66 vs discrete 58 = Dantzig integrality gap of 8.
+*/}
+<Transmission from="Field Log" code="EXPEDITION-LOG // ASCENT-DAY 4">
+  Summit rucksack has a ten-kilogram structural ceiling before the harness shears.
+  The density gauge grabbed the highest-density shelter at seven kilograms and stalled at value 42, leaving three kilograms of dead air.
+  The fractional relaxation promises 66, but these three survival modules cannot be sawn in half.
+  Can you navigate the capacity lattice to lock in the true 58-value gear loadout?
+</Transmission>
+
+<MissionCard
+  number="15"
+  minutes={8}
+  objective="Pack a payload under a hard weight ceiling to beat greedy density heuristics and close the integrality gap."
+  steps={[
+    "Compare the greedy density pick (42) against the fractional ceiling (66) on a 10 kg limit",
+    "Trace the DPHeatmap lattice to discover the 58-value integer optimum",
+    "Take the boss round bet on how scaling values converts exponential DP into a polynomial FPTAS",
+  ]}
+  bailout="Check the final cell of the DPHeatmap to compare the 58-value combo (Stove + Food) with greedy's 42."
+  after="You will navigate the boundary between polynomial pseudotime, weak NP-hardness, and approximation schemes."
+/>
+
+
 ## The Mountaineer's Dilemma
+<ChapterMark minutes={3} tag="the hook" />
 
 A mountaineer's pack holds an unforgiving payload limit of ten kilograms. Three indivisible survival supplies lie on the ice before the summit bid:
 
@@ -40,7 +74,11 @@ Three candidate answers correspond to meaningful mathematical milestones: 42 fro
 
 Keep one picture: **the lattice**, a grid whose rows are items and whose columns are capacities. Every cell is a take-or-skip decision, and the best pack is the heaviest path from the empty corner to the bottom-right cell.
 
+<NextUp text="Why does sorting by density fail when the heaviest high-value item gets stranded?" />
+
+
 ## The Density Trap
+<ChapterMark minutes={2} tag="the trap" />
 
 The natural human instinct is greedy: sort candidates by value-to-weight ratio and cram items in until no more fit. George Dantzig (1957) proved this exact strategy solves the fractional problem where items can be sliced like butter.
 
@@ -48,7 +86,11 @@ In the discrete world, however, items are indivisible atoms. Greedy density opti
 
 Testing all $2^n$ subsets is viable for three items, but founders into computational oblivion at sixty items. The problem demands an exact method that bypasses combinatorial explosion without falling into greedy traps.
 
+<NextUp text="How does Dantzig's continuous relaxation expose the eight-unit integrality gap?" />
+
+
 ## The Lattice DAG
+<ChapterMark minutes={2} tag="the invariant" />
 
 Let $V(i,c)$ denote the maximum value obtainable using a subset of the first $i$ items within capacity $c$. For every cell, there are only two possibilities:
 
@@ -62,7 +104,11 @@ This $(n+1) \times (W+1)$ table is not just a ledger of numbers; it is a directe
 
 Because every transition advances to the next item index, cycles are impossible. The optimal pack is literally the longest path through this state-space grid (Kellerer, Pferschy & Pisinger 2004).
 
+<NextUp text="How does the dynamic programming lattice capture the true 58-value discrete pack?" />
+
+
 ## The Integrality Gap and the Dantzig Relaxation
+<ChapterMark minutes={2} tag="the algebra" />
 
 Look at the complete table evaluated across all capacities:
 
@@ -76,6 +122,7 @@ items: none     0   0   0   0   0   0    0    0    0    0    0
 
 The terminal cell at $(3,10)$ hits 58, illuminated by a diagonal transition originating from the stove cell at $(2,5)$.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Greedy ratio sorting selects the tent and terminates at 42. Which precise table entry refutes greedy optimality?"
@@ -103,7 +150,11 @@ $$
 
 The gap between fractional relaxation (66) and integer optimum (58) is the **integrality gap** of 8. Because any discrete packing is a valid fractional packing, $\mathrm{IP}^* \le \mathrm{LP}^*$ holds without exception.
 
+<NextUp text="How does pseudopolynomial dynamic programming relate to Merkle-Hellman knapsack cryptography?" />
+
+
 ## Stepping the Value Frontier
+<ChapterMark minutes={2} tag="the simulation" />
 
 Drive the interactive matrix below to observe how the dynamic program navigates choices.
 
@@ -121,7 +172,11 @@ Hover over any cell to illuminate the dependency arrows. Press **Trace solution*
 
 Watch column 10 evolve across row iterations: 0, then 42, then 42, and finally jumping to 58. The table only updates when an item can complete a superior combination, cutting through exponential branches in $O(nW)$ operations.
 
+<NextUp text="How do fully polynomial-time approximation schemes scale knapsack instances efficiently?" />
+
+
 ## Budgets, Crypto-Systems, and Cutting Stock
+<ChapterMark minutes={2} tag="systems" />
 
 The 0/1 knapsack recurrence lies at the core of resource allocation under hard ceilings.
 
@@ -129,12 +184,21 @@ Capital budgeting treats funding limits as knapsack capacity, where projects yie
 
 The cutting stock problem in manufacturing maps roll lengths directly to knapsack boundaries, trading off scrap waste against production schedules.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The lattice of take-or-skip cells, one row per item and one column per capacity."
   motion="A cell takes the better of skipping the item above it and taking the item from the diagonal, and the trace walks the heaviest path back to the empty corner."
   invariant="Every path advances one row at a time, so an item can never be reused and the corner cell is the optimal pack."
   number="58 optimal, 66 fractional — a gap of 8."
 />
+
+<NextMission
+  href="/algorithms/programming/merge-sort/"
+  title="Merge Sort"
+  teaser="Scanning 10^9 keys takes 15.8 years; von Neumann's two-finger merge does it in 28.9 seconds with n log n passes."
+/>
+
 
 ## Pseudopolynomial Illusions and the FPTAS Scaling Magic
 

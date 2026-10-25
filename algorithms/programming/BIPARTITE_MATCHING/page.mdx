@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import MatchingBoard from "@alg/MatchingBoard.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import LPDualityDashboard from "@alg/LPDualityDashboard.tsx";
@@ -12,7 +18,35 @@ import Afterimage from "@alg/Afterimage.tsx";
   Astro islands cannot nest, so each interactive primitive is its own island.
 */}
 
+{/* Scenario mapping:
+  - Pilot Ben stranded with empty berths = greedy assignment stuck at non-maximum matching.
+  - Alternating chain Ben-Wren-Ana-Xiu = augmenting path that flips edge assignments.
+  - Kőnig's bottleneck theorem (ceiling 3 of 4) = min vertex cover equals max matching.
+  - Unlocking third bay = augmenting path adding one edge to matching.
+*/}
+<Transmission from="Rival" code="SIG-INTERCEPT // CH-9">
+  Your automated docking dispatch just stranded pilot Ben while two pressurized berthing bays sit completely empty.
+  Your greedy first-choice allocator locked two assignments and gave up, blind to the alternating chain Ben–Wren–Ana–Xiu.
+  Kőnig's bottleneck theorem guarantees three berths can be filled, but not four.
+  Can you orchestrate the resignation chain to unlock the third bay, or will you leave your crew in the cold?
+</Transmission>
+
+<MissionCard
+  number="20"
+  minutes={10}
+  objective="Maximize pairings across mutually exclusive groups by flipping alternating chains of assignments."
+  steps={[
+    "Call the stranded applicant when greedy assignment locks two early roles on the four-applicant board",
+    "Step the MatchingBoard to trace the Ben–Wren–Ana–Xiu augmenting path that flips commitments",
+    "Take the boss round bet on how Kőnig's min vertex cover proves that four placements are impossible",
+  ]}
+  bailout="Watch the MatchingBoard step through the resignation chain that elevates the match from 2 to 3."
+  after="You will resolve competing resource conflicts, satellite transponder switching, and network dualities."
+/>
+
+
 ## The Four-Applicant Bottleneck
+<ChapterMark minutes={3} tag="the hook" />
 
 Assign each applicant the first free choice on their list and the board stops at two placements, with Ben and Dan stranded while Xiu and Zed sit empty. The ceiling is three of the four, and Ben–Wren–Ana–Xiu is the chain that reaches it.
 
@@ -33,7 +67,11 @@ The picture is **the chain of resignations**: a free applicant, the role they ac
   explain="The subset S = {Cara, Dan} has neighbourhood N(S) = {Yara}, meaning |N(S)| = 1 < |S| = 2. Philip Hall (1935) proved that a full matching demands |N(S)| ≥ |S| for every possible subset. Two applicants competing for one unique slot ensures at least one must remain unplaced regardless of routing."
 />
 
+<NextUp text="Why does a greedy allocation leave applicants stranded while valid berths remain open?" />
+
+
 ## The Greedy Myopia
+<ChapterMark minutes={2} tag="the trap" />
 
 Suppose you walk down the roster in alphabetical order, assigning each applicant the first available role they accept.
 
@@ -41,7 +79,11 @@ Ana acts first and claims Wren. Next arrives Ben: because Ben qualifies only for
 
 A rigid algorithm that never revokes a handshake permanently stalls at 2 matches. True optimization requires the ability to reach backwards, shift existing commitments, and reopen pathways for stranded peers.
 
+<NextUp text="How does an alternating path of assignments flip matched and unmatched edges to gain one unit?" />
+
+
 ## Alternating Paths and Edge Independence
+<ChapterMark minutes={2} tag="the invariant" />
 
 A **matching** is a subset of edges sharing no common endpoints. Edges in the matching are active bonds; all remaining edges are idle candidates. A vertex touching no active edge is **free**.
 
@@ -49,7 +91,11 @@ An **alternating path** weaves between non-matched and matched edges in strict a
 
 Flipping the chain of resignations transforms every non-matched link into an active bond and demotes every matched link. Because the path began and ended on free edges, the total matching size increases by exactly one!
 
+<NextUp text="How does Hall's marriage condition certify whether a complete matching exists?" />
+
+
 ## The Triad of Equivalence: Hall, Berge, and König
+<ChapterMark minutes={2} tag="the algebra" />
 
 Three classical theorems pin the exact limits of bipartite matching.
 
@@ -67,6 +113,7 @@ On our board, the vertex subset $\{\text{Ana}, \text{Ben}, \text{Yara}\}$ contai
 
 The bipartite restriction is indispensable: an odd cycle like a triangle has maximum matching 1, but demands 2 vertices to cover all edges.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Ana greedily claims Wren on the first move, leaving Ben (who only accepts Wren) stranded. Is the search stuck?"
@@ -80,7 +127,11 @@ The bipartite restriction is indispensable: an odd cycle like a triangle has max
   explain="Ben–Wren is free, Wren–Ana is matched, and Ana–Xiu is free. Flipping this 3-edge augmenting path instantly pairs Ben with Wren and reassigns Ana to Xiu! The matching grows from 1 to 2 without restarting the search."
 />
 
+<NextUp text="How does the Hopcroft-Karp algorithm squeeze multiple augmenting paths into square-root rounds?" />
+
+
 ## Flipping Commitments in Real Time
+<ChapterMark minutes={2} tag="the simulation" />
 
 Step through Kuhn's augmenting path algorithm below. The gold trail traces the alternating path the search has found.
 
@@ -115,7 +166,11 @@ Now observe the same instance modeled as a unit-capacity network flow with a sou
 
 Every unit of flow along an edge corresponds to an active matching pair. The max-flow min-cut theorem (Ford & Fulkerson 1956) yields a max flow of 3 and a minimum cut of 3, echoing König's theorem through the lens of continuous duality.
 
+<NextUp text="How does bipartite matching schedule high-speed satellite crossbar communication switches?" />
+
+
 ## Timetables, Corridors, and the Hopcroft–Karp Squeeze
+<ChapterMark minutes={2} tag="systems" />
 
 Bipartite matching models resource arbitration across industry: assigning medical shifts, scheduling examination timetables, and matching display advertisers to viewer impressions.
 
@@ -127,12 +182,21 @@ $$
 O(E\sqrt{V}) \qquad \text{(Hopcroft–Karp 1973)}
 $$
 
+<MissionScore client:visible />
+
 <Afterimage
   object="Four applicants, four roles, six acceptable edges, and one applicant left over."
   motion="Follow the chain from a free applicant to a free role and flip every edge along it."
   invariant="The flip adds one matched edge and removes none, so a search that finds no chain proves no larger matching exists."
   number="3 of 4 placed, and the min cut is 3."
 />
+
+<NextMission
+  href="/algorithms/programming/floyd-warshall/"
+  title="Floyd–Warshall"
+  teaser="Four lines and 10^9 updates solve all-pairs distances for 1,000 towns: how three nested loops sweep a network."
+/>
+
 
 ## The Birkhoff Polytope and the 0–1 Permanent
 

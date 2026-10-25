@@ -3,7 +3,7 @@ slug: stable-matching
 field: programming
 fieldLabel: "Programming"
 reframe: "Pair two warring camps where every individual harbours private desires and fierce rankings. What prevents revolt is not goodwill, but the cold geometry of deferred acceptance: an unshakeable equilibrium where no clandestine pair in the room would rather elope together than stay with their assigned partners."
-oneLine: "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes."
+oneLine: "Greedy pairings collapse to rogue defectors; deferred acceptance settles in 4 rounds with 0 blocking pairs."
 tldr:
   - "Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted."
   - "It stops with no blocking pair: a left–right pair who both rank the other above the partner they were assigned. The board checks every pair and prints that count as zero (Gale–Shapley 1962)."
@@ -11,5 +11,5 @@ tldr:
   - "The stable matchings of one instance form a lattice (Knuth 1976). The board's four-by-four has exactly two, and the two extremes differ in two of the four assignments."
   - "Termination is counting: each proposer walks down its own list and never repeats a proposal, so the process stops after at most |L|·|R| proposals (McVitie–Wilson 1971)."
 mathBranches: [combinatorics, game-theory, order-theory]
-primitives: [MatchingBoard, PredictionPrompt, Afterimage]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, MatchingBoard, PredictionPrompt, Afterimage]
 attributions: ["Gale–Shapley 1962", "Kuhn 1955", "Berge 1957", "McVitie–Wilson 1971", "Knuth 1976", "Dubins–Freedman 1981", "Roth 1984", "Roth 1986"]

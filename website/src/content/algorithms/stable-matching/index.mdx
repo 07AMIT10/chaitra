@@ -4,13 +4,19 @@ slug: stable-matching
 field: programming
 fieldLabel: "Programming"
 reframe: "Pair two warring camps where every individual harbours private desires and fierce rankings. What prevents revolt is not goodwill, but the cold geometry of deferred acceptance: an unshakeable equilibrium where no clandestine pair in the room would rather elope together than stay with their assigned partners."
-oneLine: "Propose, hold the best offer, reject the rest: how two preference lists become a stable matching, and why its two ends are the extremes."
+oneLine: "Greedy pairings collapse to rogue defectors; deferred acceptance settles in 4 rounds with 0 blocking pairs."
 tldr: ["Proposals travel down the proposer's list and each receiver holds the best offer it has seen. Whenever a held offer is replaced, a better proposer has arrived, so the proposer side never withdraws an offer that was accepted.", "It stops with no blocking pair: a left–right pair who both rank the other above the partner they were assigned. The board checks every pair and prints that count as zero (Gale–Shapley 1962).", "The result is proposer-optimal. Among all stable matchings it is best for every proposer at once and worst for every receiver; swap who proposes and the board recomputes the other extreme (Gale–Shapley 1962, Dubins–Freedman 1981).", "The stable matchings of one instance form a lattice (Knuth 1976). The board's four-by-four has exactly two, and the two extremes differ in two of the four assignments.", "Termination is counting: each proposer walks down its own list and never repeats a proposal, so the process stops after at most |L|·|R| proposals (McVitie–Wilson 1971)."]
 mathBranches: ["combinatorics", "game-theory", "order-theory"]
-primitives: ["MatchingBoard", "PredictionPrompt", "Afterimage"]
+primitives: ["Transmission", "MissionCard", "ChapterMark", "NextUp", "NextMission", "MissionScore", "MatchingBoard", "PredictionPrompt", "Afterimage"]
 attributions: ["Gale–Shapley 1962", "Kuhn 1955", "Berge 1957", "McVitie–Wilson 1971", "Knuth 1976", "Dubins–Freedman 1981", "Roth 1984", "Roth 1986"]
 ---
 
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import MatchingBoard from "@alg/MatchingBoard.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
@@ -25,7 +31,30 @@ import Afterimage from "@alg/Afterimage.tsx";
   the left-optimal and right-optimal extremes, and Kuhn's augmenting-path search in the other mode.
 */}
 
+{/* Scenario mapping for stable-matching */}
+<Transmission from="Field Log" code="LOG 51-NRMP">
+Annual hospital residency clearinghouse opens for forty thousand graduating doctors.
+A greedy assignment granted top candidates their first pick, but left rogue pairs eager to defect.
+Deferred acceptance lets hospitals hold their best applicants and reject the rest across iterative proposal rounds.
+Can four rounds and three rejections eliminate every blocking pair from the roster?
+</Transmission>
+
+<MissionCard
+  number="11"
+  objective="Execute deferred acceptance proposals to eliminate every rogue blocking pair and reach stable equilibrium."
+  steps={[
+    "Step proposal rounds to see receivers hold best offers and reject lower ranks",
+    "Scan the full pairing matrix to verify the blocking pair count hits zero",
+    "Invert the proposing side to inspect the opposing extreme of the lattice"
+  ]}
+  minutes={9}
+  bailout="The MatchingBoard interactive clearinghouse in §2"
+  after="You can design two-sided clearinghouses and matching markets that resist strategic unraveling."
+/>
+
+
 ## Match Day
+<ChapterMark minutes={3} tag="the hook" />
 
 Each year the National Resident Matching Program places tens of thousands of graduating doctors into hospital posts with one promise: no blocking pair. No applicant and hospital would rather have each other than the partners they were given.
 
@@ -62,7 +91,11 @@ Step through the rounds to watch offers fall down the preference lists. Each rec
 
 Watch the held column; when a hospital swaps one offer for a better one, the invariant is that the displaced offer drops to its next choice and no accepted offer is ever withdrawn.
 
+<NextUp text="Why do greedy matches inevitably produce rogue pairs that prefer each other?" />
+
+
 ## The Pair That Would Rather Swap
+<ChapterMark minutes={2} tag="the trap" />
 
 Consider any proposed matching between two sides. What condition makes it unstable?
 
@@ -70,7 +103,11 @@ A pair $(L, R)$ is a **blocking pair** if $L$ prefers $R$ over their assigned pa
 
 A matching is **stable** if and only if it contains zero blocking pairs. Exhaustively auditing an existing matching is simple ($O(n^2)$ checks), but constructing an assignment guaranteed to possess no rogue pairs is a non-trivial feat of game theory.
 
+<NextUp text="How does deferred acceptance guarantee that no blocking pair can ever form?" />
+
+
 ## The Conway–Knuth Lattice
+<ChapterMark minutes={2} tag="the invariant" />
 
 The mathematical input is not a standard graph, but two families of strict linear orders. The set of all valid stable matchings for a given market forms a geometric structure: a distributive **lattice** (Conway; Knuth 1976).
 
@@ -78,7 +115,11 @@ Define a partial order on stable matchings by proposer welfare: matching $M_1 \s
 
 The two extreme poles of this lattice are generated by swapping who proposes. When left proposes, you land on the lattice summit; when right proposes, you land on the lattice floor.
 
+<NextUp text="Why does the proposer-optimal outcome sit at the very top of the rotation lattice?" />
+
+
 ## The Proposer Advantage and Asymmetric Equilibrium
+<ChapterMark minutes={2} tag="the algebra" />
 
 **Theorem (Gale & Shapley 1962).** The deferred acceptance algorithm always terminates, and the terminal assignment contains zero blocking pairs.
 
@@ -100,7 +141,11 @@ Why is the terminal state immune to mutiny? Suppose a proposer $a$ and receiver 
 
 **Proposer Optimality (Gale & Shapley 1962; Dubins & Freedman 1981).** Every proposer receives the best partner they could possibly secure in *any* stable matching, while every receiver receives their worst possible partner among all stable matchings.
 
+<NextUp text="How does the National Resident Matching Program assign tens of thousands of medical residents?" />
+
+
 ## Stepping the Waterfall
+<ChapterMark minutes={2} tag="the simulation" />
 
 Return to the interactive board and toggle the proposing side. Observe how the two runs map the extreme boundaries of the lattice: left-optimal produces `A–w, B–x, C–z, D–y`, while right-optimal yields `A–x, B–w, C–z, D–y`.
 
@@ -108,6 +153,7 @@ Examine the blocking pair matrix beneath the completed run. Every cell audits a 
 
 Toggle the board to **augmenting paths** to see how the mathematical question transforms. Kuhn (1955) and Berge (1957) locate maximum cardinality matchings without regard to human preferences.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="On the augmenting-path board, every left agent accepts every right agent. How does a maximum bipartite matching differ from a stable matching?"
@@ -120,7 +166,11 @@ Toggle the board to **augmenting paths** to see how the mathematical question tr
   explain="Cardinality maximization completely ignores preference rankings. Kuhn's search produces a 4-pair perfect matching, but pairs may intensely dislike each other and hold massive incentive to defect. Stable matching seeks game-theoretic equilibrium, not raw volumetric size."
 />
 
+<NextUp text="Why can candidates never game the system by submitting insincere ranking lists?" />
+
+
 ## Medical Residencies, Kidney Exchanges, and Market Design
+<ChapterMark minutes={2} tag="systems" />
 
 In 1952, American medical schools and residency hospitals faced rampant unraveling: hospitals made binding offers to medical students years in advance to preempt competitors. The National Resident Matching Program (NRMP) adopted deferred acceptance, revolutionising clinical assignments nationwide (Roth 1984).
 
@@ -128,12 +178,21 @@ The same mechanism powers urban public school assignment systems in Boston and N
 
 Paired kidney exchange registries adapt these equilibrium mechanics to save lives, clearing cyclical barter chains across incompatible donor-patient pairs.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="Four applicants, four hospitals, and the ranked lists that turn every offer into one falling column."
   motion="Each round, every free applicant proposes to the next hospital on their list, and each hospital keeps the best offer and sends the rest back down."
   invariant="Each hospital only ever trades up, so when the proposals stop no applicant and hospital can prefer each other to what they hold."
   number="0 blocking pairs after 4 rounds and 3 rejections."
 />
+
+<NextMission
+  href="/algorithms/programming/depth-first-search/"
+  title="Depth-First Search"
+  teaser="Visited flags blur ancestry; log 12 timestamps across 6 vertices to catch the single back edge."
+/>
+
 
 ## Strategic Manipulation and the Rural Hospitals Invariant
 

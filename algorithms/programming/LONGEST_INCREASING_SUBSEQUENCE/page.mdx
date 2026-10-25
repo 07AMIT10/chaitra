@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import ChainAntichain from "@alg/ChainAntichain.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -12,7 +18,35 @@ import Afterimage from "@alg/Afterimage.tsx";
   Astro islands cannot nest, so each driven primitive is its own island.
 */}
 
+{/* Scenario mapping:
+  - Telemetry burst frames [4, 1, 5, 2, 6, 3] = unsorted sequence elements (i, p_i).
+  - Escalating thermal shock wave = longest increasing subsequence (chain).
+  - Cooling buffer bins = patience sorting piles (antichains).
+  - 1.66M operations vs 2^100,000 candidates = O(n log n) binary search vs exponential brute-force.
+*/}
+<Transmission from="Ship System" code="SENSOR-ALERT // BURST-0x8C">
+  Solar radiation spikes arriving out of sequence: six telemetry frames registered at `4 1 5 2 6 3`.
+  Brute-force testing all $2^{100{,}000}$ ascending sub-bursts requires a 30,103-digit count, while patience sorting isolates the escalation in 1.66M operations.
+  Can you extract the longest ascending shock wave before the sensor array burns?
+</Transmission>
+
+<MissionCard
+  number="13"
+  minutes={13}
+  objective="Find the longest strictly increasing sequence in a scrambled stream by stacking cards into patience piles."
+  steps={[
+    "Call the length of the longest run on six numbers before playing the shuffle",
+    "Step the patience dealer to watch cards route into sorted piles",
+    "Inspect the 2D dominance grid where chains climb northeast",
+    "Take the boss round bet on whether two antichains can share a chain element",
+  ]}
+  bailout="Step through the ChainAntichain panel to see why the pile count always equals the longest chain."
+  after="You will read diff engines, card-sorting metrics, and box-stacking posets as geometric chain decompositions."
+/>
+
+
 ## The Solitaire Shuffle
+<ChapterMark minutes={3} tag="the hook" />
 
 Every diff engine finds the longest increasing subsequence of matched line numbers and calls everything outside it an insertion or a deletion. Six numbers stand on a board in scrambled order: `4 1 5 2 6 3`. Pick any subset, keep their left-to-right order, and require every chosen value to exceed its predecessor.
 
@@ -36,7 +70,11 @@ Plot the six numbers as **the skyline**: six points $(i, p_i)$ in the plane, whe
 
 Watch the piles as you step the deal: each card lands on a pile or starts a new one, and when the last number lands the pile count equals the length of the gold chain on the skyline. That equality is the quiet miracle of the page. It is a theorem of partially ordered sets, not an accident of arithmetic.
 
+<NextUp text="Why does brute-force enumeration face a 30,103-digit count of candidate sequences?" />
+
+
 ## The Quadratic Illusion
+<ChapterMark minutes={2} tag="the trap" />
 
 The naive programmatic strategy tracks a state array: let `dp[i]` denote the length of the longest increasing subsequence terminating at index `i`.
 
@@ -46,7 +84,11 @@ $$
 
 Evaluating this recurrence demands scanning every prior position for each element, consuming $O(n^2)$ pairwise comparisons. But this recurrence does not actually care about strings or arrays; it is secretly computing the maximal chain in a geometric order.
 
+<NextUp text="How does patience sorting partition the sequence into a minimal set of descending piles?" />
+
+
 ## The 2D Dominance Poset
+<ChapterMark minutes={2} tag="the invariant" />
 
 Drop the array index and treat the sequence as a cloud of planar points $(i, p_i)$. Define a partial order $\prec$ by requiring both coordinates to grow simultaneously:
 
@@ -60,7 +102,11 @@ A **chain** in this poset is a collection of mutually comparable points: sorting
 
 The **height** of the poset is the size of its largest chain, while its **width** is the size of its largest antichain. In the visualizer above, gold is the maximal chain and blue is the maximal antichain.
 
+<NextUp text="How does Dilworth's theorem link antichain pile counts to the maximum chain length?" />
+
+
 ## Mirsky, Dilworth, and the Patience Invariant
+<ChapterMark minutes={2} tag="the algebra" />
 
 **Mirsky's Theorem (Mirsky 1971).** In any finite partially ordered set, the height equals the minimum number of antichains needed to cover all elements.
 
@@ -110,7 +156,11 @@ Mirsky partitions into antichains to reveal the height; Dilworth partitions into
   explain="The sequence consists of three descending triplets (3,2,1 then 6,5,4 then 9,8,7) followed by 0. Every increasing run is choked at length 3 (such as 1, 4, 7). But the trailing 0 combines with the first triplet to yield [3, 2, 1, 0]—a descending subsequence of length 4! The 9-element prefix dodges both, illustrating the exact sharpness of (r-1)(s-1) = 9."
 />
 
+<NextUp text="How does binary search across pile tops extract the LIS in n log n comparisons?" />
+
+
 ## Two Algorithms, One Invariant
+<ChapterMark minutes={2} tag="the simulation" />
 
 Consider a nine-element sequence where the primal chain and the dual antichain diverge in length.
 
@@ -133,6 +183,7 @@ Now observe the same sequence evaluated by dynamic programming.
 
 The DP table outputs `1 2 2 3 4 4 5 6 3`. Its maximum entry is 6, identical to the pile count produced by patience sorting. Two distinct computational paradigms converge upon the same structural invariant.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Consider the sequence with duplicate values: [3, 3]. How long is its longest strictly increasing subsequence, and how many patience piles does it produce?"
@@ -141,7 +192,11 @@ The DP table outputs `1 2 2 3 4 4 5 6 3`. Its maximum entry is 6, identical to t
   explain="Because strict increase requires strict inequalities in both indices and values, two equal elements cannot belong to the same chain; the maximum climbing length is 1. Under patience rules, the second 3 is placed onto the first pile because its top (3) is 'at least' the card. The pile count remains 1, perfectly matching Mirsky's bound."
 />
 
+<NextUp text="Where does patience sorting power modern diff engines and flight interception paths?" />
+
+
 ## Box Stacking, Diff Engines, and Interception
+<ChapterMark minutes={2} tag="systems" />
 
 The height of a two-dimensional poset governs real-world systems constrained by dual thresholds.
 
@@ -149,12 +204,21 @@ Box nesting models this directly: box $A$ nests inside box $B$ when both dimensi
 
 In file comparison algorithms, diff engines locate identical lines between two documents, order them by line number, and find the longest increasing subsequence. The elements outside that LIS identify the exact insertions and deletions.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The skyline of points (i, pᵢ), with the gold chain climbing northeast and the piles dealt below it."
   motion="Each number lands on the leftmost pile whose top is at least its value, and a new pile starts only when no top is large enough."
   invariant="Each pile is an antichain, so the pile count equals the height of the skyline — the length of the gold chain."
   number="1.66M comparisons, not 2^100,000 candidates."
 />
+
+<NextMission
+  href="/algorithms/programming/coin-change/"
+  title="Coin Change"
+  teaser="Greedy burns three coins (4+1+1) where two (3+3) settle the debt: how shortest paths solve non-canonical change."
+/>
+
 
 ## Beyond the First Row: Young Tableaux and Random Matrices
 

@@ -3,12 +3,12 @@ slug: bipartite-matching
 field: programming
 fieldLabel: "Programming"
 reframe: "Tether two disjoint universes through a web of fragile handshakes. Eager pairings leave orphaned nodes in the cold; true optimality surges through alternating paths of swapped commitments, pinned between Hall's suffocating neighborhood trap and König's impenetrable vertex shield."
-oneLine: "Four applicants, four placements, six acceptable pairs, and a ceiling of three."
+oneLine: "Greedy pairing strands Ben and locks only two bays: how alternating resignation chains achieve the maximum of three."
 tldr:
   - "A matching is a set of edges with no shared endpoints; greedy first-available pairing can strand a vertex that an augmenting path would have saved."
   - "Hall's condition (Hall 1935) certifies impossibility from the left: the pair {Cara, Dan} shares a single neighbour, so no matching covers all four applicants."
   - "Berge's condition (Berge 1957) certifies optimality from the search: with no augmenting path left, the size-3 matching is maximum."
   - "König's theorem (König 1931) pins the same number from the cover side, and the unit-capacity flow reduction (Ford–Fulkerson 1956) makes it fall out of pipes."
 mathBranches: [combinatorics, graph-theory, optimization]
-primitives: [MatchingBoard, PredictionPrompt, LPDualityDashboard, Afterimage]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, MatchingBoard, PredictionPrompt, LPDualityDashboard, Afterimage]
 attributions: ["Hall 1935", "König 1931", "Berge 1957", "Ford–Fulkerson 1956", "Hopcroft–Karp 1973", "Birkhoff 1946"]

@@ -3,14 +3,14 @@ slug: dijkstra
 field: programming
 fieldLabel: "Programming"
 reframe: "It is not a search for a path. It is a wave of light radiating through glass of different thicknesses: the moment a town is touched, its distance is carved in stone forever, because light cannot travel backward in time."
-oneLine: "One source, one frontier, labels that only fall."
+oneLine: "Linear scans probe 58 days across 10^8 towns; pull the least label from a heap with zero regrets."
 tldr:
   - "The state is a vector of over-estimates plus a settled set; relaxation only lowers a label."
   - "Greedy is exact because weights are non-negative: once the least label is settled, no later walk can undercut it."
   - "The settled vector is one row of the min-plus closure of the weight matrix — Floyd–Warshall and Lehmann compute the whole closure, Dijkstra computes a row."
   - "One negative edge breaks the exchange step: a later walk undercuts a settled vertex and the run reports a wrong distance."
 mathBranches: [order-theory, algebra, optimization]
-primitives: [GraphCanvas, SemiringMatrix, SeriesChart, PredictionPrompt, Afterimage]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, GraphCanvas, SemiringMatrix, SeriesChart, PredictionPrompt, Afterimage]
 attributions: ["Dijkstra 1959", "Bellman 1958", "Fredman–Tarjan 1984", "Lehmann 1977"]
 relatedTopics: [pagerank]
 featured: true

@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -14,7 +20,35 @@ import Afterimage from "@alg/Afterimage.tsx";
   proved 2^(n/2) distinct-LCS count of the block-reversal family.
 */}
 
+{/* Scenario mapping:
+  - Diverging flight recorder logs = strings X and Y.
+  - 2^32 candidate subsequences = exponential power-set search space.
+  - Unix diff on 4,225 cells in thirty seconds = O(mn) dynamic programming grid.
+  - Diagonal staircase of matches = optimal monotone path through DPHeatmap.
+*/}
+<Transmission from="Archive" code="REC-FORENSIC // PDP-11-DIFF">
+  Two black-box flight recorders recovered from sister scout ships exhibit diverging navigation logs.
+  Checking all $2^{32}$ candidate subsequences to reconstruct the shared flight path would overwhelm the salvage rig.
+  The Unix `diff` architecture solves the identical problem across 4,225 dynamic programming cells in thirty seconds.
+  Can you trace the diagonal staircase of matches that uncovers the true surviving lineage?
+</Transmission>
+
+<MissionCard
+  number="19"
+  minutes={13}
+  objective="Reconstruct the shared lineage of diverging strings by tracing optimal alignments across a DP table."
+  steps={[
+    "Call the length of the longest shared sequence between two test strings before building the table",
+    "Step the DPHeatmap to watch diagonal match rewards and horizontal/vertical skips build the score",
+    "Take the boss round bet on how Hirschberg cuts quadratic space down to linear memory",
+  ]}
+  bailout="Step the DPHeatmap to trace the highlighted diagonal staircase that powers git diff."
+  after="You will master the diff engine inside Git, bioinformatics sequence alignment, and bit-parallel LCS."
+/>
+
+
 ## The Surviving Thread
+<ChapterMark minutes={3} tag="the hook" />
 
 `git diff` decides which lines you added and which you deleted by measuring one number between the two files. The obvious method — list every subsequence and keep the longest shared one — is exponential. The prefix table that answers it is quadratic: 4,225 cells for two 64-character strings with $2^{32}$ distinct longest common subsequences.
 
@@ -40,7 +74,11 @@ Four is a **length**, not a word. That gap runs the whole page: measuring the le
 
 Keep one picture: **the staircase**, a monotone path from the top-left corner of the prefix grid to the bottom-right. A diagonal step lands on a matching pair, a step down or right skips a character of one string. The staircase is the common subsequence, and its height is the length.
 
+<NextUp text="Why does naive subsequence comparison require evaluating 2^32 candidate combinations?" />
+
+
 ## The Naive Power-Set Trap
+<ChapterMark minutes={2} tag="the trap" />
 
 Operationally you are handed two strings, $a$ of length $m$ and $b$ of length $n$, and asked for the longest word that is a **subsequence** — a selection of positions in order, not necessarily adjacent — of both. Brute force lists all $2^m$ subsequences of $a$ and keeps the longest that also sits in $b$. That is exponential work for an answer that is one integer.
 
@@ -52,7 +90,11 @@ $$
 
 That recurrence is correct, and it never mentions a subsequence. It compares prefixes and takes maxima. What it measures is a *height* in an order built from the two strings, and that order is the object we actually want.
 
+<NextUp text="How does the two-dimensional dynamic programming grid trace the diagonal alignment path?" />
+
+
 ## The Matching Cells
+<ChapterMark minutes={2} tag="the invariant" />
 
 Take the prefixes of $a$ in order: $\varepsilon \subset a[1..1] \subset \dots \subset a[1..m]$. Prefixes order by extension, so this is a chain — a totally ordered set — with $m+1$ elements. The prefixes of $b$ form a second chain with $n+1$ elements.
 
@@ -76,7 +118,11 @@ the longest chain among the matching cells.
 
 The DP table is this lattice with a label on every cell: $L(i,j)$ is the height of $M$ inside the rectangle $[1..i]\times[1..j]$ — the tallest chain reachable using only the first $i$ characters of $a$ and the first $j$ of $b$. Hover a cell in section 4 and that height is the number you are reading.
 
+<NextUp text="How did Hunt and McIlroy exploit sparse matching cells to build the PDP-11 Unix diff?" />
+
+
 ## Decomposing the Monotone Staircase
+<ChapterMark minutes={2} tag="the algebra" />
 
 ### The Three-Way Choice at the Boundary
 
@@ -152,6 +198,7 @@ In $a$ the two symbols of each block appear one way round; in $b$ the other way.
 
 Reaching the maximum length $k$ requires choosing exactly one symbol from each block. Every distinct set of choices yields a valid longest common subsequence, generating $2^k = 2^{\,n/2}$ distinct words on strings of length $n = 2k$.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="For a = 1234 and b = 2143 — the block-reversal family with k = 2 — how many distinct longest common subsequences are there?"
@@ -175,7 +222,11 @@ One caution if you try to count. A DP that sums its predecessor counts counts *s
 
 Both curves are exact arithmetic, not measurements: the lower one is the $(n+1)^2$ cell count, the upper is the $2^{\,n/2}$ count proved above. They cross just past $n = 16$ and never meet again.
 
+<NextUp text="How do git diff and computational genomics use Hirschberg's linear-space reduction?" />
+
+
 ## Ascending the DP Grid
+<ChapterMark minutes={2} tag="the simulation" />
 
 <DPHeatmap
   client:visible
@@ -193,12 +244,18 @@ Off a match, a cell inherits the maximum of its neighbours above and to the left
 
 Turn on **Trace solution** and the trace walks one witness out: four matched cells joined into a staircase, spelling `BCAB`. Different tie-breaks inside the table produce different witnesses of the same length — that ambiguity is the seed of section 3.4, where the witnesses can outnumber the words.
 
+<NextUp text="What Strong Exponential Time Hypothesis barrier prevents sub-quadratic common subsequence search?" />
+
+
 ## Where Posets Power Modern Toolchains
+<ChapterMark minutes={2} tag="systems" />
 
 - **`diff`, `patch`, and version control.** A line diff is a longest common subsequence over lines. Myers 1986 turned the staircase into an $O(nd)$ walk along its diagonals, where $d$ is the edit distance, so `diff`, `patch` and `git diff` cost the size of the change rather than the size of the files. The picture a diff tool draws is the staircase of section 3.2.
 - **Sequence alignment.** Needleman and Wunsch 1970 scored this recurrence over amino acids, and Smith and Waterman 1981 dropped the requirement to span both strings. Flip a mismatch to a negative score and the same grid aligns locally. Every alignment score in bioinformatics is this table.
 - **Longest increasing subsequence.** When $b$ is a rearrangement of $a$, map each character of $b$ to its position in $a$ to obtain permutation $\pi$. Then $\mathrm{LCS}(a,b) = \mathrm{LIS}(\pi)$, connecting string alignment directly to the [Longest Increasing Subsequence](/algorithms/programming/longest-increasing-subsequence) page.
 - **Plagiarism and duplicate detection.** Comparing documents, source files, or product titles is an LCS or an edit distance over tokens, and the same staircase decides which spans match.
+
+<MissionScore client:visible />
 
 <Afterimage
   object="A prefix grid of two strings with one staircase climbing from the top-left corner to the bottom-right."
@@ -206,6 +263,13 @@ Turn on **Trace solution** and the trace walks one witness out: four matched cel
   invariant="Every staircase spells a common subsequence, so the tallest one is the LCS and the corner cell holds its length."
   number="4,225 cells, not 2^32 distinct longest common subsequences."
 />
+
+<NextMission
+  href="/algorithms/programming/bipartite-matching/"
+  title="Bipartite Matching"
+  teaser="Greedy pairing strands Ben and locks only two bays: how alternating resignation chains achieve the maximum of three."
+/>
+
 
 ## Bit-Parallel Speedups and the SETH Barrier
 

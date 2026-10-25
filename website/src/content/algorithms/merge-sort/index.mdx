@@ -4,14 +4,20 @@ slug: merge-sort
 field: programming
 fieldLabel: "Programming"
 reframe: "Sorting unordered chaos appears to require combinatorial omniscience. In 1945, John von Neumann proved it requires only a two-finger zipper: split the universe down to isolated atoms, then weave them back together one comparison at a time."
-oneLine: "Every sort is a merge; every merge is one linear pass over two chains."
+oneLine: "Scanning 10^9 keys takes 15.8 years; von Neumann's two-finger merge does it in 28.9 seconds with n log n passes."
 tldr: ["Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does.", "The recurrence T(n) = 2T(n/2) + Θ(n) sums to Θ(n log n): each of the log n levels touches every key exactly once.", "For n = 2^k the worst case is exactly n log₂ n − n + 1 comparisons — a derived identity, not an estimate.", "That matches the floor ⌈log₂(n!)⌉ = Θ(n log n) to a constant factor, so no comparison sort can beat it asymptotically."]
 mathBranches: ["algebra", "analysis", "information-theory", "order-theory"]
-primitives: ["RecursionTree", "SeriesChart", "PredictionPrompt", "Afterimage"]
+primitives: ["Transmission", "MissionCard", "ChapterMark", "NextUp", "NextMission", "MissionScore", "RecursionTree", "SeriesChart", "PredictionPrompt", "Afterimage"]
 attributions: ["von Neumann 1945", "Knuth 1973", "Stirling 1730", "Ford–Johnson 1959", "decision-tree lower bound"]
 relatedTopics: ["mapreduce", "information-theory"]
 ---
 
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import RecursionTree from "@alg/RecursionTree.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -27,7 +33,35 @@ import Afterimage from "@alg/Afterimage.tsx";
   Every count below is exact arithmetic from the identities derived in section 3, not a hardware measurement.
 */}
 
+{/* Scenario mapping:
+  - 10^9 scrambled radar echoes = unsorted keys of size n = 10^9.
+  - 15.8 years of linear passes = O(n^2) selection sort (5*10^17 comparisons).
+  - Von Neumann's 1945 stored program = first merge sort algorithm on EDVAC.
+  - 28.9 seconds = O(n log n) comparisons (2.89*10^10 comparisons).
+*/}
+<Transmission from="Archive" code="REC-FORENSIC // EDVAC-1945">
+  Tactical memory buffer holds a billion radar echoes scrambled across external magnetic tape.
+  Repeatedly rescanning the tape for the lowest frequency demands 15.8 years of linear passes.
+  John von Neumann's 1945 ink draft demonstrated that a two-finger recursive merge collapses the entire sort into 28.9 seconds.
+  Can you weave two pre-sorted ribbons into one without paying quadratic re-inspection costs?
+</Transmission>
+
+<MissionCard
+  number="16"
+  minutes={9}
+  objective="Weave disordered records into a single ordered chain using John von Neumann's recursive two-finger zipper."
+  steps={[
+    "Call the comparison cost on a two-stream merge before running the zipper",
+    "Explore the RecursionTree to verify why every level costs exactly n operations",
+    "Take the boss round bet on the exact memory tax of out-of-place buffer allocation",
+  ]}
+  bailout="Inspect the RecursionTree panel to see how dividing down to atoms guarantees n log n total work."
+  after="You will recognize divide-and-conquer merges across hardware caches, Timsort engines, and MapReduce pipelines."
+/>
+
+
 ## Von Neumann's fifty-page ink handwritten program
+<ChapterMark minutes={3} tag="the hook" />
 
 Rescan a billion keys for the next smallest: 5×10¹⁷ comparisons, or 15.8 years. Merge sort does the same job in 2.89×10¹⁰ comparisons, or 28.9 seconds. The difference is one folded join.
 
@@ -68,7 +102,11 @@ Four elements and three elements total seven. The two-finger walk finishes in ex
 
 That two-finger walk is the engine inside relational database merge-joins, the kernel of external disk sorts, and the shuffle phase of MapReduce.
 
+<NextUp text="Why does selection sort take 15.8 years where two-finger merging finishes in 28 seconds?" />
+
+
 ## The fallacy of quadratic re-inspection
+<ChapterMark minutes={2} tag="the trap" />
 
 The standard textbook description sounds like arbitrary book-keeping: halve the array, sort each half, merge the halves. Single keys are trivially sorted.
 
@@ -76,7 +114,11 @@ Naive sorting algorithms ask the wrong question. Insertion sort repeatedly scans
 
 Neither algorithm fails due to poor engineering. They fail because they re-inspect unsorted data from scratch instead of fusing pre-ordered components at cost proportional to length.
 
+<NextUp text="How does the divide-and-conquer recurrence balance internal levels to pay exactly n?" />
+
+
 ## The algebraic soul: chains in a commutative monoid
+<ChapterMark minutes={2} tag="the invariant" />
 
 A sorted array is a **chain** in the total order of keys. Merging takes two chains $A$ and $B$ over disjoint sets and produces the chain on their union $A \cup B$.
 
@@ -90,7 +132,11 @@ The sorted chains form a commutative monoid. **Sorting is a fold of this join ov
 
 The binary recursion tree is merely one convenient evaluation schedule for the fold. Because the monoid is associative and commutative, every schedule computes the exact same chain—they differ only in cache behavior and comparative depth.
 
+<NextUp text="How do sorted chains form a commutative monoid under associative merge operations?" />
+
+
 ## The exact arithmetic: deriving n log n − n + 1
+<ChapterMark minutes={2} tag="the algebra" />
 
 Merging sorted lists of lengths $p$ and $q$ consumes at most $p + q - 1$ comparisons:
 
@@ -167,6 +213,7 @@ $$
 
 Merge sort's leading term $n \log_2 n$ matches this information-theoretic floor with a leading coefficient of exactly 1.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Could an ingenious divide-and-conquer strategy reduce comparison sorting to O(n) worst-case time?"
@@ -181,7 +228,11 @@ Merge sort's leading term $n \log_2 n$ matches this information-theoretic floor 
 
 Stability is governed entirely by the merge tie-breaking rule. When left and right heads match, emit the left item first; by induction, equal keys preserve their original input ordering.
 
+<NextUp text="Why does merge sort dominate external disk sorting and distributed map-reduce architectures?" />
+
+
 ## The balanced ribbon: why every level pays exactly n
+<ChapterMark minutes={2} tag="the simulation" />
 
 The panel models the recurrence $a = 2$, $b = 2$, $d = 1$: two subproblems of half the size, plus linear merge overhead.
 
@@ -203,7 +254,11 @@ Now adjust the sliders. Setting $d = 0$ makes the merge free, causing work to de
 
 The logarithm is not produced by halving alone. It is born of $d = 1$: the linear cost paid persistently across every level of the tree.
 
+<NextUp text="What memory scratch-space tax prevents merge sort from executing purely in-place?" />
+
+
 ## The universal join: from Timsort to MapReduce
+<ChapterMark minutes={2} tag="systems" />
 
 Because the merge step is a monoid join, it powers critical infrastructure across computing:
 
@@ -212,12 +267,21 @@ Because the merge step is a monoid join, it powers critical infrastructure acros
 - **Database sort-merge joins.** Relational databases sort both tables and merge them in a single linear stream, avoiding hash table sizing bottlenecks.
 - **Inversion counting.** Modifying the merge to count unmerged left-hand keys whenever a right-hand key is emitted computes permutation inversions in $O(n \log n)$ time.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The ribbon: one bar per internal level of the recursion tree, each bar spanning its whole slice."
   motion="Two sorted runs are zipped head to head, one comparison emits one key, and the merged run rises to the next level."
   invariant="Every internal level pays exactly n comparisons and the last key appends free, so the total is n log₂ n − n + 1."
   number="2.89×10^10 comparisons in 28.9 s, not 5×10^17 in 15.8 years."
 />
+
+<NextMission
+  href="/algorithms/programming/topological-sort/"
+  title="Topological Sort"
+  teaser="Only 5 of 720 execution orders prevent catastrophic engine stall: how Kahn's queue peels a DAG into a schedule."
+/>
+
 
 ## The hidden tax: scratch space and in-place barriers
 

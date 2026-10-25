@@ -3,13 +3,13 @@ slug: edit-distance
 field: programming
 fieldLabel: "Programming"
 reframe: "Every word is a coordinate in an infinite space of strings. Insert, delete, and mutate are unit vectors across its grid; edit distance is the exact geodesic, carving the shortest trek through a lattice of prefixes."
-oneLine: "The fewest insertions, deletions and substitutions that turn one string into another."
+oneLine: "A single shifted byte shows 8 false mismatches; tile the prefix grid to find the true distance of 2."
 tldr:
   - "Every cell of the table is a shortest-path distance in the graph of strings, and hovering it lights the three edges that reach it."
   - "With insert and delete only, the distance collapses to the identity m + n − 2·LCS."
   - "A test for distance ≤ k needs only the diagonal band |i − j| ≤ k — O(nk) cells, not the O(n²) full table."
 mathBranches: [graph-theory, metric-geometry, combinatorics]
-primitives: [Afterimage, DPHeatmap, PredictionPrompt, SeriesChart]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, Afterimage, DPHeatmap, PredictionPrompt, SeriesChart]
 attributions: ["Levenshtein 1965", "Needleman–Wunsch 1970", "Wagner–Fischer 1974"]
 relatedTopics: [spam-detection, information-theory]
 featured: false

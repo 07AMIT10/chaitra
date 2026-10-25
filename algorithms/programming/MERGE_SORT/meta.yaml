@@ -3,13 +3,13 @@ slug: merge-sort
 field: programming
 fieldLabel: "Programming"
 reframe: "Sorting unordered chaos appears to require combinatorial omniscience. In 1945, John von Neumann proved it requires only a two-finger zipper: split the universe down to isolated atoms, then weave them back together one comparison at a time."
-oneLine: "Every sort is a merge; every merge is one linear pass over two chains."
+oneLine: "Scanning 10^9 keys takes 15.8 years; von Neumann's two-finger merge does it in 28.9 seconds with n log n passes."
 tldr:
   - "Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does."
   - "The recurrence T(n) = 2T(n/2) + Θ(n) sums to Θ(n log n): each of the log n levels touches every key exactly once."
   - "For n = 2^k the worst case is exactly n log₂ n − n + 1 comparisons — a derived identity, not an estimate."
   - "That matches the floor ⌈log₂(n!)⌉ = Θ(n log n) to a constant factor, so no comparison sort can beat it asymptotically."
 mathBranches: [algebra, analysis, information-theory, order-theory]
-primitives: [RecursionTree, SeriesChart, PredictionPrompt, Afterimage]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, RecursionTree, SeriesChart, PredictionPrompt, Afterimage]
 attributions: ["von Neumann 1945", "Knuth 1973", "Stirling 1730", "Ford–Johnson 1959", "decision-tree lower bound"]
 relatedTopics: [mapreduce, information-theory]

@@ -4,20 +4,49 @@ slug: bellman-ford
 field: programming
 fieldLabel: "Programming"
 reframe: "It is not a slower Dijkstra for broken edges. It is a deflationary gravity: a monotone operator pressing down on every road simultaneously until distances freeze into their least fixed point—or spiral endlessly into a negative abyss."
-oneLine: "Relax every edge in rounds; stop when nothing improves."
+oneLine: "Dijkstra freezes T at 12; relax all edges across 4 rounds to uncover the -11 siphon."
 tldr: ["The state is one distance vector; a round applies the relaxation operator to every edge at once.", "The operator is monotone and deflationary, so n−1 rounds reach the fixed point of the Bellman equation.", "The n-th round is the negative-cycle test, and a reachable negative cycle is exactly the case where no fixed point exists.", "In min-plus algebra the same run reads one row of the tropical closure, the sum of L^(k) for k up to n−1."]
 mathBranches: ["order-theory", "algebra", "fixed-point-theory"]
-primitives: ["Afterimage", "GraphCanvas", "SemiringMatrix", "PredictionPrompt"]
+primitives: ["Transmission", "MissionCard", "ChapterMark", "NextUp", "NextMission", "MissionScore", "Afterimage", "GraphCanvas", "SemiringMatrix", "PredictionPrompt"]
 attributions: ["Shimbel 1955", "Bellman 1958", "Ford 1956", "Moore 1959"]
 relatedTopics: ["pagerank"]
 ---
 
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import SemiringMatrix from "@alg/SemiringMatrix.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 
+{/* Scenario mapping for bellman-ford */}
+<Transmission from="Field Log" code="LOG 404-J">
+Navigation relay received revised jump costs across the Perseus corridor.
+Three warp gates offer gravity assist rebates, driving edge weights negative.
+Dijkstra's autopilot locked sector T at twelve fuel units on its first pass and refused to update.
+Can four sweeps of relaxation expose the minus-eleven siphon before our navigational lock drains to zero?
+</Transmission>
+
+<MissionCard
+  number="04"
+  objective="Drive distance vectors to their tropical fixed point and catch negative runaway cycles before they corrupt routing."
+  steps={[
+    "Relax every edge across sequential rounds to lower tentative labels",
+    "Witness round four certify equilibrium or flag an active siphon",
+    "Trace the min-plus semiring matrix to observe tropical deflation"
+  ]}
+  minutes={9}
+  bailout="The GraphCanvas relaxation panel in §1"
+  after="You can route networks with negative edge weights and trap arbitrage cycles in polynomial time."
+/>
+
+
 ## A Universe Falling Into Equilibrium
+<ChapterMark minutes={3} tag="the hook" />
 
 A negative cycle is a currency loop that pays 11 on every lap, and no number of relaxations will settle it. Without one, 3 rounds lower the labels on this board, and the 4th certifies the freeze.
 
@@ -67,7 +96,11 @@ The distance vector under the graph holds one number per town. Each round replac
   hint="Find the cheapest route to T and count how many edges it traverses."
 />
 
+<NextUp text="Why does Dijkstra's greedy stamp freeze incorrect distances under negative edges?" />
+
+
 ## The Failure of Dijkstra's Horizon
+<ChapterMark minutes={2} tag="the trap" />
 
 Dijkstra assumes that any prefix of a shortest path must itself be a shortest path. A single negative edge shatters that foundation: a town settled early with a low score can later be undercut by a longer detour that gains time.
 
@@ -75,7 +108,11 @@ Standard curricula frame Bellman–Ford as a sluggish fallback that repeatedly r
 
 The repeated passes are not crude brute force. They are successive iterations of a monotone contracting operator converging to its least fixed point.
 
+<NextUp text="How does the deflationary dynamic-programming operator relax edges in waves?" />
+
+
 ## The Deflationary Operator
+<ChapterMark minutes={2} tag="the invariant" />
 
 The state consists of a single vector $d \in (\mathbb{R} \cup \{+\infty\})^V$, pinned at $d(s)=0$. Between rounds, nothing else is stored.
 
@@ -98,7 +135,11 @@ Then $T(d)=d$ means no road can be relaxed, and one round of Bellman–Ford is o
 
 Because $T$ is deflationary, distance estimates descend monotonically from $+\infty$ and can never fall beneath the true shortest paths. When a round produces no change, $T(d) = d$, certifying that the vector has reached its least fixed point.
 
+<NextUp text="What happens when an authorized transaction enters a negative-cost cycle?" />
+
+
 ## The Finite Horizon and the Negative Abyss
+<ChapterMark minutes={2} tag="the algebra" />
 
 Start at $d^{(0)}$ with source at $0$ and all other entries at $+\infty$. The sequence $d^{(0)} \ge d^{(1)} \ge d^{(2)} \ge \cdots$ drops monotonically until it stabilizes.
 
@@ -172,6 +213,7 @@ Add road `T→P` with weight −10 to the picture. Now `P→R→T→P` is a cycl
   caption="The same five towns plus T→P = −10. The cycle P→R→T→P weighs −11, so the labels keep falling and the test round flags a reachable negative cycle."
 />
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Add road T→P = -10 to close the cycle P→R→T→P. What happens on the n-th round of relaxation?"
@@ -185,7 +227,11 @@ Add road `T→P` with weight −10 to the picture. Now `P→R→T→P` is a cycl
   hint="Compare the new road's weight against the cycle it closes."
 />
 
+<NextUp text="How do distributed distance-vector routers detect arbitrary currency loops?" />
+
+
 ## Distance Vectors and Currency Arbitrage
+<ChapterMark minutes={2} tag="the simulation" />
 
 Distance-vector routing protocols such as RIP implement Bellman–Ford across physical networks. Each router broadcasts its vector of distances to immediate neighbours, updating local routing tables according to the Bellman equation.
 
@@ -193,12 +239,21 @@ The infamous 'count-to-infinity' failure mode occurs when a link breaks and rout
 
 Currency arbitrage is the exact inverse application. Set edge weights to $-\log(\text{exchange rate})$ so that multiplying currency conversions corresponds to summing weights. A profitable round trip becomes a negative cycle, transforming the $n$-th round test into an arbitrage detector.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="Five towns under a snowfield of labels, one per town."
   motion="Each round presses every label down to the lowest height its incoming roads allow."
   invariant="The operator only lowers labels and stops only when no road improves, so the frozen row is the least fixed point."
   number="3 rounds lower the labels; the 4th certifies the freeze."
 />
+
+<NextMission
+  href="/algorithms/programming/quicksort/"
+  title="Quicksort"
+  teaser="A naive pivot burns 5×10^9 comparisons on sorted input; partition around pivots to sort in 2M steps."
+/>
+
 
 ## Moore's Queue: Chasing the Active Frontier
 

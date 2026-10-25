@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 import MentalImage from "@alg/MentalImage.tsx";
 import RecursionTree from "@alg/RecursionTree.tsx";
@@ -14,7 +20,35 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   Every multiplication count below is exact arithmetic from M(2^k) = 3^k, not a hardware measurement.
 */}
 
+{/* Scenario mapping:
+  - 2^20-digit cryptographic coordinate keys = high-precision integer inputs.
+  - 4^20 = 1.1*10^12 leaf operations = grade-school O(n^2) quad-split multiplier.
+  - Karatsuba's 3^20 = 3.49*10^9 operations (315-fold speedup) = rank-3 decomposition O(n^1.585).
+  - Three-branch recursion tree = T(n) = 3T(n/2) + O(n).
+*/}
+<Transmission from="Field Log" code="ENGINEERING-LOG // CRYPTO-CORE">
+  Deep-space relay encryption engine is burning through battery reserves on $2^{20}$-digit coordinate keys.
+  Standard schoolbook multiplication demands $4^{20} = 1.1\times 10^{12}$ leaf operations across the quadrant splits.
+  Anatoly Karatsuba's 1960 identity combines intermediate sums to compute the product in just $3^{20} = 3.49\times 10^9$ operations—a 315-fold speedup.
+  Can you harness the three-branch divide-and-conquer tree to multiply registers before auxiliary power fails?
+</Transmission>
+
+<MissionCard
+  number="23"
+  minutes={9}
+  objective="Break the quadratic multiplication barrier by replacing four half-size products with three algebraic combinations."
+  steps={[
+    "Multiply 1234 by 5678 by hand to see where the cross-term sum cancels out the fourth product",
+    "Explore the RecursionTree to verify why branching factor 3 beats 4 at large bit depths",
+    "Take the boss round bet on the exact threshold where Karatsuba overtakes schoolbook multiplication",
+  ]}
+  bailout="Step through the 1234 × 5678 identity calculation to see how one subtraction eliminates the fourth product."
+  after="You will harness sub-quadratic divide-and-conquer across big-integer arithmetic, RSA, and polynomial algebra."
+/>
+
+
 ## The student who disproved Kolmogorov
+<ChapterMark minutes={3} tag="the hook" />
 
 In 1960, Kolmogorov told a Moscow State University seminar that multiplying two $n$-digit numbers requires $\Omega(n^2)$ operations; the claim lasted one week. A 23-year-old student, Anatoly Karatsuba, ended it with an identity that uses three half-size products instead of four.
 
@@ -37,6 +71,19 @@ Both columns produce `7,006,652`. The right column arrives with three small mult
 
 The picture is **three shared measurements**: $a_1b_1$, $a_0b_0$, and $(a_1+a_0)(b_1+b_0)$. The middle measurement carries both cross terms, and subtracting the two squares leaves $a_1b_0 + a_0b_1$.
 
+<PredictionPrompt
+  client:visible
+  question="When multiplying two n-digit numbers by splitting each into two halves, grade school computes four sub-products. How many sub-products does Karatsuba actually compute?"
+  options={[
+    "Two products: high halves and low halves.",
+    "Three products: ac, bd, and (a + b)(c + d), recovering cross-terms by subtraction.",
+    "Four products, but using half as many additions."
+  ]}
+  correct={1}
+  hint="Count the products needed to reconstruct the cross-terms."
+  explain="Karatsuba's key insight is computing z₂ = a₁b₁, z₀ = a₀b₀, and z₁ = (a₁ + a₀)(b₁ + b₀) − z₂ − z₀. That requires only three half-size multiplications instead of four, trading one multiplication for a few additions."
+/>
+
 <MentalImage
   kind="karatsuba-split"
   title="Three shared measurements, with the cross terms isolated by subtraction"
@@ -45,7 +92,11 @@ The picture is **three shared measurements**: $a_1b_1$, $a_0b_0$, and $(a_1+a_0)
 
 At four digits, that saving looks modest. Applied recursively to million-digit numbers, it transforms the computational universe.
 
+<NextUp text="Why did Kolmogorov's quadratic lower-bound conjecture fall to a 23-year-old student in one week?" />
+
+
 ## The quadratic illusion of grade school
+<ChapterMark minutes={2} tag="the trap" />
 
 Grade school teaches us to multiply digit by digit: line up the rows, compute $n^2$ single-digit products, and sum the shifted rows.
 
@@ -53,7 +104,11 @@ If you split each $n$-digit number into two halves and compute the four products
 
 Loop unrolling, SIMD registers, and cache blocking change the constant factor, but cannot break the quadratic wall. The true bottleneck is not the schedule of additions, but the number of essential scalar multiplications.
 
+<NextUp text="How does Karatsuba's identity trade one scalar multiplication for additions and subtractions?" />
+
+
 ## The algebraic engine: dropping tensor rank from 4 to 3
+<ChapterMark minutes={2} tag="the invariant" />
 
 Write the two numbers as polynomials in the radix base: $x = \sum_i a_i B^i$ and $y = \sum_j b_j B^j$. Before carry propagation, the digits of the product form a discrete convolution:
 
@@ -71,7 +126,11 @@ $$
 
 Multiply it out: the weights $B^2 - B$ and $1 - B$ cancel the unwanted cross terms gathered by the middle product. The algebraic rank of two-block polynomial multiplication is 3, not 4.
 
+<NextUp text="How does the sub-quadratic recurrence tree drop the complexity exponent from 2 to 1.585?" />
+
+
 ## Deriving the identity and riding the recurrence
+<ChapterMark minutes={2} tag="the algebra" />
 
 Take the split $x = a_1 B^m + a_0$ and $y = b_1 B^m + b_0$, and expand their product:
 
@@ -137,7 +196,11 @@ $$
 
 At one million digits, the gap is greater than 300-fold. What looked like minor bookkeeping at 4 digits has broken the sound barrier.
 
+<NextUp text="Why do CPython and OpenSSL switch from grade-school to Karatsuba at large integer thresholds?" />
+
+
 ## The visual cascade: from quadratic wall to sub-quadratic tree
+<ChapterMark minutes={2} tag="the simulation" />
 
 The panel visualizes the recurrence seeded at $a = 3$, $b = 2$, $d = 1$: three half-size products and linear overhead per call.
 
@@ -157,6 +220,7 @@ Level $k$ holds $3^k$ subproblems of size $n/2^k$. Total work per level grows by
 
 Drag $a$ from 3 to 4. The ribbon expansion quickens from $1.5\times$ to $2.0\times$ per level, and the asymptotic readout snaps from $\Theta(n^{1.585})$ to $\Theta(n^2)$. That single step on the slider is the barrier Kolmogorov thought impenetrable.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Karatsuba requires extra additions and subtractions (overhead d=1). What would happen to the asymptotic complexity if additions were quadratic (d=2)?"
@@ -169,7 +233,11 @@ Drag $a$ from 3 to 4. The ribbon expansion quickens from $1.5\times$ to $2.0\tim
   explain="In the master theorem, runtime depends on max(log_b a, d). Karatsuba wins because linear addition (d=1) sits below log₂ 3 ≈ 1.585, keeping the tree leaf-dominated. If addition took quadratic time (d=2), then d > log₂ 3, the root would dominate, and the total cost would fall back to Θ(n²)—erasing the entire algebraic advantage of the 3-product trick!"
 />
 
+<NextUp text="How do Toom-Cook and Fast Fourier Transforms push multiplication complexity closer to linear?" />
+
+
 ## From CPython to RSA: where the trick lives
+<ChapterMark minutes={2} tag="systems" />
 
 Karatsuba is active code running on billions of machines daily.
 
@@ -177,12 +245,21 @@ In CPython, Python's arbitrary-precision `int` type switches from schoolbook mul
 
 The same algebraic principle applies identically to polynomial multiplication. Polynomial convolution in computer algebra systems evaluates using Karatsuba before switching to fast Fourier transforms.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="Three shared measurements: the two squares and the product of the sums."
   motion="Subtract the two squares from the middle measurement and the cross terms appear."
   invariant="Three half-size products rebuild every coefficient, so each split branches three ways instead of four."
   number="315× fewer leaf products at n = 2^20: 3.49×10^9 against 1.1×10^12."
 />
+
+<NextMission
+  href="/algorithms/programming/strassen-matrix-multiplication/"
+  title="Strassen Matrix Multiplication"
+  teaser="At n=2^30, 1.24×10^27 products drops to 2.25×10^25: how seven products broke the cubic wall of linear algebra."
+/>
+
 
 ## Beyond Karatsuba: Toom-Cook, FFTs, and the open frontier
 

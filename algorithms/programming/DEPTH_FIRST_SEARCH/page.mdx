@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -14,7 +20,35 @@ import SeriesChart from "@alg/SeriesChart.tsx";
   Astro islands cannot nest, so each primitive here is its own island.
 */}
 
+{/* Scenario mapping:
+  - Telemetry burst frames [4, 1, 5, 2, 6, 3] = unsorted sequence elements (i, p_i).
+  - Escalating thermal shock wave = longest increasing subsequence (chain).
+  - Cooling buffer bins = patience sorting piles (antichains).
+  - 1.66M operations vs 2^100,000 candidates = O(n log n) binary search vs exponential brute-force.
+*/}
+<Transmission from="Field Log" code="ENTRY 12-TRM">
+Recon drone deployed into the unmapped utility labyrinth beneath Sector 6.
+Marking rooms visited without tracking exit timestamps leaves cross ducts indistinguishable from deep recursion.
+Recording entry and exit ticks binds every corridor into strictly nested laminar intervals.
+Can twelve timestamps across six chambers isolate the single back edge before the drone loses telemetry?
+</Transmission>
+
+<MissionCard
+  number="12"
+  objective="Log discovery and exit timestamps to structure graph traversals into laminar intervals and expose back edges."
+  steps={[
+    "Step the depth-first cursor to log entry and exit ticks across six vertices",
+    "Verify the parenthesis property where time intervals strictly nest or separate",
+    "Spot the single back edge to certify cycles and extract topological order"
+  ]}
+  minutes={8}
+  bailout="The GraphCanvas laminar interval explorer in §2"
+  after="You can construct linear-time topological sorts, articulation points, and Tarjan strong components."
+/>
+
+
 ## Six Vertices, Two Clocks
+<ChapterMark minutes={3} tag="the hook" />
 
 One pass with two clocks per vertex classifies every arc of a digraph, and a single back edge certifies a cycle. Add one low-link number per vertex, and the same ledger finds every strongly connected component in linear time (Tarjan 1972). The same intervals build the dominator tree that optimising compilers use (Lengauer and Tarjan 1979).
 
@@ -60,7 +94,11 @@ The picture is **the two clocks**: one ticks on entry, one on return, and a vert
 
 Watch B and C, not the drawn arcs: siblings get disjoint intervals, while a back edge points at an ancestor that is still open on the stack.
 
+<NextUp text="Why do visited flags fail to capture the ancestral hierarchy of graph nodes?" />
+
+
 ## Beyond the Cursor's Trail
+<ChapterMark minutes={2} tag="the trap" />
 
 Ask a programmer what depth-first search does and you will hear a mechanical rule: dive as deep as possible, then backtrack. Ask what the algorithm produces and you will receive the sequence of visited vertices.
 
@@ -68,7 +106,11 @@ That sequence is an arbitrary artefact of input ordering and dictionary sorting.
 
 The algorithm's true output is not a path. It is a spanning forest decorated with two timestamps per vertex that encode the global connectivity of the network.
 
+<NextUp text="How do entry and exit timestamps create a laminar system of nested intervals?" />
+
+
 ## The Laminar World: Nested Time Intervals
+<ChapterMark minutes={2} tag="the invariant" />
 
 Strip the traversal of commentary and a rooted spanning forest remains. Every vertex except a tree root has a unique parent that discovered it, linked by tree edges.
 
@@ -85,7 +127,11 @@ Assign each vertex two distinct timestamps. Let $d[v]$ be the tick when the sear
 
 Each vertex owns an interval $[d[v], f[v]]$. This family of intervals is strictly **laminar**: any two intervals are either nested or completely disjoint, never partially overlapping. That single structural invariance drives every theorem on this page.
 
+<NextUp text="How does the parenthesis theorem classify edges into tree, back, and cross types?" />
+
+
 ## The Parenthesis Theorem and Arc Taxonomy
+<ChapterMark minutes={2} tag="the algebra" />
 
 ### The Parenthesis Invariant
 
@@ -112,6 +158,7 @@ This is the **parenthesis theorem** (Cormen, Leiserson, Rivest, and Stein). A si
 
 Each point shows one vertex coordinate $(d[v], f[v])$. One vertex nests inside another precisely when its point sits down and to the right of the ancestor point.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Vertices B and C are sibling subtrees under parent A, with B explored first. What spatial relationship must their intervals share?"
@@ -143,7 +190,11 @@ If arc $(u, v)$ is a back edge, the tree path from ancestor $v$ to $u$ combined 
 
 In a directed acyclic graph (DAG), sorting vertices in decreasing order of finish time $f[v]$ produces a valid topological order. Because a DAG has no back edges, every arc $(u, v)$ satisfies $f[u] > f[v]$.
 
+<NextUp text="How does a single back edge certify the presence of an algorithmic cycle?" />
+
+
 ## Anatomy of Three Critical Frames
+<ChapterMark minutes={2} tag="the simulation" />
 
 Scrub the player to three revealing frames:
 
@@ -151,7 +202,11 @@ Scrub the player to three revealing frames:
 - **Frame 26.** Arc $A \to E$ is examined after $E$ has already finished at time 5. This is a forward edge: an optimization shortcut rather than a cycle.
 - **Frame 18.** Arc $C \to D$ reaches $D$ after $D$'s entire subtree has closed. Because $D$ is neither ancestor nor descendant of $C$, this is a cross edge.
 
+<NextUp text="How does Tarjan's lowlink value compute strongly connected components in linear time?" />
+
+
 ## Topological Ordering, Cut-Vertices, and Strong Components
+<ChapterMark minutes={2} tag="systems" />
 
 Run the search on a DAG and the finishing order delivers a topological sort without additional bookkeeping:
 
@@ -184,12 +239,21 @@ Define $low[w]$ as the minimum discovery time reachable from $w$'s subtree via a
 
 The same timestamps identify Strongly Connected Components (SCCs) in a single $O(V + E)$ pass (Tarjan 1972). Modern optimizing compilers build dominator trees on control-flow graphs using this identical interval geometry (Lengauer and Tarjan 1979).
 
+<MissionScore client:visible />
+
 <Afterimage
   object="Six vertices, each with two ticks, laid out as brackets on one clock."
   motion="The clock advances on every entry and every return, so the brackets close in the reverse order they opened."
   invariant="The intervals are nested or disjoint and never partly overlap, so one ledger classifies every arc and certifies acyclicity; one low-link number adds components."
   number="12 timestamps for 6 vertices: two clocks each, one back edge."
 />
+
+<NextMission
+  href="/algorithms/programming/longest-increasing-subsequence/"
+  title="Longest Increasing Subsequence"
+  teaser="1.66M comparisons beat 10^30103 brute-force paths: how patience sorting extracts the longest ascending run."
+/>
+
 
 ## Attributions
 

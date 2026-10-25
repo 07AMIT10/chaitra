@@ -3,13 +3,13 @@ slug: strassen-matrix-multiplication
 field: programming
 fieldLabel: "Programming"
 reframe: "For centuries, multiplying four numbers in a square demanded eight multiplications — treated as an immutable law of arithmetic. Strassen discovered that eight is a lie: seven is enough. That single missing product permanently broke the cubic wall of linear algebra."
-oneLine: "Seven products where the textbook needs eight, applied to half-size blocks over and over."
+oneLine: "At n=2^30, 1.24×10^27 products drops to 2.25×10^25: how seven products broke the cubic wall of linear algebra."
 tldr:
   - "Matrix multiplication is a bilinear map; the fewest scalar products that compute it is the rank of its tensor, and the textbook algorithm is an 8-term decomposition."
   - "Strassen gave a 7-term one for 2×2 blocks, and Winograd proved seven is the least possible, so that rank is exactly 7 — you cannot do better at size 2."
   - "Recursing gives T(n) = 7T(n/2) + Θ(n²), hence Θ(n^{log₂ 7}) ≈ Θ(n^2.807): the Θ(n²) additions enlarge the constant, not the exponent."
   - "That exponent is ω, the object of a fifty-year race that has moved the bound many times and has never settled it."
 mathBranches: [algebra, multilinear-algebra, complexity-theory]
-primitives: [RecursionTree, GrowthTable, PredictionPrompt, Afterimage, MentalImage]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, RecursionTree, GrowthTable, PredictionPrompt, Afterimage, MentalImage]
 attributions: ["Strassen 1969", "Winograd 1971", "Coppersmith–Winograd 1990", "Alman–Williams 2021", "Higham 2002"]
 featured: false

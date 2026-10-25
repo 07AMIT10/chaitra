@@ -4,14 +4,20 @@ slug: minimum-spanning-tree
 field: programming
 fieldLabel: "Programming"
 reframe: "It is not a cautious hoarder picking cheap twigs. It is the geometric miracle of a matroid: short-sighted, local greed is mathematically guaranteed to carve out the globally optimal skeleton without a single step of regret."
-oneLine: "One weighted graph, two greedy orders, one forced total — and the axiom that makes greedy provably right."
+oneLine: "Cayley counts 10^196 spanning trees for 100 cities; Kruskal finds the cheapest in 60,700 comparisons without regret."
 tldr: ["A spanning tree is a basis of the graphic matroid; a minimum spanning tree is a minimum-weight basis.", "The cut property and the cycle property are the two faces of Whitney's exchange axiom, and each one proves greedy exact.", "Ties decide the tree, never the weight: on the graph below there are exactly two minimum spanning trees, one edge-swap apart.", "Greedy breaks the instant independence stops being a matroid — three items and one capacity are enough to see it."]
 mathBranches: ["combinatorics", "optimization", "graph-theory"]
-primitives: ["Afterimage", "GraphCanvas", "MentalImage", "PredictionPrompt", "SeriesChart"]
+primitives: ["Transmission", "MissionCard", "ChapterMark", "NextUp", "NextMission", "MissionScore", "Afterimage", "GraphCanvas", "MentalImage", "PredictionPrompt", "SeriesChart"]
 attributions: ["Borůvka 1926", "Kruskal 1956", "Prim 1957", "Whitney 1935"]
 relatedTopics: ["randomized-algorithms", "mapreduce"]
 ---
 
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -38,7 +44,35 @@ import Afterimage from "@alg/Afterimage.tsx";
       SeriesChart is static and carries no directive.
 */}
 
+{/* Scenario mapping:
+  - Six dome habitats = six vertices V.
+  - 24 spanning grids, weight 6 limit = canonical 24 trees, exactly 2 of weight 6.
+  - 10^196 trees at n=100 = Cayley's formula n^(n-2).
+  - Borůvka/Kruskal cut welding in 60,700 comparisons = O(E log E) cut property.
+*/}
+<Transmission from="Field Log" code="GRID-SURVEY // MORAVIA-SECTOR">
+  Six orbital dome habitats require high-voltage interconnect lines across vacuum terrain.
+  Cayley's theorem counts 24 possible spanning grids, but our copper conduit budget allows exactly weight 6.
+  At a hundred settlements, brute-force enumeration confronts $10^{196}$ network trees while Borůvka's cut welds the optimal grid in 60,700 comparisons.
+  Can you weld the colony's power islands together without ever regretting a local greedy choice?
+</Transmission>
+
+<MissionCard
+  number="18"
+  minutes={11}
+  objective="Connect isolated network nodes with minimal total link weight using greedy cut welding and cycle checks."
+  steps={[
+    "Predict whether Kruskal's edge sort and Prim's growing wave can pick different edge sets of equal weight",
+    "Step the GraphCanvas to watch accepted edges weld islands into a single connected component",
+    "Take the boss round bet on how the cut property proves a greedy choice can never be regretted",
+  ]}
+  bailout="Step the GraphCanvas to watch Kruskal weld components together and verify the final weight of 6."
+  after="You will design optimal physical cabling, cluster topologies, and approximations for the metric TSP."
+/>
+
+
 ## Two Greedy Orders, One Forced Weight
+<ChapterMark minutes={3} tag="the hook" />
 
 Exactly 2 of the 24 spanning trees on this six-vertex board weigh 6. At $n = 100$, Cayley's 1889 formula counts $100^{98} \approx 10^{196}$ trees, so enumeration is not a plan.
 
@@ -120,7 +154,11 @@ Both panels operate on the exact same graph. The left player sweeps a globally s
   explain="Both algorithms are guaranteed to produce a minimum spanning tree of weight exactly 6. The second option is an intuition trap: arbitrary spanning trees on this graph weigh up to 10. The total weight is an invariant of the matroid, not of the algorithmic route."
 />
 
+<NextUp text="Why do Kruskal and Prim arrive at the exact same tree weight from opposite greedy directions?" />
+
+
 ## The Mystery of Unregretted Greed
+<ChapterMark minutes={2} tag="the trap" />
 
 Greedy algorithms usually fail. In almost every combinatorial puzzle, seizing the immediate best local option leads directly to a suboptimal dead end.
 
@@ -128,7 +166,11 @@ Yet for spanning trees, greed never fails. You can sort edges globally and greed
 
 The real question is not how to write these five lines of code. It is why a choice made at step two is never regretted at step ten, and what geometric structure makes that possible.
 
+<NextUp text="How does Whitney's matroid exchange axiom guarantee that greedy edge choices are unregretted?" />
+
+
 ## Whitney's Matroid and the Axiom of Exchange
+<ChapterMark minutes={2} tag="the invariant" />
 
 A **matroid** $M = (E,\mathcal{I})$ is a finite ground set $E$ of elements together with an independent set system $\mathcal{I}$ satisfying three conditions (Whitney 1935):
 
@@ -146,7 +188,11 @@ In a graph, let $E$ be the edge set and declare an edge subset independent if an
 
 To verify the exchange axiom on graphs, consider two forests $A$ and $B$ with $|A| < |B|$. Forest $A$ has $n - |A|$ connected components, while $B$ has $n - |B|$ components, meaning $A$ partitions vertices into strictly more pieces. Because $|B| > |A|$, some edge $e \in B$ must connect two distinct components of $A$, ensuring $A \cup \{e\}$ remains an acyclic forest.
 
+<NextUp text="How do the fundamental cut and cycle duals certify the optimality of every welded edge?" />
+
+
 ## The Cut and Cycle Duals
+<ChapterMark minutes={2} tag="the algebra" />
 
 Two fundamental theorems govern spanning trees, serving as dual expressions of Whitney's exchange axiom:
 
@@ -178,7 +224,11 @@ The two theorems are two aspects of a single reality: an edge is safe when it is
 
 The knapsack system fails Whitney's exchange axiom. With independent sets $A=\{c\}$ of size 1 and $B=\{a,b\}$ of size 2, no item from $B$ can augment $A$. That failure is why 0/1 knapsack is NP-hard (Karp 1972) while MST runs in near-linear time.
 
+<NextUp text="How did Borůvka's 1926 electrification algorithm power the rural cities of Moravia?" />
+
+
 ## The Twin Skeletons: Kruskal and Prim in Lockstep
+<ChapterMark minutes={2} tag="the simulation" />
 
 Both panels finish at five edges with total weight 6, but their logs reveal distinct routes:
 
@@ -187,6 +237,7 @@ Both panels finish at five edges with total weight 6, but their logs reveal dist
 
 Their shared total is guaranteed by matroid theory. Whether their chosen edge *sets* match depends entirely on arbitrary tie-breaking between equal-weight edges.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="There are 24 distinct spanning trees on this 6-vertex graph. Is the minimum spanning tree unique?"
@@ -231,7 +282,11 @@ The chart below measures key comparisons across three implementations on seeded 
 
 Kruskal tracks $m \log_2 m$ closely because sorting dominates runtime. Rescanning Prim examines every edge per added vertex, growing quadratically, while a binary heap restores performance to near-sorting speeds.
 
+<NextUp text="What linear-time verification algorithms inspect minimum spanning trees without sorting?" />
+
+
 ## Electrifying Moravia: From Clusters to Traveling Salesmen
+<ChapterMark minutes={2} tag="systems" />
 
 Kruskal's cycle check uses disjoint-set union–find. Sorting $m$ edges costs $O(m \log m)$, followed by operations costing $O(m \alpha(n))$, absorbing union–find cost into sorting:
 
@@ -243,12 +298,21 @@ Borůvka conceived the first MST algorithm in 1926 to plan the regional electric
 
 Removing the $k-1$ heaviest edges from an MST partitions vertices into $k$ optimal clusters, which is single-linkage clustering (Gower and Ross 1969). Christofides (1976) used an MST to guarantee a 1.5-approximation for the metric Traveling Salesperson Problem.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="Six islands and eight bridges, with the two minimum trees tied at weight 6."
   motion="Kruskal walks the bridges cheapest-first and welds two islands whenever a bridge leaves one island for another."
   invariant="Every accepted bridge is the cheapest crossing of the cut it closes, so no later edge can undercut it."
   number="24 spanning trees, exactly 2 of weight 6."
 />
+
+<NextMission
+  href="/algorithms/programming/longest-common-subsequence/"
+  title="Longest Common Subsequence"
+  teaser="4,225 cells replace 2^32 brute-force candidates: how git diff extracts identical lines from diverging files."
+/>
+
 
 ## The Frontier of Linear Time and Matroid Intersections
 

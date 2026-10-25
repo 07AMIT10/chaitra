@@ -17,6 +17,12 @@ export { default as MatchingBoard } from "./MatchingBoard";
 export { default as HuffmanMerge } from "./HuffmanMerge";
 export { default as MentalImage } from "./MentalImage";
 export { default as Afterimage } from "./Afterimage";
+export { default as Transmission } from "./Transmission";
+export { default as MissionCard } from "./MissionCard";
+export { default as ChapterMark } from "./ChapterMark";
+export { default as NextUp } from "./NextUp";
+export { default as NextMission } from "./NextMission";
+export { default as MissionScore } from "./MissionScore";
 
 export type { Series, SeriesPoint, Annotation } from "./SeriesChart";
 export type { GrowthRow } from "./GrowthTable";
