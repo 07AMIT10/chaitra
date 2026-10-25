@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -13,7 +19,35 @@ import Afterimage from "@alg/Afterimage.tsx";
   Interactive primitives carry an explicit Astro client directive; each is its own island.
 */}
 
+{/* Scenario mapping:
+  - Six turbine operational stages = six-node DAG {A, B, C, D, E, F}.
+  - 5 valid orders out of 720 = linear extensions of the six-task poset.
+  - Two parallel 50-task chains exploding to 1.0089*10^29 = #P-hardness of counting extensions.
+  - Kahn's queue peeling = in-degree zero peeling algorithm diagnosing cycle deadlocks.
+*/}
+<Transmission from="Ship System" code="IGNITION-SYS // SEQUENCER-DAG">
+  Main reactor turbine ignition sequence loaded: six operational stages with interlocking pressure dependencies.
+  Naive linear staging risks out-of-order detonation; exactly 5 of the 720 possible execution orders honor all prerequisite arrows.
+  At a hundred tasks in two parallel chains, valid extensions explode to $1.0089\times 10^{29}$.
+  Can Kahn's in-degree queue peel the DAG before an undetected circular deadlock halts the burn?
+</Transmission>
+
+<MissionCard
+  number="17"
+  minutes={8}
+  objective="Peel dependency networks from sources to sinks to extract valid timelines and expose deadlock cycles."
+  steps={[
+    "Identify the single causal violation among candidate schedules on the six-task board",
+    "Step the GraphCanvas to watch Kahn's in-degree queue peel zero-prerequisite tasks",
+    "Take the boss round bet on cycle detection when in-degrees never reach zero",
+  ]}
+  bailout="Step Kahn's peeling in the GraphCanvas to see how queue chips emit valid schedules without backtracking."
+  after="You will architect compiler build graphs, reactive spreadsheet engines, and distributed causal timelines."
+/>
+
+
 ## The Six-Stage Pipeline
+<ChapterMark minutes={3} tag="the hook" />
 
 Exactly 5 of the $6! = 720$ orders on this six-task board are valid schedules. The DAG is the object that names all five at once: A precedes B and C, both precede D, C precedes E, and D and E precede the final link F.
 
@@ -67,7 +101,11 @@ The sequence accumulating in the execution log is one valid build order: one sha
   explain="Examine the third sequence: D is scheduled immediately after B, prior to executing C! Because edge C→D exists, task D cannot start until C has concluded. The other three sequences correctly ensure A precedes both B and C, B and C precede D, C precedes E, and D and E precede F."
 />
 
+<NextUp text="Why do only 5 of 720 possible permutations represent valid non-deadlocking schedules?" />
+
+
 ## The Fallacy of the Single List
+<ChapterMark minutes={2} tag="the trap" />
 
 Standard pedagogy models topological sorting as an imperative queue routine: calculate every node's in-degree, push zero-in-degree nodes into a FIFO queue, pop an element, decrement its neighbours, and repeat until the queue empties.
 
@@ -75,7 +113,11 @@ While this procedure functions cleanly in $O(V+E)$ time, the framing conceals th
 
 Naming the problem "find a topological sort" creates the illusion of a unique target. In truth, the graph is a partially ordered set, and any valid schedule is merely one linear extension among an astronomical family of compatible orders.
 
+<NextUp text="How does Kahn's in-degree queue peel zero-predecessor tasks from the DAG in linear time?" />
+
+
 ## Posets, Preorders, and the Linear Extension
+<ChapterMark minutes={2} tag="the invariant" />
 
 Define a reachability relation on vertices: write $u \le v$ if a directed path travels from $u$ to $v$, adopting $u \le u$ for zero-length paths. This relation is reflexive and transitive, establishing a **preorder**.
 
@@ -91,7 +133,11 @@ $$
 
 A topological sort is precisely a linear extension of the reachability poset. The list is not the fundamental entity; the poset is the ground truth, and the list is one projection onto a 1D timeline.
 
+<NextUp text="How does Birkhoff's lattice of order ideals represent all valid linear extensions?" />
+
+
 ## Order Ideals, Birkhoff's Lattice, and #P-Hardness
+<ChapterMark minutes={2} tag="the algebra" />
 
 **Minimal Element Peeling (Arthur Kahn 1962).** A node with in-degree zero is an algebraic minimal element of the surviving sub-poset. Kahn's algorithm iteratively extracts minimal elements, extinguishing edges until the graph is empty.
 
@@ -103,6 +149,7 @@ For our six-node graph, exactly 5 valid linear extensions exist out of $6! = 720
 
 **The Intractability of Counting (Brightwell & Winkler 1991).** While constructing a single linear extension takes linear time $O(V+E)$, counting how many linear extensions exist is **#P-complete**! No polynomial-time algorithm can count the number of valid schedules unless $P = NP$.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Consider a diamond poset of four elements: a single root at the bottom, a single sink at the top, and two incomparable intermediate elements in between. How many linear extensions does it have?"
@@ -130,7 +177,11 @@ For our six-node graph, exactly 5 valid linear extensions exist out of $6! = 720
 
 For two disjoint independent chains of length $k$, any valid topological ordering is an interleaving chosen by placing $k$ items into $2k$ slots, yielding exactly $\binom{2k}{k}$ linear extensions. As $n$ grows, the count explodes beyond practical enumeration, demonstrating why #P-hardness protects this combinatorial landscape. At $k = 50$, with a hundred tasks in two chains, the same formula gives $\binom{100}{50} \approx 1.0089 \times 10^{29}$ schedules.
 
+<NextUp text="How do distributed systems use topological scheduling to enforce Lamport logical clocks?" />
+
+
 ## Peeling Minimal Elements in Real Time
+<ChapterMark minutes={2} tag="the simulation" />
 
 Return to the pipeline visualizer above and step through execution. The active queue chips represent the current set of minimal elements eligible for immediate dispatch.
 
@@ -138,7 +189,11 @@ A distinct construction uses Depth-First Search (Robert Tarjan 1976). By recordi
 
 Kahn's approach peels forward from sources; Tarjan's approach works backward from sinks. Both produce valid linear extensions, exploring distinct trajectories through the underlying lattice of ideals.
 
+<NextUp text="What happens when an undetected circular dependency condenses tasks into a permanent freeze?" />
+
+
 ## Compilers, Spreadsheets, and Lamport Clocks
+<ChapterMark minutes={2} tag="systems" />
 
 Topological sorting governs modern computing architectures wherever prerequisites dictate execution.
 
@@ -146,12 +201,21 @@ Compilers order compilation units to ensure definitions precede symbol resolutio
 
 In distributed computing, Leslie Lamport (1978) formalised the **happens-before** relation $(\to)$ across asynchronous message networks. The physical universe does not offer a single synchronized clock; a distributed timeline is simply a linear extension of the causal poset.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="A six-task DAG and the five shadows it casts on a timeline."
   motion="Kahn's queue emits a task whose prerequisites are done, and each emission fixes one position of one shadow."
   invariant="Every emitted task has in-degree zero in what remains, so no arrow ever points backward along the timeline."
   number="5 valid schedules out of 720."
 />
+
+<NextMission
+  href="/algorithms/programming/minimum-spanning-tree/"
+  title="Minimum Spanning Tree"
+  teaser="Cayley counts 10^196 spanning trees for 100 cities; Kruskal finds the cheapest in 60,700 comparisons without regret."
+/>
+
 
 ## The Fractured Arrow of Time: Cycles as Condensations
 

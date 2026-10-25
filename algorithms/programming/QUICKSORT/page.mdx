@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 import RecursionTree from "@alg/RecursionTree.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -14,7 +20,30 @@ import Afterimage from "@alg/Afterimage.tsx";
   Every comparison count below is exact arithmetic from E[C] = 2(n+1)H_n − 4n, not a hardware measurement.
 */}
 
+{/* Scenario mapping for quicksort */}
+<Transmission from="Rival" code="CHAN 0x99">
+Your automated cipher sort assumes incoming telegrams arrive in random disorder.
+I just fed your pipeline a presorted stream of one hundred thousand keys.
+Your first-element pivot is recursing down a single chain, burning five billion comparisons instead of two million.
+Will your stack frame blow the buffer before your partition tree finds its first balanced pivot?
+</Transmission>
+
+<MissionCard
+  number="05"
+  objective="Partition disordered keys in place and protect recursion depth from adversarial worst-case quadratic collapse."
+  steps={[
+    "Step the two-pointer partition to swap keys around a chosen pivot",
+    "Compare balanced binary splits against degenerate linear chains",
+    "Deploy randomized pivots or introsort to deflect McIlroy's adversary"
+  ]}
+  minutes={9}
+  bailout="The RecursionTree comparison viewer in §5"
+  after="You can guarantee O(n log n) in-place sorting that leverages cache lines without choking on ordered data."
+/>
+
+
 ## The ghost tree inside the partition
+<ChapterMark minutes={3} tag="the hook" />
 
 Sorted input with a first-element pivot costs 5×10⁹ comparisons at 100,000 keys. The recursion runs 100,000 levels deep. Random pivots average 2,018,053 comparisons on the same input, so the damage is 2,478×.
 
@@ -36,12 +65,29 @@ The sum of partition comparisons equals 13. The sum of node depths in the result
 
 These two counts are not a coincidence. Every pivot is a node in **the ghost tree**, every comparison is a step down one edge, and the total depth is the runtime.
 
+<PredictionPrompt
+  client:visible
+  question="Sorted input with a first-element pivot peels off one key per partition. At 100,000 keys, how many comparisons occur before the array is sorted?"
+  options={[
+    "About 2 million: quicksort always runs in n log n time on average.",
+    "About 100,000: because the array is already sorted, no swaps are needed.",
+    "Five billion comparisons: the recursion degenerates into a single chain 100,000 levels deep."
+  ]}
+  correct={2}
+  hint="Each partition of m elements compares the pivot against m - 1 elements and reduces the problem by only 1."
+  explain="When the pivot is the minimum element, the partition leaves an empty left subarray and a right subarray of size n - 1. Summing (n - 1) + (n - 2) + ... + 1 yields n(n - 1)/2 comparisons. For 100,000 keys, that is approximately 5×10^9 operations—a 2,478× slowdown over random pivots."
+/>
+
 <MentalImage
   kind="quicksort-ghost"
   caption="Random pivots on the left build a tree of depth ≈ 1.39 log₂ n; sorted input with a first-element pivot on the right builds a chain of depth n. Both counts are for n = 100,000."
 />
 
+<NextUp text="What causes a sorted input to blow up the recursion tree to 100,000 levels?" />
+
+
 ## The unpredictability of the pivot
+<ChapterMark minutes={2} tag="the trap" />
 
 Quicksort's operational recipe is famous: choose a pivot, partition smaller items left and larger items right, then recurse on each side. Once partitioned, the pivot never moves again.
 
@@ -55,7 +101,11 @@ This recurrence reveals the central challenge of the algorithm: $k$ is not chose
 
 The imperative view—"choose a pivot and swap"—describes only the physical mechanism. The true mathematical object is the geometric structure of the pivot sequence itself.
 
+<NextUp text="Why does the sum of node depths in the ghost tree equal total comparisons?" />
+
+
 ## The tree revealed: internal path length as runtime
+<ChapterMark minutes={2} tag="the invariant" />
 
 Record every comparison as a directed edge. The initial pivot is compared against all $n-1$ other keys. Every subsequent pivot is compared solely against elements that survived inside its assigned partition.
 
@@ -73,7 +123,11 @@ $$
 
 For inputs in random order, this process builds a **random binary search tree**. The algorithm's running time is literally the shape of this tree.
 
+<NextUp text="How does linearity of expectation bypass the variance of individual pivots?" />
+
+
 ## Linearity of expectation and the 2 ln 2 barrier
+<ChapterMark minutes={2} tag="the algebra" />
 
 Instead of solving complex recurrence convolutions, analyze pairwise comparisons directly.
 
@@ -175,6 +229,7 @@ The total work across all levels remains $\Theta(n \log n)$, merely scaled by a 
   ]}
 />
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Suppose every pivot happens to split its block 1:9 — ten percent left, ninety right. Does that change the asymptotic running time?"
@@ -187,7 +242,11 @@ The total work across all levels remains $\Theta(n \log n)$, merely scaled by a 
   explain="The larger part is at most nine-tenths of its parent, so every root-to-leaf path shrinks by 9/10 per step and its length is at most log₁₀/₉ n. Each level touches at most n keys, so total work is bounded by n log₁₀/₉ n ≈ 6.58 n log₂ n—about 4.7 times the random average, but strictly Θ(n log n)."
 />
 
+<NextUp text="Why does raw cache locality make quicksort outperform mergesort on real hardware?" />
+
+
 ## Visualizing the balanced illusion
+<ChapterMark minutes={2} tag="the simulation" />
 
 The recursion tree panel depicts the idealized recurrence $a = 2$, $b = 2$, $d = 1$, where every pivot magically hits the exact median.
 
@@ -209,7 +268,11 @@ In practice, quicksort's splits fluctuate stochastically. The actual tree is rou
 
 Setting $d=2$ forces the root partition to dominate at $\Theta(n^2)$, mirroring the degenerate sorted case.
 
+<NextUp text="How did McIlroy's anti-quicksort adversary force quadratic worst-cases in glibc?" />
+
+
 ## Why raw cache locality crowns Quicksort
+<ChapterMark minutes={2} tag="systems" />
 
 Merge sort executes fewer comparisons ($n \log_2 n - n + 1$) than Quicksort ($1.39 n \log_2 n$). Yet Quicksort regularly outperforms Merge Sort in production benchmarks.
 
@@ -217,12 +280,21 @@ The reason lies in cache architecture. Hoare's partition scans inward from both 
 
 Merge Sort requires a separate auxiliary array of size $n$, causing cache evictions and memory allocation traffic. Standard C libraries choose Quicksort (or Introsort) for primitive arrays where raw throughput dominates.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The ghost tree: every pivot is a node, every comparison a step down one edge."
   motion="Random pivots grow both sides roughly evenly; sorted input with the first element as pivot adds one child per level until the tree is a chain."
   invariant="Each key is compared once to every pivot above it, so the summed depth is the comparison count and no comparison is wasted."
   number="5×10^9 comparisons on sorted input, against 2,018,053 for the average: 2,478×."
 />
+
+<NextMission
+  href="/algorithms/programming/newton-method/"
+  title="Newton's Method"
+  teaser="Bisection takes 3,322 steps for 1,000 digits; shoot the tangent line to double precision in 11."
+/>
+
 
 ## McIlroy's anti-quicksort adversary and introsort
 

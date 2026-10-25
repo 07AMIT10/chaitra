@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -13,7 +19,34 @@ import Afterimage from "@alg/Afterimage.tsx";
   The chart values are exact evaluations of a·b − a − b (Sylvester 1882), not measurements.
 */}
 
+{/* Scenario mapping:
+  - 6-liter chamber pressurization deficit = target amount W = 6.
+  - Canister depot {1L, 3L, 4L} = coin denominations {1, 3, 4}.
+  - Automated arm taking 4L then 1L + 1L = greedy cashier heuristic burning 3 items.
+  - Optimal 3L + 3L = shortest path distance of 2 in the debt graph.
+*/}
+<Transmission from="Field Log" code="OUTPOST-LOG // RATION-BAY 4">
+  Life-support scrubber requires six liters of emergency pressurization, but the depot carries only canisters of 1, 3, and 4 liters.
+  The automated dispensing arm grabs the largest 4-liter tank first and needs three canisters total to settle the debt.
+  Can you prove why the greedy protocol wasted a canister when two tanks could seal the hatch?
+</Transmission>
+
+<MissionCard
+  number="14"
+  minutes={14}
+  objective="Break the cashier's greedy habit and find the exact coin combination that minimizes transaction count."
+  steps={[
+    "Test the greedy choice on 6 cents with coins {1, 3, 4} to see the three-coin trap",
+    "Step the DPHeatmap to watch optimal debts propagate along denomination edges",
+    "Take the boss round bet on what makes a currency canonical under Pearson's test",
+  ]}
+  bailout="Examine the 6-cent row in the DPHeatmap to see where greedy (4+1+1) loses to shortest-path (3+3)."
+  after="You will instantly spot when greedy resource allocation fails and how to frame discrete debt as a shortest path."
+/>
+
+
 ## Six Cents on the Counter
+<ChapterMark minutes={3} tag="the hook" />
 
 Six cents to make, with coins of 1, 3 and 4, and as many of each as you like. Run the rule a cashier runs — take the largest coin that still fits.
 
@@ -32,13 +65,21 @@ Now set the rule aside and look at the tray. `3 + 3` is also six cents, in two c
 
 Two is the answer; three is the rule. That gap is the page: the fewest coins is a property of the set of coins, and the largest-first rule is an algorithm that happens to be right on some sets and wrong on others.
 
+<NextUp text="Why does the greedy cashier spend three coins on six cents where two are optimal?" />
+
+
 ## The Cashier's Illusion
+<ChapterMark minutes={2} tag="the trap" />
 
 Operationally you are handed a set of denominations `c₁ > c₂ > ⋯ > cₙ`, unlimited supply of each, and an amount $A$. You hand back the fewest coins that sum to $A$.
 
 "Spend the biggest coin first" is an algorithm, not the question, and it is the algorithm everyone reaches for because a cashier uses it. It is exact on the coins in your pocket and wrong on others, and it gives you no way to tell which case you are in. The real question is about the *set* of coins, not about the order an algorithm happens to pick them.
 
+<NextUp text="How does the debt directed acyclic graph represent all possible coin combinations?" />
+
+
 ## The Directed Graph of Debt
+<ChapterMark minutes={2} tag="the invariant" />
 
 Fix the coins and the amount $A$. The vertices are the amounts $0, 1, \dots, A$. For every coin $c$ and every amount $a \ge c$, draw an edge
 
@@ -62,7 +103,11 @@ Let $g=\gcd(c_1,\dots,c_n)$. Every edge changes an amount by a multiple of $g$, 
 
 When $g=1$ that is the only class, and every amount past a finite threshold is reachable. That threshold is the next object.
 
+<NextUp text="How does Pearson's polynomial-time test certify whether a currency system is canonical?" />
+
+
 ## Pearson's Test and Sylvester's Gap
+<ChapterMark minutes={2} tag="the algebra" />
 
 Give the recurrence first, then watch it disagree with the rule.
 
@@ -111,6 +156,7 @@ For three or more coins **no closed form is known in general**; the two-coin for
   ]}
 />
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="A coin system is 4, 6 and 10 — one even coin, and in fact all three are even. Does this system have a largest amount it cannot make?"
@@ -125,7 +171,11 @@ For three or more coins **no closed form is known in general**; the two-coin for
   explain="No. Each representable amount is a sum of even coins, hence even, so 1, 3, 5, 7, … are all missed — there is no largest one. The condition is not parity but coprimality: the gaps are finite, and so have a largest element, exactly when gcd(c₁, …, cₙ) = 1. Compare the coins 4, 6 and 9 in section 6: even coins, gcd 1, and a largest gap of 11 you can read off the table."
 />
 
+<NextUp text="How does dynamic programming trace the shortest path on the denomination grid?" />
+
+
 ## Tracing Paths Across the Denomination Grid
+<ChapterMark minutes={2} tag="the simulation" />
 
 <DPHeatmap
   client:visible
@@ -143,7 +193,11 @@ For your coins the corner reads 2, and the trace proves it: from `≤ 4` at amou
 
 Watch the shape of the fill. Every cell depends on a cell above it and a cell to its left, so the row-major order fills each cell only after both of its parents — the table's own topological order. And greedy has no cell of its own: it is one path, chosen without looking at the alternatives the table keeps.
 
+<NextUp text="What Frobenius coin gap determines whether an integer programming instance is solvable?" />
+
+
 ## Currency Architecture and Integer Programs
+<ChapterMark minutes={2} tag="systems" />
 
 Four places this distance is the thing you compute.
 
@@ -152,12 +206,21 @@ Four places this distance is the thing you compute.
 - **The simplest integer program.** Minimum coins is $\min \mathbf{1}^{\top}x$ subject to $\mathbf{c}^{\top}x = A$, $x \ge 0$ integer: one equality, non-negativity, integrality. Every technique of integer programming is tested on this one-row instance first, and fixing the number of coin types makes it integer programming in a fixed dimension, which is polynomial time.
 - **Min-plus closure, elsewhere in this section.** The same graph with weighted edges is least-cost routing; with $(\max,+)$ instead of $(\min,+)$ it is a longest path and Viterbi decoding. The coins are an adjacency matrix, and $C$ is a column of its closure.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The debt graph: one vertex per amount from 0 to 6, one downward edge per coin."
   motion="A walk from 6 down to 0 spends one coin per edge; greedy takes 4, then 1, then 1, while the shortest walk takes two 3s."
   invariant="Every walk to 0 sums to the amount, so the fewest coins is the debt graph's shortest-path distance and no longer walk can beat it."
   number="2 coins, not 3: 3 + 3 beats 4 + 1 + 1 at 6¢."
 />
+
+<NextMission
+  href="/algorithms/programming/knapsack-0-1/"
+  title="Knapsack 0–1"
+  teaser="Greedy density starves at 42 while fractional promises 66: how a lattice DAG captures the true 58-value pack."
+/>
+
 
 ## Frobenius Numbers and Weak NP-Hardness
 

@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import RecursionTree from "@alg/RecursionTree.tsx";
 import GrowthTable from "@alg/GrowthTable.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -14,7 +20,30 @@ import Afterimage from "@alg/Afterimage.tsx";
   Every interactive primitive carries an explicit Astro client directive; islands cannot nest.
 */}
 
+{/* Scenario mapping for binary-search */}
+<Transmission from="Field Log" code="REC 88-EP">
+Deep-space astronomical registry holds 10^18 catalogued star transits.
+Scanning line by line at one gigahertz will consume thirty-one years of mission fuel.
+Splitting the sorted ledger at the midpoint discards half the universe with a single query.
+Can sixty exact comparisons pinpoint our target before the scanner drifts off beacon?
+</Transmission>
+
+<MissionCard
+  number="02"
+  objective="Contract an interval of doubt across sorted data until sixty comparisons collapse a billion billion records to one."
+  steps={[
+    "Bisect the search space and observe interval boundaries jump",
+    "Trace the comparison decision tree down to its optimal leaves",
+    "Inspect the mid-calculation overflow that broke Bentley and Bloch"
+  ]}
+  minutes={8}
+  bailout="The RecursionTree panel in §4"
+  after="You can replace linear scans with logarithmic boundary searches across any monotone predicate."
+/>
+
+
 ## Thirty questions to locate an atom
+<ChapterMark minutes={3} tag="the hook" />
 
 In 1986, Jon Bentley challenged professional programmers at Bell Labs and IBM to write binary search. Over ninety percent introduced off-by-one errors or infinite loops, despite having hours to test their work. The algorithm requires scarcely twenty lines of code, yet its precision punishes the slightest careless assumption.
 
@@ -37,13 +66,21 @@ Inspect index 3, see 21, and extinguish every index at or below 3 because sorted
   explain="Human intuition fails at exponential decay. Each comparison cuts the search space in half. Since 2³⁰ = 1,073,741,824 > 10⁹, exactly 30 comparisons suffice to isolate a single record out of a billion candidates. Thirty questions collapse a haystack larger than the population of Europe into one needle!"
 />
 
+<NextUp text="Why does probing the physical middle fail without a monotonic invariant?" />
+
+
 ## The illusion of looking at the middle
+<ChapterMark minutes={2} tag="the trap" />
 
 The standard operational framing is familiar: look at the midpoint, compare values, branch left or right, and repeat. That recipe tells you what to type, but obscures why the process runs so fast.
 
 A naive linear search tests elements sequentially, spending up to $n$ comparisons. The fundamental question is not which element to inspect next. The true question is how much doubt a single comparison can extinguish.
 
+<NextUp text="How does halving the interval contract the horizon of doubt?" />
+
+
 ## The invariant: contracting the horizon of doubt
+<ChapterMark minutes={2} tag="the invariant" />
 
 The active state of binary search is an interval of surviving candidate indices, $[lo, hi)$. Outside this bracket, every index has been mathematically proven impossible:
 
@@ -67,7 +104,11 @@ The midpoint is merely the optimal halving point. What the algorithm maintains i
   explain="The algorithm inspects index 2, finding 8. Because 8 > 3, it assumes all values at or above index 2 are greater than 3, discarding indices 2 through 4—including the target 3! Binary search does not look for values: it relies on the global contract of sortedness to justify mass elimination."
 />
 
+<NextUp text="What exact arithmetic prevents the recurrence from stalling?" />
+
+
 ## The exact arithmetic of thirty questions
+<ChapterMark minutes={2} tag="the algebra" />
 
 A probe costs one comparison and leaves a subproblem at most half as large:
 
@@ -134,7 +175,11 @@ Binary search matches this information-theoretic lower bound exactly (Knuth 1973
 
 On a logarithmic scale, halving is a straight downward line, reaching 1 in 30 steps. A linear scan barely registers on this axis, discarding an imperceptible fraction of the data.
 
+<NextUp text="How does git bisect map real-world regressions to monotone predicates?" />
+
+
 ## Driving the recurrence: why halving alone is not enough
+<ChapterMark minutes={2} tag="the simulation" />
 
 The recurrence panel sets $a = 1$, $b = 2$, $d = 0$: one child branch of half the size, plus one comparison per step.
 
@@ -152,6 +197,7 @@ Level $k$ holds a single node of size $n/2^k$, spending $(n/2^k)^0 = 1$ work. Ev
 
 Now adjust the branching slider to $a = 2$.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Suppose you modify binary search to explore both halves whenever you are unsure (a=2, b=2, d=0). Does halving the problem size preserve logarithmic time?"
@@ -166,7 +212,11 @@ Now adjust the branching slider to $a = 2$.
 
 When $a = 2$, work doubles at each depth, and the tree becomes leaf-dominated at $\Theta(n)$. The logarithm is not bought by halving the array. It is bought by $a = 1$: the merciless elimination of the unchosen half.
 
+<NextUp text="Why did the middle-index calculation hide an overflow bug in Java for nine years?" />
+
+
 ## Monotone predicates: from git bisect to root finding
+<ChapterMark minutes={2} tag="systems" />
 
 Binary search generalizes far beyond sorted arrays. It applies to any monotone boolean predicate $P(x)$ that transitions from false to true:
 
@@ -176,7 +226,11 @@ Binary search generalizes far beyond sorted arrays. It applies to any monotone b
 
 Breaking the comparison model breaks the logarithmic barrier. Interpolation search achieves $O(\log \log n)$ on uniform keys, while hash tables achieve $O(1)$ by forfeiting ordering entirely.
 
+<NextUp text="What structural invariant governs the next chapter?" />
+
+
 ## The integer overflow bug that survived nine years in Java
+<ChapterMark minutes={2} tag="frontier" />
 
 Computing the midpoint as `mid = (lo + hi) / 2` contains a subtle flaw. When $lo + hi$ exceeds $2^{31} - 1$, 32-bit signed integer addition overflows into negative numbers, causing array index out-of-bounds exceptions.
 
@@ -184,12 +238,21 @@ This bug persisted unnoticed inside Java's `java.util.Arrays.binarySearch` for o
 
 Precision in endpoint updates is essential. An incorrect endpoint update either enters an infinite loop or skips the target entirely.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The decision tree: one comparison at each internal node, one candidate at each leaf."
   motion="Each answer follows one edge and discards the other half of the candidates, so the search walks a single root-to-leaf path."
   invariant="Every leaf is still a possible outcome, so the path's depth is exactly the number of comparisons needed to name one."
   number="60 comparisons against 31.7 years for a worst-case scan of 10^18 records."
 />
+
+<NextMission
+  href="/algorithms/programming/breadth-first-search/"
+  title="Breadth-First Search"
+  teaser="DFS circles the rim in 4 hops; expand in concentric ripples to hit the 3-hop chord."
+/>
+
 
 ## Historical provenance and attributions
 

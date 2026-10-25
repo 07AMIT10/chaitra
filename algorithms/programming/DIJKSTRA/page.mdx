@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import SemiringMatrix from "@alg/SemiringMatrix.tsx";
@@ -22,7 +28,30 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   Astro islands cannot nest, so each primitive below is its own island.
 */}
 
+{/* Scenario mapping for dijkstra */}
+<Transmission from="Field Log" code="REC 1956-MC">
+Continental transport grid spans one hundred million transit stations.
+Scanning the active frontier with a linear array demands five quadrillion probes—fifty-eight days of continuous processor lockup.
+A priority heap extracts the nearest burning node in logarithmic time, promising never to reopen a settled station.
+Can we trust our greedy boundary if even a single edge carries a negative toll?
+</Transmission>
+
+<MissionCard
+  number="09"
+  objective="Expand the frontier of tentative distances to lock in optimal routes with zero backtrack re-evaluations."
+  steps={[
+    "Step the expanding frontier to see tentative distances settle permanently",
+    "Compare the 285× comparison reduction between binary heaps and linear scans",
+    "Inject a negative edge to watch the greedy no-regrets invariant shatter"
+  ]}
+  minutes={13}
+  bailout="The GraphCanvas wavefront explorer in §1"
+  after="You can compute single-source shortest paths on continental scale networks using priority queues."
+/>
+
+
 ## The Expanding Horizon
+<ChapterMark minutes={3} tag="the hook" />
 
 The obvious frontier is a linear scan, and at $10^8$ towns that scan performs $5 \times 10^{15}$ probes. At a billion probes a second it runs for 58 days. The map below has seven towns, ten roads, and a spark at **A**.
 
@@ -78,7 +107,11 @@ Before you press play, commit to a prediction. The map is small enough to run in
 
 Press play and observe the log. Notice what the algorithm never announces: it never declares a single target reached.
 
+<NextUp text="Why does a linear search of the frontier take 58 days across 100 million towns?" />
+
+
 ## The Fallacy of Destination
+<ChapterMark minutes={2} tag="the trap" />
 
 A standard textbook frames this as finding the shortest path between a source `s` and a destination `t`. That framing obscures what is really computed. The execution never hunts for a target: it stops only when the frontier empties, having priced every reachable town in the network.
 
@@ -86,7 +119,11 @@ The run returns a distance tree rather than a single trajectory. A path to `t` e
 
 "Search" is the wrong metaphor. A search terminates upon discovering its goal; Dijkstra terminates only when the entire reachable universe has been measured.
 
+<NextUp text="How does Dijkstra's greedy choice guarantee unregretted, write-once distance stamps?" />
+
+
 ## The Monotone Ceiling
+<ChapterMark minutes={2} tag="the invariant" />
 
 Fix a weighted digraph with weights $w(u,v) \ge 0$, and a source $A$. Write $\delta(v)$ for the least cost of any walk from $A$ to $v$.
 
@@ -102,7 +139,11 @@ Two operations maintain this invariant. **Settle** the unsettled vertex $u$ with
 
 Think of each label as an upper bound. Every label represents a known valid walk, ensuring $d(v) \ge \delta(v)$ at all times. Relaxation replaces $d(v)$ with a smaller walk cost, driving labels monotonically downward toward the truth without ever overshooting.
 
+<NextUp text="What happens when a negative road allows a later wave to undercut an ignited claim?" />
+
+
 ## The Greedy Exchange and the Negative Abyss
+<ChapterMark minutes={2} tag="the algebra" />
 
 Let $u$ be the unsettled vertex with the smallest tentative label. The algorithm freezes $u$ into the settled set and declares $d(u)$ final. That claim is Dijkstra's 1959 greedy exchange argument.
 
@@ -162,7 +203,11 @@ $$
 
 The closure $W^*$ represents all-pairs shortest paths. Floyd (1962) and Warshall (1962) compute every row with a triple loop, and Lehmann (1977) proved this loop solves metric closures over any semiring. Dijkstra computes a single row of this tropical universe.
 
+<NextUp text="How does the min-heap priority queue reduce comparisons by 285 times?" />
+
+
 ## One Row of the Tropical Universe
+<ChapterMark minutes={2} tag="the simulation" />
 
 Below is the adjacency matrix of the seven-town map under $(\min, +)$. Drag the slider $k$ to execute the metric closure one round at a time.
 
@@ -188,6 +233,7 @@ After $k$ steps, matrix cell $R[i][j]$ contains the cheapest path from $i$ to $j
 
 Sorting row A by value yields distances 0, 1, 2, 3, 4, 5, 6 for towns A, C, D, E, B, G, F. This matches the exact settlement sequence on the canvas at the top of the page. The tropical closure is the complete mathematical object; Dijkstra's trace is one row extracted in ascending order.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="The tropical closure holds an n×n matrix of shortest paths. How many rows does one Dijkstra run produce?"
@@ -201,7 +247,11 @@ Sorting row A by value yields distances 0, 1, 2, 3, 4, 5, 6 for towns A, C, D, E
   explain="Floyd–Warshall computes the entire 7×7 matrix of all-pairs shortest paths in O(n³) operations. A single run of Dijkstra from source A computes strictly the single row (W*)_{A,*}. Computing all seven rows with Dijkstra requires seven independent executions."
 />
 
+<NextUp text="How do planetary routing backbones prevent loops during dynamic link updates?" />
+
+
 ## Priority Queues and Continental Routing
+<ChapterMark minutes={2} tag="systems" />
 
 Every settlement step performs an extract-min operation. Scanning an array for the minimum label costs $O(n)$ per step and $O(n^2)$ total. A binary heap reduces the cost to $O((m+n)\log n)$ on $m$ edges, while a Fibonacci heap achieves $O(m + n\log n)$ by making relaxation constant time (Fredman and Tarjan 1984).
 
@@ -239,12 +289,21 @@ Evaluating the same recurrence over other semirings produces different classic a
 
 A* accelerates point-to-point queries by adding a goal-directed potential to the priority key (Hart, Nilsson, and Raphael 1968). Modern GPS navigation scales this further with contraction hierarchies, answering queries across continental road networks in microseconds (Geisberger et al. 2008).
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The expanding horizon: a settled core ringed by tentative labels."
   motion="Extract the least label, settle that town, relax its roads, and the front pushes outward."
   invariant="Non-negative weights make every later wave cost at least as much, so a settled label is permanent."
   number="58 days of scans at 10^8 towns; 285× fewer comparisons under a heap at 12,800."
 />
+
+<NextMission
+  href="/algorithms/programming/maximum-flow/"
+  title="Maximum Flow"
+  teaser="Greedy routing chokes on saturated pipes; push residual flow to close the duality gap from 8 to 0."
+/>
+
 
 ## When Light Loops: The Absence of Negative Cycles
 

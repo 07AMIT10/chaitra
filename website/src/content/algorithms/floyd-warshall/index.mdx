@@ -4,14 +4,20 @@ slug: floyd-warshall
 field: programming
 fieldLabel: "Programming"
 reframe: "It is not a road-trip calculator. It is a universal matrix inversion engine: swap out two algebraic symbols, and the exact same four-line loop morphs from pricing shortest paths into counting quantum walks, proving reachability, or decoding hidden Markov trellises."
-oneLine: "One triple loop, four arithmetics, four different answers from the same grid."
+oneLine: "Four lines and 10^9 updates solve all-pairs distances for 1,000 towns: how three nested loops sweep a network."
 tldr: ["The four-line triple loop uses only ⊕, ⊗, 0 and 1; the semiring axioms are its entire hypothesis.", "Swap the semiring and the same grid reads as cheapest routes, route counts, reachability, or longest routes.", "The in-place update is exact when ⊕ is idempotent, so addition — the one non-idempotent choice — is the panel that over-counts.", "The closure is a matrix inverse in a semiring: A* = I + A + A² + ⋯ = (I − A)⁻¹ when the series converges."]
 mathBranches: ["algebra", "order-theory", "combinatorics"]
-primitives: ["Afterimage", "SemiringMatrix", "PredictionPrompt", "SeriesChart"]
+primitives: ["Transmission", "MissionCard", "ChapterMark", "NextUp", "NextMission", "MissionScore", "Afterimage", "SemiringMatrix", "PredictionPrompt", "SeriesChart"]
 attributions: ["Floyd 1962", "Warshall 1962", "Kleene 1951", "Lehmann 1977"]
 relatedTopics: ["pagerank", "gossip-protocols"]
 ---
 
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import SemiringMatrix from "@alg/SemiringMatrix.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -26,7 +32,35 @@ import Afterimage from "@alg/Afterimage.tsx";
   Each interactive primitive carries its own client directive; islands cannot nest.
 */}
 
+{/* Scenario mapping:
+  - Fleets with 1,000 relay beacons = n = 1,000 all-pairs graph.
+  - 10^9 updates in single triple loop = n^3 Floyd-Warshall operations.
+  - Four problems solved simultaneously = semiring matrix closure across (+, *), (min, +), etc.
+  - Negative feedback loop = negative cycle where d_ii < 0.
+*/}
+<Transmission from="Rival" code="GRID-INTERCEPT // WAR-ROOM">
+  We jammed your fleet's point-to-point beacons across a thousand navigational relay nodes.
+  Running individual point-to-point searches for every pair will tie up your computers while our interceptors close in.
+  A single triple loop executes $10^9$ updates to reveal all-pairs routes, route counts, and shortest hops simultaneously.
+  Can you sweep the intermediate waypoint lenses before our negative feedback loop turns your network into a bottomless hole?
+</Transmission>
+
+<MissionCard
+  number="21"
+  minutes={8}
+  objective="Compute all-pairs shortest paths across a network in four lines of code by sweeping intermediate waypoints."
+  steps={[
+    "Call the effect of relaxing intermediate vertex k on direct distances before stepping the matrix",
+    "Step the SemiringMatrix through k=1 to 4 to watch path closures evolve across all pairs simultaneously",
+    "Take the boss round bet on why swapping arithmetic definitions solves four different computer science problems",
+  ]}
+  bailout="Step through the SemiringMatrix to see how intermediate vertex k updates the full 4×4 grid in place."
+  after="You will compute transitive closures, widest bottlenecks, and matrix inverses in closed semirings."
+/>
+
+
 ## Four Lines, Four Universes
+<ChapterMark minutes={3} tag="the hook" />
 
 A thousand towns put $10^9$ updates inside one triple loop. The same loop answers four different problems, and only the arithmetic changes: $(\min,+)$, $(+,\times)$, $(\mathrm{OR},\mathrm{AND})$, $(\max,+)$.
 
@@ -66,7 +100,11 @@ The picture is **the sequence of lenses**: each round lets paths pass through on
   explain="Under (min, +), the calculation minimizes road sums, yielding the shortest path length of 2 (via B or C). Under (+, ×), operations sum the product of edge weights along each route, counting exactly three paths: A→B→D, A→C→D, and A→B→C→D. Minimizing distance and counting paths are different questions asked of the exact same matrix."
 />
 
+<NextUp text="Why does Dijkstra from every vertex fail on networks with negative edge weights?" />
+
+
 ## The Four-Line Ghost
+<ChapterMark minutes={2} tag="the trap" />
 
 Here is the entirety of the algorithm:
 
@@ -83,7 +121,11 @@ Standard teaching obscures this by hardcoding $\oplus = \min$ and $\otimes = +$.
 
 Running Dijkstra from every vertex costs $O(V \cdot E \log V)$ and refuses negative edges. Bellman–Ford from every vertex costs $O(V^2 E)$. These four lines run in $O(V^3)$, accept negative edges, and never ask what the numbers represent.
 
+<NextUp text="How do three nested loops over intermediate waypoint k compute all-pairs distances?" />
+
+
 ## The Kleene Star and Semiring Algebras
+<ChapterMark minutes={2} tag="the invariant" />
 
 A **semiring** $(S, \oplus, \otimes, 0, 1)$ is an algebraic structure with addition $\oplus$ and multiplication $\otimes$ satisfying four conditions (Golan 1999):
 
@@ -111,7 +153,11 @@ When the geometric series converges, $a^\star = 1 \oplus a \oplus a^2 \oplus \cd
 
 Each row represents an arithmetic obeying the exact same four axioms. The code executes identically across all four.
 
+<NextUp text="How does the closed semiring Kleene star generalize shortest paths to reachability and bottleneck capacity?" />
+
+
 ## Elimination and the Semiring Inverse
+<ChapterMark minutes={2} tag="the algebra" />
 
 **The recurrence.** Let $d^{(k)}_{ij}$ represent the matrix state after admitting the first $k$ vertices as possible intermediates (Warshall 1962; Floyd 1962):
 
@@ -144,7 +190,11 @@ $$
 
 The four-line loop is simply Gaussian elimination computing a matrix inverse in a semiring (Lehmann 1977). Shortest paths, path counts, connectivity, and longest routes are all the identical matrix inverse.
 
+<NextUp text="How does the four-line loop detect negative cycles when diagonal matrix entries drop below zero?" />
+
+
 ## Morphing Arithmetic on a 4×4 Grid
+<ChapterMark minutes={2} tag="the simulation" />
 
 Below is your grid. Start in $(\min,+)$ and drag the $k$ slider from 0 to 4. The same four lines run over the same numbers, updating rows and columns through intermediate vertex $k$.
 
@@ -161,6 +211,7 @@ Watch cell A→D through the lenses in $(\min,+)$ as you drag $k$ from 0 upward:
   caption="One 4×4 grid, four arithmetics. Choose a semiring, then drag k from 0 to 4. A dot in the input is the absent road; it reads as +∞, 0, false or −∞ depending on the arithmetic you chose."
 />
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Under (min, +), exactly one off-diagonal cell changes as you drag k from 0 to 4. Which cell updates, and at which round?"
@@ -176,7 +227,11 @@ Watch cell A→D through the lenses in $(\min,+)$ as you drag $k$ from 0 upward:
 
 Switch to $(\max,+)$ and drag the slider again. Round 2 sets A→D = 2, but round 3 lifts it to 3 because A→B→C→D becomes available once C is admitted. Switch to $(\mathrm{OR},\mathrm{AND})$ and the same cell transitions from 0 to 1 at round 2.
 
+<NextUp text="How do transitive closure matrices solve compiler data-flow and networking reachability?" />
+
+
 ## The Many Faces of the Closure
+<ChapterMark minutes={2} tag="systems" />
 
 **Shortest paths.** $(\min,+)$ is Floyd's 1962 formulation, solving all-pairs distances in cubic time. Negative edge weights are supported; a negative diagonal after round $n$ flags a negative cycle.
 
@@ -188,12 +243,21 @@ Switch to $(\max,+)$ and drag the slider again. Round 2 sets A→D = 2, but roun
 
 **Counting.** $(+,\times)$ counts walks. While counting walks in a graph with cycles is polynomial, counting *simple* paths without repeated vertices is #P-complete (Valiant 1979).
 
+<MissionScore client:visible />
+
 <Afterimage
   object="One 4×4 grid and a slider that admits vertices one at a time."
   motion="Round k lets every route pass through vertex k, then keeps the cheaper of detour and bypass."
   invariant="After round k no route needs a hub outside the first k vertices, so after n rounds nothing is left to improve."
   number="10^9 updates at n = 1,000, four arithmetics from one loop."
 />
+
+<NextMission
+  href="/algorithms/programming/fixed-point-iteration/"
+  title="Fixed-Point Iteration"
+  teaser="At q=0.9999 one digit costs 23,025 steps; at q=0.6736 it takes 5.8: how the cobweb spiral converges to a fixed point."
+/>
+
 
 ## The Boundary of Convergence: When the Star Diverges
 

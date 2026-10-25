@@ -3,12 +3,12 @@ slug: depth-first-search
 field: programming
 fieldLabel: "Programming"
 reframe: "It is not a blind plunge into the dark. It is a dual-clock crystallization: each vertex is entered with a timestamp and exited with an epitaph, freezing the chaos of a graph into a laminar geometry of perfectly nested time intervals."
-oneLine: "Two time-stamps per vertex, and the way the intervals they bound stand to each other."
+oneLine: "Visited flags blur ancestry; log 12 timestamps across 6 vertices to catch the single back edge."
 tldr:
   - "Every vertex gets a discovery time and a finish time; the intervals they bound are either nested or disjoint, never partially overlapping (the parenthesis theorem)."
   - "A digraph has a cycle exactly when the search produces a back edge — an arc to a vertex still open on the stack."
   - "Reverse the finishing order of a DAG and you have a topological sort; the same times give articulation points and strong components."
 mathBranches: [graph-theory, order-theory, combinatorics]
-primitives: [GraphCanvas, PredictionPrompt, SeriesChart, Afterimage]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, GraphCanvas, PredictionPrompt, SeriesChart, Afterimage]
 attributions: ["Tarjan 1972", "Hopcroft–Tarjan 1973", "Knuth 1968"]
 relatedTopics: [pagerank]

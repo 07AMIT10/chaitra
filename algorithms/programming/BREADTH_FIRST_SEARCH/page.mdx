@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -13,7 +19,30 @@ import SeriesChart from "@alg/SeriesChart.tsx";
   that GraphCanvas builds for the graphs below. Nothing here autoplays: both start paused.
 */}
 
+{/* Scenario mapping for breadth-first-search */}
+<Transmission from="Ship System" code="WARN 0x09">
+Bulkhead breach detected in Sector C.
+Atmospheric pressure is dropping across adjacent compartments in integer wavefronts.
+A deep-first scout follows the outer rim around to Bay G in four hops, missing the interior hatch.
+Can a level-by-level queue verify the three-hop chord before the compartment seals irrevocably?
+</Transmission>
+
+<MissionCard
+  number="03"
+  objective="Propagate concentric distance rings through unweighted graphs to lock in shortest paths and certify 2-colourability."
+  steps={[
+    "Step the FIFO queue to observe wavefronts expand level by level",
+    "Identify the chord edge that undercuts perimeter traversals",
+    "Test level parity to expose odd cycles that destroy bipartiteness"
+  ]}
+  minutes={9}
+  bailout="The GraphCanvas wavefront explorer in §2"
+  after="You can compute unweighted geodesics and cycle parities in linear time using a single monotone queue."
+/>
+
+
 ## Concentric Rings of Integer Distance
+<ChapterMark minutes={3} tag="the hook" />
 
 On the network below, G sits three hops from the source S, not four. The chord C–G cuts the corner, and every route that hugs the outside of the drawing pays an extra hop for the privilege.
 
@@ -61,7 +90,11 @@ The picture is **the rings**: the level sets around S. The graph fixes them, and
 
 Watch the queue order scramble while the ring number stays fixed. The level of a vertex is the invariant; its position in the queue is not.
 
+<NextUp text="Why does depth-first traversal take four hops where concentric rings find three?" />
+
+
 ## The Tour vs. The Level Metric
+<ChapterMark minutes={2} tag="the trap" />
 
 Textbooks commonly teach breadth-first search as a simple recipe: insert the source into a FIFO queue, pop the front, and enqueue unvisited neighbours. That procedural description conceals the true mathematical object.
 
@@ -69,7 +102,11 @@ The specific order in which vertices emerge from the queue is an arbitrary artef
 
 Read the canvas as computing an exact metric tensor rather than a traversal tour. Source $S$ receives 0, while subsequent vertices receive their geodesic hop distance from the spark.
 
+<NextUp text="How does the geodesic distance metric reach a unique fixed point?" />
+
+
 ## The Geodesic Metric and its Fixed Point
+<ChapterMark minutes={2} tag="the invariant" />
 
 Fix source $s$. The **distance** $d(v)$ is the minimum number of edges on any path from $s$ to $v$. The **level set** $L_k = \{v \in V : d(v) = k\}$ partitions reachable vertices into concentric metric spheres.
 
@@ -87,7 +124,11 @@ $$
 
 The distance function is the least fixed point of this equation. On the canvas, vertex $G$ connects to neighbours at levels 3, 3, and 2, uniquely fixing its distance at $1 + 2 = 3$.
 
+<NextUp text="How does the monotone queue guarantee König's bipartite parity property?" />
+
+
 ## The Monotone Queue and König's Parity Theorem
+<ChapterMark minutes={2} tag="the algebra" />
 
 **The two-level queue invariant.** If the vertex at the front of the queue has level $k$, then every vertex currently waiting in the queue has level $k$ or $k+1$.
 
@@ -111,7 +152,11 @@ A graph is **bipartite** if and only if no edge connects two vertices at the ide
 
 This constructive observation proves König's theorem (1936): a graph is 2-colourable if and only if it contains no odd cycle. BFS validates bipartiteness in a single linear pass.
 
+<NextUp text="What structural chord breaks bipartiteness and produces an odd cycle?" />
+
+
 ## The Chord That Kills Bipartiteness
+<ChapterMark minutes={2} tag="the simulation" />
 
 Here are the same eight vertices with chords `C–D` and `C–G` removed, leaving an 8-vertex cycle `S–A–C–E–G–F–D–B–S`.
 
@@ -145,6 +190,7 @@ Here are the same eight vertices with chords `C–D` and `C–G` removed, leavin
 
 On the pure cycle, the levels partition cleanly into even and odd rings. Reinserting a single chord can instantly introduce an odd cycle.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Removing chords C–D and C–G leaves an 8-vertex cycle. If you reinsert chord C–G, does the graph remain bipartite?"
@@ -157,7 +203,11 @@ On the pure cycle, the levels partition cleanly into even and odd rings. Reinser
   explain="Chord C–G creates triangle C–E–G. Vertices E and G both sit at level 3, forcing edge E–G to connect two vertices of identical parity. A proper 2-colouring is mathematically impossible on an odd cycle."
 />
 
+<NextUp text="What memory explosion threatens wide wavefronts in small-world graphs?" />
+
+
 ## Metric Geodesics and Small-World Clocks
+<ChapterMark minutes={2} tag="systems" />
 
 BFS computes the exact geodesic metric of an unweighted graph in $O(V + E)$ time. Rerunning BFS from each vertex computes the complete graph diameter and all-pairs hop counts.
 
@@ -165,7 +215,11 @@ In distributed computing, each BFS level corresponds to one broadcast round or M
 
 In social networks, Milgram (1967) demonstrated the 'six degrees of separation' phenomenon: human connection graphs exhibit remarkably small diameters despite having billions of nodes.
 
+<NextUp text="What structural invariant governs the next chapter?" />
+
+
 ## The Geometry of the Wavefront: Memory Bounds
+<ChapterMark minutes={2} tag="frontier" />
 
 The queue stores the frontier, which spans at most two adjacent levels. Its peak size is determined by the maximum level width of the network rather than total vertices.
 
@@ -196,12 +250,21 @@ The path frontier requires only 1 vertex in memory. The square grid expands diam
 
 The resulting BFS tree is one witness among many. While tie-breaking produces different tree pointers, the underlying metric distances are absolute invariants.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The rings: one level set per hop count, drawn around S."
   motion="The queue drains ring k and fills ring k+1, and the chips inside a ring swap places freely."
   invariant="Every edge joins rings that differ by at most one, and the queue drains ring k before k+1, so first arrival is the least hop count."
   number="3 hops to G through C–G, against 4 around the perimeter."
 />
+
+<NextMission
+  href="/algorithms/programming/bellman-ford/"
+  title="Bellman–Ford"
+  teaser="Dijkstra freezes T at 12; relax all edges across 4 rounds to uncover the -11 siphon."
+/>
+
 
 ## Attributions
 

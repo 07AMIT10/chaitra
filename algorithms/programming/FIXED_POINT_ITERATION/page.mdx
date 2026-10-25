@@ -1,9 +1,43 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 import IterationLab from "@alg/IterationLab.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 
+{/* Scenario mapping:
+  - Scrubber recirculation loop = iteration x_{n+1} = cos(x_n).
+  - Contraction q=0.9999 (23,025 cycles) vs q=0.6736 (6 cycles) = honest geometric convergence rates.
+  - Dottie number 0.739085 = unique fixed point x* = cos(x*).
+  - Cobweb staircase reeling in guess = Banach contraction mapping attractor.
+*/}
+<Transmission from="Ship System" code="LIFE-SUPPORT // COBWEB-LOOP">
+  Habitat atmospheric scrubber experiencing non-linear feedback drift on gas recirculation loop $x = \cos x$.
+  At a sluggish contraction factor $q = 0.9999$, isolating one stable decimal digit costs 23,025 cycles; at $q = 0.6736$, it converges in six.
+  Banach's fixed-point attractor guarantees the cobweb staircase will reel any starting guess into the Dottie number $0.739085$.
+  Can you verify that the loop contraction holds before thermal divergence destabilizes the station?
+</Transmission>
+
+<MissionCard
+  number="22"
+  minutes={8}
+  objective="Reel erratic dynamical inputs into a guaranteed stable attractor by exploiting metric contraction mappings."
+  steps={[
+    "Predict whether starting from x=0 or x=2 reaches the same equilibrium under repeated cosine iteration",
+    "Step the IterationLab cobweb staircase to watch distances shrink geometrically by factor q",
+    "Take the boss round bet on the derivative threshold where contraction shatters into chaos",
+  ]}
+  bailout="Step the IterationLab panel to watch the cobweb staircase funnel any initial guess to 0.739085."
+  after="You will harness contraction proofs for numerical solvers, PageRank equilibrium, and differential equations."
+/>
+
+
 ## The Cobweb Spiral
+<ChapterMark minutes={3} tag="the hook" />
 
 At contraction factor $q = 0.9999$, one correct digit costs 23,025 steps. At $q = 0.6736$ it costs 5.83. Type `cos` into a pocket calculator, press equals twice, and no matter what you entered the display drifts to `0.739085...`, the Dottie number.
 
@@ -20,19 +54,31 @@ Before you press play, commit to a prediction below.
 
 Watch the ratio column: it is the slope of $g$ at the fixed point, and the stopping rule $q^n/(1-q)$ is the only honest error bound. The factor is the same at every step, and everything on this page explains it.
 
+<NextUp text="Why does an iteration loop wander endlessly if the function slope exceeds unity?" />
+
+
 ## The Mirage of the Halting Loop
+<ChapterMark minutes={2} tag="the trap" />
 
 You want to solve $x = g(x)$, so you iterate $x_{n+1} = g(x_n)$ and stop when the points stop moving. For $g(x) = \cos x$ this works from any start you drag the slider to.
 
 The operational framing hides the real question. Some maps land and some run away, and the loop itself cannot tell you which kind you hold. The question is what property of $g$ makes iteration a proof instead of a hope.
 
+<NextUp text="How does Banach's contraction mapping theorem guarantee a unique, inevitable attractor?" />
+
+
 ## Complete Spaces and Metric Contractions
+<ChapterMark minutes={2} tag="the invariant" />
 
 The real object is a complete metric space with a contraction on it. A metric space is a set with a distance $d(x, y)$, and completeness means every Cauchy sequence has a limit in the space. The closed interval of the real line is complete; an open interval is not, since a sequence can converge to a missing endpoint.
 
 A contraction is a map $g$ with one number $q$ below $1$ such that $d(g(x), g(y)) \le q\,d(x, y)$ for every pair $x$ and $y$. The constant $q$ is the whole story: it says all distances shrink by the same factor at every step. The panel's ratio column is your window onto $q$.
 
+<NextUp text="Why does a contraction factor of 0.6736 converge in 5.8 steps while 0.9999 requires 23,025?" />
+
+
 ## Banach's Inevitable Attractor
+<ChapterMark minutes={2} tag="the algebra" />
 
 Banach's contraction mapping theorem (Banach 1922, building on Picard's 1890 successive approximations) states the payoff. If $g$ is a contraction with constant $q$ on a complete metric space, then $g$ has exactly one fixed point $x^*$, and $x_{n+1} = g(x_n)$ converges to it from any start.
 
@@ -83,6 +129,7 @@ Newton's method is the special case where the derivative vanishes at the answer.
 
 Name the contrast that makes Banach 1922 worth its fame. Brouwer's fixed-point theorem (Brouwer 1911) says a continuous map of a closed ball to itself has a fixed point: existence with no uniqueness, no rate, and no way to compute it. Banach trades the weak hypothesis for a strong one and returns existence, uniqueness, and a computable error bound in one stroke.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="For x = cos x from x₀ = 1, the first step moves d(x₀, x₁) = 0.4597 and q = 0.6736. What does the a priori bound guarantee after 5 steps?"
@@ -92,7 +139,11 @@ Name the contrast that makes Banach 1922 worth its fame. Brouwer's fixed-point t
   hint="Compute q⁵/(1−q) times 0.4597, then compare with the panel's e₅."
 />
 
+<NextUp text="How does the cobweb staircase visualize convergence and divergence around fixed points?" />
+
+
 ## Driving the Cobweb Staircase
+<ChapterMark minutes={2} tag="the simulation" />
 
 Return to the panel and change the function. On the cubic $g(x) = (2x + 5)^{1/3}$ the ratio column settles on a smaller $q$ and the staircase falls faster; on the $\sqrt{2}$ map it settles on $0.1716$ near $+\sqrt{2}$.
 
@@ -113,11 +164,17 @@ The chart below plots the honest numbers for the cosine run from $x_0 = 1$: the 
 
 Read the two lines on the log scale as straight lines with the same slope. That shared slope is $q$, and the gap between the lines is the slack $1/(1-q)$ the proof pays for not knowing the future.
 
+<NextUp text="How do Google PageRank and differential equation solvers rely on contractive fixed points?" />
+
+
 ## From Picard Iteration to PageRank
+<ChapterMark minutes={2} tag="systems" />
 
 Picard used this iteration to solve differential equations (Picard 1890): rewrite $y' = f(y)$ as an integral equation and iterate the integral, which contracts on a short time interval. Banach's abstraction turned one existence proof into a method for equations everywhere.
 
 Every solver with a "tolerance" and a "max iterations" field is spending this theorem. Value iteration in dynamic programming, power iteration for eigenvectors, and the inner loops of splitting methods all converge because some map contracts. When they stall, the first diagnostic is the same: estimate $q$, and check whether it is really below $1$.
+
+<MissionScore client:visible />
 
 <Afterimage
   object="The cobweb: a path bouncing between the curve and the diagonal."
@@ -125,6 +182,13 @@ Every solver with a "tolerance" and a "max iterations" field is spending this th
   invariant="A contraction maps the interval into itself with slope below 1, so the path cannot escape its fixed point."
   number="5.83 steps per digit at q = 0.6736, against 23,025 at q = 0.9999."
 />
+
+<NextMission
+  href="/algorithms/programming/karatsuba-multiplication/"
+  title="Karatsuba Multiplication"
+  teaser="At 2^20 digits, 4^20=1.1×10^12 products drops to 3^20=3.49×10^9: how three multiplications beat four."
+/>
+
 
 ## Escaping the Basin: When Contraction is Local
 

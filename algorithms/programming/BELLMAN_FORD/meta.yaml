@@ -3,13 +3,13 @@ slug: bellman-ford
 field: programming
 fieldLabel: "Programming"
 reframe: "It is not a slower Dijkstra for broken edges. It is a deflationary gravity: a monotone operator pressing down on every road simultaneously until distances freeze into their least fixed point—or spiral endlessly into a negative abyss."
-oneLine: "Relax every edge in rounds; stop when nothing improves."
+oneLine: "Dijkstra freezes T at 12; relax all edges across 4 rounds to uncover the -11 siphon."
 tldr:
   - "The state is one distance vector; a round applies the relaxation operator to every edge at once."
   - "The operator is monotone and deflationary, so n−1 rounds reach the fixed point of the Bellman equation."
   - "The n-th round is the negative-cycle test, and a reachable negative cycle is exactly the case where no fixed point exists."
   - "In min-plus algebra the same run reads one row of the tropical closure, the sum of L^(k) for k up to n−1."
 mathBranches: [order-theory, algebra, fixed-point-theory]
-primitives: [Afterimage, GraphCanvas, SemiringMatrix, PredictionPrompt]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, Afterimage, GraphCanvas, SemiringMatrix, PredictionPrompt]
 attributions: ["Shimbel 1955", "Bellman 1958", "Ford 1956", "Moore 1959"]
 relatedTopics: [pagerank]

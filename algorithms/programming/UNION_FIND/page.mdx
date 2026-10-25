@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 import LatticeClimb from "@alg/LatticeClimb.tsx";
 import PotentialBank from "@alg/PotentialBank.tsx";
@@ -17,7 +23,30 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   Astro islands cannot nest, so each interactive primitive is its own island.
 */}
 
+{/* Scenario mapping for union-find */}
+<Transmission from="Ship System" code="SYS 0x1A">
+Automated power-grid convergence report across Sector 4.
+Six reactor cells initialized in total isolation, drawing individual auxiliary lines.
+Coupling grid A to B welds their balance loops, but rerouting the entire bus takes thirty years if we rewrite every relay address.
+Can we guarantee every station identifies its master root in four pointer steps without collapsing the grid?
+</Transmission>
+
+<MissionCard
+  number="01"
+  objective="Fuse isolated nodes into cohesive components and flatten lookup paths to the nearly constant Ackermann bound."
+  steps={[
+    "Step the lattice climb to watch single merges fuse partition blocks",
+    "Deposit potential tokens on parent pointers before running find",
+    "Trigger path compression to collapse tree depth down to α(n)"
+  ]}
+  minutes={13}
+  bailout="The PotentialBank interactive panel in §4"
+  after="You can track dynamic connectivity across millions of nodes in constant amortised time."
+/>
+
+
 ## Six Atoms on a Table
+<ChapterMark minutes={3} tag="the hook" />
 
 Relabelling the block you merge into is the obvious implementation, and at $n = 10^9$ it writes $10^{18}$ labels. At a billion writes a second that is 31.7 years. Union by rank with path compression walks $4 \times 10^9$ parent pointers and finishes in 4 seconds.
 
@@ -34,7 +63,11 @@ The picture is **the lattice**: nodes are the partitions of the set, cover edges
   explain="Every successful merge fuses two distinct clumps into one, dropping the clump count by exactly one. Starting from 1,000 singletons and ending at a minimum of 1 giant clump, exactly 1,000 - 1 = 999 merges can ever succeed. The other 2,001 operations simply inspect the existing partition and change nothing."
 />
 
+<NextUp text="Why does storing the set answer directly trigger a quadratic explosion?" />
+
+
 ## The Trap of Storing Answers
+<ChapterMark minutes={2} tag="the trap" />
 
 Fix a finite set `S` of `n` elements. You will be asked, over and over, two questions: are **x** and **y** in the same block, and can you merge the block of **x** with the block of **y**. A first course calls this "disjoint sets" and moves on.
 
@@ -42,7 +75,11 @@ The naive answers are worse than they look. Keep a label array and relabel every
 
 Keep a member list per set and copy the longer list on each merge: the same trap, the same quadratic. Relabelling the *smaller* block instead is a real repair and costs O(n log n) over `n` merges, but it still keeps a label per element rather than the partition. Neither method is slow because the idea is bad; both are slow because they store the answer instead of the partition.
 
+<NextUp text="How does the partition lattice guarantee merges can never be reversed?" />
+
+
 ## The Lattice You Cannot Descend
+<ChapterMark minutes={2} tag="the invariant" />
 
 The state is a **partition** π of `S`: a set of non-empty, pairwise disjoint blocks whose union is `S`. **find** reads the block containing an element; **merge** fuses two blocks. Nothing else is ever stored.
 
@@ -80,7 +117,11 @@ Watch the gold path, not the drawing: when you click a pair from different block
 
 For `n = 4` the diagram has 15 nodes, the Bell number $B_4$, and 31 cover edges. "Reachable above" the current partition is $B_{|\pi|}$: from the bottom, every partition of four objects is still ahead of you. Nothing autoplays here — the climb is yours to drive.
 
+<NextUp text="How do physicist tokens pay for the tree-flattening steps ahead of time?" />
+
+
 ## The Physicist's Bank Account
+<ChapterMark minutes={2} tag="the algebra" />
 
 Two facts carry the page.
 
@@ -144,7 +185,11 @@ The ledger is the doubling budget on eight elements, union by size with compress
 
 Neither balance alone gives the final bound. Ascending from node sizes to their *levels* $L(x) = \log_2^{*}\,\lvert \text{subtree}(x) \rvert$ is what composes them, because a node can be re-hung many times without its level rising, and a level that does rise climbs the iterated logarithm, which has only $\alpha(n)$ rungs.
 
+<NextUp text="What happens when union by rank meets two-pass path compression?" />
+
+
 ## Two Repairs for Two Separate Demons
+<ChapterMark minutes={2} tag="the simulation" />
 
 Union by rank or size attacks **height**. Path compression attacks **re-walking the same path**. They are not two ways of saying "make it fast"; running one without the other leaves a different term standing.
 
@@ -193,6 +238,7 @@ Every set you will ever hold has fewer than $A_4(1)$ elements, so $\alpha(n) \le
 
 Do not confuse $\alpha$ with the iterated logarithm. The iterated logarithm $\log_2^{*} n = \min\{\,k : 2 \uparrow\uparrow k \ge n\,\}$ ticks once per *doubling of a tower*, and $\log_2^{*}(10^{80}) = 5$ while $\alpha(10^{80}) = 4$. The two functions are constantly conflated; the table keeps them in separate columns for that reason.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Keep the worst-case workload and scale n from 10^9 to 10^18 elements. How much more work does each operation perform?"
@@ -212,7 +258,11 @@ So Union–Find is genuinely not linear. It is the slowest function you will eve
 
 The step from the doubling budget to $\alpha(n)$ is the one place this page cites instead of derives. Composing the two balances into $O(m\,\alpha(n))$ is an intricate level argument, and the honest response to an intricate step is to attribute it and show you where the cost goes, not to wave at a proof.
 
+<NextUp text="Where does the inverse Ackermann bound make network connectivity free?" />
+
+
 ## When Connectivity Costs Nothing
+<ChapterMark minutes={2} tag="systems" />
 
 Kruskal's algorithm sorts the `E` edges once, at cost $O(E \log E)$, then asks for each edge in that order whether its two endpoints are already in one block (Kruskal 1956). The question is **find** and accepting the edge is **merge**. With both repairs the second phase costs $O(E\,\alpha(V))$, so it vanishes into the sort:
 
@@ -222,12 +272,21 @@ $$
 
 The same predicate answers image segmentation, where union–find is literally the inner loop of a greedy region merge (Felzenszwalb and Huttenlocher 2004), and cluster labelling, where you sweep the open sites of a lattice, merge neighbours, and ask whether two boundaries fell into one block (Hoshen and Kopelman 1976). The partition does the logic; the sort does the cost.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The lattice of partitions, climbed from all singletons to one block."
   motion="A merge takes one cover edge upward and fuses two blocks; a find walks the parent chain and flattens it."
   invariant="The climb is monotone and the rank equals n minus the block count, so no merge can undo an earlier one."
   number="10^18 label writes, 31.7 years, against 4×10^9 parent steps in 4 seconds."
 />
+
+<NextMission
+  href="/algorithms/programming/binary-search/"
+  title="Binary Search"
+  teaser="Scan 10^18 records for 31.7 years, or split the sorted horizon in 60 comparisons flat."
+/>
+
 
 ## Lineage & Attributions
 

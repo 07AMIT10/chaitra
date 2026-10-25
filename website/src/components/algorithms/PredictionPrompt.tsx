@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "../../styles/algorithms.css";
 
 type Props = {
@@ -15,8 +15,9 @@ type Props = {
 };
 
 /**
- * Lock a guess, mark it right/wrong, then reveal the explanation.
- * Pure state; nothing touches the DOM outside React events.
+ * Lock a guess, mark it right/wrong, then reveal the explanation. Each locked
+ * bet is announced on window as `alg:prediction` and mirrored in
+ * `data-alg-prediction`, so the page's MissionScore can tally it.
  */
 export default function PredictionPrompt({
   question,
@@ -41,9 +42,22 @@ export default function PredictionPrompt({
   const [showHint, setShowHint] = useState(false);
   const locked = picked !== null;
   const isRight = locked && picked === resolved;
+  const bet = !locked ? "open" : !hasAnswer ? "locked" : isRight ? "right" : "wrong";
+
+  useEffect(() => {
+    if (picked === null) return;
+    window.dispatchEvent(
+      new CustomEvent("alg:prediction", { detail: { correct: picked === resolved } }),
+    );
+  }, [picked, resolved]);
 
   return (
-    <div className="alg-predict" role="group" aria-label="Prediction">
+    <div
+      className="alg-predict"
+      role="group"
+      aria-label="Prediction"
+      data-alg-prediction={bet}
+    >
       <p className="alg-predict__q">{question}</p>
 
       <div className="alg-predict__opts">

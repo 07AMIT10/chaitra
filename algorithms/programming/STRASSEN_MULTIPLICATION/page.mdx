@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import Afterimage from "@alg/Afterimage.tsx";
 import MentalImage from "@alg/MentalImage.tsx";
 import RecursionTree from "@alg/RecursionTree.tsx";
@@ -16,7 +22,36 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
   can drag it to 8 for the schoolbook comparison, or down to turn the leaf case balanced and then root-dominated.
 */}
 
+{/* Scenario mapping:
+  - Tracking sensor cross-correlation tensor = matrix multiplication C = A * B.
+  - 8^30 = 1.24*10^27 leaf calculations = standard 8-product cubic recursion O(N^3).
+  - Strassen's 7 compound measurements = rank-7 tensor decomposition O(N^2.807).
+  - 2.25*10^25 products (55x reduction) = (8/7)^30 savings at depth 30.
+  - Seven algebraic valves cancelling cross-terms = Strassen/Winograd 7 intermediate products M_1..M_7.
+*/}
+<Transmission from="Rival" code="SIG-INTERCEPT // ORBITAL-FUSION">
+  Our orbital tracking grid processes cross-correlation tensors at dimension $2^{30}$.
+  Your textbooks claim multiplying $2\times 2$ matrix blocks requires eight scalar operations, yielding $8^{30} = 1.24\times 10^{27}$ leaf calculations.
+  Volker Strassen shattered that cubic assumption with seven compound measurements, dropping total leaf products to $2.25\times 10^{25}$.
+  Can you configure the seven algebraic valves to cancel the cross-terms before our tracking lock becomes permanent?
+</Transmission>
+
+<MissionCard
+  number="24"
+  minutes={9}
+  objective="Break the cubic barrier of matrix multiplication by computing seven compound products instead of eight."
+  steps={[
+    "Call the number of quadrant products needed to compute a 2×2 matrix before seeing Strassen's formulas",
+    "Trace the seven compound valve products to watch the parasitic cross-terms cancel",
+    "Take the boss round bet on why Winograd's rank-7 theorem proves eight was always a lie",
+  ]}
+  bailout="Review the seven valve formulas in the mental image plate to see how addition cancels the cross-terms."
+  after="You will conquer high-dimensional linear algebra, tensor rank decompositions, and the frontier of omega."
+/>
+
+
 ## Seven products that broke the cubic wall
+<ChapterMark minutes={3} tag="the hook" />
 
 At $n = 2^{30}$, eight scalar products per $2\times2$ block leave $8^{30} = 1.24\times10^{27}$ leaf products. Seven leave $7^{30} = 2.25\times10^{25}$, a 55× saving for the same answer.
 
@@ -45,12 +80,6 @@ Count the multiplication signs. The schoolbook recipe demands eight scalar produ
 
 The picture is **the seven measurements**: seven compound products $M_1$ through $M_7$, four outputs $C_{11}$ through $C_{22}$, and a sign wherever a measurement is added or removed.
 
-<MentalImage
-  kind="strassen-valves"
-  title="The seven measurements and their signed contributions to the four output blocks"
-  caption="The signed table behind the seven-product identity: one row per measurement, one column per output, and a sign wherever that measurement is added or removed."
-/>
-
 <PredictionPrompt
   client:visible
   question="You need four numbers for the output matrix C. Each entry is an inner product of two 2-vectors, requiring 2 multiplications, giving 4 × 2 = 8. How can seven scalar products possibly compute four independent outputs?"
@@ -63,9 +92,21 @@ The picture is **the seven measurements**: seven compound products $M_1$ through
   explain="Schoolbook multiplication treats each entry of C as an isolated dot product, missing cross-entry structure. But matrix multiplication is a single bilinear map represented by a 3D structure tensor of size 2×2×2. That tensor decomposes into a sum of exactly seven rank-1 tensors. Winograd (1971) proved that 7 is the algebraic minimum: no algorithm can do it in 6."
 />
 
+<MentalImage
+  kind="strassen-valves"
+  title="The seven measurements and their signed contributions to the four output blocks"
+  caption="The signed table behind the seven-product identity: one row per measurement, one column per output, and a sign wherever that measurement is added or removed."
+/>
+
+
+
 That single missing product is the entire engine of the revolution. Everything that follows unfolds when you apply that decrement recursively to half-size blocks.
 
+<NextUp text="Why does standard matrix multiplication require eight multiplications for 2×2 blocks?" />
+
+
 ## The fallacy of the loop reorder
+<ChapterMark minutes={2} tag="the trap" />
 
 The schoolbook algorithm is defined by the triple loop: `c[i][j] += a[i][k] * b[k][j]` across all `i`, `j`, `k`. It spends $n^3$ multiplications and $n^3 - n^2$ additions.
 
@@ -73,7 +114,11 @@ Programmers often suspect loop reordering, cache blocking, or vectorization coul
 
 To beat $n^3$, you must abandon the requirement that factors are individual matrix entries. The true question permits factors to be *any* linear combinations of entries, asking for the minimum number of products whose linear combination yields $C$.
 
+<NextUp text="How does Strassen's rank-7 tensor decomposition compute 2×2 products using seven multiplications?" />
+
+
 ## Bilinear maps and the hidden tensor rank
+<ChapterMark minutes={2} tag="the invariant" />
 
 Fix a field $\mathbb{F}$ and a size $n$. Matrix multiplication is the bilinear map:
 
@@ -97,7 +142,11 @@ $$
 
 Vector $u_s$ forms a linear combination of entries from $A$, $v_s$ from $B$, and $w_s$ directs where their product lands in $C$. Thus, an $r$-term decomposition is an algorithm using $r$ scalar multiplications. The minimum multiplication count is identical to tensor rank.
 
+<NextUp text="How does the recurrence drop the matrix multiplication exponent from 3 to 2.807?" />
+
+
 ## The seven identities and the Winograd floor
+<ChapterMark minutes={2} tag="the algebra" />
 
 For general $2\times 2$ blocks, Strassen's seven products are:
 
@@ -163,7 +212,11 @@ $$
 
 Notice how the gap widens by $(8/7)^{10} \approx 3.8$ every ten doublings. That multiplying advantage is the entire difference between an exponent of 3 and 2.807.
 
+<NextUp text="Why does Winograd's theorem prove that rank 7 is the absolute theoretical minimum for 2×2 matrices?" />
+
+
 ## The cascade: how one missing product bends the exponent
+<ChapterMark minutes={2} tag="the simulation" />
 
 Inspect the recurrence visually. At $a=7$, $b=2$, and $d=2$, the leaves outrun the root overhead.
 
@@ -185,10 +238,15 @@ Drag the $a$-slider from 7 to 8. The printed asymptotic jumps from $\Theta(n^{2.
 
 Now slide $a$ down to 4. Because $\log_2 4 = 2$ matches $d=2$, every level does equal work, yielding $\Theta(n^2 \log n)$.
 
+<NextUp text="What numerical stability and cache memory crossovers govern Strassen's use in deep learning?" />
+
+
 ## The price of speed: precision and practical crossover
+<ChapterMark minutes={2} tag="systems" />
 
 Speed is not free. Strassen's algorithm introduces numerical subtraction of large, nearly equal intermediate terms.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Strassen's recurrence gives Θ(n^2.807) operations. Why do high-performance libraries (like BLAS) still use the classical cubic loop for matrices smaller than n ≈ 512?"
@@ -205,12 +263,21 @@ Over exact algebraic structures—like finite fields in cryptography or modular 
 
 Every modern high-performance implementation runs a hybrid: recurse using Strassen for massive blocks, then transition to classical cubic GEMM once blocks fit inside L1/L2 cache.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="The seven measurements: a signed table with one row per compound product and one column per output block."
   motion="Read down a column and add or subtract exactly the measurements that carry a sign."
   invariant="The signs cancel every cross term the output does not need, so seven products rebuild all four blocks exactly."
   number="55× fewer leaf products at n = 2^30: 2.25×10^25 against 1.24×10^27."
 />
+
+<NextMission
+  href="/algorithms/"
+  title="Algorithm Catalog"
+  teaser="Return to the algorithm catalog and master mission map."
+/>
+
 
 ## The unfinished race for omega
 

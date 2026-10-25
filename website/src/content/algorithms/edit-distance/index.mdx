@@ -4,14 +4,20 @@ slug: edit-distance
 field: programming
 fieldLabel: "Programming"
 reframe: "Every word is a coordinate in an infinite space of strings. Insert, delete, and mutate are unit vectors across its grid; edit distance is the exact geodesic, carving the shortest trek through a lattice of prefixes."
-oneLine: "The fewest insertions, deletions and substitutions that turn one string into another."
+oneLine: "A single shifted byte shows 8 false mismatches; tile the prefix grid to find the true distance of 2."
 tldr: ["Every cell of the table is a shortest-path distance in the graph of strings, and hovering it lights the three edges that reach it.", "With insert and delete only, the distance collapses to the identity m + n − 2·LCS.", "A test for distance ≤ k needs only the diagonal band |i − j| ≤ k — O(nk) cells, not the O(n²) full table."]
 mathBranches: ["graph-theory", "metric-geometry", "combinatorics"]
-primitives: ["Afterimage", "DPHeatmap", "PredictionPrompt", "SeriesChart"]
+primitives: ["Transmission", "MissionCard", "ChapterMark", "NextUp", "NextMission", "MissionScore", "Afterimage", "DPHeatmap", "PredictionPrompt", "SeriesChart"]
 attributions: ["Levenshtein 1965", "Needleman–Wunsch 1970", "Wagner–Fischer 1974"]
 relatedTopics: ["spam-detection", "information-theory"]
 ---
 
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -27,7 +33,30 @@ import Afterimage from "@alg/Afterimage.tsx";
   The chart numbers are exact arithmetic on the band formula (diagonal band |i-j| within k), not a measurement.
 */}
 
+{/* Scenario mapping for edit-distance */}
+<Transmission from="Archive" code="FILE 08-DIFF">
+Incoming transmission log shows eight character mismatches against our local security manifest.
+A linear column comparison flags the entire sector checksum as compromised because an extra header byte shifted every column.
+The true edit distance is exactly two operations: one insertion, one substitution.
+Can dynamic programming trace the optimal alignment through the tiled grid before we discard valid records?
+</Transmission>
+
+<MissionCard
+  number="08"
+  objective="Tile the prefix grid with dynamic programming to find shortest paths through the alignment lattice."
+  steps={[
+    "Watch a single insertion shift downstream characters into false mismatches",
+    "Fill the recurrence table across diagonal matches and orthogonal edits",
+    "Trace the backpointers to reconstruct the minimal diff script"
+  ]}
+  minutes={12}
+  bailout="The DPHeatmap interactive grid in §5"
+  after="You can power diff engines, spell-checkers, and genomic sequence aligners using dynamic programming."
+/>
+
+
 ## Eight Mismatches, Two Moves
+<ChapterMark minutes={3} tag="the hook" />
 
 Every diff tool you have run fills this table, and the obvious rival fails on the first insertion: count the columns that disagree. Take the pair **emotions** and **demotion**, and stack them:
 
@@ -51,13 +80,21 @@ Eight apparent differences, two real edits. That gap is the whole page: edit dis
 
 Keep **the tiled staircase** in view: a grid with one tile for every pair of prefixes, and a path that steps from the empty pair at the top left to the full pair at the bottom right. Each tile holds the cheapest cost of reaching its pair, and the path through the tiles is the alignment.
 
+<NextUp text="Why does a single shifted byte produce eight false mismatches in naive diffs?" />
+
+
 ## The Mirage of Column Comparison
+<ChapterMark minutes={2} tag="the trap" />
 
 Operationally you are handed two strings and asked for one number — the fewest **unit edits** that turn the first into the second. Three moves count as a single edit each: delete a character, insert a character, replace a character. (Damerau 1964 would later add a fourth, the adjacent swap.)
 
 "Count the characters that differ" is a different question, and a worse one. It is undefined when the lengths differ, and it is wrong even when they agree, as the two words above show. The strings never arrive with an alignment attached; choosing the alignment is part of the problem.
 
+<NextUp text="How does the alignment problem map to finding the shortest path in a grid DAG?" />
+
+
 ## The Infinite Graph of Words
+<ChapterMark minutes={2} tag="the invariant" />
 
 Fix a finite alphabet $\Sigma$. The vertices are **all finite strings** $\Sigma^{*}$: every word, every prefix, the empty string $\varepsilon$, every piece of garbage you can type. Join two strings with an edge when one is the other with a single character inserted, deleted, or replaced.
 
@@ -75,7 +112,11 @@ The graph is infinite, and you never build it: you ask for one shortest path bet
 
 The framing is not decoration. Graph distance is a metric, so $d$ inherits the triangle inequality for free, and that one property is what makes nearest-word search and error correction work. Levenshtein 1965 built the distance for exactly that purpose.
 
+<NextUp text="How do substitution, insertion, and deletion costs determine the diagonal path?" />
+
+
 ## Three Edge Types, One Metric Geodesic
+<ChapterMark minutes={2} tag="the algebra" />
 
 The table you drive below is this infinite graph, cut down to the two strings in hand.
 
@@ -103,6 +144,7 @@ $$
 
 This is a derived identity — put $t=t^{*}$ into the alignment cost above — and it is the honest answer to the next prompt. For the two words on this page $\mathrm{LCS}=7$ (the shared `emotion`), so $8+8-2\cdot 7 = 2$: removing substitution changes nothing here, because the optimal script was already one insertion and one deletion.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Ban substitutions entirely, allowing only insertions and deletions. How does the minimum edit distance between emotions and demotion change?"
@@ -124,7 +166,11 @@ Raise substitution to weight 2, the price of a delete plus an insert, and it is 
 
 **Two bounds you can read off the picture.** Each edit changes the length of a string by at most one, so $d(a,b) \ge |m-n|$, and padding the shorter string with substitutions and insertions costs at most $\max(m,n)$, so $d(a,b) \le \max(m,n)$. For `emotions` and `demotion` that sandwich is $0 \le 2 \le 8$, and the alignment bound $m+n-2\,\mathrm{LCS}$ makes it exact at 2.
 
+<NextUp text="How does Unix diff reconstruct version histories from the dynamic programming matrix?" />
+
+
 ## Carving the Minimum Path
+<ChapterMark minutes={2} tag="the simulation" />
 
 <DPHeatmap
   client:visible
@@ -142,7 +188,11 @@ For your two words the bottom-right cell reads 2. Turn on **Trace solution** and
 
 Watch which cells the trace avoids. A shortest path leaves the main diagonal only by paying, and every step away costs an edit; the further off-diagonal a cell sits, the more edits already spent reaching it. That observation becomes the band in section 6.
 
+<NextUp text="What Strong Exponential Time Hypothesis barrier prevents sub-quadratic string comparison?" />
+
+
 ## From Genome Assembly to Git Diffs
+<ChapterMark minutes={2} tag="systems" />
 
 Four tools run on this one number.
 
@@ -151,12 +201,21 @@ Four tools run on this one number.
 - **Sequence alignment.** Needleman and Wunsch 1970 align proteins with this recurrence and a substitution matrix; Smith and Waterman 1981 relax the requirement to span both sequences and align locally. Every alignment score in bioinformatics is this table.
 - **Record linkage and near-duplicates.** Comparing a name, an address, or a product title across two databases is a small edit distance with character-dependent costs, which is exactly where the operation weights start to matter.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="A tiled staircase of prefix pairs, with emotions down one axis and demotion across the other."
   motion="Each tile takes the cheapest of its three incoming arrows, and the trace follows one monotone path from corner to corner."
   invariant="Every monotone path is an alignment, so its cost is the distance and no column-by-column count can beat it."
   number="8 positional mismatches, distance 2."
 />
+
+<NextMission
+  href="/algorithms/programming/dijkstra/"
+  title="Dijkstra"
+  teaser="Linear scans probe 58 days across 10^8 towns; pull the least label from a heap with zero regrets."
+/>
+
 
 ## Ukkonen's Corridors and the SETH Barrier
 

@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import HuffmanMerge from "@alg/HuffmanMerge.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -14,7 +20,30 @@ import Afterimage from "@alg/Afterimage.tsx";
   of a Zipf(m) source for the chart.
 */}
 
+{/* Scenario mapping for huffman-coding */}
+<Transmission from="Field Log" code="LOG 77-TLM">
+Deep-space relay buffer is saturated with one billion telemetry symbols.
+A fixed-width code wastes three bits per measurement, exhausting satellite transmission bandwidth.
+Merging the highest-frequency sensor early levies a permanent tax of point-two bits per reading.
+Can grafting the two rarest frequencies from the bottom up shave one hundred twenty-five megabytes off the downlink?
+</Transmission>
+
+<MissionCard
+  number="07"
+  objective="Graft the lightest frequencies into a bottom-up prefix tree that achieves Shannon's entropy limit."
+  steps={[
+    "Extract the two lowest-weight nodes and combine them into a composite branch",
+    "Compare the resulting prefix tree against fixed-width and Shannon-Fano codes",
+    "Calculate the exact bits-per-symbol cost incurred by premature merges"
+  ]}
+  minutes={10}
+  bailout="The HuffmanMerge interactive tree builder in §2"
+  after="You can construct provably optimal prefix-free compression dictionaries for any discrete probability distribution."
+/>
+
+
 ## Six Letters on a Wire
+<ChapterMark minutes={3} tag="the hook" />
 
 At a billion symbols, a one-bit gap is 125 megabytes. Every gzip file, PNG, and JPEG carries a Huffman table, and that table is where the gap gets paid.
 
@@ -53,13 +82,21 @@ Watch the running total; with the greedy hint off, merge A = 40 early, finish gr
 
 The running total is bits per symbol, and the axis underneath carries three markers: $H$ the entropy, $L^*$ the cost Huffman's rule achieves, and your current cost. The shaded band runs from $H$ up to $H + 1$.
 
+<NextUp text="Why does an unmarked binary bitstream lead to catastrophic ambiguity without prefix rules?" />
+
+
 ## The Ambiguity of Unmarked Streams
+<ChapterMark minutes={2} tag="the trap" />
 
 The ask is a code: one distinct bit string per symbol, so that the encoded stream is short and decodes without separators. Common symbols should get short strings, so you are minimising the average length $\sum_i p_i \ell_i$ over all assignments of strings.
 
 Brute force would try every assignment. The reason it is the wrong picture is that the strings are not independent — some assignments of lengths cannot be realised by any prefix-free code at all. The question is which lengths are allowed and which tree attains the best ones.
 
+<NextUp text="How does Kraft's inequality bound the leaf depths of every binary code tree?" />
+
+
 ## The Geometry of Prefix-Free Trees
+<ChapterMark minutes={2} tag="the invariant" />
 
 A prefix-free code, one where no code word begins another, is exactly a binary tree with the symbols at the leaves. The path from the root to a leaf spells that symbol's code word: left is 0 and right is 1. So the code and the tree are one object, and the length $\ell_i$ is the leaf's depth.
 
@@ -73,7 +110,11 @@ $$
 
 The panel is this identity in motion: every merge creates one internal node, and the running total is the weight of that node added in. When one tree remains the total is the average code length, and until then it is a partial sum.
 
+<NextUp text="Why does an early non-optimal merge levy a permanent fractional penalty per symbol?" />
+
+
 ## Pinioned Between Shannon and Kraft
+<ChapterMark minutes={2} tag="the algebra" />
 
 **Shannon 1948.** The entropy of the source is
 
@@ -103,6 +144,7 @@ $$
 
 Both ends of that inequality are honest in different ways. The floor is a theorem about all codes; the ceiling is a theorem about the greedy tree, and the gap between them can be as large as a whole bit.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="On the board H = 2.2037 and Huffman's cost is L* = 2.25. Across sources, how large can the gap L* − H be forced?"
@@ -116,7 +158,11 @@ Both ends of that inequality are honest in different ways. The floor is a theore
   explain="The bound H ≤ L* < H + 1 caps redundancy at strictly less than one bit per symbol. The extreme is a two-symbol source with probabilities 0.99 and 0.01: its entropy is 0.0808 bits, but any decodable binary code must spend at least 1 whole bit on each symbol, forcing the gap to 0.92 bits. On this six-symbol board the gap is only 0.05, close to the floor."
 />
 
+<NextUp text="How does the greedy two-lightest rule guarantee the minimal expected code length?" />
+
+
 ## The Cost of Disobedience
+<ChapterMark minutes={2} tag="the simulation" />
 
 Go back to the board and build the code yourself. Turn the hint off and merge a heavy root with a light one first, then finish greedily; the axis shows your accumulated cost drifting above the $L^*$ marker, and the final total is worse than the rule's.
 
@@ -143,11 +189,17 @@ The Huffman curve threads between the entropy curve and the ceiling the whole wa
 
 Heavier sources do not change the story. The entropy grows like $\log_2 m$ and the optimal code keeps paying almost exactly that, which is why the chart is three near-parallel lines.
 
+<NextUp text="What integer-bit constraint prevents Huffman from reaching Shannon's true entropy?" />
+
+
 ## The Engine Inside Every Archive
+<ChapterMark minutes={2} tag="systems" />
 
 Every general-purpose compressor runs a Huffman stage. DEFLATE, the format inside gzip and PNG, sends a Huffman table for its literals and then a second one for its match lengths and distances, all built by this merge. JPEG quantises then Huffman-codes; MP3 does the same on its spectral coefficients.
 
 The rule generalises without changing character. Merging the $k$ lightest roots at a time gives optimal $k$-ary codes, and when the code must fit a fixed field width, the package-merge method of Larmore and Hirschberg 1990 finds the best length-limited tree in nearly linear time.
+
+<MissionScore client:visible />
 
 <Afterimage
   object="Six weights hanging as fruit, and the binary tree that holds them."
@@ -155,6 +207,13 @@ The rule generalises without changing character. Merging the $k$ lightest roots 
   invariant="Each stem adds its merged weight to the bill, so the total is the average code length and sits below H + 1."
   number="125 MB per 10^9 symbols at a one-bit gap."
 />
+
+<NextMission
+  href="/algorithms/programming/edit-distance/"
+  title="Edit Distance"
+  teaser="A single shifted byte shows 8 false mismatches; tile the prefix grid to find the true distance of 2."
+/>
+
 
 ## The Tyranny of the Integer Bit
 

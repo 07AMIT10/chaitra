@@ -3,12 +3,12 @@ slug: maximum-flow
 field: programming
 fieldLabel: "Programming"
 reframe: "Pump fluid through a pipe network until the seams burst. The instant the flow chokes, the network reveals an invisible geometric fault-line: a razor-thin cut across the world where every single pipe is gorged to capacity."
-oneLine: "Seven pipes, five junctions, and the cut that certifies the answer."
+oneLine: "Greedy routing chokes on saturated pipes; push residual flow to close the duality gap from 8 to 0."
 tldr:
   - "The state is a feasible flow, and the maximum flow is the optimum of a linear program whose constraints are one row per junction."
   - "The dual of that program is a cut, so every flow value is at most every cut capacity at every single step — weak duality, visible as a gap card that can never go negative."
   - "Integral capacities give an integral optimum because the network matrix is totally unimodular, so no rounding is ever needed."
   - "Ford–Fulkerson can fail to terminate on irrational capacities (Ford–Fulkerson 1962; Zwick 1995); Edmonds–Karp's shortest-path rule removes the danger at O(VE²)."
 mathBranches: [linear-programming, optimization, graph-theory]
-primitives: [LPDualityDashboard, PredictionPrompt, SeriesChart, Afterimage]
+primitives: [Transmission, MissionCard, ChapterMark, NextUp, NextMission, MissionScore, LPDualityDashboard, PredictionPrompt, SeriesChart, Afterimage]
 attributions: ["Ford–Fulkerson 1956", "Elias–Feinstein–Shannon 1956", "Edmonds–Karp 1972", "Hoffman 1960", "Zwick 1995"]

@@ -48,6 +48,11 @@ export const STATIC_PRIMITIVES = new Set([
   "PrimitiveShell",
   "Afterimage",
   "MentalImage",
+  "Transmission",
+  "MissionCard",
+  "ChapterMark",
+  "NextUp",
+  "NextMission",
 ]);
 
 const CLIENT_DIRECTIVE_RE = /(?:^|\s)client:(visible|load|idle|only)(?=[\s/>=]|$)/;

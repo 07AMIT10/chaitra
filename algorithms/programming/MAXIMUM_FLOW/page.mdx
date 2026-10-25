@@ -1,3 +1,9 @@
+import Transmission from "@alg/Transmission.tsx";
+import MissionCard from "@alg/MissionCard.tsx";
+import ChapterMark from "@alg/ChapterMark.tsx";
+import NextUp from "@alg/NextUp.tsx";
+import NextMission from "@alg/NextMission.tsx";
+import MissionScore from "@alg/MissionScore.tsx";
 import LPDualityDashboard from "@alg/LPDualityDashboard.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -11,7 +17,30 @@ import Afterimage from "@alg/Afterimage.tsx";
   Interactive primitives carry an explicit Astro client directive; each is one island.
 */}
 
+{/* Scenario mapping for maximum-flow */}
+<Transmission from="Archive" code="DOC 1955-RAND">
+Declassified Cold War logistics analysis across the Eastern rail corridor.
+A greedy distribution plan pushed freight along the first open line and saturated key chokepoints prematurely.
+Without reverse residual capacity to cancel misallocated shipments, the transport corridor chokes eight units below capacity.
+Can augmenting paths close the duality gap to zero and expose the exact fault line of the minimum cut?
+</Transmission>
+
+<MissionCard
+  number="10"
+  objective="Push fluid through residual network paths until the capacity gap closes to zero against the minimum cut."
+  steps={[
+    "Augment flow along forward pipes while adding reverse cancellation capacity",
+    "Watch the primal-dual gap shrink from 8 down to 0 on the dashboard",
+    "Identify the saturated bottle-neck edges that form the minimum cut certificate"
+  ]}
+  minutes={10}
+  bailout="The LPDualityDashboard panel in §4"
+  after="You can solve max-flow, min-cut, bipartite matching, and network interdiction problems with exact dual certificates."
+/>
+
+
 ## The Five-Junction Pressure Chamber
+<ChapterMark minutes={3} tag="the hook" />
 
 On the dashboard below, the gap between the best flow and the cheapest cut starts at 8. It closes to 0 only when a cut appears whose forward pipes are all saturated, and that cut is the certificate.
 
@@ -27,7 +56,11 @@ The picture is **the fault line**: the flow is pressure pushing through the rock
   explain="The pipes leaving source s sum to 2 + 6 = 8, and the pipes feeding sink t sum to 7 + 3 = 10, tempting a guess of 8. The true bottleneck is an invisible interior fault-line: the cut separating {s, b} from {a, c, t} consists of edges s→a (2), b→c (2), and b→t (3), which sum to exactly 7. Fluid cannot cross a cut faster than the total capacity of that cut."
 />
 
+<NextUp text="Why does greedy pipe allocation choke when the first path saturates the wrong branch?" />
+
+
 ## The Phantom Reverse Flow
+<ChapterMark minutes={2} tag="the trap" />
 
 The naive operational impulse is greedy: pump fluid along any route with spare room, and halt when no path from $s$ to $t$ looks open. But that stopping condition merely reports where your initial guesses ran out of room, not where the network chokes.
 
@@ -35,7 +68,11 @@ A pipe already carrying volume holds a hidden power: reverse capacity. By pushin
 
 Greedy searches search forwards, but mathematical optimality requires an inescapable upper bound. To prove that 7 is the true ceiling, you cannot merely shrug after running out of paths; you must present a concrete geometric barrier that forbids 8. That certificate is a cut.
 
+<NextUp text="How do residual backward edges give the algorithm the ability to undo prior flow?" />
+
+
 ## The Duality of Fluid and Steel
+<ChapterMark minutes={2} tag="the invariant" />
 
 The physical state is a **feasible flow**: an assignment $f_e$ to each pipe $e$ satisfying capacity constraints $0 \le f_e \le c_e$ and strict conservation at every junction except $s$ and $t$. The aggregate throughput is the total volume spilling out of the source:
 
@@ -53,7 +90,11 @@ $$
 
 Any cut whatsoever provides an absolute ceiling on every feasible flow. The magic happens when the fluid rate equals the cut capacity: at that instant, both are unconditionally certified optimal.
 
+<NextUp text="How does the max-flow min-cut theorem prove that capacity equals bottleneck throughput?" />
+
+
 ## The Vanishing Gap and Total Unimodularity
+<ChapterMark minutes={2} tag="the algebra" />
 
 The primal question is a linear program: maximise throughput subject to non-negative edge bounds and Kirchhoff's current conservation law at every junction.
 
@@ -107,10 +148,15 @@ On a simple four-node diamond with high capacity $C$, an unfortunate choice of a
   explain="With integer capacities, each step gains at least one unit, ensuring finite termination. But with irrational capacities, Ford & Fulkerson (1962) proved the algorithm can loop endlessly while augmentations shrink so fast that total flow converges to an erroneous fractional limit! Zwick (1995) constructed the minimal 6-vertex, 8-edge network displaying this pathology. Edmonds–Karp eliminates this trap entirely."
 />
 
+<NextUp text="How does Ford-Fulkerson augmentation eliminate the duality gap between flow and cut?" />
+
+
 ## Driving the Residual Augmentation
+<ChapterMark minutes={2} tag="the simulation" />
 
 The seven pipes await your command. Step through the execution to watch Edmonds–Karp locate shortest residual routes, update primal flow, and track the shrinking duality gap.
 
+<ChapterMark minutes={1} tag="boss round" />
 <PredictionPrompt
   client:visible
   question="Step the run to completion. Which exact set of conduits forms the saturated minimum cut?"
@@ -154,7 +200,11 @@ Press step to augment along shortest residual paths. The green highlighter trace
 
 After three augmentations, flow reaches 7 and no residual path survives. The duality gap drops from 8 to 0, certifying optimality not through exhaustive search, but through an indisputable physical witness.
 
+<NextUp text="How do railway interdiction graphs translate into computer vision segmentation cuts?" />
+
+
 ## From Rail Interdiction to Modern Vision
+<ChapterMark minutes={2} tag="systems" />
 
 Max-flow min-cut was born in a classified 1955 RAND study by T. E. Harris and F. S. Ross analyzing the vulnerability of Soviet railway networks. The US Air Force wanted to identify the minimum number of rail links to sever to paralyze transport from the Soviet heartland into Eastern Europe.
 
@@ -162,12 +212,21 @@ Its reach extends across computer science. Add a supersource and supersink with 
 
 In modern computer vision, graph cuts segment images into foreground and background in real time (Boykov & Kolmogorov 2004). Pixels become nodes, pairwise gradient affinities become capacities, and the minimum cut carves out pixel-perfect object silhouettes.
 
+<MissionScore client:visible />
+
 <Afterimage
   object="Five junctions, seven pipes, and the set of saturated pipes that separates s from t."
   motion="Push flow along shortest residual paths; each augmentation lifts the flow toward the cheapest cut above it."
   invariant="No flow can exceed any cut, so a gap of 0 is a certificate that no rerouting can add a single unit."
   number="The gap starts at 8 and closes to 0."
 />
+
+<NextMission
+  href="/algorithms/programming/stable-matching/"
+  title="Stable Matching"
+  teaser="Greedy pairings collapse to rogue defectors; deferred acceptance settles in 4 rounds with 0 blocking pairs."
+/>
+
 
 ## Circulations, Level Graphs, and Fractional Traps
 
