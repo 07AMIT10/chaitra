@@ -1,3 +1,5 @@
+import Afterimage from "@alg/Afterimage.tsx";
+import MentalImage from "@alg/MentalImage.tsx";
 import RecursionTree from "@alg/RecursionTree.tsx";
 import GrowthTable from "@alg/GrowthTable.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -14,7 +16,9 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
 ## The student who disproved Kolmogorov
 
-In the autumn of 1960, Andrey Kolmogorov—the titan of Soviet mathematics—convened a seminar at Moscow State University. He conjectured that multiplying two $n$-digit numbers fundamentally required $\Omega(n^2)$ elementary operations. Within one week, a 23-year-old student named Anatoly Karatsuba found an algebraic identity that demolished the conjecture on the spot.
+In 1960, Kolmogorov told a Moscow State University seminar that multiplying two $n$-digit numbers requires $\Omega(n^2)$ operations; the claim lasted one week. A 23-year-old student, Anatoly Karatsuba, ended it with an identity that uses three half-size products instead of four.
+
+At $n = 2^{20}$, four half-size products per split leave $4^{20} = 1.1\times10^{12}$ leaf products. Three leave $3^{20} = 3.49\times10^{9}$. That is 315× fewer multiplications.
 
 Multiply `1234` by `5678`. Cut each number in half at base $B = 100$, so $a_1 = 12$, $a_0 = 34$, $b_1 = 56$, $b_0 = 78$.
 
@@ -30,6 +34,14 @@ Multiply `1234` by `5678`. Cut each number in half at base $B = 100$, so $a_1 = 
 ```
 
 Both columns produce `7,006,652`. The right column arrives with three small multiplications instead of four, paying for the saving with simple additions and subtractions.
+
+The picture is **three shared measurements**: $a_1b_1$, $a_0b_0$, and $(a_1+a_0)(b_1+b_0)$. The middle measurement carries both cross terms, and subtracting the two squares leaves $a_1b_0 + a_0b_1$.
+
+<MentalImage
+  kind="karatsuba-split"
+  title="Three shared measurements, with the cross terms isolated by subtraction"
+  caption="The three shared measurements: two squares and the product of the sums, whose subtraction leaves the cross terms a₁b₀ + a₀b₁."
+/>
 
 At four digits, that saving looks modest. Applied recursively to million-digit numbers, it transforms the computational universe.
 
@@ -139,6 +151,8 @@ The panel visualizes the recurrence seeded at $a = 3$, $b = 2$, $d = 1$: three h
   caption="The panel draws T(n) = a·T(n/b) + n^d. Seeded at (3, 2, 1) it is Karatsuba; move a to 4 and the same panel is schoolbook. Each dot is a recursive call and each ribbon bar is a level's total work."
 />
 
+Watch the leaves: each dot is a recursive call, so depth $k$ has $3^k$ dots, not $4^k$; the extra additions are the price, and they are cheaper than a fourth multiplication.
+
 Level $k$ holds $3^k$ subproblems of size $n/2^k$. Total work per level grows by $3/2$ each step down, meaning the leaf level dominates the runtime.
 
 Drag $a$ from 3 to 4. The ribbon expansion quickens from $1.5\times$ to $2.0\times$ per level, and the asymptotic readout snaps from $\Theta(n^{1.585})$ to $\Theta(n^2)$. That single step on the slider is the barrier Kolmogorov thought impenetrable.
@@ -162,6 +176,13 @@ Karatsuba is active code running on billions of machines daily.
 In CPython, Python's arbitrary-precision `int` type switches from schoolbook multiplication to Karatsuba as soon as integers exceed 70 digits. The GNU Multiple Precision Arithmetic Library (GMP) and Java's `BigInteger` rely on it across similar ranges. Every RSA key generation and Diffie-Hellman modular exponentiation executes chains of Karatsuba multiplications.
 
 The same algebraic principle applies identically to polynomial multiplication. Polynomial convolution in computer algebra systems evaluates using Karatsuba before switching to fast Fourier transforms.
+
+<Afterimage
+  object="Three shared measurements: the two squares and the product of the sums."
+  motion="Subtract the two squares from the middle measurement and the cross terms appear."
+  invariant="Three half-size products rebuild every coefficient, so each split branches three ways instead of four."
+  number="315× fewer leaf products at n = 2^20: 3.49×10^9 against 1.1×10^12."
+/>
 
 ## Beyond Karatsuba: Toom-Cook, FFTs, and the open frontier
 

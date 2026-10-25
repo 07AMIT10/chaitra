@@ -7,19 +7,22 @@ reframe: "Take any crumpled map and toss it onto the floor: exactly one point re
 oneLine: "Repeat x = cos x from any start and watch the cobweb spiral into the Dottie number."
 tldr: ["A map that shrinks every distance by a fixed factor q < 1 has exactly one fixed point, and plain iteration reaches it (Banach 1922).", "The error halves geometrically: the panel's ratio column settles on q = 0.6736 for x = cos x, and the chart below plots the honest decay.", "The check you actually run is calculus: if |g′(x)| ≤ q < 1 on an interval, the mean value theorem makes g a contraction there.", "Newton's method is the special case g′(x*) = 0, which is why its error squares instead of shrinking geometrically."]
 mathBranches: ["analysis", "numerical-analysis", "geometry"]
-primitives: ["IterationLab", "PredictionPrompt", "SeriesChart"]
+primitives: ["IterationLab", "PredictionPrompt", "SeriesChart", "Afterimage"]
 attributions: ["Banach 1922", "Picard 1890", "Brouwer 1911", "May 1976", "Lagrange 1797"]
 ---
 
+import Afterimage from "@alg/Afterimage.tsx";
 import IterationLab from "@alg/IterationLab.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 
 ## The Cobweb Spiral
 
-Type `cos` into a pocket calculator, press equals, and press it again. No matter what initial number you entered, the display drifts helplessly toward `0.739085...`—the Dottie number.
+At contraction factor $q = 0.9999$, one correct digit costs 23,025 steps. At $q = 0.6736$ it costs 5.83. Type `cos` into a pocket calculator, press equals twice, and no matter what you entered the display drifts to `0.739085...`, the Dottie number.
 
-The panel below captures this exact convergence. Follow the cobweb staircase as it bounces between the cosine curve and the diagonal line $y = x$.
+The picture is **the cobweb**: bounce between $y = g(x)$ and $y = x$; a contraction shortens every bounce by $q$, and a point with $|g'| > 1$ repels.
+
+Before you press play, commit to a prediction below.
 
 <IterationLab
   client:visible
@@ -28,7 +31,7 @@ The panel below captures this exact convergence. Follow the cobweb staircase as 
   caption="Vertical to the curve, horizontal to the diagonal: each corner of the staircase is one iterate. Step it and read the error column."
 />
 
-Watch the $e_n$ column as you step. It falls by roughly the same factor every time, and that factor is the slope of $g$ at the fixed point. Everything on this page explains that number.
+Watch the ratio column: it is the slope of $g$ at the fixed point, and the stopping rule $q^n/(1-q)$ is the only honest error bound. The factor is the same at every step, and everything on this page explains it.
 
 ## The Mirage of the Halting Loop
 
@@ -128,6 +131,13 @@ Read the two lines on the log scale as straight lines with the same slope. That 
 Picard used this iteration to solve differential equations (Picard 1890): rewrite $y' = f(y)$ as an integral equation and iterate the integral, which contracts on a short time interval. Banach's abstraction turned one existence proof into a method for equations everywhere.
 
 Every solver with a "tolerance" and a "max iterations" field is spending this theorem. Value iteration in dynamic programming, power iteration for eigenvectors, and the inner loops of splitting methods all converge because some map contracts. When they stall, the first diagnostic is the same: estimate $q$, and check whether it is really below $1$.
+
+<Afterimage
+  object="The cobweb: a path bouncing between the curve and the diagonal."
+  motion="Each vertical to the curve and horizontal to the diagonal is one iterate, and every bounce shrinks by q."
+  invariant="A contraction maps the interval into itself with slope below 1, so the path cannot escape its fixed point."
+  number="5.83 steps per digit at q = 0.6736, against 23,025 at q = 0.9999."
+/>
 
 ## Escaping the Basin: When Contraction is Local
 

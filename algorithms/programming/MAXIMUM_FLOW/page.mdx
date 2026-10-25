@@ -1,6 +1,7 @@
 import LPDualityDashboard from "@alg/LPDualityDashboard.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Contract matched to website/src/components/algorithms/:
@@ -12,9 +13,11 @@ import SeriesChart from "@alg/SeriesChart.tsx";
 
 ## The Five-Junction Pressure Chamber
 
-Five steel junctions sit under pressure, labelled $s$, $a$, $b$, $c$, and $t$, linked by seven one-way conduits. Each conduit has a fixed volumetric ceiling: $s \to a$ holds 2, $s \to b$ holds 6, $a \to b$ holds 2, $a \to c$ holds 3, $b \to c$ holds 2, $c \to t$ holds 7, and $b \to t$ holds 3. Fluid is injected at source $s$ and escapes only at sink $t$, never accumulating at intermediate nodes.
+On the dashboard below, the gap between the best flow and the cheapest cut starts at 8. It closes to 0 only when a cut appears whose forward pipes are all saturated, and that cut is the certificate.
 
-Before tracing a single trajectory, a natural question surfaces: what is the maximum rate at which fluid can traverse this network? More fundamentally, how could any observer prove that no clever routing trick could squeeze through even a single extra drop?
+Five steel junctions sit under pressure, labelled $s$, $a$, $b$, $c$, and $t$, linked by seven one-way conduits. Their ceilings: $s \to a$ holds 2, $s \to b$ holds 6, $a \to b$ holds 2, $a \to c$ holds 3, $b \to c$ holds 2, $c \to t$ holds 7, and $b \to t$ holds 3. Fluid is injected at $s$ and escapes only at $t$, never accumulating at an intermediate junction.
+
+The picture is **the fault line**: the flow is pressure pushing through the rock, and the crack is the saturated set of pipes that separates the source side from the sink side. Nothing crosses the fault line faster than the pipes in it can carry.
 
 <PredictionPrompt
   client:visible
@@ -145,6 +148,8 @@ The seven pipes await your command. Step through the execution to watch Edmonds�
   caption="Edmonds–Karp on the seven pipes. Step through the augmentations: each green route is a shortest residual s-to-t path, the primal card is the flow value, the dual card is the best cut found so far, and the gap card falls to 0 on the last step. Toggle Show flow to watch saturation and the cut."
 />
 
+Watch the dual card and the gap card, not the flow numbers; the gap reaches 0 on the exact step where every forward pipe of the fault line is saturated.
+
 Press step to augment along shortest residual paths. The green highlighter traces the active augmenting route, while residual capacities adjust in real time. Toggle **Show flow** to view physical load ratios $f_e / c_e$: saturated pipes turn solid gold, and the terminal cut edges glow with dashed outlines.
 
 After three augmentations, flow reaches 7 and no residual path survives. The duality gap drops from 8 to 0, certifying optimality not through exhaustive search, but through an indisputable physical witness.
@@ -156,6 +161,13 @@ Max-flow min-cut was born in a classified 1955 RAND study by T. E. Harris and F.
 Its reach extends across computer science. Add a supersource and supersink with unit-capacity edges, and max flow solves maximum bipartite matching, where the min-cut yields König's minimum vertex cover (König 1931; Hall 1935). With unit pipes, Menger's theorem (1927) on edge-disjoint paths falls out directly.
 
 In modern computer vision, graph cuts segment images into foreground and background in real time (Boykov & Kolmogorov 2004). Pixels become nodes, pairwise gradient affinities become capacities, and the minimum cut carves out pixel-perfect object silhouettes.
+
+<Afterimage
+  object="Five junctions, seven pipes, and the set of saturated pipes that separates s from t."
+  motion="Push flow along shortest residual paths; each augmentation lifts the flow toward the cheapest cut above it."
+  invariant="No flow can exceed any cut, so a gap of 0 is a certificate that no rerouting can add a single unit."
+  number="The gap starts at 8 and closes to 0."
+/>
 
 ## Circulations, Level Graphs, and Fractional Traps
 

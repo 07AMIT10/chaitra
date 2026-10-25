@@ -1,3 +1,4 @@
+import Afterimage from "@alg/Afterimage.tsx";
 import LatticeClimb from "@alg/LatticeClimb.tsx";
 import PotentialBank from "@alg/PotentialBank.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
@@ -18,9 +19,11 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
 ## Six Atoms on a Table
 
-Six isolated elements sit before you. Press **merge**, and two of them collapse into a single bonded clump that can never be pulled apart. That one-way fuse is the entire data structure.
+Relabelling the block you merge into is the obvious implementation, and at $n = 10^9$ it writes $10^{18}$ labels. At a billion writes a second that is 31.7 years. Union by rank with path compression walks $4 \times 10^9$ parent pointers and finishes in 4 seconds.
 
-Any two objects are either in the same clump or not, so the clumps define an equivalence relation waiting to be named. Kruskal's minimum spanning tree uses the two operations to ask "is this edge redundant?"; image segmenters use them to fuse neighbouring pixel regions; percolation sweeps use them to ask whether water has reached the bottom of a rock. The same pair of operations carries all of it.
+Six isolated elements sit on the table in front of you. Press **merge**, and two of them collapse into a single bonded clump that can never be pulled apart.
+
+The picture is **the lattice**: nodes are the partitions of the set, cover edges are single merges, and the climb only goes up.
 
 <PredictionPrompt
   client:visible
@@ -35,9 +38,9 @@ Any two objects are either in the same clump or not, so the clumps define an equ
 
 Fix a finite set `S` of `n` elements. You will be asked, over and over, two questions: are **x** and **y** in the same block, and can you merge the block of **x** with the block of **y**. A first course calls this "disjoint sets" and moves on.
 
-The naive answers are worse than they look. Keep a label array and relabel every member of the smaller block on each merge: one merge can cost Θ(n), so a sequence of `n` merges costs Θ(n²).
+The naive answers are worse than they look. Keep a label array and relabel every member of the block you merge **into** — typically the larger one: one merge can cost Θ(n), so a sequence of `n` merges costs Θ(n²).
 
-Keep a member list per set and concatenate: the same trap, the same quadratic. Neither is slow because the idea is bad; both are slow because they store the *answer to a query* and call it the state.
+Keep a member list per set and copy the longer list on each merge: the same trap, the same quadratic. Relabelling the *smaller* block instead is a real repair and costs O(n log n) over `n` merges, but it still keeps a label per element rather than the partition. Neither method is slow because the idea is bad; both are slow because they store the answer instead of the partition.
 
 ## The Lattice You Cannot Descend
 
@@ -66,6 +69,8 @@ $$
 $$
 
 The lattice rank and the merge counter are the same number. A runtime statistic is a coordinate of where the state sits in an order-theoretic diagram.
+
+Watch the gold path, not the drawing: when you click a pair from different blocks, one cover edge is taken and the block count falls by exactly one. That fall is the invariant, and it is the same quantity as the merge counter.
 
 <LatticeClimb
   client:visible
@@ -216,6 +221,13 @@ O(E \log E) \;+\; O(E\,\alpha(V)) \;=\; O(E \log E)
 $$
 
 The same predicate answers image segmentation, where union–find is literally the inner loop of a greedy region merge (Felzenszwalb and Huttenlocher 2004), and cluster labelling, where you sweep the open sites of a lattice, merge neighbours, and ask whether two boundaries fell into one block (Hoshen and Kopelman 1976). The partition does the logic; the sort does the cost.
+
+<Afterimage
+  object="The lattice of partitions, climbed from all singletons to one block."
+  motion="A merge takes one cover edge upward and fuses two blocks; a find walks the parent chain and flattens it."
+  invariant="The climb is monotone and the rank equals n minus the block count, so no merge can undo an earlier one."
+  number="10^18 label writes, 31.7 years, against 4×10^9 parent steps in 4 seconds."
+/>
 
 ## Lineage & Attributions
 

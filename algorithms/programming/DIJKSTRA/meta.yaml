@@ -10,7 +10,7 @@ tldr:
   - "The settled vector is one row of the min-plus closure of the weight matrix — Floyd–Warshall and Lehmann compute the whole closure, Dijkstra computes a row."
   - "One negative edge breaks the exchange step: a later walk undercuts a settled vertex and the run reports a wrong distance."
 mathBranches: [order-theory, algebra, optimization]
-primitives: [GraphCanvas, SemiringMatrix, SeriesChart, PredictionPrompt]
+primitives: [GraphCanvas, SemiringMatrix, SeriesChart, PredictionPrompt, Afterimage]
 attributions: ["Dijkstra 1959", "Bellman 1958", "Fredman–Tarjan 1984", "Lehmann 1977"]
 relatedTopics: [pagerank]
 featured: true

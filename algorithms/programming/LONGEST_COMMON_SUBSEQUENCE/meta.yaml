@@ -10,6 +10,6 @@ tldr:
   - "Computing the length is O(mn), but the number of distinct longest common subsequences can be 2^(n/2): polynomial to measure, exponential to list."
   - "When one string is a rearrangement of the other, LCS is exactly the longest increasing subsequence of the position permutation."
 mathBranches: [order-theory, combinatorics, algorithms]
-primitives: [DPHeatmap, PredictionPrompt, SeriesChart]
+primitives: [Afterimage, DPHeatmap, PredictionPrompt, SeriesChart]
 attributions: ["Wagner–Fischer 1974", "Hirschberg 1975", "Myers 1986"]
 featured: false

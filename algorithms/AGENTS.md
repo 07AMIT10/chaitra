@@ -41,14 +41,17 @@ python3 -c "import yaml; yaml.safe_load(open('algorithms/<field>/<NAME>/meta.yam
 
 ## Page skeleton (all pages)
 
-0. **Concrete artefact** — a thing on screen before any definition. "Six objects, press merge."
-1. **The question** — the operational or naive framing, and why it is not the real question.
-2. **The real object** — the mathematical structure the state actually is.
-3. **The mathematics** — the theorem(s) and the identities, each attributed, each tied to something visible.
-4. **The centrepiece** — the primitive(s) the reader drives.
-5. **The payoff** — what this buys and where else it appears.
-6. **Advanced / optional** — clearly flagged and skippable. Omit if there is nothing.
-7. **Attributions** — the full list, with what each is for.
+0. **The stake** — the first sentence carries a consequence, a magnitude, or a rival failing. Never a count of objects. "At 10^9 records, scanning costs 31.7 years; halving costs 60 comparisons."
+1. **Concrete artefact** — a thing on screen before any definition. "Six objects, press merge."
+2. **The named image** — one picture, named once and used consistently. If no existing panel shows it, add a `MentalImage` plate.
+3. **The question** — the operational or naive framing, and why it is not the real question.
+4. **The real object** — the mathematical structure the state actually is.
+5. **The mathematics** — the theorem(s) and the identities, each attributed, each tied to something visible.
+6. **The centrepiece** — the primitive(s) the reader drives, with one sentence telling the reader what to watch.
+7. **The payoff** — what this buys and where else it appears.
+8. **The afterimage** — `Afterimage`: the object, the motion, the invariant, and one number. Placed before the advanced section. This is the close the reader should be able to replay with their eyes shut.
+9. **Advanced / optional** — clearly flagged and skippable. Omit if there is nothing.
+10. **Attributions** — the full list, with what each is for.
 
 ## Editorial rules
 
@@ -56,7 +59,12 @@ python3 -c "import yaml; yaml.safe_load(open('algorithms/<field>/<NAME>/meta.yam
 |---|---|
 | **Narrative headings** | Do not use robotic numbered titles like `## 1 · The question`. Use narrative, curiosity-driven titles tailored to the topic (`## The 2×2 Illusion`, `## The Hidden Tensor Geometry`). |
 | **No echo-chamber reframe** | The layout hero already displays the `meta.yaml` reframe. Do not repeat the exact reframe as the first H2; open with a dramatic premise, historical hook, or concrete artefact. |
-| **Concrete artefact first** | No definitions, no algebra, no asymptotics in the first screen. A thing the reader can point at. |
+| **Stake, then artefact** | The first sentence carries a consequence, a magnitude, or a rival failing. The concrete artefact follows immediately. No definitions or algebra in the first screen. |
+| **One image, one name** | The page names one picture and uses that name everywhere. No synonym drift. If no panel shows it, add a `MentalImage` plate. |
+| **Numbers carry their arithmetic** | Every magnitude is computed, not asserted. If a number cannot be checked from the page or a cited source, cut it. |
+| **Prediction placement** | A prediction moves above a panel only if its question is self-contained. If it needs the panel's data, keep it immediately after the idle panel and say "commit before you press play" above the panel. |
+| **Afterimage close** | End the main argument with `Afterimage`: object, motion, invariant, one number. It is a rehearsal, not a summary. |
+| **Name the boundary** | The image is honest only inside the theorem's hypotheses. Say where it breaks: negative edges, non-bipartite graphs, q ≥ 1, cycles. |
 | **Direct voice, second person** | "Press merge", not "the user may press merge". |
 | **≤ 3 sentences per paragraph** | Break long paragraphs; the page is scanned as much as read. |
 | **Predictions as intuition traps** | At least two `PredictionPrompt`s. Pose a genuine intuition trap, paradox, or calculation surprise — never a dry textbook definition quiz. |
@@ -105,6 +113,8 @@ Prop shapes in `website/src/components/algorithms/` (this is the real contract �
 | `IterationLab` | `problem` (`newton` \| `bisection` \| `fixed-point` \| `secant`) · `target` (`sqrt2` \| `root-of-cubic` \| `cos-fixed-point`) · `caption` — the two props set the method and the baked-in function the panel opens on; the reader can switch both. The reader drags the starting point or the bracket and steps the iterates. Shows the residual, the error against the true root, the ratio that names the order of convergence, and the geometry of the step (tangent, secant, bracket or cobweb) |
 | `MatchingBoard` | `left` (string[]) · `right` (string[]) · `leftPrefs` (number[][]) · `rightPrefs` (number[][]) · `problem` (`stable-matching` \| `bipartite-matching`) · `caption` · `height` — `leftPrefs[i]` and `rightPrefs[j]` list the other side's indices, best first, and define mutual acceptability. `problem` sets the opening board; the reader can switch. Deferred acceptance steps in rounds and checks every pair for blocking; the side that proposes can be swapped to show both extremes. Augmenting-path mode steps Kuhn's search and draws the alternating path |
 | `HuffmanMerge` | `symbols` (`{ name, weight }[]`) · `caption` · `height` · `greedyHint?` — the reader selects any two roots and merges them, so a non-greedy choice is priced in bits. Shows the forest, the 0/1 edge labels, the accumulated `Σ pᵢℓᵢ`, and `H` against `L` and `L*` on one axis with the `[H, H+1]` band. `greedyHint` (default true) marks the two lightest roots and adds a toggle |
+| `Afterimage` *(static)* | `object` · `motion` · `invariant` · `number?` · `title?` — the recall close. Three sentences the reader can replay with their eyes shut: the picture, what moves, why the move cannot go wrong, plus one magnitude to carry away. No directive |
+| `MentalImage` *(static)* | `kind` (`quicksort-ghost` \| `karatsuba-split` \| `strassen-valves` \| `mst-weld` \| `toposort-shadow`) · `title?` · `caption?` · `height?` — one plate per picture that no interactive panel shows. The plate is a figure, not another control; it carries the mathematical object, not a screenshot of the algorithm. No directive |
 | `PrimitiveShell` *(static)* | `title` · `subtitle?` · `right?` · `children` · `tone?` — panel chrome for a **bespoke** island component |
 
 `SeriesChart` and `PotentialBank` plot exactly what you pass them. They do **not** synthesise a workload: a page must supply measured or hand-computed numbers, and an empty `series` renders an explicit "no series" panel, not a chart. Do not ship an empty panel.
@@ -113,7 +123,7 @@ Prop shapes in `website/src/components/algorithms/` (this is the real contract �
 
 Astro server-renders React to static HTML. A component without a `client:*` directive becomes markup with no JavaScript behind it: it renders, it looks perfect, it logs nothing, and it does **nothing**. The build cannot see this.
 
-1. **Every interactive primitive needs an explicit client directive.** Write `client:visible` on it (`client:load`, `client:idle`, `client:only` also work). Only `SeriesChart`, `GrowthTable` and `PrimitiveShell` are static and carry no directive.
+1. **Every interactive primitive needs an explicit client directive.** Write `client:visible` on it (`client:load`, `client:idle`, `client:only` also work). `SeriesChart`, `GrowthTable`, `PrimitiveShell`, `Afterimage` and `MentalImage` are static and carry no directive.
 2. **Astro islands cannot nest.** A `client:*` component rendered as a child of another `client:*` component is not hydrated. Each interactive primitive is therefore its own island; a driven composite — controls wired to a visual — must be **one self-contained component**: a bespoke island that imports the primitives, owns their state, and carries the single directive. Never wrap client children in a client parent from MDX.
 3. **Only serializable props cross an island boundary.** A hydrated island receives plain data. A function prop — `onClick`, `onIndex`, any callback — is dropped between the server render and the browser, so the page compiles and the handler never fires. Pass callbacks *inside* a bespoke island, never from MDX.
 4. **The lint enforces all of this.** `website/scripts/lint-algorithms-content.mjs` fails on a directive-less primitive, on a nested island, and on a primitive missing from `meta.yaml` `primitives` (or listed there but unused). Run `npm run lint:algorithms` before you build.
@@ -147,7 +157,7 @@ Then open the page in a real browser and check: zero console exceptions, zero Ka
 
 ## Rubric
 
-Score 0–2 per dimension (0 fail, 1 pass, 2 exemplar). **Publish threshold: 18/24.**
+Score 0–2 per dimension (0 fail, 1 pass, 2 exemplar). **Publish threshold: 23/30.**
 
 | # | Dimension | 0 | 2 (exemplar) |
 |---|---|---|---|
@@ -163,12 +173,26 @@ Score 0–2 per dimension (0 fail, 1 pass, 2 exemplar). **Publish threshold: 18/
 | 10 | Maths honesty | Decorative symbols | Every symbol tied to something visible |
 | 11 | Payoff | Ends on the definition | Names where else it appears |
 | 12 | Housekeeping | Per-page CSS, TODO, relative import | No CSS, no TODO, alias imports only |
+| 13 | Stake | No consequence; a count of objects | A specific number or consequence a reader would repeat |
+| 14 | Image | No picture, or a new metaphor every section | One named image, used consistently, that *is* the mathematics |
+| 15 | Recall | Ends on a definition or a summary | An `Afterimage` the reader can replay: object, motion, invariant, one number |
+
+## The six-question test
+
+Apply this to one page in under two minutes. Any two failures mean the page is a tour, not an explanation.
+
+1. **Sketch.** Cover the page. Draw the object and an arrow for what moves.
+2. **Belief.** What did I believe at the top that is false at the bottom?
+3. **Finger.** Point at one symbol and find it on a panel.
+4. **Transfer.** Predict the outcome for an input that is not on the page.
+5. **Delete.** Which panel could go with no idea lost?
+6. **Name.** State the page in one sentence without using the algorithm's name.
 
 ## Common mistakes
 
 | Mistake | Fix |
 |---|---|
-| Opening with the definition | Screen 0 is a concrete artefact; the algebra arrives in section 3. |
+| Opening with the definition | Screen 0 is the stake, then a concrete artefact; the algebra arrives in section 3. |
 | A beautiful thing the reader only watches | Make the central object manipulable; add `PaceControls`. |
 | Symbols on the page that map to nothing | Tie each symbol to a panel, or delete it. |
 | Importing a primitive that does not exist yet | Check `website/src/components/algorithms/` first. |
@@ -183,6 +207,12 @@ Score 0–2 per dimension (0 fail, 1 pass, 2 exemplar). **Publish threshold: 18/
 | Passing a callback to an island | Function props do not cross the boundary. Move the state into a bespoke island that owns the handlers. |
 | `$$ \begin{aligned}` on one line | `$$` must be alone on its line: `$$`, then the maths, then `$$`. Sharing the line silently swallows the rest of the page as literal text. |
 | A primitive in `meta.yaml` but not used (or used but not listed) | Keep `meta.yaml` `primitives` and the page's imports/uses in exact agreement — `bespoke:<Name>` entries are exempt. |
+| Opening by counting objects ("Six vertices sit…") | Lead with the consequence; the count is a setting, not a stake. |
+| A new metaphor in every section | One image, one name. Delete the synonyms, not the image. |
+| A magnitude with no arithmetic | Compute it from the page's own data or a cited source, and state the units. |
+| A prediction above a panel it depends on | Keep it after the idle panel; put "commit before you press play" above the panel. |
+| No `Afterimage` | Add object, motion, invariant, one number. It is the close, not an appendix. |
+| A `MentalImage` plate that only illustrates | The plate must be the mathematical object, not a screenshot of the algorithm. If it decorates, cut it. |
 
 ## Related paths
 
@@ -192,6 +222,8 @@ Score 0–2 per dimension (0 fail, 1 pass, 2 exemplar). **Publish threshold: 18/
 | `algorithms/_TEMPLATE/` | Filled-in Binary Search starting point |
 | `algorithms/programming/UNION_FIND/` | The first real page (batch 0) |
 | `website/src/components/algorithms/` | The shared primitive library |
+| `website/src/components/algorithms/Afterimage.tsx` | The recall close used on every page |
+| `website/src/components/algorithms/MentalImage.tsx` | Five plates for pictures no panel shows |
 | `website/scripts/sync-algorithms.mjs` | Source → content sync |
 | `website/scripts/lint-algorithms-content.mjs` | Content quality lint |
 | `docs/specs/2026-10-18-algorithms-section-design.md` | Authoritative design |

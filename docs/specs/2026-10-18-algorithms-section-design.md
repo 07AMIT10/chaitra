@@ -190,3 +190,73 @@ Content is produced in batches by parallel subagents, architecture-first:
 
 Primitive prop APIs; exact CSS; how much of each page is markdown vs JSX; whether a page may embed a
 raw interactive block; the field list beyond `programming`; and the rubric in `algorithms/AGENTS.md`.
+
+## 12. The WHY pass (2026-10-25)
+
+The first shipped version was mathematically strong and pedagogically uneven. A strict audit of the
+24 pages found:
+
+- **18/24** pages scored top on "felt" (a panel that makes a quantity visible).
+- **9/24** scored ≤1 on "why" — the reader could not say what was at stake.
+- **11/24** opened by counting objects on a surface ("Six vertices, eight weighted edges…"); not one
+  of those first sentences stated a consequence.
+- **12/24** first stated their strongest stake at §5 or later, roughly 1,500 words after the reader
+  needed it.
+- **3/24** had no holdable image at all (LIS, MST, topological sort).
+- **10/24** put the first prediction after the panel that answers it.
+
+The diagnosis was not "add an application". It was that the pages were written for a reader who does
+not know, while the reader already has a model that works on every example they have met. The page's
+job is to make that model fail on a case the reader can see, then give the invariant that prevents the
+failure.
+
+### Decisions
+
+1. **Stake before setup.** The first sentence carries a consequence, a magnitude, or a rival failing.
+   Three patterns: the rival that nearly wins, the impossible invoice, the picture with one bad pixel.
+   "Six vertices sit on a table" is a setting; "of 24 spanning trees, exactly 2 weigh 6" is a stake.
+2. **One image, one name.** Each page names one spatial picture and uses that name everywhere. The
+   image is the invariant, the certificate, or the operator — not an illustration of the code.
+3. **The boundary is part of the image.** Negative edges, non-bipartite graphs, q ≥ 1, cycles: the page
+   says where the picture stops being true.
+4. **The `Afterimage` close.** Every page ends its main argument with three lines — object, motion,
+   invariant — plus one number. It is a rehearsal, not a summary. Placed before the advanced section.
+5. **`MentalImage` plates for the five pictures no panel showed**: the quicksort ghost tree, the
+   Karatsuba three-product split, the Strassen signed contribution table, the MST weld and cut, and the
+   topological shadow on a timeline. Static SVG, one shared component, no interaction.
+6. **Prediction placement.** A prediction moves above a panel only when its question is self-contained.
+   If it needs the panel's data, it stays immediately after the idle panel, with one line above the
+   panel: "Before you touch the transport, commit to a prediction below."
+7. **Numbers carry their arithmetic.** Every magnitude in the pass was computed independently. Two
+   existing claims were wrong and are corrected:
+   - Union–Find said relabelling the *smaller* block is Θ(n²). Small-to-large relabelling is
+     O(n log n); the quadratic needs relabelling the merged-into (larger) block or concatenating the
+     longer list.
+   - Quicksort's distractor called 1.4M comparisons the "standard average" at n=100,000. The exact
+     average is 2(n+1)H_n − 4n = 2,018,053, so the distractor now says "roughly 2 million".
+
+### Implementation
+
+| Piece | File |
+|---|---|
+| Recall close | `website/src/components/algorithms/Afterimage.tsx` |
+| Five plates | `website/src/components/algorithms/MentalImage.tsx` |
+| Styles | `website/src/styles/algorithms.css` (`Afterimage`, `MentalImage`) |
+| Static-primitive list | `website/scripts/lint-algorithms-content.mjs` |
+| Authoring guide | `algorithms/AGENTS.md` — skeleton, editorial rules, rubric 23/30, six-question test |
+
+`Afterimage` takes `object`, `motion`, `invariant`, optional `number` and `title`. `MentalImage` takes
+`kind` (`quicksort-ghost`, `karatsuba-split`, `strassen-valves`, `mst-weld`, `toposort-shadow`),
+optional `title`, `caption`, `height`. Both are static and carry no `client:` directive.
+
+### Verification
+
+The pass is gated by four checks, in order:
+
+1. A structural audit: every page has exactly one `Afterimage`, no count-opening, the named image
+   appears in the first 6,000 characters, and page growth stays below 30%.
+2. `npm run lint:algorithms`.
+3. `npm run build`.
+4. The 24-page browser gate (`/tmp/opencode/verify-alg2.cjs`): console exceptions, KaTeX errors, empty
+   panels, and every control responding. The five plates are additionally checked at 380 px; the
+   Strassen plate scrolls horizontally rather than shrinking seven formulas into illegibility.

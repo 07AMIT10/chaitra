@@ -7,7 +7,7 @@ reframe: "Thread an arrow of time through a tangled web of dependencies so that 
 oneLine: "Flatten a dependency DAG into a queue order, and see the orders you did not choose."
 tldr: ["Reachability is a preorder; quotient it by mutual reachability and you get the poset you are really sorting.", "A topological order is a linear extension — one total order that never contradicts a prerequisite.", "Kahn's peeling deletes minimal elements in O(V+E), yet counting how many linear extensions exist is #P-complete (Brightwell–Winkler 1991), so the count is not a construction."]
 mathBranches: ["order-theory", "combinatorics", "graph-theory"]
-primitives: ["GraphCanvas", "PredictionPrompt", "SeriesChart"]
+primitives: ["Afterimage", "GraphCanvas", "MentalImage", "PredictionPrompt", "SeriesChart"]
 attributions: ["Kahn 1962", "Tarjan 1976", "Birkhoff 1937", "Brightwell–Winkler 1991"]
 relatedTopics: ["pagerank", "mapreduce", "distributed-systems"]
 ---
@@ -15,6 +15,8 @@ relatedTopics: ["pagerank", "mapreduce", "distributed-systems"]
 import GraphCanvas from "@alg/GraphCanvas.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
+import MentalImage from "@alg/MentalImage.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contract used by this page, matched to website/src/components/algorithms/.
@@ -27,9 +29,18 @@ import SeriesChart from "@alg/SeriesChart.tsx";
 
 ## The Six-Stage Pipeline
 
-Six compilation tasks sit on a build server, constrained by seven directional dependency vectors. Task A must compile before B and C, both B and C are prerequisites for D, C must precede E, and both D and E must conclude before final link target F can run.
+Exactly 5 of the $6! = 720$ orders on this six-task board are valid schedules. The DAG is the object that names all five at once: A precedes B and C, both precede D, C precedes E, and D and E precede the final link F.
 
-Step the interactive player below. At every tick, the engine identifies tasks whose prerequisites are completely fulfilled, emits one of them into the timeline, and decrements the dependency counts of its successors.
+Call the picture **the shadow on a timeline**. The DAG fixes every order that respects its arrows, and each schedule is one shadow it casts onto a single line.
+
+<MentalImage
+  kind="toposort-shadow"
+  caption="The same six-task DAG, and all five schedules it allows. Each row on the right is one shadow on the timeline; the panel's log is one of these five."
+/>
+
+Watch the queue chips: they are the *available* set, so when two chips are present either can be emitted next, and the panel's choice is one shadow among the five.
+
+Before you touch the transport, commit to a prediction below.
 
 <GraphCanvas
   client:visible
@@ -55,7 +66,7 @@ Step the interactive player below. At every tick, the engine identifies tasks wh
   caption="Kahn's peeling on six tasks. Each step the panel names the tasks whose prerequisites are all finished, emits one of them, and drops the in-degrees of its neighbours. The queue chips are the currently available set; the step log is the order being built."
 />
 
-The sequence accumulating in the execution log is a valid build order. But it is only one possible reality among multiple valid chronological orderings.
+The sequence accumulating in the execution log is one valid build order: one shadow on the timeline. The DAG allows five, and the panel chose one of them.
 
 <PredictionPrompt
   client:visible
@@ -131,7 +142,7 @@ For our six-node graph, exactly 5 valid linear extensions exist out of $6! = 720
   ]}
 />
 
-For two disjoint independent chains of length $k$, any valid topological ordering is an interleaving chosen by placing $k$ items into $2k$ slots, yielding exactly $\binom{2k}{k}$ linear extensions. As $n$ grows, the count explodes beyond practical enumeration, demonstrating why #P-hardness protects this combinatorial landscape.
+For two disjoint independent chains of length $k$, any valid topological ordering is an interleaving chosen by placing $k$ items into $2k$ slots, yielding exactly $\binom{2k}{k}$ linear extensions. As $n$ grows, the count explodes beyond practical enumeration, demonstrating why #P-hardness protects this combinatorial landscape. At $k = 50$, with a hundred tasks in two chains, the same formula gives $\binom{100}{50} \approx 1.0089 \times 10^{29}$ schedules.
 
 ## Peeling Minimal Elements in Real Time
 
@@ -148,6 +159,13 @@ Topological sorting governs modern computing architectures wherever prerequisite
 Compilers order compilation units to ensure definitions precede symbol resolutions. Reactive spreadsheet engines evaluate cell recalculation graphs along topological sweeps, preventing stale formula evaluations.
 
 In distributed computing, Leslie Lamport (1978) formalised the **happens-before** relation $(\to)$ across asynchronous message networks. The physical universe does not offer a single synchronized clock; a distributed timeline is simply a linear extension of the causal poset.
+
+<Afterimage
+  object="A six-task DAG and the five shadows it casts on a timeline."
+  motion="Kahn's queue emits a task whose prerequisites are done, and each emission fixes one position of one shadow."
+  invariant="Every emitted task has in-degree zero in what remains, so no arrow ever points backward along the timeline."
+  number="5 valid schedules out of 720."
+/>
 
 ## The Fractured Arrow of Time: Cycles as Condensations
 

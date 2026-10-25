@@ -9,7 +9,7 @@ tldr:
   - "With insert and delete only, the distance collapses to the identity m + n − 2·LCS."
   - "A test for distance ≤ k needs only the diagonal band |i − j| ≤ k — O(nk) cells, not the O(n²) full table."
 mathBranches: [graph-theory, metric-geometry, combinatorics]
-primitives: [DPHeatmap, PredictionPrompt, SeriesChart]
+primitives: [Afterimage, DPHeatmap, PredictionPrompt, SeriesChart]
 attributions: ["Levenshtein 1965", "Needleman–Wunsch 1970", "Wagner–Fischer 1974"]
 relatedTopics: [spam-detection, information-theory]
 featured: false

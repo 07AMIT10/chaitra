@@ -10,7 +10,7 @@ tldr:
   - "A 1:9 split is still Θ(n log n): the depth is log₁₀/₉ n ≈ 6.58 log₂ n, a constant factor, not a new class."
   - "Sorted input with a first-element pivot is a path: n(n−1)/2 ≈ n²/2 comparisons, and McIlroy's 1999 adversary forces that on any deterministic pivot rule."
 mathBranches: [probability, combinatorics, analysis]
-primitives: [RecursionTree, SeriesChart, PredictionPrompt]
+primitives: [RecursionTree, SeriesChart, PredictionPrompt, MentalImage, Afterimage]
 attributions: ["Hoare 1961", "Knuth 1973", "McIlroy 1999", "Euler–Mascheroni"]
 relatedTopics: [randomized-algorithms, probability-theory]
 featured: false

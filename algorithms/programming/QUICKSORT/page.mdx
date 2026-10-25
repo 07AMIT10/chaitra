@@ -1,6 +1,8 @@
 import SeriesChart from "@alg/SeriesChart.tsx";
 import RecursionTree from "@alg/RecursionTree.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import MentalImage from "@alg/MentalImage.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Quicksort — primitive contract matched to website/src/components/algorithms/.
@@ -13,6 +15,8 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 */}
 
 ## The ghost tree inside the partition
+
+Sorted input with a first-element pivot costs 5×10⁹ comparisons at 100,000 keys. The recursion runs 100,000 levels deep. Random pivots average 2,018,053 comparisons on the same input, so the damage is 2,478×.
 
 In 1959, while developing machine translation systems in Moscow, Tony Hoare needed to sort words in a Russian-English dictionary. He conceived an algorithm so deceptively simple that his colleagues warned him it was impossible to implement. Beneath its simple partitioning loop hides an exact mathematical object: a random binary search tree.
 
@@ -30,7 +34,12 @@ Eight keys sit in a row: `8, 3, 11, 1, 9, 4, 14, 7`. Take the first, compare it 
 
 The sum of partition comparisons equals 13. The sum of node depths in the resulting binary search tree also equals 13.
 
-These two counts are not a coincidence. Every comparison creates an edge in a binary search tree, and total execution time is the tree's internal path length.
+These two counts are not a coincidence. Every pivot is a node in **the ghost tree**, every comparison is a step down one edge, and the total depth is the runtime.
+
+<MentalImage
+  kind="quicksort-ghost"
+  caption="Random pivots on the left build a tree of depth ≈ 1.39 log₂ n; sorted input with a first-element pivot on the right builds a chain of depth n. Both counts are for n = 100,000."
+/>
 
 ## The unpredictability of the pivot
 
@@ -121,7 +130,7 @@ The binary search tree collapses into a single linear chain of depth $n$, and ru
   question="You run basic quicksort (pivoting on the first element) on an array of 100,000 numbers that is already sorted. What happens?"
   options={[
     "It runs in lightning-fast O(n) time because no elements ever need to be swapped.",
-    "It takes roughly 1.4 million comparisons, matching the standard average case.",
+    "It takes roughly 2 million comparisons, matching the standard average case.",
     "It degrades to almost 5 billion comparisons (n(n-1)/2) and blows the call stack with recursion depth 100,000."
   ]}
   correct={2}
@@ -192,9 +201,11 @@ The recursion tree panel depicts the idealized recurrence $a = 2$, $b = 2$, $d =
   caption="The panel draws T(n) = a·T(n/b) + n^d, modeling the hypothetical median pivot. Real quicksort splits dynamically into k and n-1-k."
 />
 
-Each internal level does $n$ comparisons, yielding the flat ribbon of the balanced $\Theta(n \log n)$ case.
+Each internal level does $n$ comparisons, yielding the flat profile of the balanced $\Theta(n \log n)$ case.
 
-In practice, quicksort's splits fluctuate stochastically. The actual tree is roughly 39% deeper than this idealized ribbon, but retains the identical asymptotic shape.
+Watch the plate: the left tree is what random pivots buy, and the right chain is what a sorted input with a first-element pivot buys. `RecursionTree` here is only the median idealization, so the plate is the real shape.
+
+In practice, quicksort's splits fluctuate stochastically. The actual tree is roughly 39% deeper than this idealized tree, but retains the identical asymptotic shape.
 
 Setting $d=2$ forces the root partition to dominate at $\Theta(n^2)$, mirroring the degenerate sorted case.
 
@@ -205,6 +216,13 @@ Merge sort executes fewer comparisons ($n \log_2 n - n + 1$) than Quicksort ($1.
 The reason lies in cache architecture. Hoare's partition scans inward from both ends of a contiguous array using sequential memory strides, triggering hardware cache prefetchers. It operates strictly in place, requiring only $O(\log n)$ auxiliary stack space.
 
 Merge Sort requires a separate auxiliary array of size $n$, causing cache evictions and memory allocation traffic. Standard C libraries choose Quicksort (or Introsort) for primitive arrays where raw throughput dominates.
+
+<Afterimage
+  object="The ghost tree: every pivot is a node, every comparison a step down one edge."
+  motion="Random pivots grow both sides roughly evenly; sorted input with the first element as pivot adds one child per level until the tree is a chain."
+  invariant="Each key is compared once to every pivot above it, so the summed depth is the comparison count and no comparison is wasted."
+  number="5×10^9 comparisons on sorted input, against 2,018,053 for the average: 2,478×."
+/>
 
 ## McIlroy's anti-quicksort adversary and introsort
 

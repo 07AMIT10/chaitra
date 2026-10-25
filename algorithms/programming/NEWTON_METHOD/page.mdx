@@ -1,3 +1,4 @@
+import Afterimage from "@alg/Afterimage.tsx";
 import IterationLab from "@alg/IterationLab.tsx";
 import GrowthTable from "@alg/GrowthTable.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -15,9 +16,13 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
 ## The tangent line that doubles your digits
 
-In the plague year of 1669, Isaac Newton sat at Woolsthorpe Manor and calculated roots of polynomials. Instead of guessing blindly, he replaced an intractable curve with its local linear shadow, following that straight line down until it met the coordinate axis.
+Eleven Newton steps reach 1,000 correct digits. Bisection needs 3,322 steps. A contraction with $q = 0.9999$ needs 23,025 steps per digit, so the derivative is what buys the doubling.
 
-The interactive panel illustrates that pure geometric motion. It opens on $f(x) = x^2 - 2$ at initial guess $x_0 = 1.2$, tracing the tangent segment to its axis crossing.
+In the plague year of 1669, Isaac Newton calculated roots at Woolsthorpe Manor by replacing each curve with its local linear shadow and following that line to the axis.
+
+The picture is **the tangent line**: draw it at the current guess and take its axis crossing as the next guess. The panel opens on $f(x) = x^2 - 2$ at $x_0 = 1.2$.
+
+Before you touch the transport, commit to a prediction below.
 
 <IterationLab
   client:visible
@@ -25,8 +30,6 @@ The interactive panel illustrates that pure geometric motion. It opens on $f(x) 
   target="sqrt2"
   caption="Curve, current guess, tangent, axis. Step it and watch the tangent's crossing become the next guess."
 />
-
-Press step once and watch the columns update. The `e_n` column tracks distance to the true root $\sqrt{2}$; the ratio column divides the new error by the square of the previous error.
 
 <PredictionPrompt
   client:visible
@@ -39,6 +42,8 @@ Press step once and watch the columns update. The `e_n` column tracks distance t
   correct={1}
   explain="Linear convergence adds a fixed number of bits per step. But Newton's method exhibits quadratic convergence: e_{n+1} ≈ C · e_n². For f(x) = x² - 2, C = 1/(2√2) ≈ 0.354. Squaring 0.001 gives 10⁻⁶, yielding an error around 3.5 × 10⁻⁷! Each iteration doubles the count of correct digits."
 />
+
+Press step once and watch the columns update. The `e_n` column tracks distance to the true root $\sqrt{2}$; the ratio column divides the new error by the square of the previous error. Watch that ratio: it should settle near 0.3536 for $\sqrt{2}$, while a linear method's ratio would settle near a constant.
 
 ## The algebraic recipe versus the geometric truth
 
@@ -127,6 +132,13 @@ Newton's method forms the bedrock of modern numerical algorithms:
 - **Fast reciprocal square root.** Computing $1/\sqrt{x}$ relies on a single Newton step applied to $y^{-2} - x = 0$, operating entirely with multiplications and subtractions without division.
 - **Multivariate optimization.** In machine learning and scientific computing, finding extrema of loss functions solves $\nabla f(x) = 0$ using Newton-Raphson, stepping along $H^{-1}\nabla f$ with the Hessian matrix.
 - **Hybrid root solvers.** Production libraries run Brent's method (Brent 1973), which combines the guaranteed convergence of bisection with the superlinear speed of secant and inverse quadratic interpolation.
+
+<Afterimage
+  object="The tangent line at the current guess, meeting the axis one step closer to the root."
+  motion="Each step replaces the curve with that line and reads a new guess at its crossing."
+  invariant="At a simple root the Newton map has derivative zero, so the error is squared rather than merely shrunk."
+  number="11 steps to 1,000 digits, against 3,322 bisections."
+/>
 
 ## The fractal frontier: Cayley's problem and Julia sets
 

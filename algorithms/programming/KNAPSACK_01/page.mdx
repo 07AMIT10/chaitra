@@ -1,6 +1,7 @@
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contracts this page relies on, matched to website/src/components/algorithms/:
@@ -36,6 +37,8 @@ The storm tent offers the highest value density by a commanding margin ($7.0$ po
 />
 
 Three candidate answers correspond to meaningful mathematical milestones: 42 from greedy density sorting, 58 from the true integer optimum, and 66 from continuous linear relaxation. The integer reality sits trapped between them.
+
+Keep one picture: **the lattice**, a grid whose rows are items and whose columns are capacities. Every cell is a take-or-skip decision, and the best pack is the heaviest path from the empty corner to the bottom-right cell.
 
 ## The Density Trap
 
@@ -112,6 +115,8 @@ Drive the interactive matrix below to observe how the dynamic program navigates 
   caption="Four rows, eleven capacity columns, 44 cells. Hover a cell to light the one or two edges that filled it, press play to fill them in dependency order, then press Trace solution from the bottom-right 58 to walk the winning pack back."
 />
 
+Watch the arrows into a cell: a skip comes straight down from the row above, a take comes diagonally from the row above and one capacity to the left; no path ever returns to an earlier row, so no item is counted twice.
+
 Hover over any cell to illuminate the dependency arrows. Press **Trace solution** from $(3, 10)$: the recovery path steps $(3,10) \to (2,5) \to (1,0) \to (0,0)$, collecting the food and the stove while actively skipping the tent.
 
 Watch column 10 evolve across row iterations: 0, then 42, then 42, and finally jumping to 58. The table only updates when an item can complete a superior combination, cutting through exponential branches in $O(nW)$ operations.
@@ -123,6 +128,13 @@ The 0/1 knapsack recurrence lies at the core of resource allocation under hard c
 Capital budgeting treats funding limits as knapsack capacity, where projects yield discrete returns on fixed costs. In theoretical cryptography, Merkle & Hellman (1978) designed public-key cryptosystems around the knapsack problem, which Adi Shamir (1984) famously broke by transforming modular knapsacks into simultaneous lattice approximations.
 
 The cutting stock problem in manufacturing maps roll lengths directly to knapsack boundaries, trading off scrap waste against production schedules.
+
+<Afterimage
+  object="The lattice of take-or-skip cells, one row per item and one column per capacity."
+  motion="A cell takes the better of skipping the item above it and taking the item from the diagonal, and the trace walks the heaviest path back to the empty corner."
+  invariant="Every path advances one row at a time, so an item can never be reused and the corner cell is the optimal pack."
+  number="58 optimal, 66 fractional — a gap of 8."
+/>
 
 ## Pseudopolynomial Illusions and the FPTAS Scaling Magic
 

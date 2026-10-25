@@ -7,13 +7,14 @@ reframe: "Tether two disjoint universes through a web of fragile handshakes. Eag
 oneLine: "Four applicants, four placements, six acceptable pairs, and a ceiling of three."
 tldr: ["A matching is a set of edges with no shared endpoints; greedy first-available pairing can strand a vertex that an augmenting path would have saved.", "Hall's condition (Hall 1935) certifies impossibility from the left: the pair {Cara, Dan} shares a single neighbour, so no matching covers all four applicants.", "Berge's condition (Berge 1957) certifies optimality from the search: with no augmenting path left, the size-3 matching is maximum.", "König's theorem (König 1931) pins the same number from the cover side, and the unit-capacity flow reduction (Ford–Fulkerson 1956) makes it fall out of pipes."]
 mathBranches: ["combinatorics", "graph-theory", "optimization"]
-primitives: ["MatchingBoard", "PredictionPrompt", "LPDualityDashboard"]
+primitives: ["MatchingBoard", "PredictionPrompt", "LPDualityDashboard", "Afterimage"]
 attributions: ["Hall 1935", "König 1931", "Berge 1957", "Ford–Fulkerson 1956", "Hopcroft–Karp 1973", "Birkhoff 1946"]
 ---
 
 import MatchingBoard from "@alg/MatchingBoard.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import LPDualityDashboard from "@alg/LPDualityDashboard.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contract used by this page, matched to website/src/components/algorithms/.
@@ -26,9 +27,11 @@ import LPDualityDashboard from "@alg/LPDualityDashboard.tsx";
 
 ## The Four-Applicant Bottleneck
 
-Four candidates assemble on the left (Ana, Ben, Cara, Dan) facing four career opportunities on the right (Wren, Xiu, Yara, Zed). Edges mark strictly approved mutual qualifications: Ana accepts Wren, Xiu, or Zed; Ben will only accept Wren; Cara and Dan both accept only Yara.
+Assign each applicant the first free choice on their list and the board stops at two placements, with Ben and Dan stranded while Xiu and Zed sit empty. The ceiling is three of the four, and Ben–Wren–Ana–Xiu is the chain that reaches it.
 
-A hasty administrator might pair candidates opportunistically as they arrive. But a single greedy mistake locks out qualified candidates down the line, trapping the matching below its true capacity.
+Four applicants face four roles on the board below: Ana, Ben, Cara, Dan on the left; Wren, Xiu, Yara, Zed on the right. Six edges mark mutual acceptability, and the ceiling holds because Cara and Dan accept only Yara.
+
+The picture is **the chain of resignations**: a free applicant, the role they accept, the applicant holding that role, that applicant's next role, and so on until a free role. Flip the chain and each applicant steps into the role the one ahead vacated, so the path adds a placement and turns nobody out.
 
 <PredictionPrompt
   client:visible
@@ -57,7 +60,7 @@ A **matching** is a subset of edges sharing no common endpoints. Edges in the ma
 
 An **alternating path** weaves between non-matched and matched edges in strict alternation. If such a path starts and ends at free vertices, it is an **augmenting path**.
 
-Flipping the membership along an augmenting path transforms every non-matched link into an active bond and demotes every matched link. Because the path began and ended on free edges, the total matching size increases by exactly one!
+Flipping the chain of resignations transforms every non-matched link into an active bond and demotes every matched link. Because the path began and ended on free edges, the total matching size increases by exactly one!
 
 ## The Triad of Equivalence: Hall, Berge, and König
 
@@ -92,7 +95,7 @@ The bipartite restriction is indispensable: an odd cycle like a triangle has max
 
 ## Flipping Commitments in Real Time
 
-Step through Kuhn's augmenting path algorithm below. Watch the gold trail illuminate alternating rescue chains across the board.
+Step through Kuhn's augmenting path algorithm below. The gold trail traces the alternating path the search has found.
 
 <MatchingBoard
   client:visible
@@ -104,6 +107,8 @@ Step through Kuhn's augmenting path algorithm below. Watch the gold trail illumi
   caption="Kuhn's augmenting-path search on the board from section 0. Ana takes Wren first and strands Ben; Ben's step repairs it along Ben–Wren–Ana–Xiu; Dan's step finds nothing, which is Hall's shortfall drawn as a failed search."
   height={300}
 />
+
+Watch the chain of resignations; when it reaches a free role, the invariant is that the flip adds one pair and breaks none. Dan's failed search is Hall's shortfall: no chain leaves Dan, because he and Cara accept only Yara.
 
 Step one: Ana seizes Wren, stranding Ben. Step two: Ben initiates a search; the system discovers the path `Ben–Wren–Ana–Xiu` and flips it, neatly accommodating both candidates.
 
@@ -134,6 +139,13 @@ Because each phase strictly increases the length of shortest augmenting paths, a
 $$
 O(E\sqrt{V}) \qquad \text{(Hopcroft–Karp 1973)}
 $$
+
+<Afterimage
+  object="Four applicants, four roles, six acceptable edges, and one applicant left over."
+  motion="Follow the chain from a free applicant to a free role and flip every edge along it."
+  invariant="The flip adds one matched edge and removes none, so a search that finds no chain proves no larger matching exists."
+  number="3 of 4 placed, and the min cut is 3."
+/>
 
 ## The Birkhoff Polytope and the 0–1 Permanent
 

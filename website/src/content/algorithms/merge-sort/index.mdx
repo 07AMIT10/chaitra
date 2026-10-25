@@ -7,7 +7,7 @@ reframe: "Sorting unordered chaos appears to require combinatorial omniscience. 
 oneLine: "Every sort is a merge; every merge is one linear pass over two chains."
 tldr: ["Merging sorted lists of lengths p and q costs at most p + q − 1 comparisons, and that join is the only work any level does.", "The recurrence T(n) = 2T(n/2) + Θ(n) sums to Θ(n log n): each of the log n levels touches every key exactly once.", "For n = 2^k the worst case is exactly n log₂ n − n + 1 comparisons — a derived identity, not an estimate.", "That matches the floor ⌈log₂(n!)⌉ = Θ(n log n) to a constant factor, so no comparison sort can beat it asymptotically."]
 mathBranches: ["algebra", "analysis", "information-theory", "order-theory"]
-primitives: ["RecursionTree", "SeriesChart", "PredictionPrompt"]
+primitives: ["RecursionTree", "SeriesChart", "PredictionPrompt", "Afterimage"]
 attributions: ["von Neumann 1945", "Knuth 1973", "Stirling 1730", "Ford–Johnson 1959", "decision-tree lower bound"]
 relatedTopics: ["mapreduce", "information-theory"]
 ---
@@ -15,6 +15,7 @@ relatedTopics: ["mapreduce", "information-theory"]
 import RecursionTree from "@alg/RecursionTree.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Merge Sort — primitive contract matched to website/src/components/algorithms/.
@@ -28,9 +29,13 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
 ## Von Neumann's fifty-page ink handwritten program
 
-In the spring of 1945, John von Neumann drafted a 50-page handwritten program for the EDVAC. That document was the first program ever recorded for a stored-program computer, and its subject was Merge Sort: the demonstration that sorting is not global rearrangement, but a deterministic zipper.
+Rescan a billion keys for the next smallest: 5×10¹⁷ comparisons, or 15.8 years. Merge sort does the same job in 2.89×10¹⁰ comparisons, or 28.9 seconds. The difference is one folded join.
 
-Place two sorted rows on the table. Compare only their heads, advance the winner, and braid them into one.
+In the spring of 1945, John von Neumann drafted a 50-page handwritten program for the EDVAC. That document was the first program ever recorded for a stored-program computer, and its subject was Merge Sort: the demonstration that sorting is not global rearrangement, but the repeated merge of two sorted runs.
+
+Place two sorted rows on the table. Compare only their heads, advance the winner, and merge them into one.
+
+The picture is **the ribbon**: every internal level of the recursion tree is a bar spanning the whole array, and every bar has the same length $n$.
 
 ```
    left   [  2,  7,  8, 11 ]
@@ -190,7 +195,9 @@ The panel models the recurrence $a = 2$, $b = 2$, $d = 1$: two subproblems of ha
   caption="Every internal level ties at n because each subproblem merges its whole slice. The ribbon is perfectly flat, illustrating the balanced master-theorem case Θ(n log n)."
 />
 
-Read the ribbon vertically. Level $k$ contains $2^k$ nodes of size $n/2^k$, each costing $n/2^k$ merge work. The level total is always $n$, forming a flat ribbon across all $\log_2 n$ levels.
+Read the ribbon vertically. Level $k$ contains $2^k$ nodes of size $n/2^k$, each costing $n/2^k$ merge work. The level total is always $n$, so **the ribbon** is flat across all $\log_2 n$ levels: every internal level ties two sorted runs and pays exactly $n$ comparisons.
+
+Watch the bars: the bar at every internal level has the same length, and the total is $n \log_2 n$ minus the $n-1$ saved ends.
 
 Now adjust the sliders. Setting $d = 0$ makes the merge free, causing work to decay geometrically and yielding $\Theta(n)$. Setting $d = 2$ makes the merge quadratic, blowing up the root to $\Theta(n^2)$.
 
@@ -204,6 +211,13 @@ Because the merge step is a monoid join, it powers critical infrastructure acros
 - **External sorting.** When datasets exceed RAM, systems sort chunks in memory and merge the runs from disk using a $k$-way tournament tree in $O(n \log k)$ time.
 - **Database sort-merge joins.** Relational databases sort both tables and merge them in a single linear stream, avoiding hash table sizing bottlenecks.
 - **Inversion counting.** Modifying the merge to count unmerged left-hand keys whenever a right-hand key is emitted computes permutation inversions in $O(n \log n)$ time.
+
+<Afterimage
+  object="The ribbon: one bar per internal level of the recursion tree, each bar spanning its whole slice."
+  motion="Two sorted runs are zipped head to head, one comparison emits one key, and the merged run rises to the next level."
+  invariant="Every internal level pays exactly n comparisons and the last key appends free, so the total is n log₂ n − n + 1."
+  number="2.89×10^10 comparisons in 28.9 s, not 5×10^17 in 15.8 years."
+/>
 
 ## The hidden tax: scratch space and in-place barriers
 

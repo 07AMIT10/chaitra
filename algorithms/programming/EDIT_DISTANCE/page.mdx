@@ -1,6 +1,7 @@
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 import DPHeatmap from "@alg/DPHeatmap.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contract, matched to website/src/components/algorithms/:
@@ -14,14 +15,14 @@ import SeriesChart from "@alg/SeriesChart.tsx";
 
 ## Eight Mismatches, Two Moves
 
-Take the pair **emotions** and **demotion**, and stack them:
+Every diff tool you have run fills this table, and the obvious rival fails on the first insertion: count the columns that disagree. Take the pair **emotions** and **demotion**, and stack them:
 
 ```
 e m o t i o n s
 d e m o t i o n
 ```
 
-Every one of the eight columns disagrees. A reader who scores columns answers eight; a reader who is allowed to *edit* does better. Insert a `d` at the front, delete the trailing `s`, and the first word has become the second in two moves.
+Every one of the eight columns disagrees, because the inserted `d` shifts every later column by one. A reader who scores columns answers eight; a reader who is allowed to *edit* does better. Insert a `d` at the front, delete the trailing `s`, and the first word has become the second in two moves.
 
 <PredictionPrompt
   client:visible
@@ -33,6 +34,8 @@ Every one of the eight columns disagrees. A reader who scores columns answers ei
 />
 
 Eight apparent differences, two real edits. That gap is the whole page: edit distance is the price of a path, not the size of a difference.
+
+Keep **the tiled staircase** in view: a grid with one tile for every pair of prefixes, and a path that steps from the empty pair at the top left to the full pair at the bottom right. Each tile holds the cheapest cost of reaching its pair, and the path through the tiles is the alignment.
 
 ## The Mirage of Column Comparison
 
@@ -117,9 +120,11 @@ Raise substitution to weight 2, the price of a delete plus an insert, and it is 
   caption="Hover any cell to light its incoming edges: delete from above, insert from the left, substitute from the diagonal. Press play to fill the 81 cells in dependency order, then Trace solution to walk the winning script back from the corner."
 />
 
+Watch the three arrows that light up when you hover a cell — delete from above, insert from the left, substitute from the diagonal — then press **Trace solution** and check that the chosen arrows form one monotone path through the tiled staircase; that single path is the alignment, not a column-by-column comparison.
+
 The top-left cell is $(\varepsilon,\varepsilon)$, and the top row and left column are pure insertions and deletions, so they read `1, 2, 3, …` across and down. Every interior cell is its cheapest predecessor plus one, unless the two characters agree, in which case the diagonal is free and the cell copies its upper-left neighbour.
 
-For your two words the bottom-right cell reads 2. Turn on **Trace solution** and the highlighted chain walks the script out: the path steps right once along the top row (insert `d`), runs seven diagonal cells through the shared `emotion`, then drops one cell down the last column (delete `s`). The eight column mismatches never mattered, because the optimal path never steps on the diagonal through them.
+For your two words the bottom-right cell reads 2. Turn on **Trace solution** and the highlighted path through the tiled staircase walks the script out: the path steps right once along the top row (insert `d`), runs seven diagonal cells through the shared `emotion`, then drops one cell down the last column (delete `s`). The eight column mismatches never mattered, because the optimal path never steps on the diagonal through them.
 
 Watch which cells the trace avoids. A shortest path leaves the main diagonal only by paying, and every step away costs an edit; the further off-diagonal a cell sits, the more edits already spent reaching it. That observation becomes the band in section 6.
 
@@ -131,6 +136,13 @@ Four tools run on this one number.
 - **Spelling and diff.** The correction of a misspelling is the dictionary word at least edit distance away; `diff` and `git blame` run the same DP over lines, and Myers' $O(nd)$ walk (1986) makes the cost track the size of the change rather than the size of the files.
 - **Sequence alignment.** Needleman and Wunsch 1970 align proteins with this recurrence and a substitution matrix; Smith and Waterman 1981 relax the requirement to span both sequences and align locally. Every alignment score in bioinformatics is this table.
 - **Record linkage and near-duplicates.** Comparing a name, an address, or a product title across two databases is a small edit distance with character-dependent costs, which is exactly where the operation weights start to matter.
+
+<Afterimage
+  object="A tiled staircase of prefix pairs, with emotions down one axis and demotion across the other."
+  motion="Each tile takes the cheapest of its three incoming arrows, and the trace follows one monotone path from corner to corner."
+  invariant="Every monotone path is an alignment, so its cost is the distance and no column-by-column count can beat it."
+  number="8 positional mismatches, distance 2."
+/>
 
 ## Ukkonen's Corridors and the SETH Barrier
 

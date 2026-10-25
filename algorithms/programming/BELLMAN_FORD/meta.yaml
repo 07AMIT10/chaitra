@@ -10,6 +10,6 @@ tldr:
   - "The n-th round is the negative-cycle test, and a reachable negative cycle is exactly the case where no fixed point exists."
   - "In min-plus algebra the same run reads one row of the tropical closure, the sum of L^(k) for k up to n−1."
 mathBranches: [order-theory, algebra, fixed-point-theory]
-primitives: [GraphCanvas, SemiringMatrix, PredictionPrompt]
+primitives: [Afterimage, GraphCanvas, SemiringMatrix, PredictionPrompt]
 attributions: ["Shimbel 1955", "Bellman 1958", "Ford 1956", "Moore 1959"]
 relatedTopics: [pagerank]

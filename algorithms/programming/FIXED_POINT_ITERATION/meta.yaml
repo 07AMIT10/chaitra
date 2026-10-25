@@ -10,6 +10,6 @@ tldr:
   - "The check you actually run is calculus: if |g′(x)| ≤ q < 1 on an interval, the mean value theorem makes g a contraction there."
   - "Newton's method is the special case g′(x*) = 0, which is why its error squares instead of shrinking geometrically."
 mathBranches: [analysis, numerical-analysis, geometry]
-primitives: [IterationLab, PredictionPrompt, SeriesChart]
+primitives: [IterationLab, PredictionPrompt, SeriesChart, Afterimage]
 attributions: ["Banach 1922", "Picard 1890", "Brouwer 1911", "May 1976", "Lagrange 1797"]
 featured: false

@@ -10,6 +10,6 @@ tldr:
   - "k two-outcome comparisons reach at most 2^k leaves, so n + 1 possible answers force k >= ceil(log2(n+1)): binary search is exactly optimal in the comparison model, and the model is the fine print."
   - "The same boundary search is bisection, because every false-then-true predicate has a first-true position."
 mathBranches: [analysis, information-theory, order-theory]
-primitives: [RecursionTree, GrowthTable, SeriesChart, PredictionPrompt]
+primitives: [RecursionTree, GrowthTable, SeriesChart, PredictionPrompt, Afterimage]
 attributions: ["Knuth 1973", "Bentley 1986", "Bentley, Haken and Saxe 1980", "Peterson 1957", "van Emde Boas 1975", "Bloch 2006"]
 relatedTopics: [information-theory]

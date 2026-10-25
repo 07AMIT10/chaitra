@@ -10,5 +10,5 @@ tldr:
   - "Integral capacities give an integral optimum because the network matrix is totally unimodular, so no rounding is ever needed."
   - "Ford–Fulkerson can fail to terminate on irrational capacities (Ford–Fulkerson 1962; Zwick 1995); Edmonds–Karp's shortest-path rule removes the danger at O(VE²)."
 mathBranches: [linear-programming, optimization, graph-theory]
-primitives: [LPDualityDashboard, PredictionPrompt, SeriesChart]
+primitives: [LPDualityDashboard, PredictionPrompt, SeriesChart, Afterimage]
 attributions: ["Ford–Fulkerson 1956", "Elias–Feinstein–Shannon 1956", "Edmonds–Karp 1972", "Hoffman 1960", "Zwick 1995"]

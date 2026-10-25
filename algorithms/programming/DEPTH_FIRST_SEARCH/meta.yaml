@@ -9,6 +9,6 @@ tldr:
   - "A digraph has a cycle exactly when the search produces a back edge — an arc to a vertex still open on the stack."
   - "Reverse the finishing order of a DAG and you have a topological sort; the same times give articulation points and strong components."
 mathBranches: [graph-theory, order-theory, combinatorics]
-primitives: [GraphCanvas, PredictionPrompt, SeriesChart]
+primitives: [GraphCanvas, PredictionPrompt, SeriesChart, Afterimage]
 attributions: ["Tarjan 1972", "Hopcroft–Tarjan 1973", "Knuth 1968"]
 relatedTopics: [pagerank]

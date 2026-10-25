@@ -1,3 +1,5 @@
+import Afterimage from "@alg/Afterimage.tsx";
+import MentalImage from "@alg/MentalImage.tsx";
 import RecursionTree from "@alg/RecursionTree.tsx";
 import GrowthTable from "@alg/GrowthTable.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
@@ -16,7 +18,9 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
 ## Seven products that broke the cubic wall
 
-In 1968, Volker Strassen set out to prove that Gaussian elimination was optimal. Instead, while calculating by hand in Frankfurt, he stumbled across seven equations that shattered a bedrock assumption of linear algebra.
+At $n = 2^{30}$, eight scalar products per $2\times2$ block leave $8^{30} = 1.24\times10^{27}$ leaf products. Seven leave $7^{30} = 2.25\times10^{25}$, a 55× saving for the same answer.
+
+In 1968, Volker Strassen set out to prove that Gaussian elimination was optimal. Calculating by hand in Frankfurt, he found seven equations that shattered that assumption instead.
 
 Take two $2\times 2$ matrices and multiply them both ways.
 
@@ -38,6 +42,14 @@ Strassen    M1 = (1+4)(5+8)  =  65      c11 = M1 + M4 - M5 + M7 = 65 + 8 - 24 - 
 ```
 
 Count the multiplication signs. The schoolbook recipe demands eight scalar products; Strassen finds every entry of the output with seven. No intermediate product is recycled from the schoolbook list—every single term is an exotic combination.
+
+The picture is **the seven measurements**: seven compound products $M_1$ through $M_7$, four outputs $C_{11}$ through $C_{22}$, and a sign wherever a measurement is added or removed.
+
+<MentalImage
+  kind="strassen-valves"
+  title="The seven measurements and their signed contributions to the four output blocks"
+  caption="The signed table behind the seven-product identity: one row per measurement, one column per output, and a sign wherever that measurement is added or removed."
+/>
 
 <PredictionPrompt
   client:visible
@@ -165,6 +177,8 @@ Inspect the recurrence visually. At $a=7$, $b=2$, and $d=2$, the leaves outrun t
   caption="The panel opens on a = 7, the value Strassen's rank gives. Drag a to 8 to see the schoolbook cubic wall Θ(n³). Drag a down to 4 to see the balanced Θ(n² log n) threshold, or raise d to 3 to see the additions dominate."
 />
 
+Watch **a**: drag it from 7 to 8 and the leaf count jumps at every level, because the seven-product identity is exact, not an approximation.
+
 Level $k$ holds $7^k$ subproblems of size $n/2^k$, each costing $(n/2^k)^2$ addition work. The work per level grows by $7/4 = 1.75$ each step down, making the bottom level the heaviest.
 
 Drag the $a$-slider from 7 to 8. The printed asymptotic jumps from $\Theta(n^{2.807})$ straight to $\Theta(n^3)$. That single tick of the slider captures the whole gulf between Strassen and three centuries of matrix algebra.
@@ -190,6 +204,13 @@ Speed is not free. Strassen's algorithm introduces numerical subtraction of larg
 Over exact algebraic structures—like finite fields in cryptography or modular arithmetic in computer algebra—rounding errors do not exist. In those domains, the rank drop is pure gain.
 
 Every modern high-performance implementation runs a hybrid: recurse using Strassen for massive blocks, then transition to classical cubic GEMM once blocks fit inside L1/L2 cache.
+
+<Afterimage
+  object="The seven measurements: a signed table with one row per compound product and one column per output block."
+  motion="Read down a column and add or subtract exactly the measurements that carry a sign."
+  invariant="The signs cancel every cross term the output does not need, so seven products rebuild all four blocks exactly."
+  number="55× fewer leaf products at n = 2^30: 2.25×10^25 against 1.24×10^27."
+/>
 
 ## The unfinished race for omega
 

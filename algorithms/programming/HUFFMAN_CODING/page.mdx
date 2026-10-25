@@ -1,6 +1,7 @@
 import HuffmanMerge from "@alg/HuffmanMerge.tsx";
 import SeriesChart from "@alg/SeriesChart.tsx";
 import PredictionPrompt from "@alg/PredictionPrompt.tsx";
+import Afterimage from "@alg/Afterimage.tsx";
 
 {/*
   Primitive contracts this page relies on, matched to website/src/components/algorithms/:
@@ -15,9 +16,24 @@ import PredictionPrompt from "@alg/PredictionPrompt.tsx";
 
 ## Six Letters on a Wire
 
+At a billion symbols, a one-bit gap is 125 megabytes. Every gzip file, PNG, and JPEG carries a Huffman table, and that table is where the gap gets paid.
+
 Six symbols wait on the board, each carrying a fixed frequency of occurrence. Pair any two roots and merge them: the tree branches out, labels its edges with 0 and 1, and accumulates the weight of their junction into a running bill.
 
-The running total is bits per symbol, and the axis underneath carries three markers: $H$ the entropy, $L^*$ the cost Huffman's rule achieves, and your current cost. The shaded band runs from $H$ up to $H + 1$.
+The picture is **the grafting orchard**: each merge grafts the two lightest trees onto one new stem, and that stem carries the summed weight of every fruit above it. A fruit pays for every stem between it and the root, so a graft made too high can never be taken back.
+
+<PredictionPrompt
+  client:visible
+  question="Before making your first merge: if you mistakenly fuse the heaviest symbol (A = 40) with anything else, what minimum penalty will you pay across every encoded symbol?"
+  options={[
+    "At least 0.20 bits per symbol",
+    "At least 1.0 full bit per symbol",
+    "Zero penalty, because later merges can rebalance the tree"
+  ]}
+  correct={0}
+  hint="What depth does symbol A get in the optimal tree versus any tree where it is merged early?"
+  explain="In the optimal tree, symbol A sits at depth 1 (a 1-bit code) because its 40% frequency dominates. Merging A early forces it to depth ≥ 2, immediately adding at least 40 units of internal weight and degrading the final average length from 2.25 to 2.45 bits—a permanent 0.20-bit penalty that no subsequent merge can recover."
+/>
 
 <HuffmanMerge
   client:visible
@@ -33,18 +49,9 @@ The running total is bits per symbol, and the axis underneath carries three mark
   caption="Six roots to start. Merge any pair; the axis and the running total update at once. Huffman's own choice is marked while the hint is on."
 />
 
-<PredictionPrompt
-  client:visible
-  question="Before making your first merge: if you mistakenly fuse the heaviest symbol (A = 40) with anything else, what minimum penalty will you pay across every encoded symbol?"
-  options={[
-    "At least 0.20 bits per symbol",
-    "At least 1.0 full bit per symbol",
-    "Zero penalty, because later merges can rebalance the tree"
-  ]}
-  correct={0}
-  hint="What depth does symbol A get in the optimal tree versus any tree where it is merged early?"
-  explain="In the optimal tree, symbol A sits at depth 1 (a 1-bit code) because its 40% frequency dominates. Merging A early forces it to depth ≥ 2, immediately adding at least 40 units of internal weight and degrading the final average length from 2.25 to 2.45 bits—a permanent 0.20-bit penalty that no subsequent merge can recover."
-/>
+Watch the running total; with the greedy hint off, merge A = 40 early, finish greedily, and `L` ends at 2.45, never back at 2.25.
+
+The running total is bits per symbol, and the axis underneath carries three markers: $H$ the entropy, $L^*$ the cost Huffman's rule achieves, and your current cost. The shaded band runs from $H$ up to $H + 1$.
 
 ## The Ambiguity of Unmarked Streams
 
@@ -113,7 +120,7 @@ Both ends of that inequality are honest in different ways. The floor is a theore
 
 Go back to the board and build the code yourself. Turn the hint off and merge a heavy root with a light one first, then finish greedily; the axis shows your accumulated cost drifting above the $L^*$ marker, and the final total is worse than the rule's.
 
-Concretely, merging the weight-40 symbol with a weight-5 symbol first costs 45 bits of internal weight before any other merge, and the greedy finish lands at 2.45 against the rule's 2.25. That 0.20-bit spread is the greedy rule's value made visible, and no order does better.
+Concretely, grafting the weight-40 tree onto a weight-5 tree first costs 45 bits of merged stem weight before any other graft, and the greedy finish lands at 2.45 against the rule's 2.25. That 0.20-bit spread is the greedy rule's value made visible, and no order does better.
 
 Reset, turn the hint back on, and merge the two marked lightest roots each time. The lengths come out 1, 2, 3, 4, 5, 5 for the weights 40, 25, 15, 10, 5, 5, and the total stops exactly on the $L^*$ marker.
 
@@ -141,6 +148,13 @@ Heavier sources do not change the story. The entropy grows like $\log_2 m$ and t
 Every general-purpose compressor runs a Huffman stage. DEFLATE, the format inside gzip and PNG, sends a Huffman table for its literals and then a second one for its match lengths and distances, all built by this merge. JPEG quantises then Huffman-codes; MP3 does the same on its spectral coefficients.
 
 The rule generalises without changing character. Merging the $k$ lightest roots at a time gives optimal $k$-ary codes, and when the code must fit a fixed field width, the package-merge method of Larmore and Hirschberg 1990 finds the best length-limited tree in nearly linear time.
+
+<Afterimage
+  object="Six weights hanging as fruit, and the binary tree that holds them."
+  motion="Graft the two lightest trees onto one new stem, again and again, until a single root carries every fruit."
+  invariant="Each stem adds its merged weight to the bill, so the total is the average code length and sits below H + 1."
+  number="125 MB per 10^9 symbols at a one-bit gap."
+/>
 
 ## The Tyranny of the Integer Bit
 

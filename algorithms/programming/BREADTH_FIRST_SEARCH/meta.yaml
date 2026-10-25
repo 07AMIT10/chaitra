@@ -9,7 +9,7 @@ tldr:
   - "A plain queue is enough because the frontier stays sorted by distance and never spans more than two adjacent levels."
   - "One sweep also decides bipartiteness: colouring by level parity is proper exactly when no edge joins two vertices of equal level (König 1936)."
 mathBranches: [graph-theory, order-theory, combinatorics]
-primitives: [GraphCanvas, PredictionPrompt, SeriesChart]
+primitives: [GraphCanvas, PredictionPrompt, SeriesChart, Afterimage]
 attributions: ["Moore 1959", "Lee 1961", "König 1936", "Milgram 1967", "Cohen 2009"]
 relatedTopics: [gossip-protocols, pagerank, mapreduce]
 featured: false
