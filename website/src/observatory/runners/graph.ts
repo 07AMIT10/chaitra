@@ -205,6 +205,7 @@ type TraceState = {
   discovery: ReadonlySet<string>;
   activeEdge: string | null;
   back: ReadonlySet<string>;
+  cross?: ReadonlySet<string>;
   warn: ReadonlySet<string>;
   distances?: ReadonlyMap<string, number>;
   order?: ReadonlyMap<string, number>;
@@ -312,15 +313,19 @@ function buildGraphView(
   });
 
   const edges = model.edges.map((edge) => {
-    const edgeState: EdgeState = state.back.has(edge.id)
+    const isBack = state.back.has(edge.id);
+    const isCross = state.cross?.has(edge.id) ?? false;
+    const edgeState: EdgeState = isBack
       ? "bad"
-      : state.activeEdge === edge.id
-        ? "active"
-        : state.discovery.has(edge.id)
-          ? "done"
-          : "idle";
+      : isCross
+        ? "done"
+        : state.activeEdge === edge.id
+          ? "active"
+          : state.discovery.has(edge.id)
+            ? "done"
+            : "idle";
     const direction = model.directed ? "to" : "and";
-    const back = state.back.has(edge.id) ? " Back edge." : "";
+    const note = isBack ? " Back edge." : isCross ? " Forward/cross edge." : "";
 
     return {
       id: edge.id,
@@ -331,7 +336,7 @@ function buildGraphView(
       directed: model.directed,
       aria: `${labelOf(edge.from)} ${direction} ${labelOf(edge.to)}, weight ${formatNumber(
         edge.weight,
-      )}.${back}`,
+      )}.${note}`,
     };
   });
 
@@ -368,6 +373,7 @@ function stateSignature(
       discovery: sortedIds(state.discovery),
       activeEdge: state.activeEdge,
       back: sortedIds(state.back),
+      cross: state.cross === undefined ? undefined : sortedIds(state.cross),
       warn: sortedIds(state.warn),
       distances: serialiseMap(state.distances),
       order: serialiseMap(state.order),
@@ -536,22 +542,28 @@ function runBfs(context: TraceContext): void {
   }
 }
 
+type DfsFrame = { id: string; next: number };
+
+type DfsShade = "white" | "gray" | "black";
+
 function runDfs(context: TraceContext): void {
   const { model, labelOf, emit } = context;
   const adjacency = buildAdjacency(model);
+  const shade = new Map<string, DfsShade>();
+  for (const node of model.nodes) shade.set(node.id, "white");
   const done = new Set<string>();
-  const discovered = new Set<string>([model.start]);
+  const open = new Set<string>();
   const order = new Map<string, number>();
   const discovery = new Set<string>();
   const back = new Set<string>();
+  const cross = new Set<string>();
   const warn = new Set<string>();
-  const stack: string[] = [model.start];
+  const stack: DfsFrame[] = [];
 
   const sub = (id: string): string => {
     const rank = order.get(id);
-    if (rank !== undefined) return `#${rank} · done`;
-    if (discovered.has(id)) return "— · stacked";
-    return "— · unreached";
+    if (rank === undefined) return "— · unreached";
+    return shade.get(id) === "gray" ? `#${rank} · open` : `#${rank} · done`;
   };
 
   const metrics = (): Metric[] => [
@@ -562,18 +574,21 @@ function runDfs(context: TraceContext): void {
       value: String(back.size),
       tone: back.size > 0 ? "warn" : "neutral",
     },
+    { label: "Cross edges", value: String(cross.size), tone: "neutral" },
   ];
 
   const invariants = (): Invariant[] => [
     {
-      label: "Stack holds discovered nodes only",
+      label: "Stack holds gray nodes only",
       holds: true,
-      detail: `${stack.length} stacked`,
+      detail: `${stack.length} open`,
     },
     {
       label: "Back edges are recorded, not fatal",
       holds: true,
-      detail: `${back.size} back edge${back.size === 1 ? "" : "s"}`,
+      detail: `${back.size} back edge${back.size === 1 ? "" : "s"}, ${cross.size} cross edge${
+        cross.size === 1 ? "" : "s"
+      }`,
     },
     {
       label: "Each node is visited once",
@@ -582,73 +597,109 @@ function runDfs(context: TraceContext): void {
     },
   ];
 
-  const first = emit({
-    state: {
-      current: model.start,
-      done,
-      frontier: new Set(stack),
-      discovery,
-      activeEdge: null,
-      back,
-      warn,
-      order,
-    },
-    sub,
+  const frameState = (current: string | null, activeEdge: string | null = null): TraceState => ({
+    current,
+    done,
+    frontier: new Set(open),
+    discovery,
+    activeEdge,
+    back,
+    cross,
+    warn,
+    order,
+  });
+
+  const emitFrame = (options: {
+    current: string | null;
+    activeEdge?: string | null;
+    event: string;
+    eventKind?: TraceEvent["kind"];
+  }): boolean =>
+    emit({
+      state: frameState(options.current, options.activeEdge ?? null),
+      sub,
+      event: options.event,
+      eventKind: options.eventKind,
+      metrics: metrics(),
+      invariants: invariants(),
+    });
+
+  const enter = (id: string): void => {
+    shade.set(id, "gray");
+    open.add(id);
+    order.set(id, order.size + 1);
+    stack.push({ id, next: 0 });
+  };
+
+  enter(model.start);
+  const first = emitFrame({
+    current: model.start,
     event: `Push ${labelOf(model.start)}; DFS begins.`,
-    metrics: metrics(),
-    invariants: invariants(),
   });
   if (!first) return;
 
+  const root = emitFrame({
+    current: model.start,
+    event: `Visit ${labelOf(model.start)}; root of the DFS tree.`,
+  });
+  if (!root) return;
+
   while (stack.length > 0) {
-    const id = stack.pop() as string;
-    done.add(id);
-    order.set(id, done.size);
+    const frame = stack[stack.length - 1] as DfsFrame;
+    const arcs = adjacency.get(frame.id) ?? [];
 
-    const pushed: GraphEdge[] = [];
-    const backs: GraphEdge[] = [];
-    const arcs = adjacency.get(id) ?? [];
-    for (let index = arcs.length - 1; index >= 0; index -= 1) {
-      const arc = arcs[index] as Arc;
-      if (!discovered.has(arc.to)) {
-        discovered.add(arc.to);
-        discovery.add(arc.edge.id);
-        stack.push(arc.to);
-        pushed.push(arc.edge);
-      } else if (!discovery.has(arc.edge.id)) {
-        back.add(arc.edge.id);
-        backs.push(arc.edge);
+    if (frame.next < arcs.length) {
+      const arc = arcs[frame.next] as Arc;
+      frame.next += 1;
+
+      if (discovery.has(arc.edge.id) || back.has(arc.edge.id) || cross.has(arc.edge.id)) {
+        continue;
       }
+
+      const targetShade = shade.get(arc.to) ?? "white";
+      if (targetShade === "white") {
+        discovery.add(arc.edge.id);
+        enter(arc.to);
+        const ok = emitFrame({
+          current: arc.to,
+          event: `Visit ${labelOf(arc.to)}; tree edge ${labelOf(frame.id)}→${labelOf(arc.to)}.`,
+        });
+        if (!ok) return;
+      } else if (targetShade === "gray") {
+        back.add(arc.edge.id);
+        const ok = emitFrame({
+          current: frame.id,
+          activeEdge: arc.edge.id,
+          event: `Record back edge ${labelOf(frame.id)}→${labelOf(arc.to)}; ${labelOf(
+            arc.to,
+          )} is still open on the recursion path.`,
+        });
+        if (!ok) return;
+      } else {
+        cross.add(arc.edge.id);
+        const ok = emitFrame({
+          current: frame.id,
+          activeEdge: arc.edge.id,
+          event: `Record cross edge ${labelOf(frame.id)}→${labelOf(arc.to)}; ${labelOf(
+            arc.to,
+          )} is already finished.`,
+        });
+        if (!ok) return;
+      }
+      continue;
     }
 
-    const parts = [`Visit ${labelOf(id)}`];
-    if (pushed.length > 0) {
-      parts.push(`push ${pushed.map((item) => labelOf(item.to)).join(", ")}`);
-    }
-    if (backs.length > 0) {
-      parts.push(
-        `record back edge${backs.length === 1 ? "" : "s"} ${backs
-          .map((item) => `${labelOf(item.from)}→${labelOf(item.to)}`)
-          .join(", ")}`,
-      );
-    }
-    if (pushed.length === 0 && backs.length === 0) parts.push("no unseen neighbour");
-
-    const ok = emit({
-      state: {
-        current: id,
-        done,
-        frontier: new Set(stack),
-        discovery,
-        activeEdge: null,
-        back,
-        warn,
-        order,
-      },
-      sub,
-      event: `${parts.join("; ")}.`,
-      metrics: metrics(),
-      invariants: invariants(),
+    shade.set(frame.id, "black");
+    open.delete(frame.id);
+    done.add(frame.id);
+    stack.pop();
+    const parent = stack.length > 0 ? (stack[stack.length - 1] as DfsFrame).id : null;
+    const ok = emitFrame({
+      current: parent,
+      event:
+        parent === null
+          ? `Finish ${labelOf(frame.id)}; DFS complete.`
+          : `Finish ${labelOf(frame.id)}; return to ${labelOf(parent)}.`,
     });
     if (!ok) return;
   }

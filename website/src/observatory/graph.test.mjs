@@ -148,7 +148,30 @@ test("BFS visits in queue order, once, with discovery edges recorded", () => {
   assert.match(first.events[0].text, /^Queue A;/);
 });
 
-test("DFS uses a deterministic explicit stack and survives a back edge", () => {
+const dfsAcyclicScenario = graphScenario({
+  id: "dfs-acyclic",
+  strategy: "dfs",
+  nodeList: nodes(["A", "B", "C", "D", "E"]),
+  edgeList: [
+    edge("e1", "A", "B"),
+    edge("e2", "A", "C"),
+    edge("e3", "B", "D"),
+    edge("e4", "C", "D"),
+    edge("e5", "D", "E"),
+  ],
+});
+
+function metricValue(frame, label) {
+  const found = frame.metrics.find((item) => item.label === label);
+  assert.ok(found, `metric ${label} present in ${JSON.stringify(frame.metrics)}`);
+  return found.value;
+}
+
+function warnedIds(frame) {
+  return frame.highlights.filter((item) => item.role === "warn").map((item) => item.id);
+}
+
+test("DFS uses deterministic depth-first frames and classifies a true back edge", () => {
   const result = graphRunner.run(dfsScenario);
 
   assert.equal(result.outcome, "done");
@@ -157,8 +180,35 @@ test("DFS uses a deterministic explicit stack and survives a back edge", () => {
   const final = result.frames.at(-1);
   const states = Object.fromEntries(final.view.edges.map((item) => [item.id, item.state]));
   assert.equal(states.e6, "bad");
-  assert.equal(states.e4, "bad");
+  assert.equal(states.e4, "done");
   assert.equal(states.e1, "done");
+  assert.equal(metricValue(final, "Back edges"), "1");
+  assert.equal(metricValue(final, "Cross edges"), "1");
+  assert.ok(warnedIds(final).includes("e6"));
+  assert.ok(!warnedIds(final).includes("e4"));
+
+  const copy = result.frames.map((frame) => frame.events[0]?.text ?? "").join("\n");
+  assert.match(copy, /back edge/);
+  assert.match(copy, /cross edge/);
+});
+
+test("DFS on an acyclic graph reports no back edges and keeps cross edges neutral", () => {
+  const result = graphRunner.run(dfsAcyclicScenario);
+
+  assert.equal(result.outcome, "done");
+  assert.deepEqual(eventOrder(result, "Visit"), ["A", "B", "D", "E", "C"]);
+
+  const final = result.frames.at(-1);
+  const states = Object.fromEntries(final.view.edges.map((item) => [item.id, item.state]));
+  assert.equal(metricValue(final, "Back edges"), "0");
+  assert.equal(metricValue(final, "Cross edges"), "1");
+  assert.equal(states.e1, "done");
+  assert.equal(states.e4, "done");
+  assert.ok(!warnedIds(final).includes("e4"));
+
+  const copy = result.frames.map((frame) => frame.events[0]?.text ?? "").join("\n");
+  assert.doesNotMatch(copy, /back edge/);
+  assert.match(copy, /cross edge/);
 });
 
 test("topological sort emits Kahn order and reports acyclic completion", () => {
