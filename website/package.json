@@ -13,6 +13,7 @@
     "test:links": "node scripts/check-github-links.mjs",
     "test:math": "tsx --test src/lib/*-math.test.mjs",
     "test:game": "tsx --test src/game/*.test.mjs",
+    "test:observatory": "tsx --test src/observatory/*.test.mjs",
     "test:drishti-pass": "tsx --test src/lib/drishti-pass.test.mjs src/lib/drishti-pass-prefill.test.mjs src/lib/drishti-mirror.test.mjs src/lib/drishti-return.test.mjs",
     "lint:drishti-content": "node scripts/lint-drishti-content.mjs",
     "lint:algorithms": "node scripts/lint-algorithms-content.mjs",
