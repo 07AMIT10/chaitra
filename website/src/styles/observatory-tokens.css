@@ -1,0 +1,113 @@
+/*
+ * Observatory tokens. The stage is its own instrument room: warm amber
+ * calibration marks, cool ink, and a paper-light inverse. Keep these names
+ * stable; the canvas and panel stylesheets share them.
+ */
+.observatory-page {
+  --obs-bg: #071015;
+  --obs-bg-deep: #040a0e;
+  --obs-panel: #0b171f;
+  --obs-panel-2: #10232b;
+  --obs-panel-3: #142c35;
+  --obs-ink: #e7edf2;
+  --obs-muted: #93a6b6;
+  --obs-faint: #627687;
+  --obs-line: rgba(227, 179, 65, 0.2);
+  --obs-line-strong: rgba(227, 179, 65, 0.48);
+  --obs-amber: #e3b341;
+  --obs-amber-hi: #f4cf67;
+  --obs-violet: #a78bfa;
+  --obs-cyan: #5eead4;
+  --obs-red: #f87171;
+  --obs-green: #3fb950;
+  --obs-radius: 6px;
+  --obs-radius-lg: 12px;
+  --obs-gutter: clamp(0.9rem, 2.2vw, 1.8rem);
+  --obs-mono: var(--font-mono);
+  --obs-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
+  --obs-focus: 0 0 0 3px rgba(244, 207, 103, 0.65);
+  color-scheme: dark;
+  margin: calc(var(--space-4) * -1);
+  padding: var(--obs-gutter);
+  background:
+    radial-gradient(1200px 500px at 12% -10%, rgba(227, 179, 65, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(167, 139, 250, 0.07), transparent 55%),
+    var(--obs-bg);
+  color: var(--obs-ink);
+  min-height: 70vh;
+}
+
+:root[data-theme="light"] .observatory-page {
+  --obs-bg: #f4ecdc;
+  --obs-bg-deep: #e9dfcc;
+  --obs-panel: #fffaf0;
+  --obs-panel-2: #f6ecd9;
+  --obs-panel-3: #efe1c8;
+  --obs-ink: #201a10;
+  --obs-muted: #6d5f4c;
+  --obs-faint: #8e7d65;
+  --obs-line: rgba(122, 83, 10, 0.18);
+  --obs-line-strong: rgba(122, 83, 10, 0.42);
+  --obs-amber: #8a5a05;
+  --obs-amber-hi: #a86d00;
+  --obs-violet: #6d4bc4;
+  --obs-cyan: #0f766e;
+  --obs-red: #b42318;
+  --obs-green: #1a7f37;
+  --obs-shadow: 0 18px 50px rgba(80, 55, 10, 0.12);
+  --obs-focus: 0 0 0 3px rgba(138, 90, 5, 0.4);
+  color-scheme: light;
+  background:
+    radial-gradient(1200px 500px at 12% -10%, rgba(138, 90, 5, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(109, 75, 196, 0.06), transparent 55%),
+    var(--obs-bg);
+}
+
+.observatory-page *,
+.observatory-page *::before,
+.observatory-page *::after {
+  box-sizing: border-box;
+}
+
+.observatory-page a {
+  color: inherit;
+}
+
+.observatory-page :focus-visible {
+  outline: none;
+  box-shadow: var(--obs-focus);
+}
+
+.observatory-page ::selection {
+  background: rgba(227, 179, 65, 0.3);
+  color: var(--obs-ink);
+}
+
+.observatory-page .obs-mono {
+  font-family: var(--obs-mono);
+}
+
+.observatory-page .obs-muted {
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-kicker {
+  margin: 0;
+  color: var(--obs-amber);
+  font-family: var(--obs-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .observatory-page *,
+  .observatory-page *::before,
+  .observatory-page *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
