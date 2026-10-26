@@ -220,7 +220,7 @@ export const MASTERY_CHALLENGES = [
       description: "Every accepted split and probe stands.",
     },
     coupling:
-      "The search cannot start until the loom is one sorted run; a probe before the zip reads a stale index, and every probe spends from the same ledger as the merges.",
+      "The search cannot start until the loom is one sorted run; a probe before the zip reads a stale index, and the 17-comparison sort leaves exactly the probe budget.",
     reuses: [
       { mission: 7, slug: "merge-sort", move: "split runs to depth 3" },
       { mission: 2, slug: "binary-search", move: "probe the live bracket" },
