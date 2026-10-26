@@ -32,6 +32,9 @@ export type CanvasProps = {
 export type InspectorProps = {
   scenario: Scenario;
   selectedId: string | null;
+  /** Mutations currently on the bench, so the Inspector can warn before a
+   * validated edit clears a stack that cannot be replayed. */
+  appliedMutations: number;
   onChange: (scenario: Scenario) => void;
   onSelect: (id: string | null) => void;
   onClose: () => void;
@@ -67,6 +70,11 @@ export type LensReadoutProps = {
 export type ScamperDeckProps = {
   applied: readonly Mutation[];
   suggested: ScamperId | null;
+  /** True when the mutation stack has reached LIMITS.mutations. */
+  atCap: boolean;
+  mutationCap: number;
+  /** Undo only replays mutations added in this session; restored stacks have none. */
+  canUndo: boolean;
   onOpen: (card: ScamperId) => void;
   onUndo: () => void;
 };
@@ -87,18 +95,25 @@ export type RunRailProps = {
   dirty: boolean;
   hasRun: boolean;
   canSaveBench: boolean;
+  /** Canonical lens title, announced politely with the current frame. */
+  lensTitle: string;
+  /** True when keeping would have to add a branch past the shelf cap. */
+  atCap: boolean;
   onRun: () => void;
   onStep: (direction: -1 | 1) => void;
   onScrub: (index: number) => void;
   onReset: () => void;
   onKeep: () => void;
   onSaveBench: () => void;
+  onOpenBranches: () => void;
 };
 
 export type BranchShelfProps = {
   branches: readonly Branch[];
   activeId: string | null;
   atCap: boolean;
+  canShare: boolean;
+  canExport: boolean;
   onOpen: (branch: Branch) => void;
   onFork: (branch: Branch) => void;
   onCompare: (branch: Branch) => void;
@@ -130,9 +145,9 @@ export type EmptyProps = {
 export type CompareDialogProps = {
   left: Branch;
   right: Branch;
+  branches: readonly Branch[];
   onClose: () => void;
-  onOpenLeft: () => void;
-  onOpenRight: () => void;
+  onOpen: (branch: Branch) => void;
 };
 
 export type ConfirmDialogProps = {

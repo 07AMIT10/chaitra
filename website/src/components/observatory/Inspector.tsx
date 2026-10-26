@@ -1,13 +1,24 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { blankScenario } from "../../observatory/registry";
 import { isScenario } from "../../observatory/scenario";
 import { validateScenario } from "../../observatory/runners";
+import {
+  ARRAY_STRATEGIES,
+  GRAPH_STRATEGIES,
+  GRID_STRATEGIES,
+} from "../../observatory/types";
 import type {
   ArrayModel,
+  ArrayStrategy,
   Diagnostic,
   GraphEdge,
   GraphModel,
   GraphNode,
+  GraphStrategy,
+  GridStrategy,
   Scenario,
+  Strategy,
+  Substrate,
   TableModel,
 } from "../../observatory/types";
 import type { InspectorProps } from "./ui-types";
@@ -128,7 +139,11 @@ function finish(candidate: Scenario): BuildResult {
   return { ok: true, scenario: candidate };
 }
 
-function buildGraph(base: Extract<Scenario, { substrate: "graph" }>, draft: GraphDraft): BuildResult {
+function buildGraph(
+  base: Extract<Scenario, { substrate: "graph" }>,
+  draft: GraphDraft,
+  strategy: GraphStrategy = base.strategy,
+): BuildResult {
   const diagnostics: Diagnostic[] = [];
   const nodeIds = new Set<string>();
 
@@ -252,12 +267,16 @@ function buildGraph(base: Extract<Scenario, { substrate: "graph" }>, draft: Grap
     title: base.title,
     params: base.params,
     substrate: "graph",
-    strategy: base.strategy,
+    strategy,
     model,
   });
 }
 
-function buildArray(base: Extract<Scenario, { substrate: "array" }>, draft: ArrayDraft): BuildResult {
+function buildArray(
+  base: Extract<Scenario, { substrate: "array" }>,
+  draft: ArrayDraft,
+  strategy: ArrayStrategy = base.strategy,
+): BuildResult {
   const diagnostics: Diagnostic[] = [];
   const tokens = tokensOf(draft.values);
 
@@ -305,12 +324,16 @@ function buildArray(base: Extract<Scenario, { substrate: "array" }>, draft: Arra
     title: base.title,
     params: base.params,
     substrate: "array",
-    strategy: base.strategy,
+    strategy,
     model,
   });
 }
 
-function buildGrid(base: Extract<Scenario, { substrate: "grid" }>, draft: GridDraft): BuildResult {
+function buildGrid(
+  base: Extract<Scenario, { substrate: "grid" }>,
+  draft: GridDraft,
+  strategy: GridStrategy = base.strategy,
+): BuildResult {
   const diagnostics: Diagnostic[] = [];
   if (draft.a.length > GRID_A_CAP) {
     diagnostics.push({
@@ -335,22 +358,61 @@ function buildGrid(base: Extract<Scenario, { substrate: "grid" }>, draft: GridDr
     title: base.title,
     params: base.params,
     substrate: "grid",
-    strategy: base.strategy,
+    strategy,
     model,
   });
 }
 
-function candidateOf(base: Scenario, draft: Draft): BuildResult {
+function candidateOf(base: Scenario, draft: Draft, strategy: Strategy = base.strategy): BuildResult {
   if (base.substrate === "graph") {
     if (draft.kind !== "graph") return { ok: false, diagnostics: [mismatch()] };
-    return buildGraph(base, draft);
+    if (!(GRAPH_STRATEGIES as readonly string[]).includes(strategy)) {
+      return { ok: false, diagnostics: [strategyMismatch(base.substrate, GRAPH_STRATEGIES)] };
+    }
+    return buildGraph(base, draft, strategy as GraphStrategy);
   }
   if (base.substrate === "array") {
     if (draft.kind !== "array") return { ok: false, diagnostics: [mismatch()] };
-    return buildArray(base, draft);
+    if (!(ARRAY_STRATEGIES as readonly string[]).includes(strategy)) {
+      return { ok: false, diagnostics: [strategyMismatch(base.substrate, ARRAY_STRATEGIES)] };
+    }
+    return buildArray(base, draft, strategy as ArrayStrategy);
   }
   if (draft.kind !== "grid") return { ok: false, diagnostics: [mismatch()] };
-  return buildGrid(base, draft);
+  if (!(GRID_STRATEGIES as readonly string[]).includes(strategy)) {
+    return { ok: false, diagnostics: [strategyMismatch(base.substrate, GRID_STRATEGIES)] };
+  }
+  return buildGrid(base, draft, strategy as GridStrategy);
+}
+
+function strategiesFor(substrate: Substrate): readonly Strategy[] {
+  switch (substrate) {
+    case "graph":
+      return GRAPH_STRATEGIES;
+    case "array":
+      return ARRAY_STRATEGIES;
+    case "grid":
+      return GRID_STRATEGIES;
+  }
+}
+
+function strategyMismatch(substrate: Substrate, allowed: readonly Strategy[]): Diagnostic {
+  return {
+    code: "inspector/strategy",
+    path: "strategy",
+    message: `A ${substrate} bench needs one of ${allowed.join(", ")}.`,
+  };
+}
+
+/**
+ * A blank bench has no reader data to preserve. If its model is still the
+ * untouched starter for the mounted strategy, switching strategies can rebuild
+ * that starter instead of stranding the reader on an incompatible model.
+ */
+function isStarterModel(scenario: Scenario): boolean {
+  if (!scenario.id.startsWith("blank-")) return false;
+  const starter = blankScenario(scenario.substrate, scenario.strategy);
+  return JSON.stringify(starter.model) === JSON.stringify(scenario.model);
 }
 
 function mismatch(): Diagnostic {
@@ -361,25 +423,44 @@ function mismatch(): Diagnostic {
   };
 }
 
-export function Inspector({ scenario, selectedId, onChange, onSelect, onClose }: InspectorProps) {
+export function Inspector({
+  scenario,
+  selectedId,
+  appliedMutations,
+  onChange,
+  onSelect,
+  onClose,
+}: InspectorProps) {
   const [draft, setDraft] = useState<Draft>(() => draftOf(scenario));
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
   const [status, setStatus] = useState("Edits stay local until you apply them.");
   const scenarioRef = useRef(JSON.stringify(scenario));
+  const appliedRef = useRef<string | null>(null);
   const hintBase = useId();
 
   useEffect(() => {
     const next = JSON.stringify(scenario);
     if (next === scenarioRef.current) return;
+    const fromThisEditor = next === appliedRef.current;
+    appliedRef.current = null;
     scenarioRef.current = next;
     setDraft(draftOf(scenario));
     setDiagnostics([]);
-    setStatus("Editor reset to the current scenario.");
+    if (!fromThisEditor) setStatus("Editor reset to the current scenario.");
   }, [scenario]);
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(draftOf(scenario));
 
+  const commit = (next: Scenario) => {
+    appliedRef.current = JSON.stringify(next);
+    onChange(next);
+  };
+
   const apply = () => {
+    if (!dirty) {
+      setStatus("Nothing to apply: the editor already matches the scenario.");
+      return;
+    }
     const result = candidateOf(scenario, draft);
     if (!result.ok) {
       setDiagnostics(result.diagnostics);
@@ -392,7 +473,51 @@ export function Inspector({ scenario, selectedId, onChange, onSelect, onClose }:
     }
     setDiagnostics([]);
     setStatus("Applied. The bench reruns with the new scenario.");
-    onChange(result.scenario);
+    commit(result.scenario);
+  };
+
+  const changeStrategy = (next: Strategy) => {
+    if (next === scenario.strategy) return;
+    const result = candidateOf(scenario, draft, next);
+    if (result.ok) {
+      setDiagnostics([]);
+      setStatus(
+        dirty
+          ? `Applied. Strategy ${next} reruns the bench with your draft edits.`
+          : `Applied. Strategy ${next} reruns the bench.`,
+      );
+      commit(result.scenario);
+      return;
+    }
+    if (!dirty && isStarterModel(scenario)) {
+      const starter = blankScenario(scenario.substrate, next);
+      const rebuilt: Scenario = {
+        ...starter,
+        id: scenario.id,
+        title: scenario.title,
+        params: scenario.params,
+      };
+      setDiagnostics([]);
+      setStatus(`Applied. Strategy ${next} rebuilt the starter model for this blank bench.`);
+      commit(rebuilt);
+      return;
+    }
+    if (dirty) {
+      // Name the real obstacle: retry against the applied model so an invalid
+      // draft is not mistaken for an incompatible strategy.
+      const applied = candidateOf(scenario, draftOf(scenario), next);
+      if (applied.ok) {
+        setDiagnostics(result.diagnostics);
+        setStatus(`Not applied: fix the draft issues below before switching to ${next}.`);
+        return;
+      }
+      setDiagnostics(applied.diagnostics);
+    } else {
+      setDiagnostics(result.diagnostics);
+    }
+    setStatus(
+      `Not applied: strategy ${next} is not compatible with this model. Nothing was rewritten.`,
+    );
   };
 
   const discard = () => {
@@ -529,6 +654,7 @@ export function Inspector({ scenario, selectedId, onChange, onSelect, onClose }:
   const targetMissing =
     graphDraft !== null && graphDraft.target !== "" && !nodeIds.includes(graphDraft.target.trim());
   const arrayTokens = arrayDraft ? tokensOf(arrayDraft.values) : [];
+  const strategyOptions = strategiesFor(scenario.substrate);
 
   return (
     <aside className="obs-inspector" aria-label="Scenario inspector">
@@ -558,6 +684,38 @@ export function Inspector({ scenario, selectedId, onChange, onSelect, onClose }:
           apply();
         }}
       >
+        <fieldset className="obs-inspector__group">
+          <legend>Strategy</legend>
+          <label className="obs-inspector__wide">
+            Run strategy
+            <select
+              value={scenario.strategy}
+              aria-label="Run strategy"
+              aria-describedby={`${hintBase}-strategy-hint`}
+              onChange={(event) => {
+                const next = event.target.value;
+                if ((strategyOptions as readonly string[]).includes(next)) {
+                  changeStrategy(next as Strategy);
+                }
+              }}
+            >
+              {strategyOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p id={`${hintBase}-strategy-hint`} className="obs-inspector__hint">
+            Switching reloads the {scenario.substrate} bench for the chosen strategy and reruns
+            the trace. Values the new strategy cannot use are reported, never rewritten.
+            {appliedMutations > 0 &&
+              ` Switching also clears the ${appliedMutations} applied SCAMPER ${
+                appliedMutations === 1 ? "mutation" : "mutations"
+              }, because the trace is recomputed from the new scenario.`}
+          </p>
+        </fieldset>
+
         {graphDraft && (
           <>
             <fieldset className="obs-inspector__group">
@@ -799,7 +957,8 @@ export function Inspector({ scenario, selectedId, onChange, onSelect, onClose }:
                 <span>Directed edges</span>
               </label>
               <p className="obs-inspector__hint">
-                Strategy stays {scenario.strategy}; change specimens to change strategy.
+                Switching strategy keeps nodes, edges, start, and target when it accepts them.
+                Otherwise the diagnostic says why instead of rewriting the graph.
               </p>
             </fieldset>
           </>
@@ -873,7 +1032,8 @@ export function Inspector({ scenario, selectedId, onChange, onSelect, onClose }:
               />
             </label>
             <p className="obs-inspector__hint">
-              Strategy stays {scenario.strategy}.
+              Switching strategy keeps these values and the target when it accepts them; a
+              binary search needs an ascending array and a numeric target.
             </p>
           </fieldset>
         )}
@@ -915,7 +1075,9 @@ export function Inspector({ scenario, selectedId, onChange, onSelect, onClose }:
               a: {gridDraft.a.length}/{GRID_A_CAP} · b: {gridDraft.b.length}/{GRID_B_CAP} · table:{" "}
               {gridDraft.a.length + 1} × {gridDraft.b.length + 1} cells. ε marks the empty prefix.
             </p>
-            <p className="obs-inspector__hint">Strategy stays {scenario.strategy}.</p>
+            <p className="obs-inspector__hint">
+              Switching strategy keeps both strings; edit-distance and LCS share the same table.
+            </p>
           </fieldset>
         )}
 
@@ -936,8 +1098,23 @@ export function Inspector({ scenario, selectedId, onChange, onSelect, onClose }:
           )}
         </div>
 
+        {appliedMutations > 0 && dirty && (
+          <p className="obs-rejection" role="note">
+            <strong>
+              Applying replaces {appliedMutations} applied SCAMPER{" "}
+              {appliedMutations === 1 ? "mutation" : "mutations"}.
+            </strong>{" "}
+            This edit becomes the new baseline and the trace is recomputed from it.
+          </p>
+        )}
+
         <footer className="obs-inspector__foot">
-          <button type="submit" className="obs-inspector__apply">
+          <button
+            type="submit"
+            className="obs-inspector__apply"
+            disabled={!dirty}
+            title={dirty ? undefined : "No changes to apply."}
+          >
             Apply changes
           </button>
           <button type="button" className="obs-inspector__discard" onClick={discard} disabled={!dirty}>

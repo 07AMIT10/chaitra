@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer } from "react";
+import { useEffect, useMemo, useReducer, useRef } from "react";
 import { LENS_BY_SLUG } from "../../lib/drishti-lenses";
 import {
   FIELD_SPECIMENS,
@@ -7,8 +7,12 @@ import {
 } from "../../observatory/registry";
 import { projectLens } from "../../observatory/lenses";
 import { runScenario } from "../../observatory/runners";
+import { canonicalJson } from "../../observatory/hash";
+import { SCAMPER_CARDS, proposeMutation } from "../../observatory/mutations";
 import { cloneScenario, isScenario } from "../../observatory/scenario";
+import { plural } from "../../observatory/format";
 import {
+  LIMITS,
   STORAGE_KEYS,
   deleteBranch,
   deleteReaderBench,
@@ -87,6 +91,7 @@ type State = {
   compare: { left: Branch; right: Branch } | null;
   pendingDeleteBranch: Branch | null;
   pendingDeleteReader: ReaderBench | null;
+  pendingReset: boolean;
   shareUrl: string | null;
   articleHref: string | null;
   gameHref: string | null;
@@ -141,6 +146,7 @@ type Action =
   | { type: "close-compare" }
   | { type: "pending-delete-branch"; branch: Branch | null }
   | { type: "pending-delete-reader"; bench: ReaderBench | null }
+  | { type: "pending-reset"; pending: boolean }
   | { type: "share"; url: string | null };
 
 const INITIAL: State = {
@@ -170,6 +176,7 @@ const INITIAL: State = {
   compare: null,
   pendingDeleteBranch: null,
   pendingDeleteReader: null,
+  pendingReset: false,
   shareUrl: null,
   articleHref: null,
   gameHref: null,
@@ -448,7 +455,12 @@ function reducer(state: State, action: Action): State {
     case "run": {
       if (!state.scenario) return state;
       const run = runScenario(state.scenario);
-      return { ...state, run, frameIndex: 0, saved: false };
+      return {
+        ...state,
+        run,
+        frameIndex: 0,
+        notice: notice(`Trace recomputed: ${plural(run.frames.length, "frame")}.`),
+      };
     }
 
     case "reset": {
@@ -467,7 +479,15 @@ function reducer(state: State, action: Action): State {
         activeBranchId: null,
         drawer: null,
         mutationCard: null,
-        notice: notice("Reset to the mounted scenario."),
+        pendingReset: false,
+        notice: notice(
+          state.origin === "branch" ||
+            state.origin === "draft" ||
+            state.origin === "shared" ||
+            state.origin === "imported"
+            ? "Reset to the opened scenario."
+            : "Reset to the mounted scenario.",
+        ),
       };
     }
 
@@ -527,18 +547,19 @@ function reducer(state: State, action: Action): State {
     case "dismiss-notice":
       return { ...state, notice: null };
 
-    case "set-branches":
+    case "set-branches": {
+      const keepsActive =
+        state.activeBranchId !== null &&
+        action.branches.some((branch) => branch.id === state.activeBranchId);
       return {
         ...state,
         branches: action.branches,
-        activeBranchId:
-          state.activeBranchId !== null &&
-          action.branches.some((branch) => branch.id === state.activeBranchId)
-            ? state.activeBranchId
-            : null,
+        activeBranchId: keepsActive ? state.activeBranchId : null,
+        saved: keepsActive ? state.saved : false,
         notice: action.notice ?? state.notice,
         pendingDeleteBranch: null,
       };
+    }
 
     case "saved":
       return {
@@ -623,6 +644,9 @@ function reducer(state: State, action: Action): State {
     case "pending-delete-reader":
       return { ...state, pendingDeleteReader: action.bench };
 
+    case "pending-reset":
+      return { ...state, pendingReset: action.pending };
+
     case "share":
       return { ...state, shareUrl: action.url };
 
@@ -655,6 +679,60 @@ function titleOf(state: State): string {
     state.scenario.title.trim() ||
     "Untitled branch"
   );
+}
+
+function activeBranchOf(state: State): Branch | undefined {
+  if (state.activeBranchId === null) return undefined;
+  return state.branches.find((branch) => branch.id === state.activeBranchId);
+}
+
+function resetLosses(state: State): { mutations: number; scenarioChanged: boolean } {
+  const scenarioChanged =
+    state.scenario !== null &&
+    state.baseScenario !== null &&
+    canonicalJson(state.scenario) !== canonicalJson(state.baseScenario);
+  return { mutations: state.mutations.length, scenarioChanged };
+}
+
+function resetBody(state: State): string {
+  const { mutations, scenarioChanged } = resetLosses(state);
+  const restored =
+    state.origin === "branch" ||
+    state.origin === "draft" ||
+    state.origin === "shared" ||
+    state.origin === "imported";
+  const head =
+    mutations > 0
+      ? `Reset ${plural(mutations, "mutation")}?`
+      : scenarioChanged
+        ? "Reset the scenario edits?"
+        : "Reset this bench?";
+  if (restored) {
+    return `${head} This returns to "${state.baseScenario?.title ?? "the opened scenario"}" and clears the restored stack. Reopened branches have no earlier history, so this cannot be undone.`;
+  }
+  return `${head} This discards the current mutation stack and scenario edits, returns to the mounted scenario, and cannot be undone.`;
+}
+
+/** A live line derived from the scenario itself, never from authored shelf copy. */
+function liveScenarioLine(scenario: Scenario): string {
+  const head = `${scenario.substrate} · ${scenario.strategy}`;
+  if (scenario.substrate === "graph") {
+    const model = scenario.model;
+    return `${head} · ${plural(model.nodes.length, "node")} · ${plural(
+      model.edges.length,
+      "edge",
+    )} · start ${model.start} · ${
+      model.target === undefined ? "no target" : `target ${model.target}`
+    }`;
+  }
+  if (scenario.substrate === "array") {
+    const model = scenario.model;
+    return `${head} · ${plural(model.values.length, "value")} · ${
+      model.target === undefined ? "no target" : `target ${model.target}`
+    } · ${model.sorted ? "sorted" : "unsorted"}`;
+  }
+  const model = scenario.model;
+  return `${head} · strings "${model.a}" / "${model.b}"`;
 }
 
 function workingBranch(state: State): Branch | null {
@@ -702,6 +780,9 @@ function benchSource(bench: LiveBench | undefined): void {
 
 export function ObservatoryWorkbench() {
   const [state, dispatch] = useReducer(reducer, INITIAL);
+  const benchHeadingRef = useRef<HTMLHeadingElement>(null);
+  const shelfHeadingRef = useRef<HTMLHeadingElement>(null);
+  const previousPhase = useRef<Phase>(state.phase);
 
   // The landing hero belongs to the shelf, not to the instrument room. Once a
   // bench is mounted, drop the page hero and return the eye to the bench top.
@@ -712,6 +793,16 @@ export function ObservatoryWorkbench() {
       window.scrollTo({ top: 0, behavior: "auto" });
     }
     return () => page?.classList.remove("obs-page--bench");
+  }, [state.phase]);
+
+  // Entering the bench should move focus to its heading, not to the document
+  // body; leaving it (when a future shelf action exists) restores the shelf.
+  useEffect(() => {
+    const previous = previousPhase.current;
+    previousPhase.current = state.phase;
+    if (previous === state.phase) return;
+    if (state.phase === "bench") benchHeadingRef.current?.focus();
+    else shelfHeadingRef.current?.focus();
   }, [state.phase]);
 
   // Hydrate local-first state and any #b= share payload after the static shell.
@@ -811,8 +902,16 @@ export function ObservatoryWorkbench() {
     });
   }, [state.scenario, state.run, state.lens, frame, state.mutations]);
 
-  const suggested: ScamperId | null =
-    state.mutations.length === 0 && state.run !== null ? "reverse" : null;
+  // "Try this first" must name a mutation the runner will actually accept.
+  // Ask the canonical cards in order and fall back to no suggestion.
+  const suggested = useMemo<ScamperId | null>(() => {
+    if (!state.scenario || state.mutations.length > 0) return null;
+    for (const card of SCAMPER_CARDS) {
+      const result = proposeMutation(state.scenario, card.id);
+      if (result.ok) return card.id;
+    }
+    return null;
+  }, [state.scenario, state.mutations.length]);
 
   const openShelf = () => dispatch({ type: "set-drawer", drawer: "shelf" });
   const openBranches = () => dispatch({ type: "set-drawer", drawer: "branches" });
@@ -833,9 +932,30 @@ export function ObservatoryWorkbench() {
   const handleRun = () => dispatch({ type: "run" });
   const handleStep = (direction: -1 | 1) => dispatch({ type: "step", direction });
   const handleScrub = (index: number) => dispatch({ type: "set-frame", index });
-  const handleReset = () => dispatch({ type: "reset" });
+  const handleReset = () => {
+    const { mutations, scenarioChanged } = resetLosses(state);
+    if (mutations === 0 && !scenarioChanged) {
+      dispatch({ type: "reset" });
+      return;
+    }
+    dispatch({ type: "pending-reset", pending: true });
+  };
   const handleLens = (lens: LensId) => dispatch({ type: "set-lens", lens });
   const handleSelect = (id: string | null) => dispatch({ type: "select", id });
+
+  const handleOpenMutation = (card: ScamperId) => {
+    if (state.mutations.length >= LIMITS.mutations) {
+      dispatch({
+        type: "notice",
+        notice: notice(
+          `Mutation stack full at ${LIMITS.mutations}. Undo a mutation before applying another.`,
+          "error",
+        ),
+      });
+      return;
+    }
+    dispatch({ type: "open-mutation", card });
+  };
 
   const handleMoveNode = (id: string, x: number, y: number) => {
     if (!state.scenario || state.scenario.substrate !== "graph") return;
@@ -851,10 +971,24 @@ export function ObservatoryWorkbench() {
   };
 
   const handleScenarioChange = (scenario: Scenario) => {
+    if (state.scenario !== null && canonicalJson(scenario) === canonicalJson(state.scenario)) {
+      dispatch({ type: "notice", notice: notice("No changes to apply.") });
+      return;
+    }
     dispatch({ type: "set-scenario", scenario, source: "inspector" });
   };
 
   const handleApplyMutation = (proposal: Extract<MutationResult, { ok: true }>) => {
+    if (state.mutations.length >= LIMITS.mutations) {
+      dispatch({
+        type: "notice",
+        notice: notice(
+          `Mutation stack full at ${LIMITS.mutations}. Undo a mutation before applying another.`,
+          "error",
+        ),
+      });
+      return;
+    }
     dispatch({ type: "apply-mutation", proposal });
   };
 
@@ -868,15 +1002,42 @@ export function ObservatoryWorkbench() {
 
   const handleKeep = () => {
     if (!state.scenario) return;
+    const existing = activeBranchOf(state);
+    if (existing === undefined && state.branches.length >= LIMITS.branches) {
+      dispatch({
+        type: "notice",
+        notice: notice(
+          `The shelf is full at ${LIMITS.branches} branches. Open branches and delete one before keeping a new branch.`,
+          "error",
+        ),
+      });
+      return;
+    }
+    if (state.mutations.length > LIMITS.mutations) {
+      dispatch({
+        type: "notice",
+        notice: notice(
+          `The mutation stack has ${state.mutations.length} items; the cap is ${LIMITS.mutations}. Undo a mutation before keeping.`,
+          "error",
+        ),
+      });
+      return;
+    }
+    if (state.note.length > LIMITS.noteChars) {
+      dispatch({
+        type: "notice",
+        notice: notice(
+          `The field note is ${state.note.length} characters; the limit is ${LIMITS.noteChars}. Shorten it before keeping.`,
+          "error",
+        ),
+      });
+      return;
+    }
     const storage = getStorage();
     if (!storage) {
       dispatch({ type: "notice", notice: notice("Local storage is unavailable; the branch cannot be kept.", "error") });
       return;
     }
-    const existing =
-      state.activeBranchId === null
-        ? undefined
-        : state.branches.find((branch) => branch.id === state.activeBranchId);
     const now = Date.now();
     const branch: Branch = {
       version: 1,
@@ -896,13 +1057,18 @@ export function ObservatoryWorkbench() {
     };
     const result = saveBranch(storage, branch);
     if (!result.ok) {
-      const prefix =
-        result.code === "cap"
-          ? "The shelf is full. Delete a branch first — nothing was overwritten."
-          : result.code === "size"
-            ? "This branch exceeds the 8 KB limit. Shorten the note or the scenario."
-            : "The branch could not be saved.";
-      dispatch({ type: "notice", notice: notice(`${prefix} ${result.error}`, "error") });
+      let text: string;
+      if (result.code === "cap") {
+        text = `The shelf is full at ${LIMITS.branches} branches. Delete a branch first — nothing was overwritten.`;
+      } else if (result.code === "size" && /mutation/i.test(result.error)) {
+        text = `The mutation stack is over the ${LIMITS.mutations}-mutation cap. Undo a mutation before keeping.`;
+      } else if (result.code === "size") {
+        text =
+          "The branch is over the 8 KB storage limit. Shorten the note or the scenario.";
+      } else {
+        text = `The branch could not be saved. ${result.error}`;
+      }
+      dispatch({ type: "notice", notice: notice(text, "error") });
       return;
     }
     try {
@@ -992,13 +1158,17 @@ export function ObservatoryWorkbench() {
   };
 
   const handleCompare = (right: Branch) => {
-    const working = workingBranch(state);
-    let left = state.activeBranchId === null
-      ? working
-      : state.branches.find((branch) => branch.id === state.activeBranchId) ?? working;
-    if (!left || left.id === right.id) {
-      left = state.branches.find((branch) => branch.id !== right.id) ?? null;
+    if (state.branches.length < 2) {
+      dispatch({ type: "notice", notice: notice("Keep a second branch before comparing.") });
+      return;
     }
+    const active = state.activeBranchId === null
+      ? undefined
+      : state.branches.find((branch) => branch.id === state.activeBranchId);
+    const left =
+      active !== undefined && active.id !== right.id
+        ? active
+        : state.branches.find((branch) => branch.id !== right.id);
     if (!left) {
       dispatch({ type: "notice", notice: notice("Keep a second branch before comparing.") });
       return;
@@ -1157,7 +1327,9 @@ export function ObservatoryWorkbench() {
   // One modal at a time. A confirmation or share sits above the drawer that
   // opened it; the drawer returns when the smaller dialog closes.
   const topOverlay: "confirm" | "share" | "compare" | "field" | "drawer" | null =
-    state.pendingDeleteBranch !== null || state.pendingDeleteReader !== null
+    state.pendingReset ||
+    state.pendingDeleteBranch !== null ||
+    state.pendingDeleteReader !== null
       ? "confirm"
       : state.shareUrl !== null
         ? "share"
@@ -1206,7 +1378,9 @@ export function ObservatoryWorkbench() {
           <BranchShelf
             branches={state.branches}
             activeId={state.activeBranchId}
-            atCap={state.branches.length >= 30}
+            atCap={state.branches.length >= LIMITS.branches}
+            canShare={state.scenario !== null}
+            canExport={state.scenario !== null}
             onOpen={handleOpenBranch}
             onFork={handleFork}
             onCompare={handleCompare}
@@ -1224,6 +1398,7 @@ export function ObservatoryWorkbench() {
           <Inspector
             scenario={state.scenario}
             selectedId={state.selection}
+            appliedMutations={state.mutations.length}
             onChange={handleScenarioChange}
             onSelect={handleSelect}
             onClose={closeDrawer}
@@ -1246,13 +1421,10 @@ export function ObservatoryWorkbench() {
         <CompareDialog
           left={state.compare.left}
           right={state.compare.right}
+          branches={state.branches}
           onClose={() => dispatch({ type: "close-compare" })}
-          onOpenLeft={() => {
-            handleOpenBranch(state.compare?.left as Branch);
-            dispatch({ type: "close-compare" });
-          }}
-          onOpenRight={() => {
-            handleOpenBranch(state.compare?.right as Branch);
+          onOpen={(branch) => {
+            handleOpenBranch(branch);
             dispatch({ type: "close-compare" });
           }}
         />
@@ -1262,25 +1434,41 @@ export function ObservatoryWorkbench() {
         <ShareDialog url={state.shareUrl} onClose={() => dispatch({ type: "share", url: null })} />
       )}
 
-      {topOverlay === "confirm" && state.pendingDeleteBranch && (
+      {topOverlay === "confirm" && state.pendingReset && (
+        <ConfirmDialog
+          title="Reset this bench?"
+          body={resetBody(state)}
+          confirmLabel="Reset bench"
+          onConfirm={() => {
+            dispatch({ type: "pending-reset", pending: false });
+            dispatch({ type: "reset" });
+          }}
+          onCancel={() => dispatch({ type: "pending-reset", pending: false })}
+        />
+      )}
+
+      {topOverlay === "confirm" && !state.pendingReset && state.pendingDeleteBranch && (
         <ConfirmDialog
           title="Delete this branch?"
-          body={`"${state.pendingDeleteBranch.title}" will be removed from this browser. The current working scenario is not touched.`}
+          body={`"${state.pendingDeleteBranch.title}" and its field note will be removed from this browser. The current working scenario is not touched.`}
           confirmLabel="Delete branch"
           onConfirm={confirmDeleteBranch}
           onCancel={() => dispatch({ type: "pending-delete-branch", branch: null })}
         />
       )}
 
-      {topOverlay === "confirm" && !state.pendingDeleteBranch && state.pendingDeleteReader && (
-        <ConfirmDialog
-          title="Delete this reader bench?"
-          body={`"${state.pendingDeleteReader.title}" will be removed from this browser. Saved branches that reference its scenario stay intact.`}
-          confirmLabel="Delete bench"
-          onConfirm={confirmDeleteReader}
-          onCancel={() => dispatch({ type: "pending-delete-reader", bench: null })}
-        />
-      )}
+      {topOverlay === "confirm" &&
+        !state.pendingReset &&
+        !state.pendingDeleteBranch &&
+        state.pendingDeleteReader && (
+          <ConfirmDialog
+            title="Delete this reader bench?"
+            body={`"${state.pendingDeleteReader.title}" will be removed from this browser. Saved branches that reference its scenario stay intact.`}
+            confirmLabel="Delete bench"
+            onConfirm={confirmDeleteReader}
+            onCancel={() => dispatch({ type: "pending-delete-reader", bench: null })}
+          />
+        )}
     </>
   );
 
@@ -1293,7 +1481,8 @@ export function ObservatoryWorkbench() {
             <div>
               <p className="obs-kicker">Draft waiting</p>
               <p>
-                {state.draft.scenario.title} · {state.draft.lens} · frame{" "}
+                {state.draft.scenario.title} ·{" "}
+                {LENS_BY_SLUG[state.draft.lens]?.title ?? state.draft.lens} · Step{" "}
                 {state.draft.frameIndex + 1}
               </p>
             </div>
@@ -1302,14 +1491,16 @@ export function ObservatoryWorkbench() {
                 Resume draft
               </button>
               <button type="button" className="obs-button obs-button--ghost" onClick={handleDiscardDraft}>
-                Start fresh
+                Discard draft
               </button>
             </div>
           </section>
         )}
         <header className="obs-shelf-lead">
           <p className="obs-kicker">The specimen shelf</p>
-          <h2>Five live specimens. One open workbench.</h2>
+          <h2 ref={shelfHeadingRef} tabIndex={-1}>
+            Five live specimens. One open workbench.
+          </h2>
           <p>
             Choose a live plate, open a field note, or start blank. Every bench is runnable;
             field cards are honest about the specimens that are not.
@@ -1331,6 +1522,9 @@ export function ObservatoryWorkbench() {
   const lensCopy = LENS_BY_SLUG[state.lens];
   const frameIndex = frame?.index ?? 0;
   const frameCount = state.run?.frames.length ?? 0;
+  const atBranchCap = state.branches.length >= LIMITS.branches;
+  const keepBlocked = atBranchCap && activeBranchOf(state) === undefined;
+  const authoredCopy = state.benchWhat ?? state.benchFraming;
 
   return (
     <div className="obs-shell">
@@ -1339,7 +1533,13 @@ export function ObservatoryWorkbench() {
         <div className="obs-topbar-title">
           <p className="obs-kicker">{originLabel(state.origin)}</p>
           <h2>{state.title.trim() || state.topTitle || scenario.title}</h2>
-          <p className="obs-topbar-sub">{state.benchWhat ?? state.benchFraming ?? scenario.title}</p>
+          <p className="obs-topbar-sub">{liveScenarioLine(scenario)}</p>
+          {authoredCopy !== null && (
+            <p className="obs-topbar-original">
+              <span className="obs-topbar-original-label">Original shelf copy</span>{" "}
+              {authoredCopy}
+            </p>
+          )}
         </div>
         <div className="obs-topbar-actions">
           <span className="obs-tag">{state.saved ? "Kept" : "Working draft"}</span>
@@ -1347,7 +1547,10 @@ export function ObservatoryWorkbench() {
             Shelf
           </button>
           <button type="button" className="obs-button obs-button--ghost" onClick={openBranches}>
-            Branches <span className="obs-tag">{state.branches.length} / 30</span>
+            Branches{" "}
+            <span className="obs-tag">
+              {state.branches.length} / {LIMITS.branches}
+            </span>
           </button>
           {state.articleHref && (
             <a className="obs-button obs-button--ghost" href={state.articleHref}>
@@ -1371,7 +1574,13 @@ export function ObservatoryWorkbench() {
               <p className="obs-kicker">
                 {scenario.substrate} · {scenario.strategy}
               </p>
-              <h2 className="obs-bench-title">{scenario.title}</h2>
+              <h2
+                ref={benchHeadingRef}
+                tabIndex={-1}
+                className="obs-bench-title"
+              >
+                {scenario.title}
+              </h2>
             </div>
             <div className="obs-bench-head-actions">
               <span className="obs-tag">{frameCount} frames</span>
@@ -1410,30 +1619,36 @@ export function ObservatoryWorkbench() {
                 </p>
               </section>
             )}
-            <RunRail
-              frameIndex={frameIndex}
-              frameCount={frameCount}
-              outcome={state.run?.outcome ?? "invalid"}
-              diagnostics={state.run?.diagnostics ?? []}
-              dirty={false}
-              hasRun={state.run !== null}
-              canSaveBench
-              onRun={handleRun}
-              onStep={handleStep}
-              onScrub={handleScrub}
-              onReset={handleReset}
-              onKeep={handleKeep}
-              onSaveBench={handleSaveBench}
-            />
           </div>
         </div>
       </section>
 
-      <aside className="obs-side" aria-label="Mutation and note instruments">
+      <aside className="obs-side" aria-label="Run, mutation, and note instruments">
+        <RunRail
+          frameIndex={frameIndex}
+          frameCount={frameCount}
+          outcome={state.run?.outcome ?? "invalid"}
+          diagnostics={state.run?.diagnostics ?? []}
+          dirty={false}
+          hasRun={state.run !== null}
+          canSaveBench
+          lensTitle={lensCopy?.title ?? state.lens}
+          atCap={keepBlocked}
+          onRun={handleRun}
+          onStep={handleStep}
+          onScrub={handleScrub}
+          onReset={handleReset}
+          onKeep={handleKeep}
+          onSaveBench={handleSaveBench}
+          onOpenBranches={openBranches}
+        />
         <ScamperDeck
           applied={state.mutations}
           suggested={suggested}
-          onOpen={(card) => dispatch({ type: "open-mutation", card })}
+          atCap={state.mutations.length >= LIMITS.mutations}
+          mutationCap={LIMITS.mutations}
+          canUndo={state.history.length > 0}
+          onOpen={handleOpenMutation}
           onUndo={handleUndo}
         />
         <FieldNote

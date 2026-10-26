@@ -11,7 +11,7 @@
   --obs-panel-3: #142c35;
   --obs-ink: #e7edf2;
   --obs-muted: #93a6b6;
-  --obs-faint: #627687;
+  --obs-faint: #8397a8;
   --obs-line: rgba(227, 179, 65, 0.2);
   --obs-line-strong: rgba(227, 179, 65, 0.48);
   --obs-amber: #e3b341;
@@ -25,7 +25,7 @@
   --obs-gutter: clamp(0.9rem, 2.2vw, 1.8rem);
   --obs-mono: var(--font-mono);
   --obs-shadow: 0 18px 50px rgba(0, 0, 0, 0.42);
-  --obs-focus: 0 0 0 3px rgba(244, 207, 103, 0.65);
+  --obs-focus: 0 0 0 3px #f4cf67;
   color-scheme: dark;
   margin: calc(var(--space-4) * -1);
   padding: var(--obs-gutter);
@@ -45,7 +45,7 @@
   --obs-panel-3: #efe1c8;
   --obs-ink: #201a10;
   --obs-muted: #6d5f4c;
-  --obs-faint: #8e7d65;
+  --obs-faint: #6b5c46;
   --obs-line: rgba(122, 83, 10, 0.18);
   --obs-line-strong: rgba(122, 83, 10, 0.42);
   --obs-amber: #8a5a05;
@@ -55,7 +55,7 @@
   --obs-red: #b42318;
   --obs-green: #1a7f37;
   --obs-shadow: 0 18px 50px rgba(80, 55, 10, 0.12);
-  --obs-focus: 0 0 0 3px rgba(138, 90, 5, 0.4);
+  --obs-focus: 0 0 0 3px #8a5a05;
   color-scheme: light;
   background:
     radial-gradient(1200px 500px at 12% -10%, rgba(138, 90, 5, 0.08), transparent 60%),
@@ -69,7 +69,9 @@
   box-sizing: border-box;
 }
 
-.observatory-page a {
+.observatory-page a,
+.observatory-page a:link,
+.observatory-page a:visited {
   color: inherit;
 }
 

@@ -47,7 +47,7 @@ export function FieldNote({
       </p>
 
       <p className="obs-note-saved" aria-live="polite">
-        {saved ? "✓ Saved" : "Kept in the working draft"}
+        {saved ? "✓ Kept on the shelf" : "Working draft — not yet on the shelf"}
       </p>
     </section>
   );

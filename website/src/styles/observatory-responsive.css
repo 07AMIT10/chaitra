@@ -138,6 +138,7 @@
   margin: 0;
   font-size: 0.9rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .observatory-page .obs-notice--error {
@@ -146,6 +147,21 @@
 
 .observatory-page .obs-notice--error p {
   color: var(--obs-red);
+}
+
+/* Notices are toasts: they must stay readable above an open drawer (z 80). */
+.observatory-page .obs-notice {
+  position: fixed;
+  z-index: 100;
+  top: max(12px, env(safe-area-inset-top));
+  left: 12px;
+  right: 12px;
+  width: auto;
+  max-width: 560px;
+  max-height: min(50vh, 320px);
+  margin-inline: auto;
+  overflow: auto;
+  box-shadow: var(--obs-shadow);
 }
 
 .observatory-page .obs-notice .obs-button,
@@ -164,17 +180,6 @@
 }
 
 /* --------------------------------------------------------------- top bar */
-
-.observatory-page .obs-shell {
-  grid-template-areas:
-    "notice notice notice"
-    "topbar topbar topbar"
-    "rail stage side";
-}
-
-.observatory-page .obs-shell > .obs-notice {
-  grid-area: notice;
-}
 
 .observatory-page .obs-topbar-title {
   flex: 1 1 320px;
@@ -195,6 +200,22 @@
   color: var(--obs-muted);
   font-size: 0.88rem;
   line-height: 1.45;
+}
+
+.observatory-page .obs-topbar-original {
+  margin: 4px 0 0;
+  max-width: 75ch;
+  color: var(--obs-faint);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.observatory-page .obs-topbar-original-label {
+  color: var(--obs-muted);
+  font-family: var(--obs-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .observatory-page .obs-topbar-actions {
@@ -268,6 +289,49 @@
   width: min(980px, 100%);
 }
 
+.observatory-page .obs-compare-selectors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.observatory-page .obs-compare-diff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--obs-mono);
+  font-size: 0.72rem;
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-compare-diff li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.observatory-page .obs-compare-diff-tag {
+  padding: 2px 6px;
+  border: 1px solid var(--obs-line);
+  border-radius: 999px;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.observatory-page .obs-compare-diff-tag--same {
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-compare-diff-tag--differs {
+  color: var(--obs-amber);
+  border-color: var(--obs-line-strong);
+}
+
 .observatory-page .obs-compare-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -305,6 +369,44 @@
   line-height: 1.5;
 }
 
+.observatory-page .obs-compare-run {
+  margin: 12px 0 0;
+  color: var(--obs-ink);
+  font-family: var(--obs-mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.observatory-page .obs-compare-run .obs-kicker {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.observatory-page .obs-compare-metrics {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.observatory-page .obs-compare-metrics li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--obs-line);
+  color: var(--obs-muted);
+  font-family: var(--obs-mono);
+  font-size: 0.78rem;
+}
+
+.observatory-page .obs-compare-metrics strong {
+  color: var(--obs-ink);
+  font-weight: 500;
+  text-align: right;
+}
+
 .observatory-page .obs-compare-grid > div > .obs-button {
   margin-top: 8px;
 }
@@ -328,12 +430,6 @@
 @media (max-width: 1020px) {
   .observatory-page .obs-shell {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-areas:
-      "notice"
-      "topbar"
-      "rail"
-      "stage"
-      "side";
   }
 
   .observatory-page .obs-topbar {
@@ -361,12 +457,6 @@
 
   .observatory-page .obs-lens-stop {
     flex-direction: column;
-  }
-
-  .observatory-page .obs-side {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    align-items: start;
   }
 }
 
@@ -404,6 +494,7 @@
     gap: 12px;
   }
 
+  .observatory-page .obs-compare-selectors,
   .observatory-page .obs-compare-grid {
     grid-template-columns: minmax(0, 1fr);
   }

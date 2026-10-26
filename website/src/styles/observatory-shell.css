@@ -68,6 +68,14 @@
   gap: 10px;
 }
 
+/* The heading receives focus for screen-reader context; it is not a control,
+   so do not paint the interactive focus ring around it. */
+.observatory-page .obs-bench-title:focus,
+.observatory-page .obs-shelf-lead h2:focus {
+  outline: none;
+  box-shadow: none;
+}
+
 /* ------------------------------------------------------------------ panels */
 
 .observatory-page .obs-panel {
@@ -530,6 +538,17 @@
   color: var(--obs-muted);
 }
 
+.observatory-page .obs-applied-note {
+  margin: 8px 0 0;
+  color: var(--obs-faint);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.observatory-page .obs-deck-cap {
+  margin: 0 0 10px;
+}
+
 /* ---------------------------------------------------------------- run rail */
 
 .observatory-page .obs-runrail-actions {
@@ -580,6 +599,22 @@
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--obs-line);
+}
+
+.observatory-page .obs-runrail-cap {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--obs-line);
+  border-left: 3px solid var(--obs-amber);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+  font-size: 0.86rem;
+}
+
+.observatory-page .obs-runrail-cap p {
+  margin: 0 0 8px;
+  color: var(--obs-muted);
+  line-height: 1.45;
 }
 
 /* ------------------------------------------------------------ mutation drawer */
@@ -927,6 +962,14 @@
   border-top: 1px solid var(--obs-line);
 }
 
+.observatory-page .obs-branch-share-note {
+  flex: 1 1 100%;
+  margin: 0;
+  color: var(--obs-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
 /* ------------------------------------------------------------- field note */
 
 .observatory-page .obs-fieldnote .obs-field-label-row {
@@ -1024,8 +1067,28 @@
     grid-template-areas:
       "topbar"
       "stage"
+      "run"
       "rail"
-      "side";
+      "deck"
+      "note";
+  }
+
+  /* Let the run rail, deck, and note join the shell grid so the run controls
+     sit between the readout and the lens strip on a phone. */
+  .observatory-page .obs-side {
+    display: contents;
+  }
+
+  .observatory-page .obs-runrail {
+    grid-area: run;
+  }
+
+  .observatory-page .obs-deck {
+    grid-area: deck;
+  }
+
+  .observatory-page .obs-fieldnote {
+    grid-area: note;
   }
 
   .observatory-page .obs-rail-list {

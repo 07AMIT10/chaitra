@@ -26,6 +26,8 @@ export function BranchShelf({
   branches,
   activeId,
   atCap,
+  canShare,
+  canExport,
   onOpen,
   onFork,
   onCompare,
@@ -76,7 +78,8 @@ export function BranchShelf({
 
       {branches.length === 0 ? (
         <p className="obs-empty-line">
-          No branches yet. Run a specimen and choose Keep to store one.
+          No branches yet. Run a specimen and choose Keep to store one in this
+          browser. Nothing is uploaded.
         </p>
       ) : (
         <ul className="obs-branch-list">
@@ -147,10 +150,20 @@ export function BranchShelf({
       )}
 
       <div className="obs-branch-share" role="group" aria-label="Share and export">
-        <button type="button" className="obs-button" onClick={onShare}>
+        <button
+          type="button"
+          className="obs-button"
+          disabled={!canShare}
+          onClick={onShare}
+        >
           Share link
         </button>
-        <button type="button" className="obs-button" onClick={onExport}>
+        <button
+          type="button"
+          className="obs-button"
+          disabled={!canExport}
+          onClick={onExport}
+        >
           Export JSON
         </button>
         <button
@@ -167,6 +180,11 @@ export function BranchShelf({
           hidden
           onChange={readFile}
         />
+        {(!canShare || !canExport) && (
+          <p className="obs-branch-share-note">
+            Open a bench to share or export its run.
+          </p>
+        )}
       </div>
     </section>
   );

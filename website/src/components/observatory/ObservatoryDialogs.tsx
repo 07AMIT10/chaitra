@@ -1,10 +1,12 @@
 import { useRef, useState, type ReactNode } from "react";
-import type { Branch } from "../../observatory/types";
+import type { Branch, RunOutcome } from "../../observatory/types";
 import type {
   CompareDialogProps,
   ConfirmDialogProps,
 } from "./ui-types";
 import { LENS_BY_SLUG } from "../../lib/drishti-lenses";
+import { canonicalJson } from "../../observatory/hash";
+import { runScenario } from "../../observatory/runners";
 import { useDialogFocus } from "./use-dialog-focus";
 
 type OverlayProps = {
@@ -102,11 +104,22 @@ export function ShareDialog({ url, onClose }: { url: string; onClose: () => void
   );
 }
 
+const OUTCOME_LABEL: Record<RunOutcome, string> = {
+  done: "Complete",
+  "max-steps": "Stopped at the frame cap",
+  cycle: "Cycle detected",
+  invalid: "Invalid scenario",
+};
+
 function BranchSummary({ branch }: { branch: Branch }) {
   const lens = LENS_BY_SLUG[branch.lens];
+  const run = runScenario(branch.scenario);
+  const last = run.frames[run.frames.length - 1];
   return (
     <article className="obs-compare-card">
-      <p className="obs-kicker">{branch.scenario.substrate}</p>
+      <p className="obs-kicker">
+        {branch.scenario.substrate} · {branch.scenario.strategy}
+      </p>
       <h3 className="obs-compare-title">{branch.title}</h3>
       <p className="obs-muted">{branch.scenario.title}</p>
       <dl className="obs-metrics">
@@ -123,6 +136,21 @@ function BranchSummary({ branch }: { branch: Branch }) {
           <dd>Step {branch.frameIndex + 1}</dd>
         </div>
       </dl>
+      <p className="obs-compare-run">
+        <span className="obs-kicker">Run outcome</span>
+        {OUTCOME_LABEL[run.outcome]} · {run.frames.length} frame
+        {run.frames.length === 1 ? "" : "s"}
+      </p>
+      {last !== undefined && last.metrics.length > 0 && (
+        <ul className="obs-compare-metrics">
+          {last.metrics.slice(0, 3).map((metric) => (
+            <li key={metric.label}>
+              <span>{metric.label}</span>
+              <strong>{metric.value}</strong>
+            </li>
+          ))}
+        </ul>
+      )}
       {branch.mutations.length > 0 && (
         <ol className="obs-compare-mutations">
           {branch.mutations.map((mutation) => (
@@ -138,10 +166,27 @@ function BranchSummary({ branch }: { branch: Branch }) {
 export function CompareDialog({
   left,
   right,
+  branches,
   onClose,
-  onOpenLeft,
-  onOpenRight,
+  onOpen,
 }: CompareDialogProps) {
+  const [leftId, setLeftId] = useState(left.id);
+  const [rightId, setRightId] = useState(right.id);
+  const selectedLeft = branches.find((branch) => branch.id === leftId) ?? left;
+  const selectedRight = branches.find((branch) => branch.id === rightId) ?? right;
+  const structuralDiff = [
+    {
+      label: "Scenario",
+      same: canonicalJson(selectedLeft.scenario) === canonicalJson(selectedRight.scenario),
+    },
+    {
+      label: "Mutation stack",
+      same: canonicalJson(selectedLeft.mutations) === canonicalJson(selectedRight.mutations),
+    },
+    { label: "Lens", same: selectedLeft.lens === selectedRight.lens },
+    { label: "Frame", same: selectedLeft.frameIndex === selectedRight.frameIndex },
+  ];
+
   return (
     <Overlay label="Compare branches" onClose={onClose} className="obs-compare-dialog">
       <header className="obs-drawer-head">
@@ -158,16 +203,68 @@ export function CompareDialog({
           ✕
         </button>
       </header>
+      <div className="obs-compare-selectors">
+        <label className="obs-field">
+          <span>Left branch</span>
+          <select
+            value={selectedLeft.id}
+            onChange={(event) => setLeftId(event.currentTarget.value)}
+          >
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id} disabled={branch.id === rightId}>
+                {branch.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="obs-field">
+          <span>Right branch</span>
+          <select
+            value={selectedRight.id}
+            onChange={(event) => setRightId(event.currentTarget.value)}
+          >
+            {branches.map((branch) => (
+              <option key={branch.id} value={branch.id} disabled={branch.id === leftId}>
+                {branch.title}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+      <ul className="obs-compare-diff" aria-label="Structural differences">
+        {structuralDiff.map((row) => (
+          <li key={row.label}>
+            <span>{row.label}</span>
+            <span
+              className={
+                row.same
+                  ? "obs-compare-diff-tag obs-compare-diff-tag--same"
+                  : "obs-compare-diff-tag obs-compare-diff-tag--differs"
+              }
+            >
+              {row.same ? "same" : "differs"}
+            </span>
+          </li>
+        ))}
+      </ul>
       <div className="obs-compare-grid">
         <div>
-          <BranchSummary branch={left} />
-          <button type="button" className="obs-button obs-button--ghost" onClick={onOpenLeft}>
+          <BranchSummary branch={selectedLeft} />
+          <button
+            type="button"
+            className="obs-button obs-button--ghost"
+            onClick={() => onOpen(selectedLeft)}
+          >
             Open left branch
           </button>
         </div>
         <div>
-          <BranchSummary branch={right} />
-          <button type="button" className="obs-button obs-button--ghost" onClick={onOpenRight}>
+          <BranchSummary branch={selectedRight} />
+          <button
+            type="button"
+            className="obs-button obs-button--ghost"
+            onClick={() => onOpen(selectedRight)}
+          >
             Open right branch
           </button>
         </div>

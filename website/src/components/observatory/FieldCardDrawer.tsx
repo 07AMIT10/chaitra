@@ -5,24 +5,14 @@
  * specimen's published page, and an explicit statement that there is no
  * runnable simulation for field cards.
  */
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import type { FieldCardDrawerProps } from "./ui-types";
 import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
+import { useDialogFocus } from "./use-dialog-focus";
 
 export function FieldCardDrawer({ specimen, onClose }: FieldCardDrawerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [onClose]);
-
-  useEffect(() => {
-    panelRef.current?.focus();
-  }, []);
+  useDialogFocus(panelRef, onClose);
 
   return (
     <div
