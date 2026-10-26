@@ -79,13 +79,9 @@
   box-shadow: 0 0 14px color-mix(in srgb, var(--gf-cyan) 55%, transparent);
 }
 
-.game-hub__copy,
-.game-schematic {
+.game-hub__copy {
   position: relative;
   z-index: 1;
-}
-
-.game-hub__copy {
   display: grid;
   align-content: center;
   min-width: 0;
@@ -206,285 +202,6 @@
   font-weight: 500;
   letter-spacing: 0.05em;
   color: var(--gf-faint);
-}
-
-/* --------------------------------------------------------------- schematic -- */
-
-.game-schematic {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-self: stretch;
-  gap: 0.45rem;
-  min-height: 340px;
-  padding-left: clamp(1rem, 2.6vw, 2rem);
-  border-left: 1px solid var(--gf-line);
-}
-
-.game-schematic__meta,
-.game-schematic__foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.4rem 1rem;
-  font-family: var(--gf-mono);
-  font-size: 0.54rem;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--gf-faint);
-}
-
-.game-schematic__meta span:last-child {
-  color: var(--gf-cyan);
-}
-
-.game-schematic__svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin: clamp(0.4rem, 1.5vw, 0.8rem) 0;
-  overflow: visible;
-  color: var(--gf-cyan);
-  filter: drop-shadow(0 0 18px color-mix(in srgb, var(--gf-cyan) 13%, transparent));
-}
-
-.game-schematic__ledger {
-  display: grid;
-  gap: 2px;
-  padding-top: 0.45rem;
-  border-top: 1px solid var(--gf-line);
-}
-
-.game-schematic__deck {
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 64px 52px;
-  align-items: center;
-  gap: 0.45rem;
-  min-height: 20px;
-  font-family: var(--gf-mono);
-  font-size: 0.52rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--gf-faint);
-}
-
-.game-schematic__deck-id {
-  color: var(--gf-cyan);
-}
-
-.game-schematic__deck-name {
-  overflow: hidden;
-  color: var(--gf-muted);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.game-schematic__deck-bar {
-  display: block;
-  height: 2px;
-  background: var(--gf-line);
-  overflow: hidden;
-}
-
-.game-schematic__deck-bar > span {
-  display: block;
-  height: 100%;
-  background: var(--gf-cyan);
-  box-shadow: 0 0 7px color-mix(in srgb, var(--gf-cyan) 45%, transparent);
-  transition: width var(--gf-slow) var(--gf-ease-out);
-}
-
-.game-schematic__deck-count {
-  color: var(--gf-faint);
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-}
-
-.game-schematic__deck.is-clear .game-schematic__deck-name,
-.game-schematic__deck.is-clear .game-schematic__deck-count {
-  color: var(--gf-cyan-bright);
-}
-
-.game-schematic__deck.is-clear .game-schematic__deck-bar > span {
-  background: var(--gf-amber);
-  box-shadow: 0 0 7px color-mix(in srgb, var(--gf-amber) 40%, transparent);
-}
-
-.game-schematic__foot {
-  padding-top: 0.55rem;
-  border-top: 1px solid var(--gf-line);
-}
-
-.game-schematic__online {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  color: var(--gf-muted);
-}
-
-.game-schematic__dot {
-  display: inline-block;
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--gf-cyan);
-  box-shadow: 0 0 8px color-mix(in srgb, var(--gf-cyan) 70%, transparent);
-}
-
-.game-schematic__count {
-  color: var(--gf-faint);
-  font-variant-numeric: tabular-nums;
-}
-
-.game-schematic__count b {
-  color: var(--gf-cyan-bright);
-  font-weight: 500;
-}
-
-.ship-grid path {
-  fill: none;
-  stroke: var(--gf-line);
-  stroke-width: 0.6;
-  stroke-dasharray: 2 6;
-}
-
-.ship-engine path,
-.ship-engine rect {
-  fill: none;
-  stroke: var(--gf-line-strong);
-  stroke-width: 1;
-}
-
-.ship-engine path:first-child {
-  fill: color-mix(in srgb, var(--gf-cyan) 4%, transparent);
-}
-
-.ship-hull__outer {
-  fill: color-mix(in srgb, var(--gf-cyan) 4%, transparent);
-  stroke: color-mix(in srgb, var(--gf-cyan) 48%, var(--gf-line-strong));
-  stroke-width: 1.5;
-}
-
-.ship-hull__inner {
-  fill: none;
-  stroke: color-mix(in srgb, var(--gf-cyan) 16%, var(--gf-line));
-  stroke-width: 0.7;
-}
-
-.ship-hull__spine {
-  fill: none;
-  stroke: color-mix(in srgb, var(--gf-cyan) 18%, transparent);
-  stroke-width: 0.7;
-}
-
-.ship-ribs path {
-  fill: none;
-  stroke: color-mix(in srgb, var(--gf-cyan) 15%, transparent);
-  stroke-width: 0.6;
-}
-
-.ship-core circle {
-  fill: none;
-  stroke: var(--gf-violet);
-  stroke-width: 0.8;
-  opacity: 0.8;
-}
-
-.ship-core circle:nth-child(2) {
-  fill: var(--gf-violet-soft);
-  stroke: var(--gf-violet-bright);
-}
-
-.ship-core path {
-  fill: none;
-  stroke: var(--gf-violet);
-  stroke-width: 0.6;
-  opacity: 0.55;
-}
-
-.ship-deck-line {
-  fill: none;
-  stroke: color-mix(in srgb, var(--gf-cyan) 22%, var(--gf-line));
-  stroke-width: 0.8;
-}
-
-.is-sealed .ship-deck-line {
-  stroke: var(--gf-line);
-  stroke-dasharray: 3 4;
-}
-
-.ship-deck-label,
-.ship-labels text,
-.ship-coord {
-  fill: var(--gf-faint);
-  font-family: var(--gf-mono);
-  font-size: 6.5px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.ship-deck-label {
-  fill: var(--gf-cyan);
-  font-size: 7px;
-}
-
-.ship-marker__tick {
-  fill: none;
-  stroke: var(--gf-line);
-  stroke-width: 0.7;
-}
-
-.ship-marker__body {
-  fill: var(--gf-panel-solid);
-  stroke: var(--gf-faint);
-  stroke-width: 0.9;
-}
-
-.ship-marker.is-repaired .ship-marker__body {
-  fill: var(--gf-cyan);
-  stroke: var(--gf-cyan);
-}
-
-.ship-marker.is-next .ship-marker__body {
-  fill: var(--gf-panel-solid);
-  stroke: var(--gf-cyan-bright);
-  stroke-width: 1.5;
-}
-
-.ship-marker.is-next .ship-marker__tick {
-  stroke: var(--gf-cyan);
-}
-
-.ship-marker.is-locked {
-  opacity: 0.42;
-}
-
-.ship-marker__orbit {
-  fill: none;
-  stroke: var(--gf-cyan);
-  stroke-width: 0.7;
-  stroke-dasharray: 2 3;
-}
-
-.ship-marker__clean {
-  fill: var(--gf-amber);
-  stroke: var(--gf-panel-solid);
-  stroke-width: 0.6;
-}
-
-.ship-callout {
-  fill: none;
-  stroke: var(--gf-line);
-  stroke-width: 0.6;
-}
-
-.ship-labels text {
-  text-transform: uppercase;
-}
-
-.ship-labels .ship-coord {
-  fill: color-mix(in srgb, var(--gf-faint) 65%, transparent);
 }
 
 /* ---------------------------------------------------------------- continue -- */
@@ -678,7 +395,7 @@
   border-radius: var(--gf-radius-lg);
   background:
     radial-gradient(95% 130% at 0% 0%, var(--gf-amber-soft), transparent 60%),
-    radial-gradient(85% 120% at 100% 100%, var(--gf-violet-faint), transparent 66%),
+    radial-gradient(85% 120% at 100% 100%, var(--gf-cyan-faint), transparent 66%),
     var(--gf-panel);
   box-shadow:
     var(--gf-inset),
@@ -749,7 +466,7 @@
   max-width: 66ch;
   margin: 0.8rem 0 0;
   padding-left: 0.9rem;
-  border-left: 1px solid color-mix(in srgb, var(--gf-violet) 42%, var(--gf-line));
+  border-left: 1px solid color-mix(in srgb, var(--gf-amber) 40%, var(--gf-line));
   font-size: 0.9rem;
   line-height: 1.7;
   color: var(--gf-muted);
@@ -2075,11 +1792,6 @@
     gap: clamp(1.25rem, 3vw, 2rem);
   }
 
-  .game-schematic {
-    min-height: 260px;
-    padding-left: var(--space-4);
-  }
-
   .game-deck__body {
     grid-template-columns: minmax(0, 1fr) minmax(215px, 245px);
   }
@@ -2090,6 +1802,9 @@
     grid-template-columns: minmax(0, 1fr);
     padding: clamp(1.2rem, 3.5vw, 2rem);
   }
+
+  /* The living ship drops to its own band under the copy; hero gap provides
+     the separation, so no divider rules are needed here. */
 
   .game-ending {
     grid-template-columns: minmax(0, 1fr);
@@ -2105,19 +1820,6 @@
 
   .game-ending__stat + .game-ending__stat {
     border-left: 1px solid var(--gf-line);
-  }
-
-  .game-schematic {
-    align-self: auto;
-    min-height: 0;
-    padding: var(--space-3) 0 0;
-    border-top: 1px solid var(--gf-line);
-    border-left: 0;
-  }
-
-  .game-schematic__svg {
-    max-width: 560px;
-    margin-inline: auto;
   }
 
   .game-deck__body {
@@ -2159,13 +1861,9 @@
     padding: 1rem 0.9rem 0.95rem;
   }
 
-  /* The hull schematic is decorative; the map below carries the same registry.
-     Removing it here keeps the Continue card and the first playable tile in the
-     first mobile screen. */
-  .game-schematic {
-    display: none;
-  }
-
+  /* The living ship stays mounted on mobile: its container-query compact
+     mode folds the decks into legible, full-tap-target cards; below 380px
+     the compact branch in game-ship.css hides the hull art with them. */
   .game-hub__kicker {
     margin-bottom: 0.7rem;
     font-size: 0.56rem;
@@ -2201,11 +1899,6 @@
 
   .game-hub__stat-value {
     font-size: 1.35rem;
-  }
-
-  .game-schematic__meta,
-  .game-schematic__foot {
-    font-size: 0.5rem;
   }
 
   .game-continue {
@@ -2423,7 +2116,6 @@
   .game-continue__arrow,
   .game-deck,
   .game-deck__meter > span,
-  .game-schematic__deck-bar > span,
   .game-map__node,
   .game-map__node-shell,
   .game-map__node-inner,

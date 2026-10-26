@@ -19,7 +19,9 @@ import "../../styles/game-ship.css";
  * the ship heals as the campaign does.
  *
  * Playable systems (repaired, next, open) are links. Sealed systems are inert
- * by design, matching the campaign map; direct mission URLs still play.
+ * by design, matching the campaign map. A shell route guard keeps direct URLs
+ * of sealed missions from reaching a playable board; every in-page link lands
+ * on a system the campaign has already opened.
  */
 
 type Props = {

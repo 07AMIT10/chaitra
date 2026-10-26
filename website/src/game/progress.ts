@@ -4,6 +4,8 @@
  * later migration drop incompatible data rather than crash on it.
  */
 
+import { SESSION_SNAPSHOT_VERSION, type SessionSnapshot } from "./engine";
+
 export const PROGRESS_KEY = "chaitra_algorithms_game";
 
 export type SolvedLevel = {
@@ -130,4 +132,202 @@ export function starCount(progress: Progress): number {
     (sum, level) => sum + (isSolvedLevel(level) ? level.stars : 0),
     0,
   );
+}
+
+// ---------------------------------------------------------------------------
+// Mid-level resume (per-tab, per-level, versioned)
+// ---------------------------------------------------------------------------
+
+/**
+ * A playing board is a session concern, not durable campaign progress: it
+ * lives in sessionStorage under one key per level, separate from the solved
+ * registry and from the session-summary/checkpoint key. Only a started,
+ * still-playing snapshot is resumable; won, lost, and fresh boards are not.
+ */
+export const RESUME_KEY_PREFIX = "chaitra_algorithms_game_resume:";
+/**
+ * The resume envelope tracks the engine's snapshot schema directly, so a
+ * schema bump cannot leave a "version 1" envelope wrapping an incompatible
+ * board. `progress` imports the value only; `engine` never imports `progress`,
+ * so there is no cycle.
+ */
+export const RESUME_VERSION = SESSION_SNAPSHOT_VERSION;
+
+export type ResumeStore = {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+  removeItem(key: string): void;
+};
+
+export type ResumeEnvelope = {
+  version: typeof SESSION_SNAPSHOT_VERSION;
+  slug: string;
+  at: string;
+  snapshot: SessionSnapshot;
+};
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isStatusValue(value: unknown): boolean {
+  return value === "playing" || value === "won" || value === "lost";
+}
+
+function isEventValue(value: unknown): boolean {
+  if (!isPlainObject(value) || typeof value.text !== "string") return false;
+  return (
+    value.kind === undefined ||
+    value.kind === "info" ||
+    value.kind === "good" ||
+    value.kind === "bad"
+  );
+}
+
+/** One undo snapshot, complete enough that `undo` cannot rebuild a bad board. */
+function isHistoryEntry(value: unknown): boolean {
+  if (!isPlainObject(value)) return false;
+  if (!isPlainObject(value.state)) return false;
+  if (
+    typeof value.logLength !== "number" ||
+    !Number.isInteger(value.logLength) ||
+    value.logLength < 0
+  ) {
+    return false;
+  }
+  if (!isStatusValue(value.status)) return false;
+  if (!Array.isArray(value.log) || !value.log.every(isEventValue)) return false;
+  return value.log.length === value.logLength;
+}
+
+/**
+ * Structural gate for a stored board. A schema change that still looks like a
+ * snapshot is caught later by the shell's trial `view()`; everything a state
+ * machine could trip over before that must be rejected here.
+ */
+function isStoredSnapshot(value: unknown, slug: string): value is SessionSnapshot {
+  if (!isPlainObject(value)) return false;
+  if (value.version !== SESSION_SNAPSHOT_VERSION) return false;
+  if (typeof value.slug !== "string" || value.slug !== slug) return false;
+  if (value.status !== "playing") return false;
+  if (
+    typeof value.moves !== "number" ||
+    !Number.isInteger(value.moves) ||
+    value.moves <= 0
+  ) {
+    return false;
+  }
+  if (
+    typeof value.hints !== "number" ||
+    !Number.isInteger(value.hints) ||
+    value.hints < 0
+  ) {
+    return false;
+  }
+  if (!isPlainObject(value.state)) return false;
+  if (!Array.isArray(value.history) || value.history.length !== value.moves) return false;
+  if (!value.history.every(isHistoryEntry)) return false;
+  if (!Array.isArray(value.log) || !value.log.every(isEventValue)) return false;
+  return true;
+}
+
+export function resumeKey(slug: string): string {
+  return `${RESUME_KEY_PREFIX}${slug}`;
+}
+
+function browserResumeStore(): ResumeStore | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+/** A started board is worth resuming; a terminal or untouched board is not. */
+export function isResumable(
+  snapshot: SessionSnapshot | null | undefined,
+): snapshot is SessionSnapshot {
+  return Boolean(snapshot && isStoredSnapshot(snapshot, snapshot.slug));
+}
+
+/** Wrap a snapshot, or return null when it must not be saved at all. */
+export function makeResumeEnvelope(
+  slug: string,
+  snapshot: SessionSnapshot,
+  at: Date = new Date(),
+): ResumeEnvelope | null {
+  if (!isResumable(snapshot) || snapshot.slug !== slug) return null;
+  const stamp = Number.isFinite(at.getTime()) ? at.toISOString() : new Date().toISOString();
+  return { version: RESUME_VERSION, slug, at: stamp, snapshot };
+}
+
+/**
+ * Parse one stored envelope. Corrupt JSON, a different version or slug, an
+ * incompatible snapshot schema, and a terminal snapshot all fail closed. The
+ * shell still trial-renders the restored board once (`view`/`moves`) before it
+ * hands the state to React, because only the level knows its own schema.
+ */
+export function parseResumeEnvelope(
+  raw: string | null,
+  slug: string,
+): ResumeEnvelope | null {
+  if (!raw) return null;
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!isPlainObject(parsed)) return null;
+    const p = parsed;
+    if (p.version !== SESSION_SNAPSHOT_VERSION || p.slug !== slug) return null;
+    if (typeof p.at !== "string" || !Number.isFinite(Date.parse(p.at))) return null;
+    if (!isStoredSnapshot(p.snapshot, slug)) return null;
+    return {
+      version: RESUME_VERSION,
+      slug,
+      at: p.at,
+      snapshot: p.snapshot,
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function loadResume(
+  slug: string,
+  storage?: ResumeStore | null,
+): ResumeEnvelope | null {
+  const store = storage === undefined ? browserResumeStore() : storage;
+  if (!store) return null;
+  try {
+    return parseResumeEnvelope(store.getItem(resumeKey(slug)), slug);
+  } catch {
+    return null;
+  }
+}
+
+export function saveResume(
+  slug: string,
+  snapshot: SessionSnapshot,
+  storage?: ResumeStore | null,
+  at?: Date,
+): boolean {
+  const envelope = makeResumeEnvelope(slug, snapshot, at);
+  if (!envelope) return false;
+  const store = storage === undefined ? browserResumeStore() : storage;
+  if (!store) return false;
+  try {
+    store.setItem(resumeKey(slug), JSON.stringify(envelope));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export function clearResume(slug: string, storage?: ResumeStore | null): void {
+  const store = storage === undefined ? browserResumeStore() : storage;
+  if (!store) return;
+  try {
+    store.removeItem(resumeKey(slug));
+  } catch {
+    /* storage disabled; the stale snapshot simply will not be read */
+  }
 }

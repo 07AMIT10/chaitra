@@ -15,7 +15,7 @@
 
 import type { Progress } from "./progress";
 import { isActComplete, isCampaignComplete } from "./progression";
-import type { Act, LevelMeta } from "./types";
+import type { Act, BoardView, LevelMeta } from "./types";
 
 /** The campaign's installed shape. Guards partial builds from fake unlocks. */
 export const EXPECTED_CAMPAIGN_SIZE = 24;
@@ -34,14 +34,8 @@ export const MASTERY_RULES = [
   "A clean run is a local record of a stricter solve, not a grade.",
 ] as const;
 
-export type BoardKind =
-  | "graph"
-  | "array"
-  | "grid"
-  | "tree"
-  | "pairing"
-  | "number"
-  | "formula";
+/** Reuses the seven existing board kinds; the mastery layer adds no eighth. */
+export type BoardKind = BoardView["kind"];
 
 export type MasteryKind = "diagnostic" | "overclock";
 

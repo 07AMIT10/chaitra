@@ -342,6 +342,57 @@ export function missionMap(
   });
 }
 
+export type MissionAccess = {
+  /** The shell may render the board only when this is true. */
+  open: boolean;
+  node: MapNode | null;
+  /** The immediately preceding system, named only when the node is sealed. */
+  required: LevelMeta | null;
+  /** The earliest unsolved mission, for the sealed panel's forward link. */
+  next: NextMission | null;
+  index: number;
+};
+
+/**
+ * One access rule for direct mission URLs, derived from the same map the hub
+ * renders. The first mission is always open; mission N opens only when N-1 is
+ * repaired. A repaired mission stays replayable.
+ */
+export function missionAccess(
+  metas: readonly LevelMeta[],
+  progress: Progress,
+  slug: string,
+): MissionAccess {
+  const ordered = campaignOrder(metas);
+  const index = ordered.findIndex((meta) => meta.slug === slug);
+  const nodes = missionMap(ordered, progress);
+  const node = index >= 0 ? nodes[index] ?? null : null;
+  return {
+    open: node != null && node.state !== "locked",
+    node,
+    required: node?.state === "locked" ? ordered[index - 1] ?? null : null,
+    next: nextMission(ordered, progress),
+    index,
+  };
+}
+
+export type WinOutcome = {
+  /** Honest end-card verdict: CLEAN RUN only at three marks. */
+  label: "CLEAN RUN" | "SOLVED" | "REPAIRED";
+  clean: boolean;
+};
+
+/** The win card's outcome label. Three marks is the only clean run. */
+export function winOutcome(stars: number): WinOutcome {
+  const marks = Math.max(
+    1,
+    Math.min(3, Math.round(Number.isFinite(stars) ? stars : 1)),
+  );
+  if (marks === 3) return { label: "CLEAN RUN", clean: true };
+  if (marks === 2) return { label: "SOLVED", clean: false };
+  return { label: "REPAIRED", clean: false };
+}
+
 export type CleanRunEntry = {
   meta: LevelMeta;
   deck: Deck;

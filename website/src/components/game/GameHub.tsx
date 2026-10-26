@@ -4,6 +4,7 @@ import { ACTS, LEVEL_META, prevMeta } from "../../game/levels/meta";
 import { ACT_LORE, ENDING, LORE } from "../../game/lore";
 import type { LevelMeta } from "../../game/types";
 import {
+  clearResume,
   EMPTY_PROGRESS,
   loadProgress,
   resetProgress,
@@ -14,9 +15,11 @@ import {
   logProgress,
   loreEntriesFromLore,
   nextMission,
+  resetSessionSummary,
   type FragmentProgress,
 } from "../../game/progression";
 import GameMap from "./GameMap";
+import ShipSchematic from "./ShipSchematic";
 import "../../styles/game.css";
 
 function pad(n: number): string {
@@ -86,7 +89,7 @@ function ShipLog({ log }: { log: FragmentProgress }) {
         <summary className="game-shiplog__summary">
           <span>
             {log.unlocked > 0
-              ? `Read the log · ${pad(log.unlocked)} fragments`
+              ? `Read the log · ${pad(log.unlocked)} ${log.unlocked === 1 ? "fragment" : "fragments"}`
               : "The log is sealed"}
           </span>
           <span className="game-shiplog__mark" aria-hidden="true" />
@@ -129,152 +132,6 @@ function ShipLog({ log }: { log: FragmentProgress }) {
   );
 }
 
-function ShipSchematic({
-  decks,
-  progress,
-  nextSlug,
-  solved,
-  total,
-  isUnlocked,
-}: {
-  decks: DeckSummary[];
-  progress: Progress;
-  nextSlug: string | null;
-  solved: number;
-  total: number;
-  isUnlocked: (meta: LevelMeta) => boolean;
-}) {
-  return (
-    <div className="game-schematic" aria-hidden="true">
-      <div className="game-schematic__meta">
-        <span>Hull elevation</span>
-        <span>CV Chaitra · final approach</span>
-      </div>
-
-      <svg
-        className="game-schematic__svg"
-        viewBox="0 0 600 330"
-        role="presentation"
-        focusable="false"
-      >
-        <g className="ship-grid">
-          <path d="M20 42h560M20 288h560" />
-          <path d="M42 20v290M558 20v290" />
-        </g>
-
-        <g className="ship-engine">
-          <path d="M18 140h22v64H18z" />
-          <path d="M26 150h8M26 162h8M26 174h8M26 186h8M26 198h8" />
-          <path d="M8 152l10 4M8 174h10M8 196l10-4" />
-        </g>
-
-        <g className="ship-hull">
-          <path
-            className="ship-hull__outer"
-            d="M34 180C58 128 118 82 184 76H430L542 156L568 180L542 204L430 284H184C118 278 58 232 34 180Z"
-          />
-          <path
-            className="ship-hull__inner"
-            d="M50 180C72 138 126 94 188 88H424L524 160L540 180L524 200L424 272H188C126 266 72 222 50 180Z"
-          />
-          <g className="ship-ribs">
-            {Array.from({ length: 13 }, (_, i) => (
-              <path key={i} d={`M${104 + i * 28} 88v184`} />
-            ))}
-          </g>
-          <path className="ship-hull__spine" d="M64 180h472" />
-        </g>
-
-        <g className="ship-core">
-          <circle cx="493" cy="180" r="15" />
-          <circle cx="493" cy="180" r="8" />
-          <path d="M493 158v-5M493 207v-5M471 180h-5M520 180h-5" />
-        </g>
-
-        <g className="ship-decks">
-          {decks.map((deck, index) => {
-            const y = 126 + index * 54;
-            const levels = deck.levels;
-            const start = 150;
-            const end = 444;
-            const step = levels.length > 1 ? (end - start) / (levels.length - 1) : 0;
-            return (
-              <g key={deck.act.act} className={deck.levels.length === 0 ? "is-sealed" : ""}>
-                <text className="ship-deck-label" x="96" y={y + 3} textAnchor="end">
-                  D{index + 1}
-                </text>
-                <path className="ship-deck-line" d={`M${start} ${y}H${end}`} />
-                {levels.map((level, levelIndex) => {
-                  const record = progress.levels[level.slug];
-                  const isNext = !record && level.slug === nextSlug;
-                  const locked = !record && !isNext && !isUnlocked(level);
-                  const state = record ? "repaired" : isNext ? "next" : locked ? "locked" : "open";
-                  const x = levels.length === 1 ? 300 : start + levelIndex * step;
-                  return (
-                    <g key={level.slug} className={`ship-marker is-${state}`}>
-                      <path className="ship-marker__tick" d={`M${x} ${y - 8}v16`} />
-                      <circle className="ship-marker__body" cx={x} cy={y} r={isNext ? 5.5 : 3.8} />
-                      {isNext && (
-                        <circle className="ship-marker__orbit" cx={x} cy={y} r="11" />
-                      )}
-                      {record?.stars === 3 && (
-                        <circle className="ship-marker__clean" cx={x + 9} cy={y - 9} r="2.2" />
-                      )}
-                    </g>
-                  );
-                })}
-              </g>
-            );
-          })}
-        </g>
-
-        <g className="ship-labels">
-          <path className="ship-callout" d="M118 76V60h78" />
-          <text x="204" y="63">pressure hull</text>
-          <path className="ship-callout" d="M466 284v12h-84" />
-          <text x="374" y="303">repair registry</text>
-          <text className="ship-coord" x="42" y="320">FRAME A · 000</text>
-          <text className="ship-coord" x="558" y="320" textAnchor="end">FRAME B · 330</text>
-        </g>
-      </svg>
-
-      <div className="game-schematic__ledger">
-        {decks.map((deck) => {
-          const percent =
-            deck.levels.length > 0
-              ? Math.round((deck.repaired / deck.levels.length) * 100)
-              : 0;
-          return (
-            <div
-              className={`game-schematic__deck${deck.repaired === deck.levels.length && deck.levels.length > 0 ? " is-clear" : ""}`}
-              key={deck.act.act}
-            >
-              <span className="game-schematic__deck-id">D{pad(deck.act.act)}</span>
-              <span className="game-schematic__deck-name">{deck.act.name}</span>
-              <span className="game-schematic__deck-bar">
-                <span style={{ width: `${percent}%` }} />
-              </span>
-              <span className="game-schematic__deck-count">
-                {pad(deck.repaired)} / {pad(deck.levels.length)}
-              </span>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="game-schematic__foot">
-        <span className="game-schematic__online">
-          <span className="game-schematic__dot" />
-          Systems online
-        </span>
-        <span className="game-schematic__count">
-          <b>{pad(solved)}</b> / {pad(total)}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 export default function GameHub() {
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
 
@@ -311,8 +168,16 @@ export default function GameHub() {
 
   function reset() {
     if (typeof window === "undefined") return;
-    if (window.confirm("Reset all repair progress? This clears only this browser.")) {
+    if (
+      window.confirm(
+        "Reset all repair progress? This clears shared progress, every mid-mission resume point, and the session log for this browser only.",
+      )
+    ) {
       setProgress(resetProgress());
+      for (const meta of LEVEL_META) {
+        clearResume(meta.slug);
+      }
+      resetSessionSummary();
     }
   }
 
@@ -362,12 +227,9 @@ export default function GameHub() {
         </div>
 
         <ShipSchematic
-          decks={decks}
+          levels={LEVEL_META}
           progress={progress}
-          nextSlug={nextSlug}
-          solved={solved}
-          total={total}
-          isUnlocked={isUnlocked}
+          nextSlug={next?.meta.slug ?? ""}
         />
       </header>
 
