@@ -1,0 +1,125 @@
+/* ============================================================================
+   The Long Repair — SABLE, the ship's voice
+   A compact console aside for the HUD, log rail, or win card. The speaker
+   label is a lamp and a name; the line is plain text. No typewriter, no idle
+   motion, no layout takeover. Tone is a border and lamp shift only.
+   ========================================================================== */
+
+.ship-voice {
+  --ship-voice-accent: var(--gf-cyan-dim);
+  display: grid;
+  gap: 0.18rem;
+  min-width: 0;
+  max-width: 70ch;
+  padding: 0.45rem 0.7rem 0.5rem;
+  border-left: 2px solid var(--ship-voice-accent);
+  border-radius: 0 var(--gf-radius) var(--gf-radius) 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ship-voice-accent) 8%, transparent),
+    transparent 82%
+  );
+  transition: border-color var(--gf-med) var(--gf-ease);
+}
+
+.ship-voice__speaker {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0;
+  font-family: var(--gf-mono);
+  font-size: 0.56rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gf-cyan);
+}
+
+.ship-voice__lamp {
+  width: 4px;
+  height: 4px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--ship-voice-accent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--ship-voice-accent) 60%, transparent);
+}
+
+.ship-voice__line {
+  margin: 0;
+  font-family: var(--gf-body);
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.5;
+  color: var(--gf-text);
+  text-wrap: pretty;
+  overflow-wrap: anywhere;
+}
+
+/* Tone: calm is the default cyan; strain reads amber, not fault red. Open is
+   reserved for the last deck and the landing. */
+.ship-voice.is-calm {
+  --ship-voice-accent: var(--gf-cyan-dim);
+}
+
+.ship-voice.is-strained {
+  --ship-voice-accent: var(--gf-amber);
+}
+
+.ship-voice.is-strained .ship-voice__speaker {
+  color: var(--gf-amber-bright);
+}
+
+.ship-voice.is-open {
+  --ship-voice-accent: var(--gf-cyan);
+}
+
+.ship-voice.is-open .ship-voice__speaker {
+  color: var(--gf-cyan-bright);
+}
+
+/* Context treatments. The component stays the same; the surrounding console
+   decides how much room the voice gets. */
+.game-hud .ship-voice {
+  max-width: none;
+  padding: 0.28rem 0.5rem 0.32rem;
+  border-left-width: 1px;
+}
+
+.game-log .ship-voice {
+  max-width: none;
+  padding: 0.3rem 0 0.3rem 0.55rem;
+  background: none;
+}
+
+.game-win .ship-voice {
+  max-width: none;
+  margin-top: var(--space-1);
+}
+
+@media (max-width: 600px) {
+  .ship-voice {
+    padding-inline: 0.55rem;
+  }
+
+  .ship-voice__line {
+    font-size: 0.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ship-voice {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .ship-voice {
+    border-left-color: CanvasText;
+  }
+
+  .ship-voice__lamp {
+    background: CanvasText;
+    box-shadow: none;
+  }
+}

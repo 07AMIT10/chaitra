@@ -1,0 +1,1445 @@
+/* ============================================================================
+   The Long Repair — boards
+   Seven holographic schematics: graph, array, grid, tree, pairing, number, formula.
+   Cyan = live ship systems. Violet = the algorithm's own structure.
+   Amber = warning/clean run. Red = fault. Every state also has a shape cue.
+   ========================================================================== */
+
+.game-board {
+  --board-line: color-mix(in srgb, var(--gf-cyan) 22%, transparent);
+  --board-line-soft: color-mix(in srgb, var(--gf-cyan) 10%, transparent);
+  --board-violet-line: color-mix(in srgb, var(--gf-violet) 34%, transparent);
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  margin: 0;
+  padding: clamp(var(--space-2), 1.2vw, var(--space-4));
+  border: 1px solid var(--board-line);
+  border-radius: var(--gf-radius-lg);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--gf-cyan) 5%, transparent), transparent 32%),
+    radial-gradient(120% 90% at 50% -10%, color-mix(in srgb, var(--gf-violet) 9%, transparent), transparent 58%),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 23px,
+      color-mix(in srgb, var(--gf-cyan) 3%, transparent) 23px 24px
+    ),
+    var(--gf-panel-solid);
+  box-shadow:
+    var(--gf-inset),
+    inset 0 0 56px color-mix(in srgb, var(--gf-bg) 58%, transparent),
+    0 18px 48px color-mix(in srgb, var(--gf-bg) 38%, transparent);
+  overflow: clip;
+}
+
+/* corner brackets, painted below the schematic */
+.game-board::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  pointer-events: none;
+  background:
+    linear-gradient(var(--board-line), var(--board-line)) left top / 14px 1px no-repeat,
+    linear-gradient(var(--board-line), var(--board-line)) left top / 1px 14px no-repeat,
+    linear-gradient(var(--board-line), var(--board-line)) right top / 14px 1px no-repeat,
+    linear-gradient(var(--board-line), var(--board-line)) right top / 1px 14px no-repeat,
+    linear-gradient(var(--board-line), var(--board-line)) left bottom / 14px 1px no-repeat,
+    linear-gradient(var(--board-line), var(--board-line)) left bottom / 1px 14px no-repeat,
+    linear-gradient(var(--board-line), var(--board-line)) right bottom / 14px 1px no-repeat,
+    linear-gradient(var(--board-line), var(--board-line)) right bottom / 1px 14px no-repeat;
+  opacity: 0.75;
+}
+
+.game-board__scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border-radius: var(--gf-radius);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--gf-cyan) 42%, transparent) transparent;
+}
+
+.game-board__scroll::-webkit-scrollbar {
+  height: 6px;
+}
+
+.game-board__scroll::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--gf-bg) 55%, transparent);
+}
+
+.game-board__scroll::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--gf-cyan) 42%, transparent);
+}
+
+.game-board__scroll:focus-visible {
+  outline: 2px solid var(--gf-cyan);
+  outline-offset: 2px;
+}
+
+.game-board svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* board-level header: structural readout above the schematic */
+.game-board__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-2);
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--board-line-soft);
+  font-family: var(--gf-mono);
+  text-transform: uppercase;
+}
+
+.game-board__head-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  color: var(--gf-cyan);
+}
+
+.game-board__head-meta {
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  color: var(--gf-faint);
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .game-board__hint {
+    margin: 0 0 var(--space-2);
+  }
+}
+
+.game-board .game-caption {
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--board-line-soft);
+  letter-spacing: 0.02em;
+}
+
+/* ------------------------------------------------------- graph + tree -- */
+
+.game-board--graph .game-board__scroll > svg,
+.game-board--tree .game-board__scroll > svg {
+  min-width: 560px;
+}
+
+/* Six-compartment union board: genuine 2×3 reflow, no sideways scroll. */
+.game-board--compact .game-board__scroll {
+  overflow-x: hidden;
+}
+
+.game-board--compact .game-board__scroll > svg {
+  min-width: 0;
+  max-width: 460px;
+  margin-inline: auto;
+}
+
+.game-board--graph svg,
+.game-board--tree svg {
+  border-radius: var(--gf-radius);
+  background:
+    linear-gradient(
+      90deg,
+      transparent calc(50% - 0.5px),
+      color-mix(in srgb, var(--gf-cyan) 7%, transparent) 50%,
+      transparent calc(50% + 0.5px)
+    ),
+    linear-gradient(
+      0deg,
+      transparent calc(50% - 0.5px),
+      color-mix(in srgb, var(--gf-cyan) 7%, transparent) 50%,
+      transparent calc(50% + 0.5px)
+    ),
+    radial-gradient(
+      55% 50% at 50% 44%,
+      color-mix(in srgb, var(--gf-violet) 7%, transparent),
+      transparent 72%
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 31px,
+      color-mix(in srgb, var(--gf-cyan) 4%, transparent) 31px 32px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 31px,
+      color-mix(in srgb, var(--gf-cyan) 4%, transparent) 31px 32px
+    );
+}
+
+/* -- nodes: beveled pucks ------------------------------------------------- */
+
+.game-node {
+  cursor: default;
+}
+
+.game-node[role="button"] {
+  cursor: pointer;
+}
+
+.game-node__hit {
+  fill: transparent;
+}
+
+.game-node__halo {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-cyan) 13%, transparent);
+  stroke-width: 1;
+  transition:
+    stroke var(--gf-fast) var(--gf-ease),
+    stroke-width var(--gf-fast) var(--gf-ease),
+    opacity var(--gf-fast) var(--gf-ease);
+}
+
+.game-node__bevel {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-cyan) 22%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 1.5 3.5;
+  opacity: 0.7;
+  transition:
+    stroke var(--gf-fast) var(--gf-ease),
+    opacity var(--gf-fast) var(--gf-ease);
+}
+
+.game-node__dot {
+  fill: var(--gf-panel-raised);
+  stroke: color-mix(in srgb, var(--gf-cyan) 30%, var(--gf-line-strong));
+  stroke-width: 1.5;
+  transition:
+    fill var(--gf-fast) var(--gf-ease),
+    stroke var(--gf-fast) var(--gf-ease),
+    stroke-width var(--gf-fast) var(--gf-ease);
+}
+
+.game-node[role="button"]:hover .game-node__dot {
+  fill: color-mix(in srgb, var(--gf-cyan) 13%, var(--gf-panel-raised));
+  stroke: var(--gf-cyan-bright);
+}
+
+.game-node[role="button"]:hover .game-node__halo {
+  stroke: color-mix(in srgb, var(--gf-cyan) 58%, transparent);
+}
+
+.game-node:focus {
+  outline: none;
+}
+
+.game-node:focus-visible .game-node__dot {
+  stroke: var(--gf-cyan-bright);
+  stroke-width: 3;
+}
+
+.game-node:focus-visible .game-node__halo {
+  stroke: var(--gf-cyan);
+  stroke-width: 2;
+  stroke-dasharray: 3 2;
+}
+
+.game-node.is-active .game-node__dot {
+  fill: color-mix(in srgb, var(--gf-cyan) 14%, var(--gf-panel-raised));
+  stroke: var(--gf-cyan);
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--gf-cyan) 40%, transparent));
+}
+
+.game-node.is-active .game-node__halo {
+  stroke: color-mix(in srgb, var(--gf-cyan) 46%, transparent);
+}
+
+.game-node.is-active .game-node__bevel {
+  stroke: color-mix(in srgb, var(--gf-cyan) 38%, transparent);
+  stroke-dasharray: none;
+  opacity: 1;
+}
+
+.game-node__led {
+  fill: var(--gf-cyan-bright);
+  filter: drop-shadow(0 0 4px var(--gf-cyan));
+}
+
+.game-node.is-target .game-node__dot {
+  fill: color-mix(in srgb, var(--gf-violet) 26%, var(--gf-panel-raised));
+  stroke: var(--gf-violet-bright);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 9px color-mix(in srgb, var(--gf-violet) 42%, transparent));
+}
+
+.game-node.is-target .game-node__halo {
+  stroke: color-mix(in srgb, var(--gf-violet) 58%, transparent);
+}
+
+.game-node.is-target .game-node__bevel {
+  stroke: color-mix(in srgb, var(--gf-violet) 62%, transparent);
+  stroke-dasharray: none;
+  opacity: 1;
+}
+
+.game-node.is-target .game-node__label {
+  fill: var(--gf-violet-bright);
+}
+
+.game-node__focus {
+  fill: none;
+  stroke: var(--gf-violet-bright);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 4;
+  opacity: 0.95;
+}
+
+.game-node.is-done .game-node__dot {
+  fill: color-mix(in srgb, var(--gf-panel-raised) 62%, var(--gf-bg));
+  stroke: color-mix(in srgb, var(--gf-cyan) 20%, transparent);
+}
+
+.game-node.is-done .game-node__halo {
+  opacity: 0.3;
+}
+
+.game-node.is-done .game-node__bevel {
+  opacity: 0.2;
+}
+
+.game-node.is-done .game-node__label {
+  fill: var(--gf-muted);
+}
+
+.game-node__seal {
+  fill: none;
+  stroke: var(--gf-cyan-dim);
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.game-node__flag circle {
+  fill: var(--gf-red);
+}
+
+.game-node__flag text {
+  fill: var(--gf-bg);
+  font-family: var(--gf-mono);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* -- edges: energy lines -------------------------------------------------- */
+
+.game-edge__halo {
+  stroke: color-mix(in srgb, var(--gf-violet) 14%, transparent);
+  stroke-width: 9;
+  stroke-linecap: round;
+}
+
+.game-edge__line {
+  stroke: color-mix(in srgb, var(--gf-violet) 68%, var(--gf-muted));
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  transition:
+    stroke var(--gf-fast) var(--gf-ease),
+    stroke-width var(--gf-fast) var(--gf-ease);
+}
+
+.game-edge.is-active .game-edge__halo {
+  stroke: color-mix(in srgb, var(--gf-cyan) 18%, transparent);
+}
+
+.game-edge.is-active .game-edge__line {
+  stroke: var(--gf-cyan-bright);
+  stroke-width: 2.25;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--gf-cyan) 48%, transparent));
+}
+
+.game-edge.is-done .game-edge__halo {
+  stroke: color-mix(in srgb, var(--gf-violet) 16%, transparent);
+}
+
+.game-edge.is-done .game-edge__line {
+  stroke: color-mix(in srgb, var(--gf-violet) 62%, var(--gf-cyan));
+}
+
+.game-edge.is-ghost .game-edge__line {
+  stroke-dasharray: 2 6;
+  opacity: 0.5;
+}
+
+.game-edge.is-bad .game-edge__line,
+.game-edge.is-fault .game-edge__line {
+  stroke: var(--gf-red);
+  stroke-width: 2.25;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gf-red) 38%, transparent));
+}
+
+.game-edge.is-bad .game-edge__halo,
+.game-edge.is-fault .game-edge__halo {
+  stroke: color-mix(in srgb, var(--gf-red) 20%, transparent);
+}
+
+.game-edge__chip rect {
+  fill: var(--gf-panel-solid);
+  stroke: var(--gf-line);
+  stroke-width: 1;
+}
+
+.game-edge__label {
+  fill: var(--gf-muted);
+  font-family: var(--gf-mono);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+.game-edge.is-active .game-edge__label {
+  fill: var(--gf-cyan-bright);
+}
+
+.game-edge.is-done .game-edge__label {
+  fill: var(--gf-violet-bright);
+}
+
+.game-edge.is-bad .game-edge__label,
+.game-edge.is-fault .game-edge__label {
+  fill: var(--gf-red-bright);
+}
+
+.game-edge__hit {
+  stroke: transparent;
+  stroke-width: 20;
+  cursor: pointer;
+}
+
+.game-edge__hit:hover {
+  stroke: color-mix(in srgb, var(--gf-cyan) 9%, transparent);
+}
+
+.game-edge__hit.is-fault {
+  stroke: color-mix(in srgb, var(--gf-red) 14%, transparent);
+}
+
+.game-edge__hit:focus-visible {
+  outline: none;
+  stroke: color-mix(in srgb, var(--gf-cyan) 30%, transparent);
+  stroke-dasharray: 3 3;
+}
+
+.game-arrowhead {
+  fill: var(--gf-violet-bright);
+}
+
+/* -- labels --------------------------------------------------------------- */
+
+.game-node__label {
+  fill: var(--gf-text);
+  font-family: var(--gf-mono);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  pointer-events: none;
+}
+
+.game-node__sub {
+  fill: var(--gf-muted);
+  font-family: var(--gf-mono);
+  font-size: 11px;
+  paint-order: stroke;
+  stroke: var(--gf-panel-solid);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+.game-board--compact .game-node__sub {
+  font-size: 14px;
+}
+
+/* A filled plate keeps edges from reading through the size/pointer label. */
+.game-node__subplate rect {
+  fill: var(--gf-panel-solid);
+  stroke: var(--board-line-soft);
+  stroke-width: 0.75;
+}
+
+.game-node.is-active .game-node__subplate rect {
+  stroke: color-mix(in srgb, var(--gf-cyan) 26%, transparent);
+}
+
+.game-node.is-target .game-node__subplate rect {
+  stroke: color-mix(in srgb, var(--gf-violet) 42%, transparent);
+}
+
+.game-node.is-target .game-node__sub {
+  fill: var(--gf-violet-bright);
+}
+
+.game-node.is-bad .game-node__subplate rect,
+.game-node.is-fault .game-node__subplate rect {
+  stroke: var(--gf-red);
+}
+
+.game-node.is-bad .game-node__sub,
+.game-node.is-fault .game-node__sub {
+  fill: var(--gf-red-bright);
+}
+
+.game-node__weight-badge circle {
+  fill: var(--gf-panel-solid);
+  stroke: var(--gf-violet);
+  stroke-width: 1;
+}
+
+.game-node__weight {
+  fill: var(--gf-violet-bright);
+  font-family: var(--gf-mono);
+  font-size: 12px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------- array -- */
+
+.game-board .game-array {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3rem, 1fr));
+  gap: 6px;
+}
+
+.game-board .game-cell {
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  place-items: center;
+  min-height: 3.25rem;
+  padding: 0.35rem 0.3rem 0.3rem;
+  border: 1px solid var(--board-line-soft);
+  border-radius: 4px;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--gf-cyan-bright) 7%, transparent),
+      transparent 46%
+    ),
+    linear-gradient(180deg, var(--gf-panel-raised), var(--gf-panel-solid));
+  color: var(--gf-text);
+  font-family: var(--gf-mono);
+  font-size: 0.86rem;
+  line-height: 1.05;
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--gf-cyan-bright) 8%, transparent),
+    inset 0 -10px 18px color-mix(in srgb, var(--gf-bg) 45%, transparent);
+  overflow: hidden;
+  transition:
+    border-color var(--gf-fast) var(--gf-ease),
+    background-color var(--gf-fast) var(--gf-ease),
+    box-shadow var(--gf-fast) var(--gf-ease),
+    transform var(--gf-fast) var(--gf-ease);
+}
+
+/* cargo-slot rails */
+.game-board .game-cell::before {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-left: 1px solid color-mix(in srgb, var(--gf-cyan) 16%, transparent);
+  border-right: 1px solid color-mix(in srgb, var(--gf-cyan) 16%, transparent);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.game-board .game-cell::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+.game-cell__value {
+  position: relative;
+  z-index: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.game-cell__label {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.15rem;
+  font-family: var(--gf-mono);
+  font-size: 0.7rem;
+  line-height: 1.1;
+  letter-spacing: 0.03em;
+  color: var(--gf-muted);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+button.game-cell {
+  cursor: pointer;
+}
+
+button.game-cell:hover {
+  border-color: color-mix(in srgb, var(--gf-cyan) 62%, transparent);
+  color: var(--gf-cyan-bright);
+  transform: translateY(-1px);
+}
+
+button.game-cell:active {
+  transform: translateY(0);
+}
+
+button.game-cell:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--gf-bg),
+    0 0 0 4px var(--gf-cyan);
+}
+
+.game-board .game-cell.is-active {
+  border-color: color-mix(in srgb, var(--gf-cyan) 58%, transparent);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--gf-cyan) 17%, transparent),
+      transparent 60%
+    ),
+    var(--gf-panel-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--gf-cyan-soft),
+    0 0 14px color-mix(in srgb, var(--gf-cyan) 14%, transparent);
+}
+
+.game-board .game-cell.is-active::after {
+  left: 8px;
+  right: 8px;
+  bottom: 0;
+  height: 2px;
+  background: var(--gf-cyan);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--gf-cyan) 65%, transparent);
+}
+
+.game-board .game-cell.is-target {
+  border-color: var(--gf-violet-bright);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--gf-violet) 30%, var(--gf-panel-raised)),
+      color-mix(in srgb, var(--gf-violet) 15%, var(--gf-panel-solid))
+    );
+  color: var(--gf-text);
+  box-shadow:
+    inset 0 0 0 1px var(--gf-violet-soft),
+    0 0 18px color-mix(in srgb, var(--gf-violet) 22%, transparent);
+}
+
+.game-board .game-cell.is-target .game-cell__label {
+  color: var(--gf-violet-bright);
+}
+
+.game-board .game-cell.is-target::after {
+  inset: 3px;
+  background:
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left top / 7px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left top / 1px 7px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right top / 7px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right top / 1px 7px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left bottom / 7px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left bottom / 1px 7px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right bottom / 7px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right bottom / 1px 7px no-repeat;
+}
+
+.game-board .game-cell.is-done {
+  border-color: color-mix(in srgb, var(--gf-cyan) 12%, transparent);
+  color: var(--gf-muted);
+  background: color-mix(in srgb, var(--gf-panel-raised) 55%, var(--gf-bg));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--gf-cyan-bright) 4%, transparent);
+}
+
+.game-board .game-cell.is-done::after {
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--gf-cyan) 7%, transparent) 6px 7px
+  );
+}
+
+.game-board .game-cell.is-done .game-cell__value {
+  opacity: 0.62;
+}
+
+.game-board .game-cell.is-done .game-cell__label {
+  color: var(--gf-faint);
+}
+
+.game-board .game-cell.is-bad,
+.game-board .game-cell.is-fault {
+  border-color: var(--gf-red);
+  color: var(--gf-red-bright);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--gf-red) 16%, transparent),
+      transparent 65%
+    ),
+    var(--gf-panel-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--gf-red-soft),
+    0 0 16px color-mix(in srgb, var(--gf-red) 18%, transparent);
+}
+
+.game-board .game-cell.is-bad::after,
+.game-board .game-cell.is-fault::after {
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background:
+    linear-gradient(45deg, transparent 44%, var(--gf-red) 45% 55%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, var(--gf-red) 45% 55%, transparent 56%);
+}
+
+.game-board .game-cell.is-bad .game-cell__value,
+.game-board .game-cell.is-fault .game-cell__value {
+  color: var(--gf-red-bright);
+}
+
+/* pointers and ranges */
+
+.game-pointer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: var(--space-2);
+}
+
+.game-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3rem;
+  padding: 0.18rem 0.45rem 0.18rem 0.55rem;
+  border: 1px solid var(--board-line-soft);
+  border-left: 2px solid color-mix(in srgb, var(--gf-cyan) 45%, transparent);
+  border-radius: 2px;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--gf-cyan) 6%, transparent), transparent),
+    var(--gf-panel-solid);
+  color: var(--gf-muted);
+  font-family: var(--gf-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: var(--gf-inset);
+}
+
+.game-chip b {
+  color: var(--gf-cyan-bright);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.game-chip--active {
+  border-color: color-mix(in srgb, var(--gf-cyan) 45%, transparent);
+  border-left-color: var(--gf-cyan);
+  background:
+    linear-gradient(90deg, var(--gf-cyan-soft), transparent),
+    var(--gf-panel-solid);
+  color: var(--gf-cyan-bright);
+}
+
+.game-chip--done {
+  border-left-color: var(--gf-line);
+  opacity: 0.66;
+}
+
+/* ---------------------------------------------------------------- grid -- */
+
+.game-grid {
+  width: 100%;
+  min-width: 470px;
+  border-collapse: separate;
+  border-spacing: 4px;
+  font-family: var(--gf-mono);
+  font-size: 0.72rem;
+}
+
+.game-grid th {
+  padding: 0.15rem 0.3rem;
+  color: var(--gf-muted);
+  font-family: var(--gf-mono);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-align: center;
+}
+
+.game-grid thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--gf-panel-solid);
+  box-shadow: inset 0 -1px var(--board-line);
+  color: var(--gf-cyan);
+  letter-spacing: 0.08em;
+}
+
+.game-grid tbody th {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--gf-panel-solid);
+  box-shadow: inset -1px 0 var(--board-line);
+  text-align: right;
+}
+
+.game-grid thead th:first-child {
+  z-index: 3;
+}
+
+.game-grid td {
+  padding: 0;
+  text-align: center;
+}
+
+.game-cell--grid {
+  width: 100%;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding: 0.25rem;
+  font-size: 0.74rem;
+  grid-template-rows: 1fr;
+}
+
+.game-cell--grid::before {
+  inset: 2px;
+  opacity: 0.35;
+}
+
+.game-grid__empty {
+  height: 2.75rem;
+  border: 1px dashed color-mix(in srgb, var(--gf-cyan) 9%, transparent);
+  border-radius: 3px;
+  background: repeating-linear-gradient(
+    135deg,
+    transparent 0 6px,
+    color-mix(in srgb, var(--gf-bg) 35%, transparent) 6px 7px
+  );
+}
+
+/* ------------------------------------------------------------- pairing -- */
+
+.game-board .game-pairing {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(116px, 0.72fr) minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: start;
+}
+
+.game-pairing__col {
+  display: grid;
+  gap: 0.4rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.game-pair {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 44px;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid var(--board-line-soft);
+  border-radius: 3px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--gf-cyan) 5%, transparent), transparent 60%),
+    var(--gf-panel-raised);
+  color: var(--gf-text);
+  font-family: var(--gf-mono);
+  font-size: 0.7rem;
+  line-height: 1.35;
+  text-align: left;
+  box-shadow: var(--gf-inset);
+  transition:
+    border-color var(--gf-fast) var(--gf-ease),
+    background-color var(--gf-fast) var(--gf-ease),
+    box-shadow var(--gf-fast) var(--gf-ease);
+}
+
+/* docking jaws point at the link column */
+.game-pairing__col--left .game-pair::before,
+.game-pairing__col--right .game-pair::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: 6px;
+  height: 16px;
+  transform: translateY(-50%);
+  border-top: 1px solid color-mix(in srgb, var(--gf-cyan) 34%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--gf-cyan) 34%, transparent);
+}
+
+.game-pairing__col--left .game-pair::before {
+  right: -6px;
+}
+
+.game-pairing__col--right .game-pair::before {
+  left: -6px;
+}
+
+.game-pair::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+button.game-pair {
+  cursor: pointer;
+}
+
+button.game-pair:hover {
+  border-color: color-mix(in srgb, var(--gf-cyan) 62%, transparent);
+  box-shadow:
+    var(--gf-inset),
+    0 0 12px color-mix(in srgb, var(--gf-cyan) 12%, transparent);
+}
+
+button.game-pair:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--gf-bg),
+    0 0 0 4px var(--gf-cyan);
+}
+
+.game-pair.is-active {
+  border-color: color-mix(in srgb, var(--gf-cyan) 52%, transparent);
+  background:
+    linear-gradient(180deg, var(--gf-cyan-soft), transparent 65%),
+    var(--gf-panel-raised);
+}
+
+.game-pair.is-active::before {
+  width: 9px;
+  border-color: var(--gf-cyan);
+}
+
+.game-pair.is-target {
+  border-color: var(--gf-violet-bright);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--gf-violet) 22%, transparent), transparent 70%),
+    var(--gf-panel-raised);
+  color: var(--gf-violet-bright);
+}
+
+.game-pair.is-target::before {
+  border-color: var(--gf-violet-bright);
+}
+
+.game-pair.is-target::after {
+  inset: 3px;
+  background:
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left top / 7px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left top / 1px 7px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right bottom / 7px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right bottom / 1px 7px no-repeat;
+}
+
+.game-pair.is-done {
+  border-color: color-mix(in srgb, var(--gf-cyan) 12%, transparent);
+  color: var(--gf-muted);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 7px,
+      color-mix(in srgb, var(--gf-cyan) 6%, transparent) 7px 8px
+    ),
+    var(--gf-panel-raised);
+}
+
+.game-pair.is-done::before {
+  border-color: color-mix(in srgb, var(--gf-cyan) 18%, transparent);
+}
+
+.game-pair.is-bad,
+.game-pair.is-fault {
+  border-color: var(--gf-red);
+  color: var(--gf-red-bright);
+  background:
+    linear-gradient(180deg, var(--gf-red-soft), transparent 70%),
+    var(--gf-panel-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--gf-red-soft),
+    0 0 14px color-mix(in srgb, var(--gf-red) 16%, transparent);
+}
+
+.game-pair.is-bad::before,
+.game-pair.is-fault::before {
+  border-color: var(--gf-red);
+}
+
+.game-pair.is-bad::after,
+.game-pair.is-fault::after {
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background:
+    linear-gradient(45deg, transparent 44%, var(--gf-red) 45% 55%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, var(--gf-red) 45% 55%, transparent 56%);
+}
+
+.game-pairing__links {
+  display: grid;
+  gap: 0.4rem;
+  align-content: start;
+  min-width: 0;
+  font-family: var(--gf-mono);
+  font-size: 0.7rem;
+}
+
+.game-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.1rem;
+  padding: 0.2rem 0.4rem;
+  border: 1px solid var(--board-violet-line);
+  border-radius: 3px;
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--gf-violet) 13%, transparent),
+      transparent,
+      color-mix(in srgb, var(--gf-violet) 13%, transparent)
+    ),
+    var(--gf-panel-solid);
+  color: var(--gf-violet-bright);
+  text-align: center;
+  box-shadow:
+    inset 2px 0 0 color-mix(in srgb, var(--gf-cyan) 40%, transparent),
+    inset -2px 0 0 color-mix(in srgb, var(--gf-cyan) 40%, transparent);
+}
+
+.game-link.is-done {
+  border-color: color-mix(in srgb, var(--gf-cyan) 42%, transparent);
+  background:
+    linear-gradient(90deg, var(--gf-cyan-soft), transparent, var(--gf-cyan-soft)),
+    var(--gf-panel-solid);
+  color: var(--gf-cyan-bright);
+}
+
+.game-link.is-ghost {
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.game-link.is-bad,
+.game-link.is-fault {
+  border-color: var(--gf-red);
+  color: var(--gf-red-bright);
+  background: var(--gf-red-soft);
+}
+
+/* -------------------------------------------------------------- number -- */
+
+.game-board--number .game-board__scroll > svg {
+  min-width: 520px;
+  border: 1px solid var(--board-line-soft);
+  border-radius: 4px;
+  background:
+    radial-gradient(
+      80% 70% at 30% 18%,
+      color-mix(in srgb, var(--gf-cyan) 5%, transparent),
+      transparent 62%
+    ),
+    linear-gradient(180deg, transparent, color-mix(in srgb, var(--gf-bg) 30%, transparent)),
+    var(--gf-panel-solid);
+}
+
+.game-gridline {
+  stroke: color-mix(in srgb, var(--gf-cyan) 8%, transparent);
+  stroke-width: 1;
+}
+
+.game-gridline--major {
+  stroke: color-mix(in srgb, var(--gf-cyan) 15%, transparent);
+}
+
+.game-axis {
+  stroke: var(--gf-line-strong);
+  stroke-width: 1;
+}
+
+.game-axis__tick {
+  fill: var(--gf-faint);
+  font-family: var(--gf-mono);
+  font-size: 9px;
+}
+
+.game-target {
+  stroke: var(--gf-violet);
+  stroke-width: 1.5;
+  stroke-dasharray: 6 4;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--gf-violet) 35%, transparent));
+}
+
+.game-target__chip rect {
+  fill: var(--gf-panel-solid);
+  stroke: var(--board-violet-line);
+  stroke-width: 1;
+}
+
+.game-cursor {
+  stroke: color-mix(in srgb, var(--gf-cyan) 28%, transparent);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+}
+
+.game-series__area {
+  fill: color-mix(in srgb, var(--gf-cyan) 10%, transparent);
+  stroke: none;
+}
+
+.game-series {
+  fill: none;
+  stroke: var(--gf-cyan);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--gf-cyan) 38%, transparent));
+}
+
+.game-series__dot {
+  fill: var(--gf-panel-solid);
+  stroke: var(--gf-cyan);
+  stroke-width: 2;
+}
+
+.game-series__dot--current {
+  fill: var(--gf-cyan-bright);
+  stroke: var(--gf-cyan-bright);
+}
+
+.game-series__readout rect {
+  fill: color-mix(in srgb, var(--gf-cyan) 18%, var(--gf-panel-solid));
+  stroke: var(--gf-cyan-dim);
+  stroke-width: 1;
+}
+
+.game-series__readout text {
+  fill: var(--gf-cyan-bright);
+  font-family: var(--gf-mono);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.game-axis__label {
+  fill: var(--gf-muted);
+  font-family: var(--gf-mono);
+  font-size: 10px;
+}
+
+/* ------------------------------------------------------------- formula -- */
+
+.game-formula {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.game-formula__rows,
+.game-formula__outputs {
+  display: grid;
+  gap: 6px;
+}
+
+.game-formula__outputs {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.game-formula__row,
+.game-formula__output {
+  position: relative;
+  display: grid;
+  grid-template-columns: 4.8rem minmax(0, 1fr);
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 0.6rem 0.5rem 0.9rem;
+  border: 1px solid var(--board-line-soft);
+  border-radius: 3px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--gf-cyan) 4%, transparent), transparent 55%),
+    var(--gf-panel-raised);
+  color: var(--gf-text);
+  font-family: var(--gf-body);
+  text-align: left;
+  box-shadow: var(--gf-inset);
+  transition:
+    border-color var(--gf-fast) var(--gf-ease),
+    background-color var(--gf-fast) var(--gf-ease),
+    box-shadow var(--gf-fast) var(--gf-ease);
+}
+
+/* Outputs are gauge readouts: label above value, never two squeezed columns. */
+.game-formula__output {
+  grid-template-columns: minmax(0, 1fr);
+  align-content: center;
+  gap: 0.2rem;
+  min-height: 56px;
+}
+
+/* manifold rail */
+.game-formula__row::before,
+.game-formula__output::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--gf-line-strong);
+  pointer-events: none;
+}
+
+.game-formula__row::after,
+.game-formula__output::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+}
+
+button.game-formula__row,
+button.game-formula__output {
+  cursor: pointer;
+}
+
+button.game-formula__row:hover,
+button.game-formula__output:hover {
+  border-color: color-mix(in srgb, var(--gf-cyan) 58%, transparent);
+  box-shadow:
+    var(--gf-inset),
+    0 0 14px color-mix(in srgb, var(--gf-cyan) 12%, transparent);
+}
+
+button.game-formula__row:focus-visible,
+button.game-formula__output:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--gf-bg),
+    0 0 0 4px var(--gf-cyan);
+}
+
+.game-formula__row.is-active,
+.game-formula__output.is-active {
+  border-color: color-mix(in srgb, var(--gf-cyan) 54%, transparent);
+  background:
+    linear-gradient(180deg, var(--gf-cyan-soft), transparent 65%),
+    var(--gf-panel-raised);
+}
+
+.game-formula__row.is-active::before,
+.game-formula__output.is-active::before {
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--gf-cyan);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--gf-cyan) 55%, transparent);
+}
+
+.game-formula__row.is-target,
+.game-formula__output.is-target {
+  border-color: var(--gf-violet-bright);
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--gf-violet) 18%, transparent),
+      transparent 70%
+    ),
+    var(--gf-panel-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--gf-violet-soft),
+    0 0 16px color-mix(in srgb, var(--gf-violet) 18%, transparent);
+}
+
+.game-formula__row.is-target::before,
+.game-formula__output.is-target::before {
+  background: var(--gf-violet-bright);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--gf-violet) 55%, transparent);
+}
+
+.game-formula__row.is-target .game-formula__label,
+.game-formula__output.is-target .game-formula__label {
+  color: var(--gf-violet-bright);
+}
+
+.game-formula__row.is-target::after,
+.game-formula__output.is-target::after {
+  inset: 3px;
+  background:
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left top / 8px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left top / 1px 8px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right top / 8px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right top / 1px 8px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left bottom / 8px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) left bottom / 1px 8px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right bottom / 8px 1px no-repeat,
+    linear-gradient(var(--gf-violet-bright), var(--gf-violet-bright)) right bottom / 1px 8px no-repeat;
+}
+
+.game-formula__row.is-done,
+.game-formula__output.is-done {
+  border-color: color-mix(in srgb, var(--gf-cyan) 10%, transparent);
+  background:
+    repeating-linear-gradient(
+      135deg,
+      transparent 0 8px,
+      color-mix(in srgb, var(--gf-cyan) 5%, transparent) 8px 9px
+    ),
+    var(--gf-panel-raised);
+  color: var(--gf-muted);
+}
+
+.game-formula__row.is-done::before,
+.game-formula__output.is-done::before {
+  background: color-mix(in srgb, var(--gf-cyan) 18%, transparent);
+}
+
+.game-formula__row.is-done .game-formula__code,
+.game-formula__output.is-done .game-formula__code {
+  color: var(--gf-muted);
+}
+
+.game-formula__row.is-bad,
+.game-formula__output.is-bad,
+.game-formula__row.is-fault,
+.game-formula__output.is-fault {
+  border-color: var(--gf-red);
+  color: var(--gf-red-bright);
+  background:
+    linear-gradient(180deg, var(--gf-red-soft), transparent 70%),
+    var(--gf-panel-raised);
+  box-shadow:
+    inset 0 0 0 1px var(--gf-red-soft),
+    0 0 14px color-mix(in srgb, var(--gf-red) 16%, transparent);
+}
+
+.game-formula__row.is-bad::before,
+.game-formula__output.is-bad::before,
+.game-formula__row.is-fault::before,
+.game-formula__output.is-fault::before {
+  background: var(--gf-red);
+}
+
+.game-formula__row.is-bad::after,
+.game-formula__output.is-bad::after,
+.game-formula__row.is-fault::after,
+.game-formula__output.is-fault::after {
+  top: 4px;
+  right: 4px;
+  width: 10px;
+  height: 10px;
+  background:
+    linear-gradient(45deg, transparent 44%, var(--gf-red) 45% 55%, transparent 56%),
+    linear-gradient(-45deg, transparent 44%, var(--gf-red) 45% 55%, transparent 56%);
+}
+
+.game-formula__label {
+  font-family: var(--gf-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--gf-cyan);
+}
+
+.game-formula__code {
+  font-family: var(--gf-mono);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.45;
+  color: var(--gf-text);
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------ responsive -- */
+
+@media (max-width: 600px) {
+  .game-page .game-board {
+    padding: var(--space-2);
+    border-radius: var(--gf-radius);
+  }
+
+  .game-board::before {
+    inset: 4px;
+  }
+
+  .game-board .game-array {
+    grid-template-columns: repeat(auto-fit, minmax(2.75rem, 1fr));
+    gap: 4px;
+  }
+
+  .game-board .game-cell {
+    min-height: 3rem;
+  }
+
+  .game-cell__value {
+    font-size: 0.92rem;
+  }
+
+  .game-grid {
+    min-width: 460px;
+    border-spacing: 3px;
+  }
+}
+
+@media (max-width: 520px) {
+  .game-board .game-pairing {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-2);
+  }
+
+  .game-pairing__col--left {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .game-pairing__links {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    order: initial;
+  }
+
+  .game-pairing__col--right {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .game-pairing__col--left .game-pair::before,
+  .game-pairing__col--right .game-pair::before {
+    display: none;
+  }
+
+  .game-pair {
+    padding: 0.4rem 0.5rem;
+    font-size: 0.68rem;
+  }
+
+  .game-formula__row {
+    grid-template-columns: 3.6rem minmax(0, 1fr);
+    gap: 0.4rem;
+  }
+}
+
+/* -------------------------------------------------------- reduced motion -- */
+
+@media (prefers-reduced-motion: reduce) {
+  .game-board *,
+  .game-board::before {
+    transition: none;
+  }
+}

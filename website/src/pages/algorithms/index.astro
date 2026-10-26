@@ -28,6 +28,16 @@ const total = algorithms.length;
     </p>
   </section>
 
+  <section class="alg-hub__game" aria-labelledby="alg-game-heading">
+    <p class="alg-hub__game-kicker">The Long Repair</p>
+    <h2 id="alg-game-heading">The ship is dying. The mathematics is the manual.</h2>
+    <p>
+      A campaign of short repair puzzles. Each mission asks you to make the algorithm's next move —
+      not watch it. A wrong move rewinds and names the rule that broke.
+    </p>
+    <a class="alg-hub__game-link" href="/algorithms/game">Enter the repair bay →</a>
+  </section>
+
   {total === 0 && (
     <p class="alg-hub__empty" role="status">
       No algorithms are published yet. Authoring happens in <code>algorithms/</code>; run the
@@ -174,6 +184,58 @@ const total = algorithms.length;
 <style>
   .alg-hub__intro {
     max-width: 70ch;
+  }
+
+  .alg-hub__game {
+    margin: var(--space-6) 0;
+    padding: var(--space-5);
+    border: 1px solid color-mix(in srgb, var(--color-algorithms, #a78bfa) 45%, transparent);
+    border-radius: var(--radius-md);
+    background:
+      radial-gradient(
+        120% 140% at 0% 0%,
+        color-mix(in srgb, var(--color-algorithms, #a78bfa) 14%, transparent),
+        transparent 65%
+      ),
+      var(--color-surface);
+  }
+
+  .alg-hub__game-kicker {
+    margin: 0 0 var(--space-2);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-algorithms, #a78bfa);
+  }
+
+  .alg-hub__game h2 {
+    margin: 0;
+    font-size: 1.45rem;
+    letter-spacing: -0.01em;
+  }
+
+  .alg-hub__game p {
+    max-width: 65ch;
+    color: var(--color-muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .alg-hub__game-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.55rem 0.9rem;
+    border-radius: var(--radius-sm);
+    background: var(--color-algorithms, #a78bfa);
+    color: #0f1419;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .alg-hub__game-link:hover {
+    background: var(--color-algorithms-hover, #c4b5fd);
   }
 
   .alg-hub__stat {

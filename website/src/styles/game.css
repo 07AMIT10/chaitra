@@ -1,0 +1,7 @@
+/* Aggregator. Each area is owned by one UI workstream so they can edit in parallel. */
+@import "./game-tokens.css";
+@import "./game-hub.css";
+@import "./game-shell.css";
+@import "./game-boards.css";
+@import "./game-motion.css";
+@import "./game-responsive.css";

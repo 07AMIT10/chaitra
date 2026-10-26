@@ -2,7 +2,7 @@
 import "../styles/tokens.css";
 import ThemeToggle from "../components/ThemeToggle.tsx";
 
-const { title = "Chaitra" } = Astro.props;
+const { title = "Chaitra", bare = false } = Astro.props;
 const description = "Learn probabilistic data structures and distributed systems through interactive labs, runnable code, and narrative explanations — from Bloom filters to transformer attention.";
 ---
 <!doctype html>
@@ -27,26 +27,30 @@ const description = "Learn probabilistic data structures and distributed systems
     <slot name="head" />
   </head>
   <body>
-    <header role="banner" class="site-header">
-      <nav aria-label="Site">
-        <a href="/">Chaitra</a> · <a href="/catalog">Catalog</a> · <a href="/drishti">Drishti</a> ·
-        <a href="/algorithms">Algorithms</a>
-      </nav>
-      <ThemeToggle client:visible />
-    </header>
+    {!bare && (
+      <header role="banner" class="site-header">
+        <nav aria-label="Site">
+          <a href="/">Chaitra</a> · <a href="/catalog">Catalog</a> · <a href="/drishti">Drishti</a> ·
+          <a href="/algorithms">Algorithms</a>
+        </nav>
+        <ThemeToggle client:visible />
+      </header>
+    )}
     <main id="main-content"><slot /></main>
-    <footer class="site-footer" role="contentinfo">
-      <p>
-        <a href="/catalog">Catalog</a>
-        ·
-        <a href="/drishti">Drishti</a>
-        ·
-        <a href="/algorithms">Algorithms</a>
-        ·
-        <a href="https://github.com/07AMIT10/chaitra">GitHub</a>
-        · MIT-style open curriculum
-      </p>
-    </footer>
+    {!bare && (
+      <footer class="site-footer" role="contentinfo">
+        <p>
+          <a href="/catalog">Catalog</a>
+          ·
+          <a href="/drishti">Drishti</a>
+          ·
+          <a href="/algorithms">Algorithms</a>
+          ·
+          <a href="https://github.com/07AMIT10/chaitra">GitHub</a>
+          · MIT-style open curriculum
+        </p>
+      </footer>
+    )}
   </body>
 </html>
 

@@ -1,0 +1,33 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import GameMission from "../../../components/game/GameMission.tsx";
+import { LEVEL_META } from "../../../game/levels/meta";
+import type { LevelMeta } from "../../../game/types";
+import "../../../styles/game.css";
+
+export function getStaticPaths() {
+  return LEVEL_META.map((level) => ({
+    params: { slug: level.slug },
+    props: { meta: level },
+  }));
+}
+
+const { meta } = Astro.props as { meta: LevelMeta };
+---
+
+<BaseLayout bare title={`${meta.title} — The Long Repair`}>
+  <link
+    slot="head"
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+  />
+  <div class="game-page">
+    <noscript>
+      <p class="game-noscript">
+        This repair board needs JavaScript. The
+        <a href={meta.page}>mathematics of {meta.algorithm}</a> does not.
+      </p>
+    </noscript>
+    <GameMission meta={meta} client:visible />
+  </div>
+</BaseLayout>

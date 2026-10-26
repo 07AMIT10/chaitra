@@ -1,0 +1,77 @@
+/* ----------------------------------------------------------------- mobile -- */
+
+
+@media (max-width: 860px) {
+  .game-mission {
+    grid-template-columns: 1fr;
+  }
+
+  .game-side {
+    position: static;
+  }
+
+  .game-side .alg-tx__body {
+    font-size: 0.9rem;
+  }
+
+  .game-hub__hero {
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .game-top {
+    font-size: 0.66rem;
+  }
+
+  .game-top__time {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .game-page {
+    padding-top: var(--space-2);
+  }
+
+  .game-hub__title {
+    font-size: 2rem;
+  }
+
+  .game-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .game-continue__arrow {
+    display: none;
+  }
+
+  .game-array {
+    grid-template-columns: repeat(auto-fit, minmax(2rem, 1fr));
+  }
+
+  .game-cell {
+    min-height: 2.25rem;
+    font-size: 0.74rem;
+  }
+
+  .game-pairing {
+    grid-template-columns: 1fr;
+  }
+
+  .game-pairing__links {
+    grid-row: 2;
+  }
+
+  .game-board {
+    padding: var(--space-2);
+  }
+
+  .game-brief__title {
+    font-size: 1.3rem;
+  }
+
+  .game-win__links .game-btn,
+  .game-lose__links .game-btn,
+  .game-controls .game-btn {
+    flex: 1 1 auto;
+  }
+}
