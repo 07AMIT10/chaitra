@@ -58,6 +58,51 @@ function validPayload(over = {}) {
   };
 }
 
+function largePayload({ nodeLabelFill = 0, mutationLabelFill = 0 } = {}) {
+  const nodeCount = 30;
+  const nodes = Array.from({ length: nodeCount }, (_, index) => ({
+    id: `node-${index}`,
+    label: `Node ${index}${"x".repeat(nodeLabelFill)}`,
+    x: index * 10,
+    y: index * 7,
+  }));
+  const edges = Array.from({ length: 60 }, (_, index) => ({
+    id: `edge-${index}`,
+    from: `node-${index % nodeCount}`,
+    to: `node-${(index * 7 + 3) % nodeCount}`,
+    weight: (index % 9) + 1,
+  }));
+  const mutations = Array.from({ length: 12 }, (_, index) => ({
+    id: `mutation-${index}`,
+    card: "modify",
+    op: "set-weight",
+    label: `Adjustment ${index}${"y".repeat(mutationLabelFill)}`,
+    payload: { weight: index + 1 },
+  }));
+  return {
+    v: 1,
+    scenario: {
+      schema: 1,
+      id: "large-share",
+      title: "Large share payload",
+      substrate: "graph",
+      strategy: "dijkstra",
+      model: {
+        kind: "graph",
+        nodes,
+        edges,
+        start: "node-0",
+        target: "node-29",
+        directed: true,
+      },
+      params: { framing: "traffic" },
+    },
+    mutations,
+    lens: "what-flows",
+    frameIndex: 12,
+  };
+}
+
 function validBranch(over = {}) {
   return {
     version: 1,
@@ -169,6 +214,54 @@ test("payload hard cap: oversized payloads are refused on both ends", () => {
   assert.ok(!result.ok);
   // encodeShare refuses to produce a link decodeShare would reject.
   assert.throws(() => encodeShare(big), /exceeds 9000 characters/);
+});
+
+test("large 30-node/60-edge graph with 12 mutations stays within the 9000-character link cap", () => {
+  const payload = largePayload();
+  const encoded = encodeShare(payload);
+  assert.ok(encoded.length > 8000, `expected a genuinely large fragment, got ${encoded.length}`);
+  assert.ok(encoded.length <= 9000, `fragment is ${encoded.length} characters`);
+  const url = shareUrl("https://example.com/observatory", payload);
+  assert.ok(url.length <= 9000, `full URL is ${url.length} characters`);
+  const decoded = decodeShare(url);
+  assert.ok(decoded.ok);
+  assert.deepEqual(decoded.payload, payload);
+});
+
+test("share cap applies to the encoded fragment, not the raw JSON text", () => {
+  // 30 nodes/60 edges with longer labels: raw JSON is under the old 9000-char
+  // text cap, but base64url pushes the actual link past 9000.
+  const payload = largePayload({ nodeLabelFill: 40 });
+  const text = JSON.stringify(payload);
+  const encoded = b64url(text);
+  assert.ok(text.length < 9000, `raw JSON is ${text.length} characters`);
+  assert.ok(encoded.length > 9000, `encoded payload is ${encoded.length} characters`);
+  assert.throws(() => encodeShare(payload), /exceeds 9000 characters/);
+  assert.throws(() => shareUrl("https://example.com/observatory", payload), /exceeds 9000 characters/);
+  // Oversized encoded input is refused before it is decoded.
+  assert.equal(decodeShare(`#b=${encoded}`).ok, false);
+  assert.equal(decodeShare(`https://example.com/observatory#b=${encoded}`).ok, false);
+  assert.equal(decodeShare(encoded).ok, false);
+});
+
+test("share payloads reject a 13-mutation stack and accept the 12-mutation cap", () => {
+  const build = (count) => ({
+    v: 1,
+    scenario: validScenario(),
+    mutations: Array.from({ length: count }, (_, index) => validMutation(`m${index}`)),
+    lens: "what-flows",
+    frameIndex: 0,
+  });
+  const atCap = build(12);
+  assert.ok(encodeShare(atCap).length <= 9000);
+  const decodedAtCap = decodeShare(encodeShare(atCap));
+  assert.ok(decodedAtCap.ok);
+  assert.equal(decodedAtCap.payload.mutations.length, 12);
+
+  const overCap = build(13);
+  const text = JSON.stringify(overCap);
+  assert.ok(text.length < 6000, "rejection must come from the mutation cap, not the size cap");
+  assert.equal(decodeShare(b64url(text)).ok, false);
 });
 
 test("exportBranch/importBranch round-trips a valid branch", () => {

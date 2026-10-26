@@ -1,4 +1,4 @@
-import { isBranch, isLensId, isMutation, isScenario } from "./scenario";
+import { MUTATION_LIMIT, isBranch, isLensId, isMutation, isScenario } from "./scenario";
 import type { Branch, LensId, Mutation, Scenario } from "./types";
 
 export type SharePayload = {
@@ -11,8 +11,14 @@ export type SharePayload = {
 
 const SHARE_HASH_MARKER = "#b=";
 
-/** Hard cap on the decoded JSON payload text, in characters. */
-const SHARE_PAYLOAD_LIMIT = 9000;
+/**
+ * Hard cap on the link that is actually handed out, in characters: the encoded
+ * `#b=<base64url>` fragment, and defensively the full share URL.
+ */
+const SHARE_LINK_LIMIT = 9000;
+
+/** Cap on the encoded payload itself (fragment minus the `#b=` marker). */
+const SHARE_ENCODED_LIMIT = SHARE_LINK_LIMIT - SHARE_HASH_MARKER.length;
 
 const SHARE_KEYS = ["v", "scenario", "mutations", "lens", "frameIndex"];
 
@@ -57,7 +63,8 @@ function isSharePayload(value: unknown): value is SharePayload {
   // The exact-key check above also guarantees there is no `note` in the payload.
   if (record.v !== 1) return false;
   if (!isScenario(record.scenario)) return false;
-  if (!Array.isArray(record.mutations) || !record.mutations.every(isMutation)) return false;
+  if (!Array.isArray(record.mutations) || record.mutations.length > MUTATION_LIMIT) return false;
+  if (!record.mutations.every(isMutation)) return false;
   if (!isLensId(record.lens)) return false;
   if (
     typeof record.frameIndex !== "number" ||
@@ -72,8 +79,8 @@ function isSharePayload(value: unknown): value is SharePayload {
 /**
  * Encodes a share payload as the URL hash fragment `#b=<base64url>`.
  * Extra fields (such as a note) are never serialized: only the five payload
- * fields written above are encoded. Throws if the payload exceeds the cap so
- * that we never hand out a link that decodeShare would reject.
+ * fields written above are encoded. Throws if the encoded link exceeds the
+ * hard cap so that we never hand out a link that decodeShare would reject.
  */
 export function encodeShare(payload: SharePayload): string {
   const shareable = {
@@ -84,10 +91,17 @@ export function encodeShare(payload: SharePayload): string {
     frameIndex: payload.frameIndex,
   };
   const json = JSON.stringify(shareable);
-  if (json.length > SHARE_PAYLOAD_LIMIT) {
-    throw new Error(`share payload exceeds ${SHARE_PAYLOAD_LIMIT} characters`);
+  // base64url expands UTF-8 bytes by 4/3 and UTF-8 bytes are never fewer than
+  // UTF-16 code units, so this cheap pre-check rejects huge payloads before
+  // allocating the encoded string. The fragment check below is authoritative.
+  if (json.length * 4 > SHARE_ENCODED_LIMIT * 3) {
+    throw new Error(`share link exceeds ${SHARE_LINK_LIMIT} characters`);
   }
-  return SHARE_HASH_MARKER + toBase64Url(new TextEncoder().encode(json));
+  const fragment = SHARE_HASH_MARKER + toBase64Url(new TextEncoder().encode(json));
+  if (fragment.length > SHARE_LINK_LIMIT) {
+    throw new Error(`share link exceeds ${SHARE_LINK_LIMIT} characters`);
+  }
+  return fragment;
 }
 
 /**
@@ -104,6 +118,10 @@ export function decodeShare(
   if (encoded.length === 0) {
     return { ok: false, error: "share input is empty" };
   }
+  // Reject oversized input before atob/base64 decoding allocates anything.
+  if (encoded.length > SHARE_ENCODED_LIMIT) {
+    return { ok: false, error: `share link exceeds ${SHARE_LINK_LIMIT} characters` };
+  }
   if (!/^[A-Za-z0-9_-]*={0,2}$/.test(encoded)) {
     return { ok: false, error: "share payload is not valid base64url" };
   }
@@ -117,9 +135,6 @@ export function decodeShare(
     text = new TextDecoder().decode(bytes);
   } catch {
     return { ok: false, error: "share payload could not be decoded" };
-  }
-  if (text.length > SHARE_PAYLOAD_LIMIT) {
-    return { ok: false, error: `share payload exceeds ${SHARE_PAYLOAD_LIMIT} characters` };
   }
   let parsed: unknown;
   try {
@@ -136,7 +151,12 @@ export function decodeShare(
 /** Appends the encoded `#b=...` fragment to an origin (path included). */
 export function shareUrl(origin: string, payload: SharePayload): string {
   const base = origin.replace(/#.*$/, "");
-  return `${base}${encodeShare(payload)}`;
+  const url = `${base}${encodeShare(payload)}`;
+  // Defensive: the whole link, not just the fragment, must fit the cap.
+  if (url.length > SHARE_LINK_LIMIT) {
+    throw new Error(`share link exceeds ${SHARE_LINK_LIMIT} characters`);
+  }
+  return url;
 }
 
 /**

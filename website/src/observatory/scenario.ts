@@ -27,6 +27,9 @@ const isFiniteNumber = (value: unknown): value is number =>
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;
 
+/** Maximum mutations carried by a branch, draft, or share payload. */
+export const MUTATION_LIMIT = 12;
+
 const hasOnlyKeys = (record: Record<string, unknown>, allowed: readonly string[]): boolean =>
   Object.keys(record).every((key) => allowed.includes(key));
 
@@ -106,9 +109,7 @@ export function isScenario(value: unknown): value is Scenario {
   if (!isNonEmptyString(value.id) || !isNonEmptyString(value.title)) return false;
   if (!isRecord(value.params)) return false;
   for (const param of Object.values(value.params)) {
-    const primitive =
-      typeof param === "string" || typeof param === "number" || typeof param === "boolean";
-    if (!primitive) return false;
+    if (!isScenarioParam(param)) return false;
   }
   if (!isSubstrate(value.substrate) || !isStrategy(value.strategy)) return false;
 
@@ -133,7 +134,7 @@ export function isMutation(value: unknown): value is Mutation {
   if (!isScamperId(value.card) || !isRecord(value.payload)) return false;
   return Object.values(value.payload).every(
     (item) =>
-      typeof item === "string" || typeof item === "number" || typeof item === "boolean",
+      typeof item === "string" || typeof item === "boolean" || isFiniteNumber(item),
   );
 }
 
@@ -160,7 +161,7 @@ export function isBranch(value: unknown): value is Branch {
   if (!isNonEmptyString(value.id) || !isNonEmptyString(value.title)) return false;
   if (value.parentId !== undefined && !isNonEmptyString(value.parentId)) return false;
   if (!isScenario(value.scenario) || !isLensId(value.lens)) return false;
-  if (!Array.isArray(value.mutations) || value.mutations.length > 12) return false;
+  if (!Array.isArray(value.mutations) || value.mutations.length > MUTATION_LIMIT) return false;
   if (!value.mutations.every(isMutation)) return false;
   if (!Number.isInteger(value.frameIndex) || Number(value.frameIndex) < 0) return false;
   if (typeof value.note !== "string" || value.note.length > 800) return false;
@@ -188,7 +189,7 @@ export function isDraft(value: unknown): value is Draft {
   if (!isFiniteNumber(value.savedAt) || !isScenario(value.scenario) || !isLensId(value.lens)) {
     return false;
   }
-  if (!Array.isArray(value.mutations) || value.mutations.length > 12) return false;
+  if (!Array.isArray(value.mutations) || value.mutations.length > MUTATION_LIMIT) return false;
   if (!value.mutations.every(isMutation)) return false;
   if (!Number.isInteger(value.frameIndex) || Number(value.frameIndex) < 0) return false;
   if (typeof value.title !== "string" || typeof value.note !== "string" || value.note.length > 800) {
@@ -257,5 +258,6 @@ export function viewIds(view: BoardView): Set<string> {
 }
 
 export function isScenarioParam(value: unknown): value is ScenarioParam {
-  return typeof value === "string" || typeof value === "number" || typeof value === "boolean";
+  if (typeof value === "number") return Number.isFinite(value);
+  return typeof value === "string" || typeof value === "boolean";
 }

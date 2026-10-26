@@ -6,6 +6,7 @@ import {
   gridCellId,
   isBranch,
   isLensId,
+  isMutation,
   isReaderBench,
   isScamperId,
   isScenario,
@@ -104,6 +105,32 @@ test("strategy, lens, scamper, branch, and reader-bench guards are strict", () =
   assert.equal(isBranch({ ...branch, scene: graph }), false);
   assert.equal(isReaderBench(readerBench), true);
   assert.equal(isReaderBench({ ...readerBench, note: "no" }), false);
+});
+
+test("scenario and mutation guards reject non-finite numbers", () => {
+  // `1e999` in JSON parses to Infinity.
+  const infiniteFromJson = JSON.parse('{"framing": 1e999}');
+  const negativeInfiniteFromJson = JSON.parse('{"framing": -1e999}');
+  assert.equal(isScenario({ ...graph, params: { framing: Infinity } }), false);
+  assert.equal(isScenario({ ...graph, params: { framing: -Infinity } }), false);
+  assert.equal(isScenario({ ...graph, params: { framing: NaN } }), false);
+  assert.equal(isScenario({ ...graph, params: infiniteFromJson }), false);
+  assert.equal(isScenario({ ...graph, params: negativeInfiniteFromJson }), false);
+  assert.equal(isScenario({ ...array, params: { target: Infinity } }), false);
+  assert.equal(isScenario({ ...graph, params: { framing: 1, depth: 2 } }), true);
+
+  const mutation = {
+    id: "m1",
+    card: "modify",
+    op: "set-weight",
+    label: "Heavier",
+    payload: { weight: 2 },
+  };
+  assert.equal(isMutation(mutation), true);
+  assert.equal(isMutation({ ...mutation, payload: { weight: Infinity } }), false);
+  assert.equal(isMutation({ ...mutation, payload: { weight: -Infinity } }), false);
+  assert.equal(isMutation({ ...mutation, payload: JSON.parse('{"weight": 1e999}') }), false);
+  assert.equal(isBranch({ ...branch, mutations: [{ ...mutation, payload: { weight: Infinity } }] }), false);
 });
 
 test("cloneScenario is a deep clone and scenarioBytes is positive", () => {
