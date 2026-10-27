@@ -5,7 +5,11 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
-import { isMoveInteractive } from "../../game/board-access";
+import {
+  isMoveInteractive,
+  shouldShowOverflowHint,
+  supportsFitView,
+} from "../../game/board-access";
 import type {
   ArrayView,
   BoardView,
@@ -108,6 +112,42 @@ function useElementWidth<T extends HTMLElement>() {
   }, []);
 
   return { ref, width };
+}
+
+/** Measure horizontal overflow using ResizeObserver so cues appear only when content is wider than container. */
+function useBoardOverflow(...deps: unknown[]) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [hasOverflow, setHasOverflow] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      setHasOverflow(shouldShowOverflowHint(el.scrollWidth, el.clientWidth));
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(() => {
+      measure();
+    });
+
+    observer.observe(el);
+    if (el.firstElementChild) {
+      observer.observe(el.firstElementChild);
+    }
+
+    window.addEventListener("resize", measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+
+  return { scrollRef, hasOverflow };
 }
 
 function isSubAbove(sub: string | undefined): boolean {
@@ -266,6 +306,7 @@ function GraphBoard({
   handoverMoveId?: string;
   legalMoveIds?: ReadonlySet<string>;
 }) {
+  const [fit, setFit] = useState(false);
   const markerId = `game-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const nodes = new Map(view.nodes.map((node) => [node.id, node]));
@@ -281,24 +322,50 @@ function GraphBoard({
   const viewBox = compactLayout
     ? `0 0 ${compactLayout.width} ${compactLayout.height}`
     : graphViewBox(view);
+  const { scrollRef, hasOverflow } = useBoardOverflow(fit, view, compact);
 
   return (
     <figure
       ref={boardRef}
-      className={`game-board game-board--graph${compact ? " game-board--compact" : ""}`}
+      className={`game-board game-board--graph${compact ? " game-board--compact" : ""}${fit ? " is-fit" : ""}`}
     >
       <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <header className="game-board__head">
         <span className="game-board__head-label">STRUCTURE</span>
-        <span className="game-board__head-meta">
-          {pad2(view.nodes.length)} NODES · {pad2(view.edges.length)} EDGES
-        </span>
+        <div className="game-board__head-actions">
+          {supportsFitView("graph") && (
+            <button
+              type="button"
+              className="game-board__fit-toggle"
+              onClick={() => setFit(!fit)}
+              aria-pressed={fit}
+            >
+              {fit ? "ACTUAL SIZE" : "FIT VIEW"}
+            </button>
+          )}
+          <span className="game-board__head-meta">
+            {pad2(view.nodes.length)} NODES · {pad2(view.edges.length)} EDGES
+          </span>
+        </div>
       </header>
-      {!compact && (
-        <p className="game-board__hint">Swipe the board sideways to see every node.</p>
+      {hasOverflow && (
+        <div className="game-board__overflow-cue" aria-hidden="true">
+          Pan for more →
+        </div>
       )}
-      <div className="game-board__scroll">
-        <svg viewBox={viewBox} role="group" aria-label={view.caption ?? "Puzzle graph"}>
+      <div
+        ref={scrollRef}
+        className="game-board__scroll"
+        tabIndex={0}
+        role="group"
+        aria-label="Scrollable board (use arrow keys to scroll horizontally)"
+      >
+        <svg
+          className={fit ? "is-fit" : undefined}
+          viewBox={viewBox}
+          role="group"
+          aria-label={view.caption ?? "Puzzle graph"}
+        >
           <defs>
             <marker id={markerId} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
               <path d="M0,0L8,4L0,8Z" className="game-arrowhead" />
@@ -350,6 +417,7 @@ function GraphBoard({
                 {active && (
                   <line
                     className={`game-edge__hit${isFaultMove(edge.moveId, faultMoveId) ? " is-note" : ""}${handover ? " is-handover" : ""}${!interactive ? " is-inert is-blocked" : ""}`}
+                    strokeWidth="28"
                     data-move-id={edge.moveId}
                     x1={x1}
                     y1={y1}
@@ -395,7 +463,7 @@ function GraphBoard({
                 onClick={node.moveId && interactive ? () => onMove(node.moveId as string) : undefined}
                 onKeyDown={interactive ? (event) => activate(node.moveId, onMove, event) : undefined}
               >
-                <circle className="game-node__hit" cx={x} cy={y} r="32" />
+                <circle className="game-node__hit" cx={x} cy={y} r="36" />
                 <circle className="game-node__halo" cx={x} cy={y} r="28" aria-hidden="true" />
                 <circle className="game-node__bevel" cx={x} cy={y} r="23" aria-hidden="true" />
                 <circle className="game-node__dot" cx={x} cy={y} r="19" aria-hidden="true" />
@@ -559,12 +627,23 @@ function GridBoard({
   const cells = new Map(view.cells.map((cell) => [`${cell.r}:${cell.c}`, cell]));
   const rows = Array.from({ length: view.rows }, (_, r) => r);
   const cols = Array.from({ length: view.cols }, (_, c) => c);
+  const { scrollRef, hasOverflow } = useBoardOverflow(view);
 
   return (
     <figure className="game-board game-board--grid">
       <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
-      <p className="game-board__hint">Swipe the table sideways to see every column.</p>
-      <div className="game-board__scroll">
+      {hasOverflow && (
+        <div className="game-board__overflow-cue" aria-hidden="true">
+          Pan for more →
+        </div>
+      )}
+      <div
+        ref={scrollRef}
+        className="game-board__scroll"
+        tabIndex={0}
+        role="group"
+        aria-label="Scrollable board (use arrow keys to scroll horizontally)"
+      >
         <table className="game-grid" role="grid" aria-label={view.caption ?? "Table puzzle"}>
           {view.colLabels != null && (
             <thead>
@@ -650,21 +729,46 @@ function TreeBoard({
   handoverMoveId?: string;
   legalMoveIds?: ReadonlySet<string>;
 }) {
+  const [fit, setFit] = useState(false);
   const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const nodes = new Map(view.nodes.map((node) => [node.id, node]));
+  const { scrollRef, hasOverflow } = useBoardOverflow(fit, view);
 
   return (
-    <figure className="game-board game-board--tree">
+    <figure className={`game-board game-board--tree${fit ? " is-fit" : ""}`}>
       <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <header className="game-board__head">
         <span className="game-board__head-label">STRUCTURE</span>
-        <span className="game-board__head-meta">
-          {pad2(view.nodes.length)} NODES · {pad2(view.edges.length)} EDGES
-        </span>
+        <div className="game-board__head-actions">
+          {supportsFitView("tree") && (
+            <button
+              type="button"
+              className="game-board__fit-toggle"
+              onClick={() => setFit(!fit)}
+              aria-pressed={fit}
+            >
+              {fit ? "ACTUAL SIZE" : "FIT VIEW"}
+            </button>
+          )}
+          <span className="game-board__head-meta">
+            {pad2(view.nodes.length)} NODES · {pad2(view.edges.length)} EDGES
+          </span>
+        </div>
       </header>
-      <p className="game-board__hint">Swipe the board sideways to see every branch.</p>
-      <div className="game-board__scroll">
+      {hasOverflow && (
+        <div className="game-board__overflow-cue" aria-hidden="true">
+          Pan for more →
+        </div>
+      )}
+      <div
+        ref={scrollRef}
+        className="game-board__scroll"
+        tabIndex={0}
+        role="group"
+        aria-label="Scrollable board (use arrow keys to scroll horizontally)"
+      >
         <svg
+          className={fit ? "is-fit" : undefined}
           viewBox={`0 0 640 ${view.height ?? 340}`}
           role="group"
           aria-label={view.caption ?? "Tree puzzle"}
@@ -720,7 +824,7 @@ function TreeBoard({
                 onClick={node.moveId && interactive ? () => onMove(node.moveId as string) : undefined}
                 onKeyDown={interactive ? (event) => activate(node.moveId, onMove, event) : undefined}
               >
-                <circle className="game-node__hit" cx={node.x} cy={node.y} r="30" />
+                <circle className="game-node__hit" cx={node.x} cy={node.y} r="34" />
                 <circle className="game-node__halo" cx={node.x} cy={node.y} r="28" aria-hidden="true" />
                 <circle className="game-node__bevel" cx={node.x} cy={node.y} r="23" aria-hidden="true" />
                 <circle className="game-node__dot" cx={node.x} cy={node.y} r="19" aria-hidden="true" />
@@ -865,7 +969,15 @@ function PairingBoard({
 
 /* ----------------------------------------------------------------- number -- */
 
-function NumberBoard({ view }: { view: NumberView }) {
+function NumberBoard({
+  view,
+  handoverMoveId,
+}: {
+  view: NumberView;
+  handoverMoveId?: string;
+}) {
+  const [fit, setFit] = useState(false);
+  const { scrollRef, hasOverflow } = useBoardOverflow(fit, view);
   const points = view.history.length > 0 ? view.history : [{ x: 0, y: view.value }];
   const values = [...points.map((p) => p.y), view.target, view.value];
   const min = Math.min(...values);
@@ -900,10 +1012,40 @@ function NumberBoard({ view }: { view: NumberView }) {
       : null;
 
   return (
-    <figure className="game-board game-board--number">
-      <p className="game-board__hint">Swipe the trace sideways to read every step.</p>
-      <div className="game-board__scroll">
-        <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={view.caption ?? "Iteration plot"}>
+    <figure className={`game-board game-board--number${fit ? " is-fit" : ""}`}>
+      <header className="game-board__head">
+        <span className="game-board__head-label">TRACE</span>
+        <div className="game-board__head-actions">
+          {supportsFitView("number") && (
+            <button
+              type="button"
+              className="game-board__fit-toggle"
+              onClick={() => setFit(!fit)}
+              aria-pressed={fit}
+            >
+              {fit ? "ACTUAL SIZE" : "FIT VIEW"}
+            </button>
+          )}
+        </div>
+      </header>
+      {hasOverflow && (
+        <div className="game-board__overflow-cue" aria-hidden="true">
+          Pan for more →
+        </div>
+      )}
+      <div
+        ref={scrollRef}
+        className="game-board__scroll"
+        tabIndex={0}
+        role="group"
+        aria-label="Scrollable board (use arrow keys to scroll horizontally)"
+      >
+        <svg
+          className={fit ? "is-fit" : undefined}
+          viewBox={`0 0 ${width} ${height}`}
+          role="img"
+          aria-label={view.caption ?? "Iteration plot"}
+        >
           <g className="game-plot-grid" aria-hidden="true">
             {[0.25, 0.5, 0.75].map((t) => (
               <line

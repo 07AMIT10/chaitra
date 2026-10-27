@@ -12,3 +12,12 @@ export function isMoveInteractive(
   if (!legalMoveIds) return true;
   return legalMoveIds.has(moveId);
 }
+
+export function shouldShowOverflowHint(scrollWidth: number, clientWidth: number): boolean {
+  return scrollWidth > clientWidth + 2;
+}
+
+export function supportsFitView(kind: string): boolean {
+  return kind === "graph" || kind === "tree" || kind === "number";
+}
+

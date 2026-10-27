@@ -1,5 +1,6 @@
 import { GAME_MAP_PATH } from "../../game/routes";
-import type { LevelMeta, Move, Session } from "../../game/types";
+import type { LevelMeta, Move } from "../../game/types";
+import type { Session } from "../../game/engine";
 
 export type RepairRailProps = {
   meta: LevelMeta;

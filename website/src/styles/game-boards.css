@@ -76,7 +76,8 @@
 
 .game-board__scroll:focus-visible {
   outline: 2px solid var(--gf-cyan);
-  outline-offset: 2px;
+  outline-offset: -1px;
+  box-shadow: 0 0 0 1px var(--gf-bg), 0 0 0 3px var(--gf-cyan);
 }
 
 .game-board svg {
@@ -104,6 +105,13 @@
   color: var(--gf-cyan);
 }
 
+.game-board__head-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
 .game-board__head-meta {
   font-size: 0.75rem;
   letter-spacing: 0.06em;
@@ -111,9 +119,64 @@
   white-space: nowrap;
 }
 
+.game-board__fit-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid var(--board-line);
+  border-radius: var(--gf-radius);
+  background: color-mix(in srgb, var(--gf-panel-raised) 75%, transparent);
+  color: var(--gf-cyan);
+  font-family: var(--gf-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    border-color var(--gf-fast) var(--gf-ease),
+    background-color var(--gf-fast) var(--gf-ease),
+    color var(--gf-fast) var(--gf-ease),
+    box-shadow var(--gf-fast) var(--gf-ease);
+}
+
+.game-board__fit-toggle:hover {
+  border-color: var(--gf-cyan);
+  color: var(--gf-cyan-bright);
+  background: color-mix(in srgb, var(--gf-cyan) 12%, var(--gf-panel-raised));
+}
+
+.game-board__fit-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--gf-bg), 0 0 0 4px var(--gf-cyan);
+}
+
+.game-board__fit-toggle[aria-pressed="true"] {
+  border-color: var(--gf-cyan-bright);
+  color: var(--gf-bg);
+  background: var(--gf-cyan);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--gf-cyan) 45%, transparent);
+}
+
+.game-board__overflow-cue,
+.game-board__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 var(--space-2);
+  font-family: var(--gf-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gf-cyan);
+}
+
 @media (max-width: 600px) {
-  .game-board__hint {
-    margin: 0 0 var(--space-2);
+  .game-board__head {
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-2);
   }
 }
 
@@ -129,6 +192,27 @@
 .game-board--graph .game-board__scroll > svg,
 .game-board--tree .game-board__scroll > svg {
   min-width: 560px;
+  transition: min-width var(--gf-slow) var(--gf-ease), width var(--gf-slow) var(--gf-ease);
+}
+
+.game-board--number .game-board__scroll > svg {
+  transition: min-width var(--gf-slow) var(--gf-ease), width var(--gf-slow) var(--gf-ease);
+}
+
+.game-board.is-fit .game-board__scroll > svg,
+.game-board .game-board__scroll > svg.is-fit {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game-board--graph .game-board__scroll > svg,
+  .game-board--tree .game-board__scroll > svg,
+  .game-board--number .game-board__scroll > svg,
+  .game-board.is-fit .game-board__scroll > svg,
+  .game-board .game-board__scroll > svg.is-fit {
+    transition: none !important;
+  }
 }
 
 /* Six-compartment union board: genuine 2×3 reflow, no sideways scroll. */
@@ -410,7 +494,7 @@
 
 .game-edge__hit {
   stroke: transparent;
-  stroke-width: 20;
+  stroke-width: 28;
   cursor: pointer;
 }
 
@@ -809,8 +893,8 @@ button.game-cell:focus-visible {
 
 .game-cell--grid {
   width: 100%;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
+  min-width: 44px;
+  min-height: 44px;
   padding: 0.25rem;
   font-size: 0.74rem;
   grid-template-rows: 1fr;
@@ -822,6 +906,8 @@ button.game-cell:focus-visible {
 }
 
 .game-grid__empty {
+  min-width: 44px;
+  min-height: 44px;
   height: 2.75rem;
   border: 1px dashed color-mix(in srgb, var(--gf-cyan) 9%, transparent);
   border-radius: 3px;
@@ -1391,9 +1477,19 @@ button.game-formula__output:focus-visible {
     font-size: 0.92rem;
   }
 
+  .game-board--grid .game-grid,
   .game-grid {
-    min-width: 460px;
+    min-width: 0;
+    width: 100%;
     border-spacing: 3px;
+  }
+
+  .game-cell--grid,
+  button.game-cell--grid,
+  .game-grid td,
+  .game-grid__empty {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 

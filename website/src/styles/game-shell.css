@@ -2335,6 +2335,7 @@ p.game-win__invariant {
   .game-stage {
     display: flex;
     flex-direction: column;
+    gap: var(--space-3);
   }
 
   .game-stage__situation {
@@ -2353,6 +2354,12 @@ p.game-win__invariant {
 
   .game-stage__frame {
     order: 2;
+    scroll-margin-top: 90px;
+  }
+
+  .game-board,
+  .game-board__scroll {
+    scroll-margin-top: 90px;
   }
 
   .game-stage > .ship-voice {

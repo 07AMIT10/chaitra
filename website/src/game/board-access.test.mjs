@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { isMoveInteractive } from "./board-access.ts";
+import {
+  isMoveInteractive,
+  shouldShowOverflowHint,
+  supportsFitView,
+} from "./board-access.ts";
 import bfs from "./levels/modules/breadth-first-search.ts";
 
 test("without a legal set, every bound move is interactive", () => {
@@ -49,3 +53,37 @@ test("a legal BFS town is interactive", () => {
     "Town A is in legalMoveIds and therefore interactive",
   );
 });
+
+test("overflow hint is hidden when content fits", () => {
+  assert.equal(shouldShowOverflowHint(400, 400), false);
+  assert.equal(shouldShowOverflowHint(401, 400), false);
+  assert.equal(shouldShowOverflowHint(402, 400), false);
+  assert.equal(shouldShowOverflowHint(300, 400), false);
+});
+
+test("overflow hint is shown when content is wider", () => {
+  assert.equal(shouldShowOverflowHint(403, 400), true);
+  assert.equal(shouldShowOverflowHint(560, 380), true);
+  assert.equal(shouldShowOverflowHint(1000, 400), true);
+});
+
+test("fit mode is supported for SVG boards (graph, tree, number) but not HTML boards (grid, array)", () => {
+  assert.equal(supportsFitView("graph"), true);
+  assert.equal(supportsFitView("tree"), true);
+  assert.equal(supportsFitView("number"), true);
+  assert.equal(supportsFitView("grid"), false);
+  assert.equal(supportsFitView("array"), false);
+  assert.equal(supportsFitView("formula"), false);
+  assert.equal(supportsFitView("pairing"), false);
+  assert.equal(supportsFitView("unknown"), false);
+});
+
+test("a bound node move remains interactive in fit mode", () => {
+  assert.equal(supportsFitView("graph"), true);
+  const legalMoves = new Set(["node:A", "node:B"]);
+  assert.equal(isMoveInteractive("node:A", legalMoves), true);
+  assert.equal(isMoveInteractive("node:C", legalMoves), false);
+  assert.equal(isMoveInteractive(undefined, legalMoves), false);
+  assert.equal(isMoveInteractive("node:A", undefined), true);
+});
+
