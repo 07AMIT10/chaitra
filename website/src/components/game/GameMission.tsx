@@ -31,6 +31,7 @@ import {
 } from "../../game/progression";
 import { lineFor, toneFor, type VoiceEvent } from "../../game/ship-voice";
 import type { LevelMeta, LevelModule } from "../../game/types";
+import { GAME_MAP_PATH } from "../../game/routes";
 import {
   clearResume,
   loadProgress,
@@ -379,7 +380,7 @@ export default function GameMission({ meta }: Props) {
     nextRepair != null;
 
   const primaryAction = showEnding
-    ? { href: "/algorithms/game", label: "MISSION MAP" }
+    ? { href: GAME_MAP_PATH, label: "MISSION MAP" }
     : !runRecorded
       ? null
       : showAct && nextRepair
@@ -394,7 +395,7 @@ export default function GameMission({ meta }: Props) {
             }
           : showCheckpoint
             ? null
-            : { href: "/algorithms/game", label: "MISSION MAP" };
+            : { href: GAME_MAP_PATH, label: "MISSION MAP" };
 
   /**
    * SABLE re-contextualises from real events, not a timer: terminal run, deck
@@ -569,7 +570,7 @@ export default function GameMission({ meta }: Props) {
                 <span aria-hidden="true">→</span>
               </a>
             )}
-            <a className="game-btn" href="/algorithms/game">
+            <a className="game-btn" href={GAME_MAP_PATH}>
               MISSION MAP
               <span aria-hidden="true">→</span>
             </a>
@@ -794,7 +795,7 @@ export default function GameMission({ meta }: Props) {
                   <div className="game-checkpoint__actions">
                     <a
                       className="game-btn game-btn--primary"
-                      href="/algorithms/game"
+                      href={GAME_MAP_PATH}
                       onClick={acknowledgeCheckpointCard}
                     >
                       {checkpoint.pauseLabel}

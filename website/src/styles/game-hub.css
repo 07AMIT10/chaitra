@@ -2139,3 +2139,39 @@
     transform: none;
   }
 }
+
+/* ------------------------------------------------------------- game entry -- */
+
+.game-entry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  padding: clamp(2rem, 5vw, 4rem) 1rem;
+  box-sizing: border-box;
+}
+
+.game-entry__content {
+  max-width: 32rem;
+  width: 100%;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.game-entry__title {
+  margin: var(--space-2, 0.5rem) 0 var(--space-3, 0.75rem);
+  font-family: var(--font-display, inherit);
+  font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+  letter-spacing: -0.02em;
+}
+
+.game-entry__status {
+  margin: var(--space-3, 0.75rem) 0 var(--space-4, 1.25rem);
+  color: var(--gf-muted, #94a3b8);
+  font-size: 0.95rem;
+}
+
+.game-entry__action {
+  margin: var(--space-4, 1.25rem) 0;
+}
+

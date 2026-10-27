@@ -1,4 +1,5 @@
 import type { LevelMeta } from "../../game/types";
+import { GAME_MAP_PATH } from "../../game/routes";
 import SoundToggle from "./SoundToggle";
 
 type Props = {
@@ -29,7 +30,7 @@ export default function GameHUD({
 }: Props) {
   return (
     <header className="game-hud">
-      <a className="game-hud__brand" href="/algorithms/game" aria-label="The Long Repair — open the mission map">
+      <a className="game-hud__brand" href={GAME_MAP_PATH} aria-label="The Long Repair — open the mission map">
         <span className="game-hud__mark" aria-hidden="true">
           <svg viewBox="0 0 40 40" focusable="false">
             <path d="M20 3.5 34.3 11.7v16.6L20 36.5 5.7 28.3V11.7Z" />
@@ -83,7 +84,7 @@ export default function GameHUD({
 
       <div className="game-hud__controls">
         <SoundToggle enabled={soundEnabled} onToggle={onToggleSound} />
-        <a className="game-hud__map" href="/algorithms/game" aria-label="Open the mission map">
+        <a className="game-hud__map" href={GAME_MAP_PATH} aria-label="Open the mission map">
           <span className="game-hud__map-icon" aria-hidden="true">
             <i />
             <i />

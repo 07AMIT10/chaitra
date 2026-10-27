@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
-import GameHub from "../../../components/game/GameHub.tsx";
+import GameEntry from "../../../components/game/GameEntry.tsx";
 import "../../../styles/game.css";
 ---
 
@@ -11,12 +11,6 @@ import "../../../styles/game.css";
     href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
   />
   <div class="game-page">
-    <noscript>
-      <p class="game-noscript">
-        The Long Repair needs JavaScript to run its puzzle boards. The
-        <a href="/algorithms">mathematics pages</a> do not.
-      </p>
-    </noscript>
-    <GameHub client:visible />
+    <GameEntry client:visible />
   </div>
 </BaseLayout>
