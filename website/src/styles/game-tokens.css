@@ -10,6 +10,8 @@
   /* palette — Drydock Schematic */
   --gf-bg: #05090e;
   --gf-bg-2: #0a131b;
+  --game-bg: #0b0f17;
+  --game-border: #1f293d;
   --gf-panel: rgba(10, 19, 27, 0.86);
   --gf-panel-solid: #0a131b;
   --gf-panel-raised: #132430;

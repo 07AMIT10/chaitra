@@ -48,6 +48,8 @@ import {
 } from "../../game/park";
 import ResumeParkCard from "./ResumeParkCard";
 import ParkConflictCard from "./ParkConflictCard";
+import RepairRail from "./RepairRail";
+import { shouldOfferHelp } from "../../game/rail";
 import "../../styles/game.css";
 
 type Props = { meta: LevelMeta };
@@ -177,6 +179,9 @@ export default function GameMission({ meta }: Props) {
   const [hintIndex, setHintIndex] = useState(0);
   const [progress, setProgress] = useState<Progress | null>(null);
   const [saveNote, setSaveNote] = useState<string | null>(null);
+  const [lastAcceptedAt, setLastAcceptedAt] = useState<number>(() => Date.now());
+  const [hasRejection, setHasRejection] = useState(false);
+  const [now, setNow] = useState<number>(() => Date.now());
   const [coached, setCoached] = useState<boolean | null>(null);
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null);
   const [checkpointDismissed, setCheckpointDismissed] = useState(false);
@@ -212,6 +217,8 @@ export default function GameMission({ meta }: Props) {
     setLastMoveId(null);
     setHintIndex(0);
     setSaveNote(null);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
     setSessionSummary(null);
     setCheckpointDismissed(false);
     saved.current = false;
@@ -453,6 +460,22 @@ export default function GameMission({ meta }: Props) {
   const complete = Boolean(showEnding || (progress && isCampaignComplete(LEVEL_META, progress)));
   const actions = winActions(meta, nextRepair, complete);
 
+  useEffect(() => {
+    if (session?.status !== "playing") return;
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [session?.status]);
+
+  const showHelp = shouldOfferHelp({
+    hintIndex,
+    hasRejection,
+    status: session?.status ?? "playing",
+    now,
+    lastAcceptedAt,
+  });
+
   /**
    * SABLE re-contextualises from real events, not a timer: terminal run, deck
    * boundary, refusal, then the accepted move count. `accepted` picks its lead
@@ -497,11 +520,14 @@ export default function GameMission({ meta }: Props) {
     if (result.error) {
       setRuleError(result.error);
       setFaultMoveId(moveId);
+      setHasRejection(true);
       audio.play("error");
       return;
     }
     setRuleError(null);
     setFaultMoveId(null);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
     setLastMoveId(moveId);
     setLastMove(
       playedMove
@@ -526,6 +552,7 @@ export default function GameMission({ meta }: Props) {
     commit(undo(level, current));
     setRuleError(null);
     setFaultMoveId(null);
+    setHasRejection(false);
     setLastMoveId(null);
     setLastMove(null);
     setSaveNote(null);
@@ -538,11 +565,18 @@ export default function GameMission({ meta }: Props) {
     commit(restart(level));
     setRuleError(null);
     setFaultMoveId(null);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
     setLastMoveId(null);
     setLastMove(null);
     setHintIndex(0);
     setSaveNote(null);
     saved.current = false;
+  }
+
+  function handleDismissNote() {
+    setRuleError(null);
+    setParkNote(null);
   }
 
   function handleResume() {
@@ -553,6 +587,8 @@ export default function GameMission({ meta }: Props) {
     setLastMove(parkPreview.record.lastMove ?? null);
     setParkPreview(null);
     setParkResolved(true);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
   }
 
   function handleStartFresh() {
@@ -565,6 +601,8 @@ export default function GameMission({ meta }: Props) {
     setLastMove(null);
     setParkPreview(null);
     setParkResolved(true);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
   }
 
   function handleResumeParked() {
@@ -583,6 +621,8 @@ export default function GameMission({ meta }: Props) {
     setLastMoveId(null);
     setLastMove(null);
     setParkResolved(true);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
   }
 
   function handleMap() {
@@ -653,12 +693,6 @@ export default function GameMission({ meta }: Props) {
     setCheckpointDismissed(true);
   }
 
-  const repeatTitle = repeatMove
-    ? repeatMove.label
-    : lastMoveId
-      ? "That move is not available from this state."
-      : "No accepted move yet.";
-
   return (
     <div className="game-mission-page">
       <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
@@ -675,12 +709,6 @@ export default function GameMission({ meta }: Props) {
         soundEnabled={audio.enabled}
         onToggleSound={audio.toggle}
       />
-
-      {parkNote && (
-        <div className="game-banner" role="status" aria-live="polite">
-          <p className="game-banner__text">{parkNote}</p>
-        </div>
-      )}
 
       {parkConflict != null ? (
         <ParkConflictCard
@@ -725,6 +753,22 @@ export default function GameMission({ meta }: Props) {
             stepIndex={coachIndex}
             total={COACH_STEPS.length}
             onDismiss={dismissCoach}
+          />
+
+          <RepairRail
+            meta={meta}
+            session={session}
+            hintIndex={hintIndex}
+            ruleError={ruleError}
+            repeatMove={repeatMove}
+            showHelp={showHelp}
+            parkNote={parkNote}
+            onUndo={handleUndo}
+            onRepeat={handleRepeat}
+            onRestart={handleRestart}
+            onRevealHint={() => revealHint(hintIndex + 1)}
+            onSaveAndClose={handleSaveAndClose}
+            onDismissNote={handleDismissNote}
           />
 
           <div
@@ -778,8 +822,6 @@ export default function GameMission({ meta }: Props) {
             {view != null && (
               <GameTelemetry
                 moves={session?.moves ?? 0}
-                hints={session?.hints ?? hintIndex}
-                hintsTotal={meta.hints.length}
                 status={telemetryStatus}
                 kind={view.kind}
                 caption={view.caption}
@@ -788,16 +830,6 @@ export default function GameMission({ meta }: Props) {
           </div>
 
           <ShipVoice line={voiceLine} tone={voiceTone} />
-
-          {ruleError != null && (
-            <div className="game-fault" role="alert">
-              <span className="game-fault__mark" aria-hidden="true">!</span>
-              <div className="game-fault__body">
-                <p className="game-fault__label">FAULT</p>
-                <p className="game-fault__text">{ruleError}</p>
-              </div>
-            </div>
-          )}
 
           {trayMoves.length > 0 && (
             <div className="game-tray" role="group" aria-label="Available actions">
@@ -818,46 +850,6 @@ export default function GameMission({ meta }: Props) {
               </div>
             </div>
           )}
-
-          <div className="game-controls" role="group" aria-label="Repair controls">
-            <button
-              type="button"
-              className="game-btn game-repeat"
-              onClick={handleRepeat}
-              disabled={!repeatMove}
-              aria-label="Repeat last accepted move"
-              title={repeatTitle}
-            >
-              <span className="game-repeat__glyph" aria-hidden="true">↻</span>
-              REPEAT
-            </button>
-            <button
-              type="button"
-              className="game-btn"
-              onClick={handleUndo}
-              disabled={!session || session.history.length === 0}
-              aria-label="Undo last move"
-            >
-              UNDO
-            </button>
-            <button
-              type="button"
-              className="game-btn"
-              onClick={handleRestart}
-              disabled={!level}
-              aria-label="Restart repair"
-            >
-              RESTART
-            </button>
-            <button
-              type="button"
-              className="game-btn"
-              onClick={handleSaveAndClose}
-              aria-label="Save and close repair"
-            >
-              SAVE &amp; CLOSE
-            </button>
-          </div>
 
           {session?.status === "won" && score != null && (
             <section className="game-win" aria-label="Mission complete" ref={winRef}>

@@ -1328,7 +1328,7 @@
 
 .game-telemetry__grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
   margin: 0;
 }
@@ -1505,6 +1505,138 @@
 .game-controls .game-btn {
   font-size: 0.68rem;
   letter-spacing: 0.1em;
+}
+
+/* ------------------------------------------------------------ repair rail -- */
+
+.game-repair-rail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2, 0.5rem);
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--gf-line, var(--game-border, #1f293d));
+  border-radius: var(--gf-radius-lg, 3px);
+  background:
+    linear-gradient(180deg, var(--gf-cyan-faint), transparent 45%),
+    color-mix(in srgb, var(--gf-panel-solid) 92%, transparent);
+  box-shadow: var(--gf-inset);
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.game-repair-rail__rule {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-size: var(--gf-text-micro, 0.75rem);
+  line-height: 1.4;
+  color: var(--gf-muted);
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.game-repair-rail__rule-label {
+  font-family: var(--gf-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--gf-cyan);
+  padding: 0.12rem 0.35rem;
+  background: var(--gf-cyan-soft);
+  border: 1px solid color-mix(in srgb, var(--gf-cyan) 40%, transparent);
+  border-radius: var(--gf-radius-sm, 2px);
+  flex-shrink: 0;
+}
+
+.game-repair-rail__rule-text {
+  margin: 0;
+  flex: 1;
+}
+
+.game-repair-rail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.game-repair-rail__btn {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  min-height: 44px;
+}
+
+.game-repair-rail__btn--nudge {
+  border-color: var(--gf-amber);
+  color: var(--gf-amber-bright);
+  background:
+    linear-gradient(180deg, var(--gf-amber-soft), transparent 60%),
+    var(--gf-panel-solid);
+}
+
+.game-repair-rail__btn--nudge:hover,
+.game-repair-rail__btn--nudge:focus-visible {
+  border-color: var(--gf-amber-bright);
+  color: #fff;
+}
+
+.game-repair-rail__status {
+  min-width: 0;
+}
+
+.game-repair-rail__status:empty {
+  display: none;
+}
+
+.game-repair-rail__status-body {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border: 1px solid color-mix(in srgb, var(--gf-cyan) 38%, var(--gf-line));
+  border-left: 3px solid var(--gf-cyan);
+  border-radius: var(--gf-radius);
+  background: color-mix(in srgb, var(--gf-panel-solid) 95%, transparent);
+  font-size: var(--gf-text-micro, 0.75rem);
+  color: var(--gf-text);
+}
+
+.game-repair-rail__status:not(.game-banner) .game-repair-rail__status-body {
+  border-color: color-mix(in srgb, var(--gf-red) 45%, var(--gf-line));
+  border-left-color: var(--gf-red);
+}
+
+.game-repair-rail__status-mark {
+  font-family: var(--gf-mono);
+  font-weight: 700;
+  color: var(--gf-cyan);
+  flex-shrink: 0;
+}
+
+.game-repair-rail__status:not(.game-banner) .game-repair-rail__status-mark {
+  color: var(--gf-red);
+}
+
+.game-repair-rail__status-text {
+  margin: 0;
+  flex: 1;
+}
+
+.game-repair-rail__status-dismiss {
+  appearance: none;
+  background: none;
+  border: none;
+  color: var(--gf-muted);
+  cursor: pointer;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.85rem;
+  line-height: 1;
+  border-radius: var(--gf-radius-sm, 2px);
+}
+
+.game-repair-rail__status-dismiss:hover {
+  color: var(--gf-text);
 }
 
 .game-repeat {
@@ -2106,32 +2238,39 @@
     order: 0;
   }
 
-  .game-stage__frame {
+  .game-stage > .game-repair-rail {
     order: 1;
+    position: sticky;
+    top: 0;
+    z-index: 25;
+    background: var(--game-bg, #0b0f17);
+    border-bottom: 1px solid var(--game-border, #1f293d);
+    padding: 8px 12px;
   }
 
-  .game-stage > .ship-voice {
+  .game-stage__frame {
     order: 2;
   }
 
-  .game-stage > .game-fault {
+  .game-stage > .ship-voice {
     order: 3;
   }
 
-  .game-stage > .game-coach {
+  .game-stage > .game-fault {
     order: 4;
   }
 
-  .game-stage > .game-tray {
+  .game-stage > .game-coach {
     order: 5;
   }
 
-  .game-stage > .game-controls {
+  .game-stage > .game-tray {
     order: 6;
   }
 
   .game-stage > .game-win {
     order: 7;
+    scroll-margin-top: 80px;
   }
 
   .game-stage > .game-lose {
@@ -2291,17 +2430,12 @@
   }
 
   .game-telemetry__grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 0.45rem 0.5rem;
   }
 
   .game-telemetry__readout {
     padding-left: 0.45rem;
-  }
-
-  .game-telemetry__readout:nth-child(3) {
-    padding-left: 0;
-    border-left: 0;
   }
 
   .game-telemetry__caption {
@@ -2357,12 +2491,14 @@
     flex: 1 1 100%;
   }
 
+  .game-repair-rail__actions .game-btn,
   .game-controls .game-btn {
     flex: 1 1 auto;
   }
 
+  .game-stage .game-repair-rail__actions .game-btn,
   .game-stage .game-controls .game-btn {
-    flex: 1 1 0;
+    flex: 1 1 auto;
     min-width: 0;
     padding-inline: 0.35rem;
     letter-spacing: 0.06em;
