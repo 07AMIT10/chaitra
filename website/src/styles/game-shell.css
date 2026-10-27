@@ -1055,8 +1055,7 @@
   background: linear-gradient(90deg, transparent, var(--gf-cyan), transparent);
 }
 
-/* The gate holds the first paint until progress is read, so a sealed direct
-   URL never flashes a playable board. */
+/* The gate holds the initial paint while the level and session boot. */
 .game-gate {
   display: grid;
   place-items: center;
@@ -1079,74 +1078,6 @@
   text-transform: uppercase;
   color: var(--gf-muted);
   text-align: center;
-}
-
-.game-sealed {
-  display: grid;
-  gap: var(--space-2);
-  min-width: 0;
-  padding: var(--space-5);
-  border: 1px solid color-mix(in srgb, var(--gf-amber) 38%, var(--gf-line));
-  border-left: 3px solid var(--gf-amber);
-  border-radius: var(--gf-radius-lg);
-  background:
-    linear-gradient(90deg, var(--gf-amber-soft), transparent 78%),
-    var(--gf-panel);
-  box-shadow: var(--gf-inset);
-}
-
-.game-sealed__kicker {
-  margin: 0;
-  font-family: var(--gf-mono);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--gf-amber);
-}
-
-.game-sealed__title {
-  margin: 0;
-  font-family: var(--gf-display);
-  font-size: clamp(1.55rem, 3vw, 2.1rem);
-  font-weight: 700;
-  line-height: 1;
-  letter-spacing: 0.06em;
-  color: var(--gf-text);
-  text-wrap: balance;
-}
-
-.game-sealed__body {
-  max-width: 60ch;
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.55;
-  color: var(--gf-muted);
-}
-
-.game-sealed__precedent {
-  max-width: 60ch;
-  margin: 0;
-  font-family: var(--gf-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--gf-amber);
-}
-
-.game-sealed__links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-top: var(--space-1);
-}
-
-.game-sealed__links .game-btn {
-  min-width: 0;
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-align: left;
 }
 
 /* --------------------------------------------------- park recap & conflict -- */
@@ -2591,14 +2522,6 @@ p.game-win__invariant {
 
   .game-win__links .game-btn {
     font-size: 0.75rem;
-  }
-
-  .game-sealed {
-    padding: var(--space-4);
-  }
-
-  .game-sealed__links .game-btn {
-    flex: 1 1 100%;
   }
 
   .game-repair-rail__actions .game-btn,

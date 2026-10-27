@@ -455,6 +455,9 @@ export default function GameMission({ meta }: Props) {
     sessionSummary && progress ? sessionCheckpoint(sessionSummary, LEVEL_META, progress) : null;
   const won = session?.status === "won";
   const outcome = score ? winOutcome(score.stars) : null;
+  // Direct mission URLs are always directly playable even with empty progress.
+  // Campaign progression order (missionAccess) is preserved on the map (GameMap/GameHub),
+  // while in GameMission access is only used to determine the next repair recommendation.
   const access = progress ? missionAccess(LEVEL_META, progress, meta.slug) : null;
   const nextRepair = access?.next?.meta ?? null;
   const showEnding = won && meta.number === 24;
