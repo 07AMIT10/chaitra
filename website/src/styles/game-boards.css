@@ -1435,6 +1435,48 @@ button.game-formula__output:focus-visible {
   }
 }
 
+/* ------------------------------------------------------------- handover -- */
+
+.is-handover {
+  outline: 2px dashed var(--gf-amber, #f59e0b);
+  outline-offset: 3px;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.game-node.is-handover .game-node__halo {
+  stroke: var(--gf-amber, #f59e0b);
+  stroke-dasharray: 4 3;
+  stroke-width: 2.5;
+  opacity: 1;
+}
+
+.game-edge.is-handover .game-edge__halo {
+  stroke: var(--gf-amber, #f59e0b);
+  stroke-dasharray: 6 4;
+  stroke-width: 6;
+  opacity: 0.9;
+}
+
+.game-edge.is-handover .game-edge__line {
+  stroke: var(--gf-amber, #f59e0b);
+}
+
+.game-edge__hit.is-handover {
+  stroke: color-mix(in srgb, var(--gf-amber, #f59e0b) 40%, transparent);
+}
+
+.game-repair-rail__btn--handover {
+  border-color: color-mix(in srgb, var(--gf-amber, #f59e0b) 70%, transparent);
+  color: var(--gf-amber-bright, #fbbf24);
+}
+
+.game-repair-rail__btn--handover:hover,
+.game-repair-rail__btn--handover:focus-visible {
+  border-color: var(--gf-amber-bright, #fbbf24);
+  color: #fff;
+}
+
 /* -------------------------------------------------------- reduced motion -- */
 
 @media (prefers-reduced-motion: reduce) {

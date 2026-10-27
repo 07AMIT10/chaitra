@@ -15,9 +15,7 @@ test("play is deterministic, immutable, and undo restores the snapshot", async (
   const level = await loadLevel("union-find");
   assert.ok(level);
 
-  const opening = play(level, start(level), "select:A");
-  assert.equal(opening.error, undefined);
-  const base = opening.session;
+  const base = start(level);
   const before = structuredClone(base.state);
 
   const first = play(level, base, "merge:A:B");

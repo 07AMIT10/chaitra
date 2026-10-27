@@ -21,6 +21,8 @@ type BoardProps = {
   onMove: (moveId: string) => void;
   /** The last rejected move; boards mark its element as a fault. */
   faultMoveId?: string;
+  /** First-move handover: highlight the recommended opening move. */
+  handoverMoveId?: string;
 };
 
 function activate(
@@ -39,15 +41,24 @@ function isFaultMove(moveId: string | undefined, faultMoveId: string | undefined
   return Boolean(moveId && faultMoveId && moveId === faultMoveId);
 }
 
+function isHandoverMove(
+  moveId: string | undefined,
+  handoverMoveId: string | undefined,
+): boolean {
+  return Boolean(moveId && handoverMoveId && moveId === handoverMoveId);
+}
+
 function stateClass(
   base: string,
   state: string | undefined,
   moveId: string | undefined,
   faultMoveId: string | undefined,
+  handoverMoveId?: string | undefined,
 ): string {
   const classes = [base];
   if (state && state !== "idle") classes.push(`is-${state}`);
   if (isFaultMove(moveId, faultMoveId)) classes.push("is-fault");
+  if (isHandoverMove(moveId, handoverMoveId)) classes.push("is-handover");
   return classes.join(" ");
 }
 
@@ -241,12 +252,15 @@ function GraphBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
 }: {
   view: GraphView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
 }) {
   const markerId = `game-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const nodes = new Map(view.nodes.map((node) => [node.id, node]));
   const { ref: boardRef, width: boardWidth } = useElementWidth<HTMLElement>();
   const compact = boardWidth > 0 && boardWidth <= 540 && isUnionBoard(view);
@@ -266,6 +280,7 @@ function GraphBoard({
       ref={boardRef}
       className={`game-board game-board--graph${compact ? " game-board--compact" : ""}`}
     >
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <header className="game-board__head">
         <span className="game-board__head-label">STRUCTURE</span>
         <span className="game-board__head-meta">
@@ -299,12 +314,13 @@ function GraphBoard({
             const mx = (x1 + x2) / 2;
             const my = (y1 + y2) / 2;
             const active = Boolean(edge.moveId);
+            const handover = isHandoverMove(edge.moveId, handoverMoveId);
             const chip = edge.label != null ? labelWidth(String(edge.label)) : 0;
 
             return (
               <g
                 key={edge.id}
-                className={stateClass("game-edge", edge.state, edge.moveId, faultMoveId)}
+                className={stateClass("game-edge", edge.state, edge.moveId, faultMoveId, handoverMoveId)}
               >
                 <line className="game-edge__halo" x1={x1} y1={y1} x2={x2} y2={y2} />
                 <line
@@ -325,7 +341,7 @@ function GraphBoard({
                 )}
                 {active && (
                   <line
-                    className={`game-edge__hit${isFaultMove(edge.moveId, faultMoveId) ? " is-fault" : ""}`}
+                    className={`game-edge__hit${isFaultMove(edge.moveId, faultMoveId) ? " is-fault" : ""}${handover ? " is-handover" : ""}`}
                     data-move-id={edge.moveId}
                     x1={x1}
                     y1={y1}
@@ -334,6 +350,7 @@ function GraphBoard({
                     role="button"
                     tabIndex={0}
                     aria-label={edge.aria ?? edge.id}
+                    aria-describedby={handover ? handoverDescId : undefined}
                     onClick={() => edge.moveId && onMove(edge.moveId)}
                     onKeyDown={(event) => activate(edge.moveId, onMove, event)}
                   />
@@ -344,6 +361,7 @@ function GraphBoard({
 
           {view.nodes.map((node) => {
             const fault = isFaultMove(node.moveId, faultMoveId);
+            const handover = isHandoverMove(node.moveId, handoverMoveId);
             const tone = fault ? "fault" : (node.state ?? "idle");
             const point = pointOf(node.id) ?? { x: node.x, y: node.y };
             const x = point.x;
@@ -357,11 +375,12 @@ function GraphBoard({
             return (
               <g
                 key={node.id}
-                className={stateClass("game-node", node.state, node.moveId, faultMoveId)}
+                className={stateClass("game-node", node.state, node.moveId, faultMoveId, handoverMoveId)}
                 data-move-id={node.moveId}
                 role={node.moveId ? "button" : undefined}
                 tabIndex={node.moveId ? 0 : undefined}
                 aria-label={node.moveId ? (node.aria ?? node.label) : undefined}
+                aria-describedby={handover ? handoverDescId : undefined}
                 onClick={node.moveId ? () => onMove(node.moveId as string) : undefined}
                 onKeyDown={(event) => activate(node.moveId, onMove, event)}
               >
@@ -423,16 +442,21 @@ function ArrayBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
 }: {
   view: ArrayView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <figure className="game-board game-board--array">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <div className="game-array" role="group" aria-label={view.caption ?? "Sequence puzzle"}>
         {view.items.map((item) => {
-          const className = stateClass("game-cell", item.state, item.moveId, faultMoveId);
+          const handover = isHandoverMove(item.moveId, handoverMoveId);
+          const className = stateClass("game-cell", item.state, item.moveId, faultMoveId, handoverMoveId);
           const content = (
             <>
               <span className="game-cell__value">{item.value}</span>
@@ -447,6 +471,7 @@ function ArrayBoard({
               className={className}
               data-move-id={item.moveId}
               aria-label={item.aria ?? `${item.label ?? item.value}`}
+              aria-describedby={handover ? handoverDescId : undefined}
               onClick={() => onMove(item.moveId as string)}
             >
               {content}
@@ -490,17 +515,21 @@ function GridBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
 }: {
   view: GridView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const cells = new Map(view.cells.map((cell) => [`${cell.r}:${cell.c}`, cell]));
   const rows = Array.from({ length: view.rows }, (_, r) => r);
   const cols = Array.from({ length: view.cols }, (_, c) => c);
 
   return (
     <figure className="game-board game-board--grid">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <p className="game-board__hint">Swipe the table sideways to see every column.</p>
       <div className="game-board__scroll">
         <table className="game-grid" role="grid" aria-label={view.caption ?? "Table puzzle"}>
@@ -523,11 +552,13 @@ function GridBoard({
                   if (!cell) {
                     return <td key={c} className="game-grid__empty" />;
                   }
+                  const handover = isHandoverMove(cell.moveId, handoverMoveId);
                   const className = stateClass(
                     "game-cell game-cell--grid",
                     cell.state,
                     cell.moveId,
                     faultMoveId,
+                    handoverMoveId,
                   );
                   return (
                     <td key={c}>
@@ -537,6 +568,7 @@ function GridBoard({
                           className={className}
                           data-move-id={cell.moveId}
                           aria-label={cell.aria ?? `Row ${r}, column ${c}: ${cell.value}`}
+                          aria-describedby={handover ? handoverDescId : undefined}
                           onClick={() => onMove(cell.moveId as string)}
                         >
                           {cell.value}
@@ -565,15 +597,19 @@ function TreeBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
 }: {
   view: TreeView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const nodes = new Map(view.nodes.map((node) => [node.id, node]));
 
   return (
     <figure className="game-board game-board--tree">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <header className="game-board__head">
         <span className="game-board__head-label">STRUCTURE</span>
         <span className="game-board__head-meta">
@@ -621,16 +657,18 @@ function TreeBoard({
           })}
           {view.nodes.map((node) => {
             const fault = isFaultMove(node.moveId, faultMoveId);
+            const handover = isHandoverMove(node.moveId, handoverMoveId);
             const tone = fault ? "fault" : (node.state ?? "idle");
 
             return (
               <g
                 key={node.id}
-                className={stateClass("game-node", node.state, node.moveId, faultMoveId)}
+                className={stateClass("game-node", node.state, node.moveId, faultMoveId, handoverMoveId)}
                 data-move-id={node.moveId}
                 role={node.moveId ? "button" : undefined}
                 tabIndex={node.moveId ? 0 : undefined}
                 aria-label={node.moveId ? (node.aria ?? node.label) : undefined}
+                aria-describedby={handover ? handoverDescId : undefined}
                 onClick={node.moveId ? () => onMove(node.moveId as string) : undefined}
                 onKeyDown={(event) => activate(node.moveId, onMove, event)}
               >
@@ -703,16 +741,20 @@ function PairingBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
 }: {
   view: PairingView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const item = (
     entry: PairingView["left"][number],
     side: "left" | "right",
   ) => {
-    const className = stateClass("game-pair", entry.state, entry.moveId, faultMoveId);
+    const handover = isHandoverMove(entry.moveId, handoverMoveId);
+    const className = stateClass("game-pair", entry.state, entry.moveId, faultMoveId, handoverMoveId);
     return entry.moveId ? (
       <button
         key={entry.id}
@@ -720,6 +762,7 @@ function PairingBoard({
         className={className}
         data-move-id={entry.moveId}
         aria-label={`${side} ${entry.label}`}
+        aria-describedby={handover ? handoverDescId : undefined}
         onClick={() => onMove(entry.moveId as string)}
       >
         {entry.label}
@@ -731,6 +774,7 @@ function PairingBoard({
 
   return (
     <figure className="game-board game-board--pairing">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <div className="game-pairing">
         <div className="game-pairing__col game-pairing__col--left" role="group" aria-label="Left side">
           {view.left.map((e) => item(e, "left"))}
@@ -888,17 +932,22 @@ function FormulaBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
 }: {
   view: FormulaView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <figure className="game-board game-board--formula">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <div className="game-formula">
         <div className="game-formula__rows" role="group" aria-label="Measurements">
           {view.rows.map((row) => {
-            const className = stateClass("game-formula__row", row.state, row.moveId, faultMoveId);
+            const handover = isHandoverMove(row.moveId, handoverMoveId);
+            const className = stateClass("game-formula__row", row.state, row.moveId, faultMoveId, handoverMoveId);
             const content = (
               <>
                 <span className="game-formula__label">{row.label}</span>
@@ -912,6 +961,7 @@ function FormulaBoard({
                 className={className}
                 data-move-id={row.moveId}
                 aria-label={`${row.label}: ${row.formula}`}
+                aria-describedby={handover ? handoverDescId : undefined}
                 onClick={() => onMove(row.moveId as string)}
               >
                 {content}
@@ -923,11 +973,13 @@ function FormulaBoard({
         </div>
         <div className="game-formula__outputs" role="group" aria-label="Outputs">
           {view.outputs.map((output) => {
+            const handover = isHandoverMove(output.moveId, handoverMoveId);
             const className = stateClass(
               "game-formula__output",
               output.state,
               output.moveId,
               faultMoveId,
+              handoverMoveId,
             );
             const content = (
               <>
@@ -942,6 +994,7 @@ function FormulaBoard({
                 className={className}
                 data-move-id={output.moveId}
                 aria-label={`${output.label}: ${output.formula}`}
+                aria-describedby={handover ? handoverDescId : undefined}
                 onClick={() => onMove(output.moveId as string)}
               >
                 {content}
@@ -959,22 +1012,64 @@ function FormulaBoard({
 
 /* ----------------------------------------------------------------- switch -- */
 
-export default function Board({ view, onMove, faultMoveId }: BoardProps) {
+export default function Board({ view, onMove, faultMoveId, handoverMoveId }: BoardProps) {
   switch (view.kind) {
     case "graph":
-      return <GraphBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <GraphBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+        />
+      );
     case "array":
-      return <ArrayBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <ArrayBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+        />
+      );
     case "grid":
-      return <GridBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <GridBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+        />
+      );
     case "tree":
-      return <TreeBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <TreeBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+        />
+      );
     case "pairing":
-      return <PairingBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <PairingBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+        />
+      );
     case "number":
-      return <NumberBoard view={view} />;
+      return <NumberBoard view={view} handoverMoveId={handoverMoveId} />;
     case "formula":
-      return <FormulaBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <FormulaBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+        />
+      );
     default:
       return <p className="game-note">This board is not available yet.</p>;
   }

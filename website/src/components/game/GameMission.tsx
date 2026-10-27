@@ -50,6 +50,12 @@ import ResumeParkCard from "./ResumeParkCard";
 import ParkConflictCard from "./ParkConflictCard";
 import RepairRail from "./RepairRail";
 import { shouldOfferHelp } from "../../game/rail";
+import {
+  chooseHandoverMove,
+  handoverSeen,
+  markHandoverSeen,
+  shouldHandover,
+} from "../../game/handover";
 import "../../styles/game.css";
 
 type Props = { meta: LevelMeta };
@@ -58,8 +64,8 @@ const COACH_KEY = "chaitra_algorithms_game_coached";
 
 const COACH_STEPS: CoachStep[] = [
   {
-    title: "The board is live.",
-    body: "Select a compartment, then the block it joins. The guide stays out of the way.",
+    title: "A is selected.",
+    body: "Voss stopped here. A is selected. Choose the block it joins.",
   },
   {
     title: "Choose the destination.",
@@ -183,6 +189,7 @@ export default function GameMission({ meta }: Props) {
   const [hasRejection, setHasRejection] = useState(false);
   const [now, setNow] = useState<number>(() => Date.now());
   const [coached, setCoached] = useState<boolean | null>(null);
+  const [handoverDismissed, setHandoverDismissed] = useState(false);
   const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null);
   const [checkpointDismissed, setCheckpointDismissed] = useState(false);
   const saved = useRef(false);
@@ -218,6 +225,7 @@ export default function GameMission({ meta }: Props) {
     setHintIndex(0);
     setSaveNote(null);
     setHasRejection(false);
+    setHandoverDismissed(false);
     setLastAcceptedAt(Date.now());
     setSessionSummary(null);
     setCheckpointDismissed(false);
@@ -425,6 +433,19 @@ export default function GameMission({ meta }: Props) {
     ? "fault"
     : session?.status ?? "standby";
   const budget = parseBudget(view?.caption);
+  const isHandoverSeen = handoverDismissed || (view ? handoverSeen(undefined, view.kind) : true);
+  const showHandover = Boolean(
+    level &&
+      session &&
+      view &&
+      shouldHandover({
+        moveCount: session.moves,
+        seen: isHandoverSeen,
+        status: session.status,
+      }),
+  );
+  const handoverMove = showHandover && level && session ? chooseHandoverMove(level, session) : null;
+  const handoverMoveId = handoverMove?.id;
   const lore = LORE[meta.slug];
   const checkpoint =
     sessionSummary && progress ? sessionCheckpoint(sessionSummary, LEVEL_META, progress) : null;
@@ -534,12 +555,22 @@ export default function GameMission({ meta }: Props) {
         ? { id: playedMove.id, label: playedMove.label }
         : { id: moveId, label: moveId },
     );
+    if (view) {
+      markHandoverSeen(undefined, view.kind);
+    }
     commit(result.session);
     if (result.session.status === "won") {
       audio.play("win");
     } else {
       audio.play("move");
     }
+  }
+
+  function handleSkipHandover() {
+    if (view) {
+      markHandoverSeen(undefined, view.kind);
+    }
+    setHandoverDismissed(true);
   }
 
   function handleRepeat() {
@@ -763,6 +794,8 @@ export default function GameMission({ meta }: Props) {
             repeatMove={repeatMove}
             showHelp={showHelp}
             parkNote={parkNote}
+            showSkipHandover={showHandover}
+            onSkipHandover={handleSkipHandover}
             onUndo={handleUndo}
             onRepeat={handleRepeat}
             onRestart={handleRestart}
@@ -810,6 +843,7 @@ export default function GameMission({ meta }: Props) {
                   view={view}
                   onMove={handleMove}
                   faultMoveId={faultMoveId ?? undefined}
+                  handoverMoveId={handoverMoveId}
                 />
               ) : (
                 <div className="game-loading" role="status">

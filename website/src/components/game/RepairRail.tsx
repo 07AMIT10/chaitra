@@ -9,6 +9,8 @@ export type RepairRailProps = {
   repeatMove: Move | null | undefined;
   showHelp: boolean;
   parkNote: string | null;
+  showSkipHandover?: boolean;
+  onSkipHandover?: () => void;
   onUndo: () => void;
   onRepeat: () => void;
   onRestart: () => void;
@@ -25,6 +27,8 @@ export default function RepairRail({
   repeatMove,
   showHelp,
   parkNote,
+  showSkipHandover,
+  onSkipHandover,
   onUndo,
   onRepeat,
   onRestart,
@@ -85,6 +89,16 @@ export default function RepairRail({
             aria-label="Need a nudge? Reveal next hint"
           >
             NEED A NUDGE?
+          </button>
+        )}
+        {showSkipHandover && onSkipHandover && (
+          <button
+            type="button"
+            className="game-btn game-repair-rail__btn game-repair-rail__btn--handover"
+            onClick={onSkipHandover}
+            aria-label="Skip handover highlight"
+          >
+            SKIP HANDOVER
           </button>
         )}
         <button
