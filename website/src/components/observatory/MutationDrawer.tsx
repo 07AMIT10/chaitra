@@ -28,6 +28,7 @@ import { ARRAY_FRAMINGS } from "../../observatory/mutations/array";
 import { GRAPH_FRAMINGS } from "../../observatory/mutations/graph";
 import { GRID_FRAMINGS } from "../../observatory/mutations/grid";
 import { useDialogFocus } from "./use-dialog-focus";
+import { useOverlayNotice } from "./ObservatoryDialogs";
 
 export function MutationDrawer({
   scenario,
@@ -37,6 +38,7 @@ export function MutationDrawer({
   onClose,
 }: MutationDrawerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const notice = useOverlayNotice();
 
   const cardMeta = useMemo(
     () => SCAMPER_CARDS.find((item) => item.id === card),
@@ -103,6 +105,8 @@ export function MutationDrawer({
             ✕
           </button>
         </header>
+
+        {notice}
 
         {hasControls ? (
           <div className="obs-controls">

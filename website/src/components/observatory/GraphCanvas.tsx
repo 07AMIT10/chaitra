@@ -208,7 +208,7 @@ export function GraphCanvas({
                     className="obs-edge__hit"
                     d={loop}
                     role="button"
-                    tabIndex={0}
+                    tabIndex={-1}
                     aria-label={`${aria}${selected ? ". Selected." : ""}`}
                     aria-pressed={selected}
                     onClick={() => onSelect(edge.id)}
@@ -268,7 +268,7 @@ export function GraphCanvas({
                   x2={x2}
                   y2={y2}
                   role="button"
-                  tabIndex={0}
+                  tabIndex={-1}
                   aria-label={`${aria}${selected ? ". Selected." : ""}`}
                   aria-pressed={selected}
                   onClick={() => onSelect(edge.id)}

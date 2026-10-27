@@ -430,6 +430,7 @@ export function Inspector({
   onChange,
   onSelect,
   onClose,
+  onDirtyChange,
 }: InspectorProps) {
   const [draft, setDraft] = useState<Draft>(() => draftOf(scenario));
   const [diagnostics, setDiagnostics] = useState<Diagnostic[]>([]);
@@ -450,6 +451,10 @@ export function Inspector({
   }, [scenario]);
 
   const dirty = JSON.stringify(draft) !== JSON.stringify(draftOf(scenario));
+
+  useEffect(() => {
+    onDirtyChange?.(dirty);
+  }, [dirty, onDirtyChange]);
 
   const commit = (next: Scenario) => {
     appliedRef.current = JSON.stringify(next);

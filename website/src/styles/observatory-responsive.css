@@ -27,6 +27,11 @@
   letter-spacing: -0.035em;
 }
 
+/* The desktop rail moves inside the bench on one-column layouts (see 1020). */
+.observatory-page .obs-mobile-lens {
+  display: none;
+}
+
 .observatory-page .obs-page-lede {
   max-width: 72ch;
   margin: 0;
@@ -149,19 +154,23 @@
   color: var(--obs-red);
 }
 
-/* Notices are toasts: they must stay readable above an open drawer (z 80). */
+/* A notice occupies its own row; dialogs carry their own copy instead of
+   floating a toast over the header or the modal title. */
 .observatory-page .obs-notice {
-  position: fixed;
-  z-index: 100;
-  top: max(12px, env(safe-area-inset-top));
-  left: 12px;
-  right: 12px;
+  position: static;
   width: auto;
-  max-width: 560px;
-  max-height: min(50vh, 320px);
-  margin-inline: auto;
+  max-width: 720px;
+  max-height: min(40vh, 320px);
+  margin: 0 auto var(--obs-gutter);
   overflow: auto;
   box-shadow: var(--obs-shadow);
+}
+
+.observatory-page .obs-notice--inline {
+  max-width: none;
+  max-height: min(30vh, 220px);
+  margin: 0 0 4px;
+  box-shadow: none;
 }
 
 .observatory-page .obs-notice .obs-button,
@@ -430,6 +439,20 @@
 @media (max-width: 1020px) {
   .observatory-page .obs-shell {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "topbar"
+      "stage"
+      "run"
+      "deck"
+      "note";
+  }
+
+  .observatory-page .obs-shell > .obs-rail {
+    display: none;
+  }
+
+  .observatory-page .obs-mobile-lens {
+    display: block;
   }
 
   .observatory-page .obs-topbar {
@@ -527,18 +550,62 @@
     --obs-gutter: 0.85rem;
   }
 
-  .observatory-page .obs-page-head h1 {
-    font-size: clamp(2rem, 12vw, 2.9rem);
+  .observatory-page .obs-page-head {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
   }
 
-  .observatory-page .obs-topbar-actions,
+  .observatory-page .obs-page-head h1 {
+    margin: 6px 0 6px;
+    font-size: clamp(1.7rem, 9vw, 2.25rem);
+    line-height: 1.02;
+  }
+
+  .observatory-page .obs-page-lede {
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .observatory-page .obs-page-links {
+    margin-top: 8px;
+  }
+
+  .observatory-page .obs-topbar {
+    gap: 6px;
+  }
+
+  .observatory-page .obs-topbar-title {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .observatory-page .obs-topbar-title h2 {
+    font-size: 1.2rem;
+  }
+
+  .observatory-page .obs-topbar-sub,
+  .observatory-page .obs-topbar-original {
+    display: none;
+  }
+
+  .observatory-page .obs-topbar-actions {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
   .observatory-page .obs-draft-actions {
     align-items: stretch;
   }
 
-  .observatory-page .obs-topbar-actions .obs-button,
   .observatory-page .obs-draft-actions .obs-button {
     flex: 1 1 auto;
+  }
+
+  .observatory-page .obs-topbar-actions .obs-button {
+    flex: 0 0 auto;
   }
 
   .observatory-page .obs-notice,

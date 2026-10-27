@@ -21,7 +21,6 @@ export function RunRail({
   frameCount,
   outcome,
   diagnostics,
-  dirty,
   hasRun,
   canSaveBench,
   lensTitle,
@@ -33,6 +32,7 @@ export function RunRail({
   onKeep,
   onSaveBench,
   onOpenBranches,
+  onManageBenches,
 }: RunRailProps) {
   const lastFrame = Math.max(0, frameCount - 1);
   const canStepBack = frameCount > 0 && frameIndex > 0;
@@ -96,9 +96,7 @@ export function RunRail({
       <p className="obs-runrail-status">
         {!hasRun
           ? "No trace yet — choose Run to compute one."
-          : dirty
-            ? "The scenario changed after this trace; run again to recompute."
-            : `Outcome: ${OUTCOME_COPY[outcome as RunOutcome]}`}
+          : `Outcome: ${OUTCOME_COPY[outcome as RunOutcome]}`}
       </p>
 
       {diagnostics.length > 0 && (
@@ -149,11 +147,20 @@ export function RunRail({
           type="button"
           className="obs-button"
           disabled={!canSaveBench}
+          aria-describedby={!canSaveBench ? "obs-save-bench-note" : undefined}
           onClick={onSaveBench}
         >
           Save as bench
         </button>
       </div>
+      {!canSaveBench && (
+        <p className="obs-empty-line" id="obs-save-bench-note">
+          The reader-bench shelf is full (12).{" "}
+          <button type="button" className="obs-inline-link" onClick={onManageBenches}>
+            Manage benches
+          </button>
+        </p>
+      )}
     </section>
   );
 }

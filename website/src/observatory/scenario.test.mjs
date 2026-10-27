@@ -5,6 +5,7 @@ import {
   cloneScenario,
   gridCellId,
   isBranch,
+  isDraft,
   isLensId,
   isMutation,
   isReaderBench,
@@ -131,6 +132,37 @@ test("scenario and mutation guards reject non-finite numbers", () => {
   assert.equal(isMutation({ ...mutation, payload: { weight: -Infinity } }), false);
   assert.equal(isMutation({ ...mutation, payload: JSON.parse('{"weight": 1e999}') }), false);
   assert.equal(isBranch({ ...branch, mutations: [{ ...mutation, payload: { weight: Infinity } }] }), false);
+});
+
+test("timestamp guards reject out-of-range epochs that would crash Date", () => {
+  const now = Date.now();
+  assert.equal(isBranch({ ...branch, createdAt: now, updatedAt: now }), true);
+  assert.equal(isBranch({ ...branch, createdAt: 0, updatedAt: 0 }), true);
+  assert.equal(isBranch({ ...branch, createdAt: 8_640_000_000_000_000 }), true);
+  assert.equal(isBranch({ ...branch, updatedAt: 8_640_000_000_000_001 }), false);
+  assert.equal(isBranch({ ...branch, createdAt: 1e20 }), false);
+  assert.equal(isBranch({ ...branch, updatedAt: 1e20 }), false);
+  assert.equal(isBranch({ ...branch, createdAt: -1 }), false);
+  assert.equal(isBranch({ ...branch, updatedAt: 1.5 }), false);
+  assert.equal(isBranch({ ...branch, createdAt: Infinity }), false);
+  assert.equal(isReaderBench({ ...readerBench, createdAt: 1e20 }), false);
+  assert.equal(isReaderBench({ ...readerBench, createdAt: now }), true);
+
+  const draft = {
+    version: 1,
+    savedAt: now,
+    scenario: graph,
+    mutations: [],
+    lens: "what-exists",
+    frameIndex: 0,
+    title: "Draft",
+    note: "",
+  };
+  assert.equal(isDraft(draft), true);
+  assert.equal(isDraft({ ...draft, savedAt: 1e20 }), false);
+  assert.equal(isDraft({ ...draft, savedAt: -1 }), false);
+  assert.equal(isDraft({ ...draft, savedAt: 8_640_000_000_000_000 }), true);
+  assert.equal(isDraft({ ...draft, savedAt: 8_640_000_000_000_001 }), false);
 });
 
 test("cloneScenario is a deep clone and scenarioBytes is positive", () => {

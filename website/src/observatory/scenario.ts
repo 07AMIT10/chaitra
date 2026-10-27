@@ -24,6 +24,16 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const isFiniteNumber = (value: unknown): value is number =>
   typeof value === "number" && Number.isFinite(value);
 
+/** Largest epoch-millisecond value a JavaScript `Date` can represent. */
+export const MAX_EPOCH_MS = 8_640_000_000_000_000;
+
+/** True for a finite integer epoch in the range `Date` can safely format. */
+const isEpochMs = (value: unknown): value is number =>
+  isFiniteNumber(value) &&
+  Number.isInteger(value) &&
+  value >= 0 &&
+  value <= MAX_EPOCH_MS;
+
 const isNonEmptyString = (value: unknown): value is string =>
   typeof value === "string" && value.length > 0;
 
@@ -165,7 +175,7 @@ export function isBranch(value: unknown): value is Branch {
   if (!value.mutations.every(isMutation)) return false;
   if (!Number.isInteger(value.frameIndex) || Number(value.frameIndex) < 0) return false;
   if (typeof value.note !== "string" || value.note.length > 800) return false;
-  if (!isFiniteNumber(value.createdAt) || !isFiniteNumber(value.updatedAt)) return false;
+  if (!isEpochMs(value.createdAt) || !isEpochMs(value.updatedAt)) return false;
   return true;
 }
 
@@ -186,7 +196,7 @@ export function isDraft(value: unknown): value is Draft {
     return false;
   }
   if (value.version !== 1) return false;
-  if (!isFiniteNumber(value.savedAt) || !isScenario(value.scenario) || !isLensId(value.lens)) {
+  if (!isEpochMs(value.savedAt) || !isScenario(value.scenario) || !isLensId(value.lens)) {
     return false;
   }
   if (!Array.isArray(value.mutations) || value.mutations.length > MUTATION_LIMIT) return false;
@@ -222,7 +232,7 @@ export function isReaderBench(value: unknown): value is ReaderBench {
   if (!isScenario(value.scenario)) return false;
   if (value.scenario.substrate !== value.substrate) return false;
   if (value.scenario.strategy !== value.strategy) return false;
-  return isFiniteNumber(value.createdAt);
+  return isEpochMs(value.createdAt);
 }
 
 export function cloneScenario<T extends Scenario>(scenario: T): T {

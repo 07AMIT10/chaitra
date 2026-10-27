@@ -13,7 +13,7 @@ import { LENS_BY_SLUG } from "../../lib/drishti-lenses";
 
 /** UTC timestamp, or null when the value is not a plausible epoch time. */
 function savedTime(ms: number): string | null {
-  if (!Number.isFinite(ms) || ms <= 0) return null;
+  if (!Number.isFinite(ms) || ms <= 0 || ms > 8_640_000_000_000_000) return null;
   return new Date(ms).toISOString().slice(0, 16).replace("T", " ");
 }
 
@@ -101,7 +101,9 @@ export function BranchShelf({
                     </span>
                   )}
                 </div>
-                <p className="obs-branch-framing">{branch.scenario.title}</p>
+                {branch.scenario.title !== branch.title && (
+                  <p className="obs-branch-framing">{branch.scenario.title}</p>
+                )}
                 <p className="obs-branch-line obs-mono">
                   {LENS_BY_SLUG[branch.lens]?.title ?? branch.lens} ·{" "}
                   {plural(branch.mutations.length, "mutation")} · Frame{" "}
@@ -149,11 +151,13 @@ export function BranchShelf({
         </ul>
       )}
 
-      <div className="obs-branch-share" role="group" aria-label="Share and export">
+      <div className="obs-branch-share" role="group" aria-label="Current bench actions">
+        <p className="obs-kicker obs-branch-share-label">Current bench</p>
         <button
           type="button"
           className="obs-button"
           disabled={!canShare}
+          aria-describedby={!canShare || !canExport ? "obs-branch-share-note" : undefined}
           onClick={onShare}
         >
           Share link
@@ -162,6 +166,7 @@ export function BranchShelf({
           type="button"
           className="obs-button"
           disabled={!canExport}
+          aria-describedby={!canShare || !canExport ? "obs-branch-share-note" : undefined}
           onClick={onExport}
         >
           Export JSON
@@ -181,8 +186,9 @@ export function BranchShelf({
           onChange={readFile}
         />
         {(!canShare || !canExport) && (
-          <p className="obs-branch-share-note">
-            Open a bench to share or export its run.
+          <p className="obs-branch-share-note" id="obs-branch-share-note">
+            Open a bench to share or export its run. Import replaces the current
+            bench after a preview.
           </p>
         )}
       </div>

@@ -9,9 +9,11 @@ import { useRef } from "react";
 import type { FieldCardDrawerProps } from "./ui-types";
 import { DRISHTI_LENSES } from "../../lib/drishti-lenses";
 import { useDialogFocus } from "./use-dialog-focus";
+import { useOverlayNotice } from "./ObservatoryDialogs";
 
 export function FieldCardDrawer({ specimen, onClose }: FieldCardDrawerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const notice = useOverlayNotice();
   useDialogFocus(panelRef, onClose);
 
   return (
@@ -45,6 +47,8 @@ export function FieldCardDrawer({ specimen, onClose }: FieldCardDrawerProps) {
             ✕
           </button>
         </header>
+
+        {notice}
 
         <p className="obs-field-card-summary">{specimen.summary}</p>
 

@@ -259,6 +259,15 @@ test("what-changes names the prior step and the update rule", () => {
   assert.match(start.readout, /starting state/);
 });
 
+test("what-changes reports no movement at the starting frame", () => {
+  for (const key of ["bfs", "dfs", "topological", "dijkstra", "binary", "merge", "quick", "edit", "lcs"]) {
+    const ctx = context(SCENARIOS[key], 0);
+    const projection = projectLens("what-changes", ctx);
+    assert.equal(metric(projection, "Moved"), "0", `${key} starts with no movement`);
+    assert.match(projection.readout, /starting state/, `${key} names the starting state`);
+  }
+});
+
 test("what-flows exposes active, waiting, and dependency counts", () => {
   const binary = projectLens("what-flows", context(SCENARIOS.binary, 1));
   assert.equal(metric(binary, "In motion"), "1");
@@ -269,6 +278,45 @@ test("what-flows exposes active, waiting, and dependency counts", () => {
   assert.equal(metric(grid, "Dependencies"), "3");
   assert.equal(metric(grid, "In motion"), "1");
   assert.ok(grid.highlights.length >= 4);
+});
+
+function assertTerminalFlow(scenario, label) {
+  const ctx = context(scenario, 9999);
+  assert.equal(ctx.run.outcome, "done", `${label} trace is done`);
+  assert.equal(ctx.frameIndex, ctx.run.frames.length - 1, `${label} context is the final frame`);
+  const projection = projectLens("what-flows", ctx);
+  assert.equal(metric(projection, "In motion"), "0", `${label} has nothing in motion`);
+  assert.equal(metric(projection, "Waiting"), "0", `${label} has nothing waiting`);
+  assert.match(projection.readout, /trace is complete/i, `${label} readout announces completion`);
+  assert.match(
+    projection.readout,
+    /nothing is in motion or waiting/i,
+    `${label} readout denies motion and waiting`,
+  );
+  assert.deepEqual(projection.highlights, [], `${label} highlights no active or flow entity`);
+  return projection;
+}
+
+test("what-flows reports a complete trace at the final frame of a done binary search", () => {
+  assertTerminalFlow(SCENARIOS.binary, "binary search (found)");
+  assertTerminalFlow(
+    arrayScenario("binary-search", [1, 3, 5, 7, 9, 11, 13], 4),
+    "binary search (absent)",
+  );
+});
+
+test("what-flows reports a complete trace at the final frame of a done graph run", () => {
+  for (const key of ["bfs", "dfs", "topological", "dijkstra"]) {
+    const projection = assertTerminalFlow(SCENARIOS[key], key);
+    assert.equal(metric(projection, "Flow edge"), "0", `${key} has no flow edge`);
+  }
+});
+
+test("what-flows reports a complete trace at the final frame of a done grid run", () => {
+  for (const key of ["edit", "lcs"]) {
+    const projection = assertTerminalFlow(SCENARIOS[key], key);
+    assert.equal(metric(projection, "Dependencies"), "0", `${key} has no dependencies`);
+  }
 });
 
 test("what-persists reports held and failing invariants for the frame", () => {

@@ -38,12 +38,14 @@ export type InspectorProps = {
   onChange: (scenario: Scenario) => void;
   onSelect: (id: string | null) => void;
   onClose: () => void;
+  onDirtyChange?: (dirty: boolean) => void;
 };
 
 export type ShelfProps = {
   liveBenches: readonly LiveBench[];
   fieldSpecimens: readonly FieldSpecimen[];
   readerBenches: readonly ReaderBench[];
+  branches: readonly Branch[];
   branchCount: number;
   onPickLive: (bench: LiveBench) => void;
   onPickReader: (bench: ReaderBench) => void;
@@ -51,6 +53,7 @@ export type ShelfProps = {
   onOpenField: (field: FieldSpecimen) => void;
   onDeleteReader: (bench: ReaderBench) => void;
   onOpenBranches: () => void;
+  onOpenBranch: (branch: Branch) => void;
 };
 
 export type LensRailProps = {
@@ -92,7 +95,6 @@ export type RunRailProps = {
   frameCount: number;
   outcome: RunOutcome;
   diagnostics: readonly Diagnostic[];
-  dirty: boolean;
   hasRun: boolean;
   canSaveBench: boolean;
   /** Canonical lens title, announced politely with the current frame. */
@@ -106,6 +108,7 @@ export type RunRailProps = {
   onKeep: () => void;
   onSaveBench: () => void;
   onOpenBranches: () => void;
+  onManageBenches: () => void;
 };
 
 export type BranchShelfProps = {
@@ -155,5 +158,15 @@ export type ConfirmDialogProps = {
   body: string;
   confirmLabel: string;
   onConfirm: () => void;
+  onCancel: () => void;
+};
+
+export type ImportDialogProps = {
+  branch: Branch;
+  /** True when an older draft is waiting, so the preview can say so. */
+  draftWaiting: boolean;
+  /** True when the current bench has unsaved changes that loading would discard. */
+  replacesUnsaved: boolean;
+  onLoad: () => void;
   onCancel: () => void;
 };

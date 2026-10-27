@@ -1,8 +1,9 @@
-import { useRef, useState, type ReactNode } from "react";
+import { createContext, useContext, useRef, useState, type ReactNode } from "react";
 import type { Branch, RunOutcome } from "../../observatory/types";
 import type {
   CompareDialogProps,
   ConfirmDialogProps,
+  ImportDialogProps,
 } from "./ui-types";
 import { LENS_BY_SLUG } from "../../lib/drishti-lenses";
 import { canonicalJson } from "../../observatory/hash";
@@ -16,9 +17,31 @@ type OverlayProps = {
   className?: string;
 };
 
+const OverlayNoticeContext = createContext<ReactNode>(null);
+
+/** Notices move inside the active dialog so they stay readable and reachable. */
+export function OverlayNoticeProvider({
+  value,
+  children,
+}: {
+  value: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <OverlayNoticeContext.Provider value={value}>
+      {children}
+    </OverlayNoticeContext.Provider>
+  );
+}
+
+export function useOverlayNotice(): ReactNode {
+  return useContext(OverlayNoticeContext);
+}
+
 /** Shared modal frame: Escape closes, focus moves in, backdrop click closes. */
 export function Overlay({ label, onClose, children, className }: OverlayProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const notice = useContext(OverlayNoticeContext);
   useDialogFocus(panelRef, onClose);
 
   return (
@@ -36,6 +59,7 @@ export function Overlay({ label, onClose, children, className }: OverlayProps) {
         aria-label={label}
         tabIndex={-1}
       >
+        {notice}
         {children}
       </div>
     </div>
@@ -153,8 +177,8 @@ function BranchSummary({ branch }: { branch: Branch }) {
       )}
       {branch.mutations.length > 0 && (
         <ol className="obs-compare-mutations">
-          {branch.mutations.map((mutation) => (
-            <li key={mutation.id}>{mutation.label}</li>
+          {branch.mutations.map((mutation, index) => (
+            <li key={`${mutation.id}-${index}`}>{mutation.label}</li>
           ))}
         </ol>
       )}
@@ -268,6 +292,58 @@ export function CompareDialog({
             Open right branch
           </button>
         </div>
+      </div>
+    </Overlay>
+  );
+}
+
+export function ImportDialog({
+  branch,
+  draftWaiting,
+  replacesUnsaved,
+  onLoad,
+  onCancel,
+}: ImportDialogProps) {
+  return (
+    <Overlay label="Preview imported branch" onClose={onCancel}>
+      <header className="obs-drawer-head">
+        <div>
+          <p className="obs-kicker">Nothing loads until you say so</p>
+          <h2 className="obs-drawer-title">Preview imported branch</h2>
+        </div>
+        <button
+          type="button"
+          className="obs-button obs-button--ghost"
+          aria-label="Close import preview"
+          onClick={onCancel}
+        >
+          ✕
+        </button>
+      </header>
+      <BranchSummary branch={branch} />
+      <p className="obs-muted">
+        Loading replaces the current bench. The branch stays unsaved until you choose Keep,
+        so nothing is added to your shelf by importing.
+      </p>
+      {replacesUnsaved && (
+        <p className="obs-rejection" role="status">
+          This bench has unsaved changes. Loading the import will discard them; Keep this
+          bench first if you want to keep the run.
+        </p>
+      )}
+      {draftWaiting && (
+        <p className="obs-rejection" role="status">
+          An older draft is still waiting. Loading this branch will not delete it; autosave
+          for this bench stays paused until you resume or discard that draft from the shelf.
+        </p>
+      )}
+      <div className="obs-drawer-actions">
+        <button type="button" className="obs-button obs-button--ghost" onClick={onCancel}>
+          Cancel
+        </button>
+        <button type="button" className="obs-button obs-button--accent" onClick={onLoad}>
+          Load imported branch
+        </button>
       </div>
     </Overlay>
   );

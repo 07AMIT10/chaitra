@@ -4,7 +4,7 @@
  * every bench opens only through a callback.
  */
 import type { ShelfProps } from "./ui-types";
-import type { Strategy, Substrate } from "../../observatory/types";
+import type { Branch, Strategy, Substrate } from "../../observatory/types";
 import { LIMITS } from "../../observatory/storage";
 
 const BLANK_PLATES: readonly { substrate: Substrate; label: string }[] = [
@@ -21,6 +21,7 @@ export function SpecimenShelf({
   liveBenches,
   fieldSpecimens,
   readerBenches,
+  branches,
   branchCount,
   onPickLive,
   onPickReader,
@@ -28,6 +29,7 @@ export function SpecimenShelf({
   onOpenField,
   onDeleteReader,
   onOpenBranches,
+  onOpenBranch,
 }: ShelfProps) {
   return (
     <section className="obs-shelf" aria-label="Specimen shelf">
@@ -75,6 +77,38 @@ export function SpecimenShelf({
         </li>
       </ul>
 
+      <div className="obs-panel obs-saved-branches">
+        <div className="obs-saved-branches-head">
+          <h3 className="obs-panel-title">
+            Saved branches <span className="obs-tag">{branchCount} / {LIMITS.branches}</span>
+          </h3>
+          <button type="button" className="obs-button obs-button--ghost" onClick={onOpenBranches}>
+            Manage
+          </button>
+        </div>
+        {branches.length === 0 ? (
+          <p className="obs-empty-line">
+            Branches you keep appear here, newest first.
+          </p>
+        ) : (
+          <ul className="obs-saved-branch-list">
+            {branches.slice(0, 3).map((branch) => (
+              <li key={branch.id}>
+                <button type="button" className="obs-saved-branch" onClick={() => onOpenBranch(branch)}>
+                  <span className="obs-saved-branch-title">{branch.title}</span>
+                  {branch.scenario.title !== branch.title && (
+                    <span className="obs-saved-branch-meta">{branch.scenario.title}</span>
+                  )}
+                  <span className="obs-saved-branch-meta">
+                    {branch.scenario.strategy} · {branch.mutations.length} mutation{branch.mutations.length === 1 ? "" : "s"}
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+
       <div className="obs-panel obs-reader-benches">
         <h3 className="obs-panel-title">Reader benches</h3>
         {readerBenches.length === 0 ? (
@@ -86,7 +120,13 @@ export function SpecimenShelf({
             {readerBenches.map((bench) => (
               <li key={bench.id} className="obs-bench-row">
                 <span className="obs-tag">{bench.substrate}</span>
-                <span className="obs-bench-name">{bench.title}</span>
+                <span className="obs-bench-name">
+                  {bench.title}
+                  <span className="obs-bench-meta">
+                    {bench.strategy} · {bench.framing} · saved{" "}
+                    {new Date(bench.createdAt).toISOString().slice(0, 10)}
+                  </span>
+                </span>
                 <span className="obs-bench-actions">
                   <button
                     type="button"
@@ -123,6 +163,7 @@ export function SpecimenShelf({
                   type="button"
                   className="obs-field-row"
                   onClick={() => onOpenField(field)}
+                  data-field-id={field.id}
                   title={field.summary}
                 >
                   <span className="obs-tag">{field.kind}</span>

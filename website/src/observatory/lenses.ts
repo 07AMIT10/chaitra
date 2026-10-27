@@ -26,6 +26,9 @@ export { LENS_IDS };
 const ABSENCE_REASON =
   "This specimen visits or reorders state but does not adapt a model or optimize a parameter.";
 
+/** A done trace has no live frontier: the last frame is history, not motion. */
+const TERMINAL_FLOW = "The trace is complete; nothing is in motion or waiting.";
+
 /** Spec §5 field-note prompts, verbatim. */
 const NOTE_PROMPTS: Record<LensId, string> = {
   "what-exists": "What did you treat as a thing before you looked?",
@@ -574,14 +577,19 @@ function projectWhatChanges(ctx: RunContext): LensProjection {
   const view = ctx.frame.view;
   const previous = ctx.frameIndex > 0 ? ctx.run.frames[ctx.frameIndex - 1] : undefined;
   const currentStates = viewEntityStates(view);
-  const previousStates = previous === undefined ? new Map<string, string>() : viewEntityStates(previous.view);
+  const previousStates = previous === undefined ? null : viewEntityStates(previous.view);
 
+  // With no prior frame there is nothing to compare against: the seeded
+  // starting state is not movement. Counting it as movement made the metric
+  // contradict the starting-state readout.
   let moved = 0;
   const movedIds: string[] = [];
-  for (const [id, state] of currentStates) {
-    if ((previousStates.get(id) ?? "idle") !== state) {
-      moved += 1;
-      movedIds.push(id);
+  if (previousStates !== null) {
+    for (const [id, state] of currentStates) {
+      if ((previousStates.get(id) ?? "idle") !== state) {
+        moved += 1;
+        movedIds.push(id);
+      }
     }
   }
   const fixed = currentStates.size - moved;
@@ -615,20 +623,25 @@ function projectWhatChanges(ctx: RunContext): LensProjection {
 
 function projectWhatFlows(ctx: RunContext): LensProjection {
   const view = ctx.frame.view;
+  const terminal =
+    ctx.frameIndex === ctx.run.frames.length - 1 && ctx.run.outcome === "done";
 
   if (view.kind === "graph") {
     const strategy = ctx.scenario.substrate === "graph" ? ctx.scenario.strategy : "bfs";
     const frontierLabel = FRONTIER_LABEL[strategy];
-    const waiting = metricValue(ctx.frame, frontierLabel) ?? "—";
-    const active = activeIds(view);
-    const edges = view.edges.filter((edge) => edge.state === "active").map((edge) => edge.id);
+    const waiting = terminal ? "0" : metricValue(ctx.frame, frontierLabel) ?? "—";
+    const active = terminal ? [] : activeIds(view);
+    const edges = terminal
+      ? []
+      : view.edges.filter((edge) => edge.state === "active").map((edge) => edge.id);
     const motion = active.length + edges.length;
-    const flowHighlights = highlightIds(ctx.frame, ["flow", "active"]);
-    const body =
-      `${motion} part(s) in motion${active.length === 0 ? "" : ` around ${describeIds(view, active)}`}` +
-      `${edges.length === 0 ? "" : `; edge ${describeIds(view, edges)} carries the step`}. ` +
-      `${waiting} wait in the ${frontierLabel.toLowerCase()}; the ${BOTTLENECK[strategy]} sets the rate. ` +
-      `Current step: ${eventText(ctx.frame)}`;
+    const flowHighlights = terminal ? [] : highlightIds(ctx.frame, ["flow", "active"]);
+    const body = terminal
+      ? TERMINAL_FLOW
+      : `${motion} part(s) in motion${active.length === 0 ? "" : ` around ${describeIds(view, active)}`}` +
+        `${edges.length === 0 ? "" : `; edge ${describeIds(view, edges)} carries the step`}. ` +
+        `${waiting} wait in the ${frontierLabel.toLowerCase()}; the ${BOTTLENECK[strategy]} sets the rate. ` +
+        `Current step: ${eventText(ctx.frame)}`;
     return {
       available: true,
       readout: readout(ctx, "what-flows", body),
@@ -637,7 +650,7 @@ function projectWhatFlows(ctx: RunContext): LensProjection {
         { label: "Waiting", value: waiting },
         { label: "Flow edge", value: String(edges.length) },
       ],
-      highlights: resolved(view, [...active, ...edges, ...flowHighlights]),
+      highlights: terminal ? [] : resolved(view, [...active, ...edges, ...flowHighlights]),
       notePrompt: NOTE_PROMPTS["what-flows"],
     };
   }
@@ -650,7 +663,7 @@ function projectWhatFlows(ctx: RunContext): LensProjection {
         pointerIds.push(view.items[pointer.index].id);
       }
     }
-    const active = activeIds(view);
+    const active = terminal ? [] : activeIds(view);
     const segments = view.segments ?? [];
     const activeSegment = segments.find((segment) => segment.state === "active");
     let waiting = view.items.length - view.items.filter((item) => item.state === "done").length;
@@ -658,15 +671,17 @@ function projectWhatFlows(ctx: RunContext): LensProjection {
     const lo = pointers.find((pointer) => pointer.label === "lo");
     const hi = pointers.find((pointer) => pointer.label === "hi");
     if (lo !== undefined && hi !== undefined) waiting = Math.max(0, hi.index - lo.index + 1);
+    if (terminal) waiting = 0;
 
     const pointerText =
       pointers.length === 0
         ? "no pointer is exposed"
         : pointers.map((pointer) => `${pointer.label}→item:${pointer.index}`).join(", ");
-    const body =
-      `${pointerText}. ${active.length} item(s) are being compared or written; ${waiting} item(s) wait. ` +
-      `The bottleneck is ${ctx.scenario.strategy === "merge-sort" ? "the two run heads" : ctx.scenario.strategy === "quick-sort" ? "the pivot comparison" : "the midpoint comparison"}. ` +
-      `Current step: ${eventText(ctx.frame)}`;
+    const body = terminal
+      ? TERMINAL_FLOW
+      : `${pointerText}. ${active.length} item(s) are being compared or written; ${waiting} item(s) wait. ` +
+        `The bottleneck is ${ctx.scenario.strategy === "merge-sort" ? "the two run heads" : ctx.scenario.strategy === "quick-sort" ? "the pivot comparison" : "the midpoint comparison"}. ` +
+        `Current step: ${eventText(ctx.frame)}`;
     return {
       available: true,
       readout: readout(ctx, "what-flows", body),
@@ -675,13 +690,15 @@ function projectWhatFlows(ctx: RunContext): LensProjection {
         { label: "Waiting", value: String(waiting) },
         { label: "Pointers", value: String(pointers.length) },
       ],
-      highlights: resolved(view, [...active, ...pointerIds, ...highlightIds(ctx.frame, ["flow", "active"])]),
+      highlights: terminal
+        ? []
+        : resolved(view, [...active, ...pointerIds, ...highlightIds(ctx.frame, ["flow", "active"])]),
       notePrompt: NOTE_PROMPTS["what-flows"],
     };
   }
 
   if (view.kind === "grid") {
-    const active = activeIds(view);
+    const active = terminal ? [] : activeIds(view);
     const dependencies: string[] = [];
     const activeId = active.find((id) => cellRef(id) !== null);
     const ref = activeId === undefined ? null : cellRef(activeId);
@@ -697,9 +714,10 @@ function projectWhatFlows(ctx: RunContext): LensProjection {
       }
     }
     const filled = view.cells.filter((cell) => cell.state !== "idle").length;
-    const waiting = view.rows * view.cols - filled;
-    const body =
-      ref === null
+    const waiting = terminal ? 0 : view.rows * view.cols - filled;
+    const body = terminal
+      ? TERMINAL_FLOW
+      : ref === null
         ? `No interior cell is in motion; the base row and column are seeded, and ${waiting} cell(s) wait.`
         : `Cell ${activeId} is in motion and waits on ${dependencies.length} neighbour(s); ${waiting} cell(s) still wait. ` +
           `One cell fills per frame, so that dependency set sets the rate. Current step: ${eventText(ctx.frame)}`;
@@ -711,7 +729,9 @@ function projectWhatFlows(ctx: RunContext): LensProjection {
         { label: "Waiting", value: String(waiting) },
         { label: "Dependencies", value: String(dependencies.length) },
       ],
-      highlights: resolved(view, [...active, ...dependencies, ...highlightIds(ctx.frame, ["flow", "active"])]),
+      highlights: terminal
+        ? []
+        : resolved(view, [...active, ...dependencies, ...highlightIds(ctx.frame, ["flow", "active"])]),
       notePrompt: NOTE_PROMPTS["what-flows"],
     };
   }

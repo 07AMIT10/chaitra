@@ -71,8 +71,8 @@ export function ScamperDeck({
           </p>
         ) : (
           <ol className="obs-applied-list">
-            {applied.map((mutation) => (
-              <li key={mutation.id}>{mutation.label}</li>
+            {applied.map((mutation, index) => (
+              <li key={`${mutation.id}-${index}`}>{mutation.label}</li>
             ))}
           </ol>
         )}

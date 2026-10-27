@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { LENS_BY_SLUG } from "../../lib/drishti-lenses";
 import {
   FIELD_SPECIMENS,
@@ -9,11 +9,13 @@ import { projectLens } from "../../observatory/lenses";
 import { runScenario } from "../../observatory/runners";
 import { canonicalJson } from "../../observatory/hash";
 import { SCAMPER_CARDS, proposeMutation } from "../../observatory/mutations";
-import { cloneScenario, isScenario } from "../../observatory/scenario";
+import { cloneScenario, isScenario, viewIds } from "../../observatory/scenario";
 import { frameLabel, plural } from "../../observatory/format";
 import {
   LIMITS,
   STORAGE_KEYS,
+  clearBranches,
+  clearReaderBenches,
   deleteBranch,
   deleteReaderBench,
   loadBranches,
@@ -56,13 +58,26 @@ import { ObservatoryCanvas } from "./ObservatoryCanvas";
 import { RunRail } from "./RunRail";
 import { ScamperDeck } from "./ScamperDeck";
 import { SpecimenShelf } from "./SpecimenShelf";
-import { CompareDialog, ConfirmDialog, Overlay, ShareDialog } from "./ObservatoryDialogs";
+import {
+  CompareDialog,
+  ConfirmDialog,
+  ImportDialog,
+  Overlay,
+  OverlayNoticeProvider,
+  ShareDialog,
+} from "./ObservatoryDialogs";
 
 type Phase = "shelf" | "bench";
 type Drawer = "shelf" | "branches" | "inspector" | "mutation" | null;
 type Origin = "curated" | "reader" | "blank" | "shared" | "imported" | "draft" | "branch" | null;
 type Notice = { text: string; tone: "info" | "error" } | null;
 type HistoryStep = { scenario: Scenario; mutations: Mutation[] };
+type ReplaceIntent =
+  | { kind: "live"; bench: LiveBench }
+  | { kind: "reader"; bench: ReaderBench }
+  | { kind: "blank"; substrate: Substrate }
+  | { kind: "branch"; branch: Branch }
+  | { kind: "fork"; branch: Branch };
 
 type State = {
   hydrated: boolean;
@@ -79,6 +94,8 @@ type State = {
   selection: string | null;
   branches: Branch[];
   readerBenches: ReaderBench[];
+  branchesCorrupt: boolean;
+  readerBenchesCorrupt: boolean;
   draft: import("../../observatory/types").Draft | null;
   title: string;
   note: string;
@@ -86,9 +103,16 @@ type State = {
   drawer: Drawer;
   mutationCard: ScamperId | null;
   activeBranchId: string | null;
+  detachedFromId: string | null;
   notice: Notice;
   field: FieldSpecimen | null;
   compare: { left: Branch; right: Branch } | null;
+  compareReturnDrawer: Drawer;
+  pendingImport: Branch | null;
+  pendingReplace: ReplaceIntent | null;
+  pendingInspectorClose: boolean;
+  inspectorDirty: boolean;
+  pendingDiscardDraft: boolean;
   pendingDeleteBranch: Branch | null;
   pendingDeleteReader: ReaderBench | null;
   pendingReset: boolean;
@@ -105,10 +129,17 @@ type Action =
       type: "hydrate";
       branches: Branch[];
       readerBenches: ReaderBench[];
+      branchesCorrupt: boolean;
+      readerBenchesCorrupt: boolean;
       draft: import("../../observatory/types").Draft | null;
       shared: SharePayload | null;
       errors: string[];
     }
+  | { type: "open-shared"; shared: SharePayload }
+  | { type: "pending-import"; branch: Branch }
+  | { type: "clear-pending-import" }
+  | { type: "pending-replace"; intent: ReplaceIntent }
+  | { type: "clear-pending-replace" }
   | { type: "pick-live"; bench: LiveBench }
   | { type: "pick-reader"; bench: ReaderBench }
   | { type: "pick-blank"; substrate: Substrate }
@@ -131,6 +162,11 @@ type Action =
   | { type: "notice"; notice: Notice }
   | { type: "dismiss-notice" }
   | { type: "set-branches"; branches: Branch[]; notice?: Notice }
+  | { type: "store-corrupt"; store: "branches" | "benches" }
+  | { type: "store-cleared" }
+  | { type: "inspector-dirty"; dirty: boolean }
+  | { type: "pending-inspector-close"; pending: boolean }
+  | { type: "pending-discard-draft"; pending: boolean }
   | { type: "saved"; branch: Branch; branches: Branch[] }
   | {
       type: "open-branch";
@@ -164,6 +200,8 @@ const INITIAL: State = {
   selection: null,
   branches: [],
   readerBenches: [],
+  branchesCorrupt: false,
+  readerBenchesCorrupt: false,
   draft: null,
   title: "",
   note: "",
@@ -171,9 +209,16 @@ const INITIAL: State = {
   drawer: null,
   mutationCard: null,
   activeBranchId: null,
+  detachedFromId: null,
   notice: null,
   field: null,
   compare: null,
+  compareReturnDrawer: null,
+  pendingImport: null,
+  pendingReplace: null,
+  pendingInspectorClose: false,
+  inspectorDirty: false,
+  pendingDiscardDraft: false,
   pendingDeleteBranch: null,
   pendingDeleteReader: null,
   pendingReset: false,
@@ -216,6 +261,63 @@ function originLabel(origin: Origin): string {
   }
 }
 
+/** Mount a shared `#b=` payload without discarding the rest of the session. */
+function withShared(state: State, shared: SharePayload): State {
+  const scenario = cloneScenario(shared.scenario);
+  const run = runScenario(scenario);
+  return {
+    ...state,
+    hydrated: true,
+    phase: "bench",
+    origin: "shared",
+    benchId: null,
+    scenario,
+    baseScenario: cloneScenario(scenario),
+    mutations: shared.mutations,
+    history: [],
+    lens: shared.lens,
+    run,
+    frameIndex: clampFrame(shared.frameIndex, run),
+    selection: null,
+    title: "Shared branch",
+    note: "",
+    saved: false,
+    drawer: null,
+    mutationCard: null,
+    activeBranchId: null,
+    detachedFromId: null,
+    field: null,
+    compare: null,
+    compareReturnDrawer: null,
+    shareUrl: null,
+    pendingImport: null,
+    pendingReplace: null,
+    pendingReset: false,
+    pendingInspectorClose: false,
+    pendingDiscardDraft: false,
+    pendingDeleteBranch: null,
+    pendingDeleteReader: null,
+    inspectorDirty: false,
+    articleHref: null,
+    gameHref: null,
+    benchWhat: "A shared live branch. Keep it to save it to your own shelf.",
+    benchFraming: scenario.title,
+    topTitle: "Shared branch",
+  };
+}
+
+/** Proposal ids are deterministic; the applied stack still needs unique keys. */
+function withUniqueMutationId(mutation: Mutation, applied: readonly Mutation[]): Mutation {
+  if (!applied.some((item) => item.id === mutation.id)) return mutation;
+  let serial = 2;
+  let id = `${mutation.id}~${serial}`;
+  while (applied.some((item) => item.id === id)) {
+    serial += 1;
+    id = `${mutation.id}~${serial}`;
+  }
+  return { ...mutation, id };
+}
+
 function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "hydrate": {
@@ -224,6 +326,8 @@ function reducer(state: State, action: Action): State {
         hydrated: true,
         branches: action.branches,
         readerBenches: action.readerBenches,
+        branchesCorrupt: action.branchesCorrupt,
+        readerBenchesCorrupt: action.readerBenchesCorrupt,
         draft: action.draft,
         notice:
           action.errors.length > 0
@@ -231,36 +335,26 @@ function reducer(state: State, action: Action): State {
             : state.notice,
       };
       if (!action.shared) return base;
-      const scenario = cloneScenario(action.shared.scenario);
-      const run = runScenario(scenario);
-      return {
-        ...base,
-        phase: "bench",
-        origin: "shared",
-        benchId: null,
-        scenario,
-        baseScenario: scenario,
-        mutations: action.shared.mutations,
-        history: [],
-        lens: action.shared.lens,
-        run,
-        frameIndex: clampFrame(action.shared.frameIndex, run),
-        selection: null,
-        title: "Shared branch",
-        note: "",
-        saved: false,
-        drawer: null,
-        mutationCard: null,
-        activeBranchId: null,
-        field: null,
-        compare: null,
-        articleHref: null,
-        gameHref: null,
-        benchWhat: "A shared live branch. Keep it to save it to your own shelf.",
-        benchFraming: scenario.title,
-        topTitle: "Shared branch",
-      };
+      return withShared(base, action.shared);
     }
+
+    case "open-shared":
+      return {
+        ...withShared(state, action.shared),
+        notice: notice("Shared branch opened. Keep it to add it to your shelf."),
+      };
+
+    case "pending-import":
+      return { ...state, pendingImport: action.branch };
+
+    case "clear-pending-import":
+      return { ...state, pendingImport: null };
+
+    case "pending-replace":
+      return { ...state, pendingReplace: action.intent };
+
+    case "clear-pending-replace":
+      return { ...state, pendingReplace: null };
 
     case "pick-live": {
       const scenario = cloneScenario(action.bench.defaultScenario);
@@ -279,16 +373,19 @@ function reducer(state: State, action: Action): State {
         run,
         frameIndex: 0,
         selection: null,
-        draft: null,
         title: action.bench.title,
         note: "",
         saved: false,
         drawer: null,
         mutationCard: null,
         activeBranchId: null,
+        detachedFromId: null,
         notice: null,
         field: null,
         compare: null,
+        compareReturnDrawer: null,
+        pendingImport: null,
+        pendingReplace: null,
         articleHref: action.bench.articleHref,
         gameHref: action.bench.gameHref ?? null,
         benchWhat: action.bench.what,
@@ -314,16 +411,19 @@ function reducer(state: State, action: Action): State {
         run,
         frameIndex: 0,
         selection: null,
-        draft: null,
         title: action.bench.title,
         note: "",
         saved: false,
         drawer: null,
         mutationCard: null,
         activeBranchId: null,
+        detachedFromId: null,
         notice: null,
         field: null,
         compare: null,
+        compareReturnDrawer: null,
+        pendingImport: null,
+        pendingReplace: null,
         articleHref: null,
         gameHref: null,
         benchWhat: action.bench.framing,
@@ -349,16 +449,19 @@ function reducer(state: State, action: Action): State {
         run,
         frameIndex: 0,
         selection: null,
-        draft: null,
         title: scenario.title,
         note: "",
         saved: false,
         drawer: "inspector",
         mutationCard: null,
         activeBranchId: null,
+        detachedFromId: null,
         notice: notice("Blank plate mounted. Edit it in the Inspector, then Keep it as a bench."),
         field: null,
         compare: null,
+        compareReturnDrawer: null,
+        pendingImport: null,
+        pendingReplace: null,
         articleHref: null,
         gameHref: null,
         benchWhat: "A blank plate. Every field is yours to edit; nothing is pre-solved.",
@@ -391,9 +494,13 @@ function reducer(state: State, action: Action): State {
         drawer: null,
         mutationCard: null,
         activeBranchId: null,
+        detachedFromId: null,
         notice: notice("Draft restored. Keep it when you want a branch."),
         field: null,
         compare: null,
+        compareReturnDrawer: null,
+        pendingImport: null,
+        pendingReplace: null,
         articleHref: null,
         gameHref: null,
         benchWhat: "A restored working draft.",
@@ -412,6 +519,7 @@ function reducer(state: State, action: Action): State {
         mutationCard: action.drawer === "mutation" ? state.mutationCard : null,
         field: null,
         compare: null,
+        compareReturnDrawer: null,
       };
 
     case "set-lens":
@@ -436,13 +544,20 @@ function reducer(state: State, action: Action): State {
       if (!isScenario(action.scenario)) return state;
       const scenario = cloneScenario(action.scenario);
       const run = runScenario(scenario);
+      const firstView = run.frames[0]?.view;
+      const selection =
+        state.selection !== null && firstView !== undefined && viewIds(firstView).has(state.selection)
+          ? state.selection
+          : null;
       return {
         ...state,
         scenario,
         run,
         frameIndex: 0,
+        selection,
         saved: false,
         activeBranchId: null,
+        detachedFromId: state.activeBranchId ?? state.detachedFromId,
         mutations: action.source === "inspector" ? [] : state.mutations,
         history: action.source === "inspector" ? [] : state.history,
         notice:
@@ -477,6 +592,7 @@ function reducer(state: State, action: Action): State {
         history: [],
         saved: false,
         activeBranchId: null,
+        detachedFromId: state.activeBranchId ?? state.detachedFromId,
         drawer: null,
         mutationCard: null,
         pendingReset: false,
@@ -501,19 +617,21 @@ function reducer(state: State, action: Action): State {
       if (!state.scenario) return state;
       const scenario = cloneScenario(action.proposal.scenario);
       const run = runScenario(scenario);
+      const mutation = withUniqueMutationId(action.proposal.mutation, state.mutations);
       return {
         ...state,
         scenario,
         run,
         frameIndex: 0,
-        mutations: [...state.mutations, action.proposal.mutation],
+        mutations: [...state.mutations, mutation],
         history: [...state.history, { scenario: state.scenario, mutations: state.mutations }],
         selection: null,
         saved: false,
         activeBranchId: null,
+        detachedFromId: state.activeBranchId ?? state.detachedFromId,
         drawer: null,
         mutationCard: null,
-        notice: notice(`${action.proposal.mutation.label} The new trace is on the bench.`),
+        notice: notice(`${mutation.label} The new trace is on the bench.`),
       };
     }
 
@@ -531,6 +649,7 @@ function reducer(state: State, action: Action): State {
         selection: null,
         saved: false,
         activeBranchId: null,
+        detachedFromId: state.activeBranchId ?? state.detachedFromId,
         notice: notice("Last mutation undone."),
       };
     }
@@ -547,14 +666,42 @@ function reducer(state: State, action: Action): State {
     case "dismiss-notice":
       return { ...state, notice: null };
 
+    case "store-corrupt":
+      return action.store === "branches"
+        ? { ...state, branchesCorrupt: true }
+        : { ...state, readerBenchesCorrupt: true };
+
+    case "store-cleared":
+      return {
+        ...state,
+        branchesCorrupt: false,
+        readerBenchesCorrupt: false,
+        notice: notice("Unreadable storage was cleared. The shelf can save again."),
+      };
+
+    case "inspector-dirty":
+      return state.inspectorDirty === action.dirty
+        ? state
+        : { ...state, inspectorDirty: action.dirty };
+
+    case "pending-inspector-close":
+      return { ...state, pendingInspectorClose: action.pending };
+
+    case "pending-discard-draft":
+      return { ...state, pendingDiscardDraft: action.pending };
+
     case "set-branches": {
       const keepsActive =
         state.activeBranchId !== null &&
         action.branches.some((branch) => branch.id === state.activeBranchId);
+      const detachedStillExists =
+        state.detachedFromId !== null &&
+        action.branches.some((branch) => branch.id === state.detachedFromId);
       return {
         ...state,
         branches: action.branches,
         activeBranchId: keepsActive ? state.activeBranchId : null,
+        detachedFromId: detachedStillExists ? state.detachedFromId : null,
         saved: keepsActive ? state.saved : false,
         notice: action.notice ?? state.notice,
         pendingDeleteBranch: null,
@@ -566,10 +713,15 @@ function reducer(state: State, action: Action): State {
         ...state,
         branches: action.branches,
         activeBranchId: action.branch.id,
+        detachedFromId: null,
+        origin: "branch",
         title: action.branch.title,
         note: action.branch.note,
         saved: true,
-        draft: null,
+        benchWhat: "A kept branch. The scenario, mutations, lens, and frame are restored.",
+        benchFraming: action.branch.scenario.title,
+        topTitle: action.branch.scenario.title,
+        pendingImport: null,
         notice: notice(`Kept "${action.branch.title}" on the shelf.`),
       };
 
@@ -591,18 +743,21 @@ function reducer(state: State, action: Action): State {
         run,
         frameIndex: clampFrame(action.branch.frameIndex, run),
         selection: null,
-        draft: null,
         title: action.branch.title,
         note: action.branch.note,
         saved,
         drawer: null,
         mutationCard: null,
         activeBranchId: saved ? action.branch.id : null,
+        detachedFromId: null,
         notice: saved
           ? notice(`Opened "${action.branch.title}".`)
           : notice("Imported branch opened. Keep it to add it to your shelf."),
         field: null,
         compare: null,
+        compareReturnDrawer: null,
+        pendingImport: null,
+        pendingReplace: null,
         pendingDeleteBranch: null,
         pendingDeleteReader: null,
         articleHref: null,
@@ -631,12 +786,18 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         compare: { left: action.left, right: action.right },
+        compareReturnDrawer: state.drawer,
         drawer: null,
         field: null,
       };
 
     case "close-compare":
-      return { ...state, compare: null };
+      return {
+        ...state,
+        compare: null,
+        drawer: state.compareReturnDrawer,
+        compareReturnDrawer: null,
+      };
 
     case "pending-delete-branch":
       return { ...state, pendingDeleteBranch: action.branch };
@@ -684,6 +845,21 @@ function titleOf(state: State): string {
 function activeBranchOf(state: State): Branch | undefined {
   if (state.activeBranchId === null) return undefined;
   return state.branches.find((branch) => branch.id === state.activeBranchId);
+}
+
+/** A saved bench, or a clean one, does not need a draft key. */
+function hasUnsavedWork(state: State): boolean {
+  if (!state.scenario || state.saved) return false;
+  if (state.origin === "draft") return true;
+  if (state.mutations.length > 0) return true;
+  if (state.note.trim() !== "") return true;
+  if (
+    state.baseScenario !== null &&
+    canonicalJson(state.scenario) !== canonicalJson(state.baseScenario)
+  ) {
+    return true;
+  }
+  return false;
 }
 
 function resetLosses(state: State): { mutations: number; scenarioChanged: boolean } {
@@ -745,7 +921,7 @@ function workingBranch(state: State): Branch | null {
   return {
     version: 1,
     id: existing?.id ?? "working",
-    parentId: existing?.parentId,
+    parentId: existing?.parentId ?? state.detachedFromId ?? undefined,
     title: titleOf(state),
     scenario: cloneScenario(state.scenario),
     mutations: state.mutations.map((mutation) => ({
@@ -783,6 +959,7 @@ export function ObservatoryWorkbench() {
   const benchHeadingRef = useRef<HTMLHeadingElement>(null);
   const shelfHeadingRef = useRef<HTMLHeadingElement>(null);
   const previousPhase = useRef<Phase>(state.phase);
+  const draftWarningRef = useRef<number | null>(null);
 
   // The landing hero belongs to the shelf, not to the instrument room. Once a
   // bench is mounted, drop the page hero and return the eye to the bench top.
@@ -801,8 +978,18 @@ export function ObservatoryWorkbench() {
     const previous = previousPhase.current;
     previousPhase.current = state.phase;
     if (previous === state.phase) return;
-    if (state.phase === "bench") benchHeadingRef.current?.focus();
-    else shelfHeadingRef.current?.focus();
+    if (state.phase !== "bench") {
+      shelfHeadingRef.current?.focus();
+      return;
+    }
+    // A bench can mount with a drawer already open (the blank plate opens the
+    // Inspector). The dialog owns focus in that commit.
+    const overlayOpen =
+      state.drawer !== null ||
+      state.field !== null ||
+      state.compare !== null ||
+      state.pendingImport !== null;
+    if (!overlayOpen) benchHeadingRef.current?.focus();
   }, [state.phase]);
 
   // Hydrate local-first state and any #b= share payload after the static shell.
@@ -812,6 +999,8 @@ export function ObservatoryWorkbench() {
     const storage = getStorage();
     let branches: Branch[] = [];
     let readerBenches: ReaderBench[] = [];
+    let branchesCorrupt = false;
+    let readerBenchesCorrupt = false;
     let draft: import("../../observatory/types").Draft | null = null;
     let shared: SharePayload | null = null;
 
@@ -820,11 +1009,21 @@ export function ObservatoryWorkbench() {
       const benchLoad = loadReaderBenches(storage);
       branches = branchLoad.branches;
       readerBenches = benchLoad.benches;
+      branchesCorrupt = branchLoad.corrupt;
+      readerBenchesCorrupt = benchLoad.corrupt;
       draft = loadDraft(storage);
-      if (branchLoad.dropped > 0) {
+      if (branchLoad.corrupt) {
+        errors.push(
+          "The saved branch shelf is unreadable. It will not be overwritten; clear it from the notice to start saving again.",
+        );
+      } else if (branchLoad.dropped > 0) {
         errors.push(`${branchLoad.dropped} corrupted branch record(s) were left out.`);
       }
-      if (benchLoad.dropped > 0) {
+      if (benchLoad.corrupt) {
+        errors.push(
+          "The saved reader-bench shelf is unreadable. It will not be overwritten; clear it from the notice to start saving again.",
+        );
+      } else if (benchLoad.dropped > 0) {
         errors.push(`${benchLoad.dropped} corrupted reader-bench record(s) were left out.`);
       }
     } else {
@@ -843,16 +1042,64 @@ export function ObservatoryWorkbench() {
     }
 
     if (!disposed) {
-      dispatch({ type: "hydrate", branches, readerBenches, draft, shared, errors });
+      dispatch({
+        type: "hydrate",
+        branches,
+        readerBenches,
+        branchesCorrupt,
+        readerBenchesCorrupt,
+        draft,
+        shared,
+        errors,
+      });
     }
     return () => {
       disposed = true;
     };
   }, []);
 
-  // A working draft is local and debounced; it never replaces a kept branch.
+  // A share link pasted into the already-open observatory changes only the
+  // hash; hydrate it without requiring a reload.
+  useEffect(() => {
+    const onHashChange = () => {
+      if (!window.location.hash.includes("#b=")) return;
+      const decoded = decodeShare(window.location.href);
+      if (decoded.ok) {
+        dispatch({ type: "open-shared", shared: decoded.payload });
+      } else {
+        dispatch({
+          type: "notice",
+          notice: notice(`Share link not loaded: ${decoded.error}`, "error"),
+        });
+      }
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${window.location.search}`,
+      );
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
+  // A working draft is local and debounced. Saved benches and clean benches
+  // do not need one, and an older waiting draft is never silently replaced.
   useEffect(() => {
     if (!state.hydrated || state.phase !== "bench" || !state.scenario) return;
+    if (!hasUnsavedWork(state)) return;
+    if (state.draft !== null) {
+      if (draftWarningRef.current !== state.draft.savedAt) {
+        draftWarningRef.current = state.draft.savedAt;
+        dispatch({
+          type: "notice",
+          notice: notice(
+            "Autosave is paused because an older draft is waiting. Open the shelf to resume or discard it.",
+          ),
+        });
+      }
+      return;
+    }
+    draftWarningRef.current = null;
     const storage = getStorage();
     if (!storage) return;
     const timer = window.setTimeout(() => {
@@ -878,7 +1125,11 @@ export function ObservatoryWorkbench() {
     state.hydrated,
     state.phase,
     state.scenario,
+    state.baseScenario,
     state.mutations,
+    state.origin,
+    state.saved,
+    state.draft,
     state.lens,
     state.frameIndex,
     state.run,
@@ -906,7 +1157,13 @@ export function ObservatoryWorkbench() {
   // Ask the canonical cards in order and fall back to no suggestion.
   const suggested = useMemo<ScamperId | null>(() => {
     if (!state.scenario || state.mutations.length > 0) return null;
-    for (const card of SCAMPER_CARDS) {
+    // The shelf script names Reverse first for Least Label; ask for it first
+    // everywhere and fall back to the canonical card order.
+    const ordered = [
+      ...SCAMPER_CARDS.filter((card) => card.id === "reverse"),
+      ...SCAMPER_CARDS.filter((card) => card.id !== "reverse"),
+    ];
+    for (const card of ordered) {
       const result = proposeMutation(state.scenario, card.id);
       if (result.ok) return card.id;
     }
@@ -915,19 +1172,75 @@ export function ObservatoryWorkbench() {
 
   const openShelf = () => dispatch({ type: "set-drawer", drawer: "shelf" });
   const openBranches = () => dispatch({ type: "set-drawer", drawer: "branches" });
-  const openInspector = () => dispatch({ type: "set-drawer", drawer: "inspector" });
-  const closeDrawer = () => dispatch({ type: "set-drawer", drawer: null });
-
-  const handlePickLive = (bench: LiveBench) => {
-    benchSource(bench);
-    dispatch({ type: "pick-live", bench });
+  const openInspector = () => {
+    dispatch({ type: "inspector-dirty", dirty: false });
+    dispatch({ type: "set-drawer", drawer: "inspector" });
+  };
+  const handleInspectorDirty = useCallback((dirty: boolean) => {
+    dispatch({ type: "inspector-dirty", dirty });
+  }, []);
+  const closeInspectorConfirmed = () => {
+    dispatch({ type: "pending-inspector-close", pending: false });
+    dispatch({ type: "inspector-dirty", dirty: false });
+    dispatch({ type: "set-drawer", drawer: null });
+  };
+  const closeDrawer = () => {
+    if (state.pendingInspectorClose) return;
+    if (state.drawer === "inspector" && state.inspectorDirty) {
+      dispatch({ type: "pending-inspector-close", pending: true });
+      return;
+    }
+    dispatch({ type: "set-drawer", drawer: null });
   };
 
-  const handlePickReader = (bench: ReaderBench) => dispatch({ type: "pick-reader", bench });
-  const handlePickBlank = (substrate: Substrate) => dispatch({ type: "pick-blank", substrate });
+  const requestReplace = (intent: ReplaceIntent, perform: () => void) => {
+    if (state.phase === "bench" && hasUnsavedWork(state)) {
+      dispatch({ type: "pending-replace", intent });
+      return;
+    }
+    perform();
+  };
 
-  const handleOpenField = (field: FieldSpecimen) => dispatch({ type: "field", field });
-  const handleCloseField = () => dispatch({ type: "field", field: null });
+  const focusBenchHeading = () => {
+    window.requestAnimationFrame(() => benchHeadingRef.current?.focus());
+  };
+
+  const performPickLive = (bench: LiveBench) => {
+    benchSource(bench);
+    dispatch({ type: "pick-live", bench });
+    focusBenchHeading();
+  };
+  const handlePickLive = (bench: LiveBench) =>
+    requestReplace({ kind: "live", bench }, () => performPickLive(bench));
+
+  const performPickReader = (bench: ReaderBench) => {
+    dispatch({ type: "pick-reader", bench });
+    focusBenchHeading();
+  };
+  const handlePickReader = (bench: ReaderBench) =>
+    requestReplace({ kind: "reader", bench }, () => performPickReader(bench));
+
+  const performPickBlank = (substrate: Substrate) => dispatch({ type: "pick-blank", substrate });
+  const handlePickBlank = (substrate: Substrate) =>
+    requestReplace({ kind: "blank", substrate }, () => performPickBlank(substrate));
+
+  const lastFieldRef = useRef<string | null>(null);
+  const handleOpenField = (field: FieldSpecimen) => {
+    lastFieldRef.current = field.id;
+    dispatch({ type: "field", field });
+  };
+  const handleCloseField = () => {
+    const id = lastFieldRef.current;
+    dispatch({ type: "field", field: null });
+    if (id === null) return;
+    window.requestAnimationFrame(() => {
+      const row = [...document.querySelectorAll<HTMLElement>("[data-field-id]")].find(
+        (element) => element.dataset.fieldId === id,
+      );
+      row?.scrollIntoView({ block: "center" });
+      row?.focus();
+    });
+  };
 
   const handleRun = () => dispatch({ type: "run" });
   const handleStep = (direction: -1 | 1) => dispatch({ type: "step", direction });
@@ -1042,7 +1355,7 @@ export function ObservatoryWorkbench() {
     const branch: Branch = {
       version: 1,
       id: existing?.id ?? makeId("branch"),
-      parentId: existing?.parentId,
+      parentId: existing?.parentId ?? state.detachedFromId ?? undefined,
       title: titleOf(state),
       scenario: cloneScenario(state.scenario),
       mutations: state.mutations.map((mutation) => ({
@@ -1058,7 +1371,11 @@ export function ObservatoryWorkbench() {
     const result = saveBranch(storage, branch);
     if (!result.ok) {
       let text: string;
-      if (result.code === "cap") {
+      if (result.code === "corrupt") {
+        dispatch({ type: "store-corrupt", store: "branches" });
+        text =
+          "The saved branch shelf is unreadable. Nothing was overwritten; clear the unreadable storage from the notice, then keep the branch again.";
+      } else if (result.code === "cap") {
         text = `The shelf is full at ${LIMITS.branches} branches. Delete a branch first — nothing was overwritten.`;
       } else if (result.code === "size" && /mutation/i.test(result.error)) {
         text = `The mutation stack is over the ${LIMITS.mutations}-mutation cap. Undo a mutation before keeping.`;
@@ -1071,16 +1388,27 @@ export function ObservatoryWorkbench() {
       dispatch({ type: "notice", notice: notice(text, "error") });
       return;
     }
-    try {
-      storage.removeItem(STORAGE_KEYS.draft);
-    } catch {
-      // The branch is already saved; a stale draft is harmless.
+    // Only clear the draft key when it belongs to this bench. `state.draft`
+    // holds an older draft that was intentionally left waiting on the shelf.
+    if (state.draft === null) {
+      try {
+        storage.removeItem(STORAGE_KEYS.draft);
+      } catch {
+        // The branch is already saved; a stale draft is harmless.
+      }
     }
     dispatch({ type: "saved", branch, branches: result.branches });
   };
 
   const handleSaveBench = () => {
     if (!state.scenario) return;
+    if (state.readerBenches.length >= LIMITS.readerBenches) {
+      dispatch({
+        type: "notice",
+        notice: notice("The reader-bench shelf is full. Delete one on the shelf to save another.", "error"),
+      });
+      return;
+    }
     const storage = getStorage();
     if (!storage) {
       dispatch({ type: "notice", notice: notice("Local storage is unavailable; the bench cannot be saved.", "error") });
@@ -1098,12 +1426,17 @@ export function ObservatoryWorkbench() {
     };
     const result = saveReaderBench(storage, bench);
     if (!result.ok) {
+      if (result.code === "corrupt") {
+        dispatch({ type: "store-corrupt", store: "benches" });
+      }
       dispatch({
         type: "notice",
         notice: notice(
           result.code === "cap"
             ? "The reader-bench shelf is full. Delete a bench first."
-            : `The bench could not be saved. ${result.error}`,
+            : result.code === "corrupt"
+              ? "The saved reader-bench shelf is unreadable. Nothing was overwritten; clear the unreadable storage from the notice, then save the bench again."
+              : `The bench could not be saved. ${result.error}`,
           "error",
         ),
       });
@@ -1116,12 +1449,15 @@ export function ObservatoryWorkbench() {
     });
   };
 
-  const handleOpenBranch = (branch: Branch) => {
+  const performOpenBranch = (branch: Branch) => {
     const run = runScenario(branch.scenario);
     dispatch({ type: "open-branch", branch, run, baseScenario: branch.scenario });
+    focusBenchHeading();
   };
+  const handleOpenBranch = (branch: Branch) =>
+    requestReplace({ kind: "branch", branch }, () => performOpenBranch(branch));
 
-  const handleFork = (branch: Branch) => {
+  const performFork = (branch: Branch) => {
     const storage = getStorage();
     if (!storage) {
       dispatch({ type: "notice", notice: notice("Local storage is unavailable; the fork cannot be kept.", "error") });
@@ -1144,7 +1480,18 @@ export function ObservatoryWorkbench() {
     };
     const result = saveBranch(storage, fork);
     if (!result.ok) {
-      dispatch({ type: "notice", notice: notice(`Fork not saved. ${result.error}`, "error") });
+      if (result.code === "corrupt") {
+        dispatch({ type: "store-corrupt", store: "branches" });
+      }
+      dispatch({
+        type: "notice",
+        notice: notice(
+          result.code === "corrupt"
+            ? "The saved branch shelf is unreadable. Nothing was overwritten; clear the unreadable storage from the notice, then fork again."
+            : `Fork not saved. ${result.error}`,
+          "error",
+        ),
+      });
       return;
     }
     dispatch({
@@ -1155,6 +1502,32 @@ export function ObservatoryWorkbench() {
       branches: result.branches,
       saved: true,
     });
+    focusBenchHeading();
+  };
+  const handleFork = (branch: Branch) =>
+    requestReplace({ kind: "fork", branch }, () => performFork(branch));
+
+  const confirmPendingReplace = () => {
+    const intent = state.pendingReplace;
+    if (!intent) return;
+    dispatch({ type: "clear-pending-replace" });
+    switch (intent.kind) {
+      case "live":
+        performPickLive(intent.bench);
+        break;
+      case "reader":
+        performPickReader(intent.bench);
+        break;
+      case "blank":
+        performPickBlank(intent.substrate);
+        break;
+      case "branch":
+        performOpenBranch(intent.branch);
+        break;
+      case "fork":
+        performFork(intent.branch);
+        break;
+    }
   };
 
   const handleCompare = (right: Branch) => {
@@ -1231,13 +1604,13 @@ export function ObservatoryWorkbench() {
       dispatch({ type: "notice", notice: notice(`Import failed. ${result.error}`, "error") });
       return;
     }
-    dispatch({
-      type: "open-branch",
-      branch: result.branch,
-      run: runScenario(result.branch.scenario),
-      baseScenario: result.branch.scenario,
-      saved: false,
-    });
+    dispatch({ type: "pending-import", branch: result.branch });
+  };
+
+  const confirmImport = () => {
+    const branch = state.pendingImport;
+    if (!branch) return;
+    performOpenBranch(branch);
   };
 
   const handleDeleteBranch = (branch: Branch) => dispatch({ type: "pending-delete-branch", branch });
@@ -1283,9 +1656,40 @@ export function ObservatoryWorkbench() {
     }
   };
 
+  const handleClearCorruptStores = () => {
+    const storage = getStorage();
+    if (!storage) {
+      dispatch({ type: "notice", notice: notice("Local storage is unavailable.", "error") });
+      return;
+    }
+    try {
+      if (state.branchesCorrupt) clearBranches(storage);
+      if (state.readerBenchesCorrupt) clearReaderBenches(storage);
+      dispatch({ type: "store-cleared" });
+    } catch (error) {
+      dispatch({
+        type: "notice",
+        notice: notice(`The unreadable store could not be cleared. ${errorText(error)}`, "error"),
+      });
+    }
+  };
+
   const handleResumeDraft = () => dispatch({ type: "resume-draft" });
 
-  const handleDiscardDraft = () => {
+  const jumpToInstrument = (selector: string) => {
+    const target = document.querySelector<HTMLElement>(selector);
+    if (!target) return;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    window.scrollTo({
+      top: window.scrollY + target.getBoundingClientRect().top - 12,
+      behavior: reduce ? "auto" : "smooth",
+    });
+    window.requestAnimationFrame(() => {
+      target.querySelector<HTMLElement>("button")?.focus({ preventScroll: true });
+    });
+  };
+
+  const confirmDiscardDraft = () => {
     const storage = getStorage();
     if (storage) {
       try {
@@ -1294,26 +1698,41 @@ export function ObservatoryWorkbench() {
         // The in-memory draft can still be discarded.
       }
     }
+    dispatch({ type: "pending-discard-draft", pending: false });
     dispatch({ type: "discard-draft" });
     dispatch({ type: "notice", notice: notice("Draft discarded. The shelf is unchanged.") });
+    window.requestAnimationFrame(() => shelfHeadingRef.current?.focus());
   };
 
-  const noticeBanner = state.notice ? (
-    <div
-      className={`obs-notice obs-notice--${state.notice.tone}`}
-      role={state.notice.tone === "error" ? "alert" : "status"}
-    >
-      <p>{state.notice.text}</p>
-      <button
-        type="button"
-        className="obs-button obs-button--ghost"
-        aria-label="Dismiss message"
-        onClick={() => dispatch({ type: "dismiss-notice" })}
+  const noticeElement = (inline: boolean) =>
+    state.notice ? (
+      <div
+        className={`obs-notice${inline ? " obs-notice--inline" : ""} obs-notice--${state.notice.tone}`}
+        role={state.notice.tone === "error" ? "alert" : "status"}
       >
-        ✕
-      </button>
-    </div>
-  ) : null;
+        <p>{state.notice.text}</p>
+        {(state.branchesCorrupt || state.readerBenchesCorrupt) && (
+          <button
+            type="button"
+            className="obs-button obs-button--danger"
+            onClick={handleClearCorruptStores}
+          >
+            Clear unreadable storage
+          </button>
+        )}
+        <button
+          type="button"
+          className="obs-button obs-button--ghost"
+          aria-label="Dismiss message"
+          onClick={() => dispatch({ type: "dismiss-notice" })}
+        >
+          ✕
+        </button>
+      </div>
+    ) : null;
+
+  const noticeBanner = noticeElement(false);
+  const noticeInline = noticeElement(true);
 
   const shelfHandlers = {
     onPickLive: handlePickLive,
@@ -1322,27 +1741,44 @@ export function ObservatoryWorkbench() {
     onOpenField: handleOpenField,
     onDeleteReader: handleDeleteReader,
     onOpenBranches: openBranches,
+    branches: state.branches,
+    onOpenBranch: handleOpenBranch,
   };
 
   // One modal at a time. A confirmation or share sits above the drawer that
   // opened it; the drawer returns when the smaller dialog closes.
-  const topOverlay: "confirm" | "share" | "compare" | "field" | "drawer" | null =
+  const topOverlay:
+    | "confirm"
+    | "replace"
+    | "share"
+    | "compare"
+    | "import"
+    | "field"
+    | "drawer"
+    | null =
     state.pendingReset ||
+    state.pendingInspectorClose ||
+    state.pendingDiscardDraft ||
     state.pendingDeleteBranch !== null ||
     state.pendingDeleteReader !== null
       ? "confirm"
       : state.shareUrl !== null
         ? "share"
-        : state.compare !== null
-          ? "compare"
-          : state.field !== null
-            ? "field"
-            : state.drawer !== null
-              ? "drawer"
-              : null;
+        : state.pendingReplace !== null
+          ? "replace"
+          : state.compare !== null
+            ? "compare"
+            : state.pendingImport !== null
+              ? "import"
+              : state.field !== null
+                ? "field"
+                : state.drawer !== null
+                  ? "drawer"
+                  : null;
 
   const overlays = (
-    <>
+    <OverlayNoticeProvider value={noticeInline}>
+      <>
       {topOverlay === "field" && state.field && (
         <FieldCardDrawer specimen={state.field} onClose={handleCloseField} />
       )}
@@ -1393,7 +1829,9 @@ export function ObservatoryWorkbench() {
         </Overlay>
       )}
 
-      {topOverlay === "drawer" && state.drawer === "inspector" && state.scenario && (
+      {((topOverlay === "drawer" && state.drawer === "inspector") ||
+        (state.pendingInspectorClose && state.drawer === "inspector")) &&
+        state.scenario && (
         <Overlay label="Scenario inspector" onClose={closeDrawer} className="obs-inspector-drawer">
           <Inspector
             scenario={state.scenario}
@@ -1402,6 +1840,7 @@ export function ObservatoryWorkbench() {
             onChange={handleScenarioChange}
             onSelect={handleSelect}
             onClose={closeDrawer}
+            onDirtyChange={handleInspectorDirty}
           />
         </Overlay>
       )}
@@ -1417,21 +1856,58 @@ export function ObservatoryWorkbench() {
         />
       )}
 
+      {topOverlay === "replace" && state.pendingReplace && (
+        <ConfirmDialog
+          title="Discard this bench?"
+          body="This bench has unsaved changes. Opening the other bench will discard them. Keep this bench first if you want to keep the run."
+          confirmLabel="Discard and open"
+          onConfirm={confirmPendingReplace}
+          onCancel={() => dispatch({ type: "clear-pending-replace" })}
+        />
+      )}
+
       {topOverlay === "compare" && state.compare && (
         <CompareDialog
           left={state.compare.left}
           right={state.compare.right}
           branches={state.branches}
           onClose={() => dispatch({ type: "close-compare" })}
-          onOpen={(branch) => {
-            handleOpenBranch(branch);
-            dispatch({ type: "close-compare" });
-          }}
+          onOpen={(branch) => handleOpenBranch(branch)}
+        />
+      )}
+
+      {topOverlay === "import" && state.pendingImport && (
+        <ImportDialog
+          branch={state.pendingImport}
+          draftWaiting={state.draft !== null}
+          replacesUnsaved={hasUnsavedWork(state)}
+          onLoad={confirmImport}
+          onCancel={() => dispatch({ type: "clear-pending-import" })}
         />
       )}
 
       {topOverlay === "share" && state.shareUrl && (
         <ShareDialog url={state.shareUrl} onClose={() => dispatch({ type: "share", url: null })} />
+      )}
+
+      {topOverlay === "confirm" && state.pendingInspectorClose && (
+        <ConfirmDialog
+          title="Discard inspector changes?"
+          body="The inspector has unapplied edits. Closing it will discard them; the bench itself is unchanged until you apply."
+          confirmLabel="Discard changes"
+          onConfirm={closeInspectorConfirmed}
+          onCancel={() => dispatch({ type: "pending-inspector-close", pending: false })}
+        />
+      )}
+
+      {topOverlay === "confirm" && state.pendingDiscardDraft && state.draft && (
+        <ConfirmDialog
+          title="Discard this draft?"
+          body={`The draft of "${state.draft.scenario.title}" will be removed from this browser. Saved branches are not touched.`}
+          confirmLabel="Discard draft"
+          onConfirm={confirmDiscardDraft}
+          onCancel={() => dispatch({ type: "pending-discard-draft", pending: false })}
+        />
       )}
 
       {topOverlay === "confirm" && state.pendingReset && (
@@ -1469,13 +1945,14 @@ export function ObservatoryWorkbench() {
             onCancel={() => dispatch({ type: "pending-delete-reader", bench: null })}
           />
         )}
-    </>
+      </>
+    </OverlayNoticeProvider>
   );
 
   if (state.phase === "shelf" || state.scenario === null) {
     return (
       <div className="obs-shelf-page">
-        {noticeBanner}
+        {topOverlay === null && noticeBanner}
         {state.draft && (
           <section className="obs-draft-banner" aria-label="Working draft">
             <div>
@@ -1490,7 +1967,7 @@ export function ObservatoryWorkbench() {
               <button type="button" className="obs-button obs-button--accent" onClick={handleResumeDraft}>
                 Resume draft
               </button>
-              <button type="button" className="obs-button obs-button--ghost" onClick={handleDiscardDraft}>
+              <button type="button" className="obs-button obs-button--ghost" onClick={() => dispatch({ type: "pending-discard-draft", pending: true })}>
                 Discard draft
               </button>
             </div>
@@ -1523,12 +2000,17 @@ export function ObservatoryWorkbench() {
   const frameIndex = frame?.index ?? 0;
   const frameCount = state.run?.frames.length ?? 0;
   const atBranchCap = state.branches.length >= LIMITS.branches;
+  const readerBenchAtCap = state.readerBenches.length >= LIMITS.readerBenches;
   const keepBlocked = atBranchCap && activeBranchOf(state) === undefined;
   const authoredCopy = state.benchWhat ?? state.benchFraming;
 
   return (
-    <div className="obs-shell">
-      {noticeBanner}
+    <>
+      {topOverlay === null && noticeBanner}
+      <div className="obs-shell">
+      <h1 className="obs-sr">
+        Observatory bench: {state.title.trim() || state.topTitle || scenario.title}
+      </h1>
       <header className="obs-topbar">
         <div className="obs-topbar-title">
           <p className="obs-kicker">{originLabel(state.origin)}</p>
@@ -1536,7 +2018,7 @@ export function ObservatoryWorkbench() {
           <p className="obs-topbar-sub">{liveScenarioLine(scenario)}</p>
           {authoredCopy !== null && (
             <p className="obs-topbar-original">
-              <span className="obs-topbar-original-label">Original shelf copy</span>{" "}
+              <span className="obs-topbar-original-label">Specimen shelf copy</span>{" "}
               {authoredCopy}
             </p>
           )}
@@ -1600,6 +2082,10 @@ export function ObservatoryWorkbench() {
             onMoveNode={handleMoveNode}
           />
 
+          <div className="obs-mobile-lens">
+            <LensRail active={state.lens} onSelect={handleLens} />
+          </div>
+
           <div className="obs-under-canvas">
             {projection && frame ? (
               <LensReadout
@@ -1629,9 +2115,8 @@ export function ObservatoryWorkbench() {
           frameCount={frameCount}
           outcome={state.run?.outcome ?? "invalid"}
           diagnostics={state.run?.diagnostics ?? []}
-          dirty={false}
           hasRun={state.run !== null}
-          canSaveBench
+          canSaveBench={!readerBenchAtCap}
           lensTitle={lensCopy?.title ?? state.lens}
           atCap={keepBlocked}
           onRun={handleRun}
@@ -1641,6 +2126,7 @@ export function ObservatoryWorkbench() {
           onKeep={handleKeep}
           onSaveBench={handleSaveBench}
           onOpenBranches={openBranches}
+          onManageBenches={openShelf}
         />
         <ScamperDeck
           applied={state.mutations}
@@ -1661,10 +2147,21 @@ export function ObservatoryWorkbench() {
         />
       </aside>
 
-      <div className="obs-mobile-runbar" role="group" aria-label="Quick run controls">
-        <span className="obs-mobile-runbar-frame obs-mono">
-          {frameLabel(frameIndex, frameCount)}
-        </span>
+      <div className="obs-mobile-runbar" role="group" aria-label="Quick bench controls">
+        <button
+          type="button"
+          className="obs-button obs-button--ghost"
+          onClick={() => jumpToInstrument(".obs-mobile-lens")}
+        >
+          Lenses
+        </button>
+        <button
+          type="button"
+          className="obs-button obs-button--ghost"
+          onClick={() => jumpToInstrument(".obs-deck")}
+        >
+          Deck
+        </button>
         <button type="button" className="obs-button obs-button--accent" onClick={handleRun}>
           Run
         </button>
@@ -1674,11 +2171,15 @@ export function ObservatoryWorkbench() {
           disabled={keepBlocked}
           onClick={handleKeep}
         >
-          Keep branch
+          Keep
+        </button>
+        <button type="button" className="obs-button obs-button--ghost" onClick={openBranches}>
+          Branches
         </button>
       </div>
 
       {overlays}
-    </div>
+      </div>
+    </>
   );
 }

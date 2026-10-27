@@ -16,7 +16,7 @@ export const LIMITS = {
   readerBenchBytes: 8192,
 } as const;
 
-export type SaveFailureCode = "invalid" | "cap" | "size" | "storage";
+export type SaveFailureCode = "invalid" | "cap" | "size" | "storage" | "corrupt";
 
 export type BranchSaveResult =
   | { ok: true; branches: Branch[] }
@@ -44,28 +44,28 @@ function readList<T>(
   storage: StorageLike,
   key: string,
   validate: (value: unknown) => boolean,
-): { records: T[]; dropped: number } {
+): { records: T[]; dropped: number; corrupt: boolean } {
   let raw: string | null;
   try {
     raw = storage.getItem(key);
   } catch {
-    return { records: [], dropped: 0 };
+    return { records: [], dropped: 0, corrupt: false };
   }
-  if (raw === null) return { records: [], dropped: 0 };
+  if (raw === null) return { records: [], dropped: 0, corrupt: false };
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch {
-    return { records: [], dropped: 0 };
+    return { records: [], dropped: 0, corrupt: true };
   }
-  if (!Array.isArray(parsed)) return { records: [], dropped: 0 };
+  if (!Array.isArray(parsed)) return { records: [], dropped: 0, corrupt: true };
   const records: T[] = [];
   let dropped = 0;
   for (const item of parsed) {
     if (validate(item)) records.push(item as T);
     else dropped += 1;
   }
-  return { records, dropped };
+  return { records, dropped, corrupt: false };
 }
 
 /** Writes a JSON array; returns null on success or an error message on failure. */
@@ -78,13 +78,40 @@ function writeList(storage: StorageLike, key: string, records: unknown[]): strin
   }
 }
 
-export function loadBranches(storage: StorageLike): { branches: Branch[]; dropped: number } {
-  const { records, dropped } = readList<Branch>(storage, STORAGE_KEYS.branches, isBranch);
-  return { branches: records, dropped };
+export function loadBranches(storage: StorageLike): {
+  branches: Branch[];
+  dropped: number;
+  corrupt: boolean;
+} {
+  const { records, dropped, corrupt } = readList<Branch>(
+    storage,
+    STORAGE_KEYS.branches,
+    isBranch,
+  );
+  return { branches: records, dropped, corrupt };
+}
+
+/** Removes the branch store so the user can recover from a corrupt payload. */
+export function clearBranches(storage: StorageLike): void {
+  try {
+    storage.removeItem(STORAGE_KEYS.branches);
+  } catch (error) {
+    throw new Error(`could not clear branches: ${errorMessage(error)}`);
+  }
 }
 
 export function saveBranch(storage: StorageLike, branch: Branch): BranchSaveResult {
   const existing = loadBranches(storage);
+
+  // Never overwrite a payload we could not parse; the raw key is kept for recovery.
+  if (existing.corrupt) {
+    return {
+      ok: false,
+      code: "corrupt",
+      error: "branch storage is unreadable; clear it before saving",
+      branches: existing.branches,
+    };
+  }
 
   // Named size errors always win over the generic "invalid" verdict.
   if (isRecord(branch)) {
@@ -159,7 +186,10 @@ export function deleteBranch(storage: StorageLike, id: string): Branch[] {
   const existing = loadBranches(storage);
   const remaining = existing.branches.filter((item) => item.id !== id);
   if (remaining.length === existing.branches.length) return existing.branches;
-  writeList(storage, STORAGE_KEYS.branches, remaining);
+  const writeError = writeList(storage, STORAGE_KEYS.branches, remaining);
+  if (writeError !== null) {
+    throw new Error(`could not delete branch: ${writeError}`);
+  }
   return remaining;
 }
 
@@ -192,9 +222,23 @@ export function saveDraft(storage: StorageLike, draft: Draft): DraftSaveResult {
 export function loadReaderBenches(storage: StorageLike): {
   benches: ReaderBench[];
   dropped: number;
+  corrupt: boolean;
 } {
-  const { records, dropped } = readList<ReaderBench>(storage, STORAGE_KEYS.benches, isReaderBench);
-  return { benches: records, dropped };
+  const { records, dropped, corrupt } = readList<ReaderBench>(
+    storage,
+    STORAGE_KEYS.benches,
+    isReaderBench,
+  );
+  return { benches: records, dropped, corrupt };
+}
+
+/** Removes the reader-bench store so the user can recover from a corrupt payload. */
+export function clearReaderBenches(storage: StorageLike): void {
+  try {
+    storage.removeItem(STORAGE_KEYS.benches);
+  } catch (error) {
+    throw new Error(`could not clear reader benches: ${errorMessage(error)}`);
+  }
 }
 
 export function saveReaderBench(
@@ -202,6 +246,16 @@ export function saveReaderBench(
   bench: ReaderBench,
 ): ReaderBenchSaveResult {
   const existing = loadReaderBenches(storage);
+
+  // Never overwrite a payload we could not parse; the raw key is kept for recovery.
+  if (existing.corrupt) {
+    return {
+      ok: false,
+      code: "corrupt",
+      error: "reader bench storage is unreadable; clear it before saving",
+      benches: existing.benches,
+    };
+  }
 
   if (!isReaderBench(bench)) {
     return {
@@ -256,6 +310,9 @@ export function deleteReaderBench(storage: StorageLike, id: string): ReaderBench
   const existing = loadReaderBenches(storage);
   const remaining = existing.benches.filter((item) => item.id !== id);
   if (remaining.length === existing.benches.length) return existing.benches;
-  writeList(storage, STORAGE_KEYS.benches, remaining);
+  const writeError = writeList(storage, STORAGE_KEYS.benches, remaining);
+  if (writeError !== null) {
+    throw new Error(`could not delete reader bench: ${writeError}`);
+  }
   return remaining;
 }
