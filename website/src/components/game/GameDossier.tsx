@@ -65,8 +65,6 @@ export default function GameDossier({
       <section className="game-brief" aria-labelledby="game-brief-title">
         <p className="game-brief__kicker">
           <span>{meta.algorithm}</span>
-          <span className="game-brief__dot" aria-hidden="true">·</span>
-          <span>{meta.minutes} MIN</span>
         </p>
         <h1 id="game-brief-title" className="game-brief__title">{meta.title}</h1>
 

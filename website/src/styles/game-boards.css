@@ -99,13 +99,13 @@
 }
 
 .game-board__head-label {
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   color: var(--gf-cyan);
 }
 
 .game-board__head-meta {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
   color: var(--gf-faint);
   white-space: nowrap;
@@ -1426,7 +1426,7 @@ button.game-formula__output:focus-visible {
 
   .game-pair {
     padding: 0.4rem 0.5rem;
-    font-size: 0.68rem;
+    font-size: 0.75rem;
   }
 
   .game-formula__row {
@@ -1475,6 +1475,93 @@ button.game-formula__output:focus-visible {
 .game-repair-rail__btn--handover:focus-visible {
   border-color: var(--gf-amber-bright, #fbbf24);
   color: #fff;
+}
+
+/* ----------------------------------------------------------------- note -- */
+
+.game-node.is-note .game-node__halo {
+  stroke: var(--gf-amber);
+  stroke-width: 2.5;
+  opacity: 0.9;
+}
+
+.game-node.is-note .game-node__dot {
+  stroke: var(--gf-amber);
+}
+
+.game-node.is-note .game-node__subplate rect {
+  stroke: var(--gf-amber);
+}
+
+.game-node.is-note .game-node__sub {
+  fill: var(--gf-amber-bright);
+}
+
+.game-edge.is-note .game-edge__line {
+  stroke: var(--gf-amber);
+  stroke-width: 2.25;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--gf-amber) 38%, transparent));
+}
+
+.game-edge.is-note .game-edge__halo {
+  stroke: color-mix(in srgb, var(--gf-amber) 25%, transparent);
+}
+
+.game-edge.is-note .game-edge__label {
+  fill: var(--gf-amber-bright);
+}
+
+.game-edge__hit.is-note {
+  stroke: color-mix(in srgb, var(--gf-amber) 20%, transparent);
+}
+
+.game-board .game-cell.is-note {
+  border-color: var(--gf-amber);
+  box-shadow: 0 0 0 1px var(--gf-amber-soft);
+}
+
+.game-pair.is-note {
+  border-color: var(--gf-amber);
+  box-shadow: 0 0 0 1px var(--gf-amber-soft);
+}
+
+.game-formula__row.is-note,
+.game-formula__output.is-note {
+  border-color: var(--gf-amber);
+  box-shadow: 0 0 0 1px var(--gf-amber-soft);
+}
+
+/* --------------------------------------------------------- inert/blocked -- */
+
+.is-inert,
+.is-blocked,
+[aria-disabled="true"] {
+  cursor: default !important;
+}
+
+.game-node.is-inert .game-node__hit,
+.game-node.is-blocked .game-node__hit,
+.game-edge__hit.is-inert,
+.game-edge__hit.is-blocked {
+  pointer-events: none;
+  cursor: default !important;
+}
+
+.game-node.is-inert .game-node__halo,
+.game-node.is-blocked .game-node__halo {
+  opacity: 0.35;
+}
+
+.game-cell.is-inert,
+.game-cell.is-blocked,
+.game-pair.is-inert,
+.game-pair.is-blocked,
+.game-formula__row.is-inert,
+.game-formula__row.is-blocked,
+.game-formula__output.is-inert,
+.game-formula__output.is-blocked {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 /* -------------------------------------------------------- reduced motion -- */

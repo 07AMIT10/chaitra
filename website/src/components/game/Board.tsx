@@ -5,6 +5,7 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import { isMoveInteractive } from "../../game/board-access";
 import type {
   ArrayView,
   BoardView,
@@ -23,6 +24,8 @@ type BoardProps = {
   faultMoveId?: string;
   /** First-move handover: highlight the recommended opening move. */
   handoverMoveId?: string;
+  /** Currently legal move IDs; non-legal bound moves are rendered inert. */
+  legalMoveIds?: ReadonlySet<string>;
 };
 
 function activate(
@@ -54,11 +57,13 @@ function stateClass(
   moveId: string | undefined,
   faultMoveId: string | undefined,
   handoverMoveId?: string | undefined,
+  interactive?: boolean,
 ): string {
   const classes = [base];
   if (state && state !== "idle") classes.push(`is-${state}`);
-  if (isFaultMove(moveId, faultMoveId)) classes.push("is-fault");
+  if (isFaultMove(moveId, faultMoveId)) classes.push("is-note");
   if (isHandoverMove(moveId, handoverMoveId)) classes.push("is-handover");
+  if (moveId != null && interactive === false) classes.push("is-inert is-blocked");
   return classes.join(" ");
 }
 
@@ -253,11 +258,13 @@ function GraphBoard({
   onMove,
   faultMoveId,
   handoverMoveId,
+  legalMoveIds,
 }: {
   view: GraphView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
   handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
   const markerId = `game-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -314,13 +321,14 @@ function GraphBoard({
             const mx = (x1 + x2) / 2;
             const my = (y1 + y2) / 2;
             const active = Boolean(edge.moveId);
+            const interactive = isMoveInteractive(edge.moveId, legalMoveIds);
             const handover = isHandoverMove(edge.moveId, handoverMoveId);
             const chip = edge.label != null ? labelWidth(String(edge.label)) : 0;
 
             return (
               <g
                 key={edge.id}
-                className={stateClass("game-edge", edge.state, edge.moveId, faultMoveId, handoverMoveId)}
+                className={stateClass("game-edge", edge.state, edge.moveId, faultMoveId, handoverMoveId, edge.moveId ? interactive : undefined)}
               >
                 <line className="game-edge__halo" x1={x1} y1={y1} x2={x2} y2={y2} />
                 <line
@@ -341,18 +349,19 @@ function GraphBoard({
                 )}
                 {active && (
                   <line
-                    className={`game-edge__hit${isFaultMove(edge.moveId, faultMoveId) ? " is-fault" : ""}${handover ? " is-handover" : ""}`}
+                    className={`game-edge__hit${isFaultMove(edge.moveId, faultMoveId) ? " is-note" : ""}${handover ? " is-handover" : ""}${!interactive ? " is-inert is-blocked" : ""}`}
                     data-move-id={edge.moveId}
                     x1={x1}
                     y1={y1}
                     x2={x2}
                     y2={y2}
-                    role="button"
-                    tabIndex={0}
+                    role={interactive ? "button" : undefined}
+                    tabIndex={interactive ? 0 : undefined}
+                    aria-disabled={!interactive ? "true" : undefined}
                     aria-label={edge.aria ?? edge.id}
                     aria-describedby={handover ? handoverDescId : undefined}
-                    onClick={() => edge.moveId && onMove(edge.moveId)}
-                    onKeyDown={(event) => activate(edge.moveId, onMove, event)}
+                    onClick={interactive && edge.moveId ? () => onMove(edge.moveId as string) : undefined}
+                    onKeyDown={interactive ? (event) => activate(edge.moveId, onMove, event) : undefined}
                   />
                 )}
               </g>
@@ -362,7 +371,8 @@ function GraphBoard({
           {view.nodes.map((node) => {
             const fault = isFaultMove(node.moveId, faultMoveId);
             const handover = isHandoverMove(node.moveId, handoverMoveId);
-            const tone = fault ? "fault" : (node.state ?? "idle");
+            const interactive = isMoveInteractive(node.moveId, legalMoveIds);
+            const tone = fault ? "note" : (node.state ?? "idle");
             const point = pointOf(node.id) ?? { x: node.x, y: node.y };
             const x = point.x;
             const y = point.y;
@@ -375,14 +385,15 @@ function GraphBoard({
             return (
               <g
                 key={node.id}
-                className={stateClass("game-node", node.state, node.moveId, faultMoveId, handoverMoveId)}
+                className={stateClass("game-node", node.state, node.moveId, faultMoveId, handoverMoveId, node.moveId ? interactive : undefined)}
                 data-move-id={node.moveId}
-                role={node.moveId ? "button" : undefined}
-                tabIndex={node.moveId ? 0 : undefined}
+                role={node.moveId && interactive ? "button" : undefined}
+                tabIndex={node.moveId && interactive ? 0 : undefined}
+                aria-disabled={node.moveId && !interactive ? "true" : undefined}
                 aria-label={node.moveId ? (node.aria ?? node.label) : undefined}
                 aria-describedby={handover ? handoverDescId : undefined}
-                onClick={node.moveId ? () => onMove(node.moveId as string) : undefined}
-                onKeyDown={(event) => activate(node.moveId, onMove, event)}
+                onClick={node.moveId && interactive ? () => onMove(node.moveId as string) : undefined}
+                onKeyDown={interactive ? (event) => activate(node.moveId, onMove, event) : undefined}
               >
                 <circle className="game-node__hit" cx={x} cy={y} r="32" />
                 <circle className="game-node__halo" cx={x} cy={y} r="28" aria-hidden="true" />
@@ -401,7 +412,7 @@ function GraphBoard({
                     aria-hidden="true"
                   />
                 )}
-                {(tone === "bad" || tone === "fault") && (
+                {(tone === "bad") && (
                   <g className="game-node__flag" aria-hidden="true">
                     <circle cx={x + 15} cy={y - 15} r="7" />
                     <text x={x + 15} y={y - 11.5} textAnchor="middle">
@@ -443,11 +454,13 @@ function ArrayBoard({
   onMove,
   faultMoveId,
   handoverMoveId,
+  legalMoveIds,
 }: {
   view: ArrayView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
   handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
   const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
@@ -456,7 +469,15 @@ function ArrayBoard({
       <div className="game-array" role="group" aria-label={view.caption ?? "Sequence puzzle"}>
         {view.items.map((item) => {
           const handover = isHandoverMove(item.moveId, handoverMoveId);
-          const className = stateClass("game-cell", item.state, item.moveId, faultMoveId, handoverMoveId);
+          const interactive = isMoveInteractive(item.moveId, legalMoveIds);
+          const className = stateClass(
+            "game-cell",
+            item.state,
+            item.moveId,
+            faultMoveId,
+            handoverMoveId,
+            item.moveId ? interactive : undefined,
+          );
           const content = (
             <>
               <span className="game-cell__value">{item.value}</span>
@@ -464,7 +485,7 @@ function ArrayBoard({
             </>
           );
 
-          return item.moveId ? (
+          return item.moveId && interactive ? (
             <button
               key={item.id}
               type="button"
@@ -476,6 +497,16 @@ function ArrayBoard({
             >
               {content}
             </button>
+          ) : item.moveId ? (
+            <span
+              key={item.id}
+              className={className}
+              data-move-id={item.moveId}
+              aria-label={item.aria ?? `${item.label ?? item.value}`}
+              aria-disabled="true"
+            >
+              {content}
+            </span>
           ) : (
             <span key={item.id} className={className} aria-label={item.aria}>
               {content}
@@ -516,11 +547,13 @@ function GridBoard({
   onMove,
   faultMoveId,
   handoverMoveId,
+  legalMoveIds,
 }: {
   view: GridView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
   handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
   const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const cells = new Map(view.cells.map((cell) => [`${cell.r}:${cell.c}`, cell]));
@@ -553,16 +586,18 @@ function GridBoard({
                     return <td key={c} className="game-grid__empty" />;
                   }
                   const handover = isHandoverMove(cell.moveId, handoverMoveId);
+                  const interactive = isMoveInteractive(cell.moveId, legalMoveIds);
                   const className = stateClass(
                     "game-cell game-cell--grid",
                     cell.state,
                     cell.moveId,
                     faultMoveId,
                     handoverMoveId,
+                    cell.moveId ? interactive : undefined,
                   );
                   return (
                     <td key={c}>
-                      {cell.moveId ? (
+                      {cell.moveId && interactive ? (
                         <button
                           type="button"
                           className={className}
@@ -573,6 +608,15 @@ function GridBoard({
                         >
                           {cell.value}
                         </button>
+                      ) : cell.moveId ? (
+                        <span
+                          className={className}
+                          data-move-id={cell.moveId}
+                          aria-label={cell.aria ?? `Row ${r}, column ${c}: ${cell.value}`}
+                          aria-disabled="true"
+                        >
+                          {cell.value}
+                        </span>
                       ) : (
                         <span className={className} aria-label={cell.aria}>
                           {cell.value}
@@ -598,11 +642,13 @@ function TreeBoard({
   onMove,
   faultMoveId,
   handoverMoveId,
+  legalMoveIds,
 }: {
   view: TreeView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
   handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
   const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const nodes = new Map(view.nodes.map((node) => [node.id, node]));
@@ -658,19 +704,21 @@ function TreeBoard({
           {view.nodes.map((node) => {
             const fault = isFaultMove(node.moveId, faultMoveId);
             const handover = isHandoverMove(node.moveId, handoverMoveId);
-            const tone = fault ? "fault" : (node.state ?? "idle");
+            const interactive = isMoveInteractive(node.moveId, legalMoveIds);
+            const tone = fault ? "note" : (node.state ?? "idle");
 
             return (
               <g
                 key={node.id}
-                className={stateClass("game-node", node.state, node.moveId, faultMoveId, handoverMoveId)}
+                className={stateClass("game-node", node.state, node.moveId, faultMoveId, handoverMoveId, node.moveId ? interactive : undefined)}
                 data-move-id={node.moveId}
-                role={node.moveId ? "button" : undefined}
-                tabIndex={node.moveId ? 0 : undefined}
+                role={node.moveId && interactive ? "button" : undefined}
+                tabIndex={node.moveId && interactive ? 0 : undefined}
+                aria-disabled={node.moveId && !interactive ? "true" : undefined}
                 aria-label={node.moveId ? (node.aria ?? node.label) : undefined}
                 aria-describedby={handover ? handoverDescId : undefined}
-                onClick={node.moveId ? () => onMove(node.moveId as string) : undefined}
-                onKeyDown={(event) => activate(node.moveId, onMove, event)}
+                onClick={node.moveId && interactive ? () => onMove(node.moveId as string) : undefined}
+                onKeyDown={interactive ? (event) => activate(node.moveId, onMove, event) : undefined}
               >
                 <circle className="game-node__hit" cx={node.x} cy={node.y} r="30" />
                 <circle className="game-node__halo" cx={node.x} cy={node.y} r="28" aria-hidden="true" />
@@ -701,7 +749,7 @@ function TreeBoard({
                     aria-hidden="true"
                   />
                 )}
-                {(tone === "bad" || tone === "fault") && (
+                {(tone === "bad") && (
                   <g className="game-node__flag" aria-hidden="true">
                     <circle cx={node.x + 15} cy={node.y - 15} r="7" />
                     <text x={node.x + 15} y={node.y - 11.5} textAnchor="middle">
@@ -742,11 +790,13 @@ function PairingBoard({
   onMove,
   faultMoveId,
   handoverMoveId,
+  legalMoveIds,
 }: {
   view: PairingView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
   handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
   const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const item = (
@@ -754,8 +804,16 @@ function PairingBoard({
     side: "left" | "right",
   ) => {
     const handover = isHandoverMove(entry.moveId, handoverMoveId);
-    const className = stateClass("game-pair", entry.state, entry.moveId, faultMoveId, handoverMoveId);
-    return entry.moveId ? (
+    const interactive = isMoveInteractive(entry.moveId, legalMoveIds);
+    const className = stateClass(
+      "game-pair",
+      entry.state,
+      entry.moveId,
+      faultMoveId,
+      handoverMoveId,
+      entry.moveId ? interactive : undefined,
+    );
+    return entry.moveId && interactive ? (
       <button
         key={entry.id}
         type="button"
@@ -767,6 +825,16 @@ function PairingBoard({
       >
         {entry.label}
       </button>
+    ) : entry.moveId ? (
+      <span
+        key={entry.id}
+        className={className}
+        data-move-id={entry.moveId}
+        aria-label={`${side} ${entry.label}`}
+        aria-disabled="true"
+      >
+        {entry.label}
+      </span>
     ) : (
       <span key={entry.id} className={className}>{entry.label}</span>
     );
@@ -933,11 +1001,13 @@ function FormulaBoard({
   onMove,
   faultMoveId,
   handoverMoveId,
+  legalMoveIds,
 }: {
   view: FormulaView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
   handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
   const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
@@ -947,14 +1017,22 @@ function FormulaBoard({
         <div className="game-formula__rows" role="group" aria-label="Measurements">
           {view.rows.map((row) => {
             const handover = isHandoverMove(row.moveId, handoverMoveId);
-            const className = stateClass("game-formula__row", row.state, row.moveId, faultMoveId, handoverMoveId);
+            const interactive = isMoveInteractive(row.moveId, legalMoveIds);
+            const className = stateClass(
+              "game-formula__row",
+              row.state,
+              row.moveId,
+              faultMoveId,
+              handoverMoveId,
+              row.moveId ? interactive : undefined,
+            );
             const content = (
               <>
                 <span className="game-formula__label">{row.label}</span>
                 <code className="game-formula__code">{row.formula}</code>
               </>
             );
-            return row.moveId ? (
+            return row.moveId && interactive ? (
               <button
                 key={row.id}
                 type="button"
@@ -966,6 +1044,16 @@ function FormulaBoard({
               >
                 {content}
               </button>
+            ) : row.moveId ? (
+              <div
+                key={row.id}
+                className={className}
+                data-move-id={row.moveId}
+                aria-label={`${row.label}: ${row.formula}`}
+                aria-disabled="true"
+              >
+                {content}
+              </div>
             ) : (
               <div key={row.id} className={className}>{content}</div>
             );
@@ -974,12 +1062,14 @@ function FormulaBoard({
         <div className="game-formula__outputs" role="group" aria-label="Outputs">
           {view.outputs.map((output) => {
             const handover = isHandoverMove(output.moveId, handoverMoveId);
+            const interactive = isMoveInteractive(output.moveId, legalMoveIds);
             const className = stateClass(
               "game-formula__output",
               output.state,
               output.moveId,
               faultMoveId,
               handoverMoveId,
+              output.moveId ? interactive : undefined,
             );
             const content = (
               <>
@@ -987,7 +1077,7 @@ function FormulaBoard({
                 <code className="game-formula__code">{output.formula}</code>
               </>
             );
-            return output.moveId ? (
+            return output.moveId && interactive ? (
               <button
                 key={output.id}
                 type="button"
@@ -999,6 +1089,16 @@ function FormulaBoard({
               >
                 {content}
               </button>
+            ) : output.moveId ? (
+              <div
+                key={output.id}
+                className={className}
+                data-move-id={output.moveId}
+                aria-label={`${output.label}: ${output.formula}`}
+                aria-disabled="true"
+              >
+                {content}
+              </div>
             ) : (
               <div key={output.id} className={className}>{content}</div>
             );
@@ -1012,7 +1112,13 @@ function FormulaBoard({
 
 /* ----------------------------------------------------------------- switch -- */
 
-export default function Board({ view, onMove, faultMoveId, handoverMoveId }: BoardProps) {
+export default function Board({
+  view,
+  onMove,
+  faultMoveId,
+  handoverMoveId,
+  legalMoveIds,
+}: BoardProps) {
   switch (view.kind) {
     case "graph":
       return (
@@ -1021,6 +1127,7 @@ export default function Board({ view, onMove, faultMoveId, handoverMoveId }: Boa
           onMove={onMove}
           faultMoveId={faultMoveId}
           handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
         />
       );
     case "array":
@@ -1030,6 +1137,7 @@ export default function Board({ view, onMove, faultMoveId, handoverMoveId }: Boa
           onMove={onMove}
           faultMoveId={faultMoveId}
           handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
         />
       );
     case "grid":
@@ -1039,6 +1147,7 @@ export default function Board({ view, onMove, faultMoveId, handoverMoveId }: Boa
           onMove={onMove}
           faultMoveId={faultMoveId}
           handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
         />
       );
     case "tree":
@@ -1048,6 +1157,7 @@ export default function Board({ view, onMove, faultMoveId, handoverMoveId }: Boa
           onMove={onMove}
           faultMoveId={faultMoveId}
           handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
         />
       );
     case "pairing":
@@ -1057,6 +1167,7 @@ export default function Board({ view, onMove, faultMoveId, handoverMoveId }: Boa
           onMove={onMove}
           faultMoveId={faultMoveId}
           handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
         />
       );
     case "number":
@@ -1068,6 +1179,7 @@ export default function Board({ view, onMove, faultMoveId, handoverMoveId }: Boa
           onMove={onMove}
           faultMoveId={faultMoveId}
           handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
         />
       );
     default:

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import Board from "./Board";
 import GameCoach, { type CoachStep } from "./GameCoach";
@@ -414,6 +414,10 @@ export default function GameMission({ meta }: Props) {
   const act = ACTS.find((entry) => entry.act === meta.act);
   const view = level && session ? level.view(session.state) : null;
   const moves = level && session ? level.moves(session.state) : [];
+  const legalMoveIds = useMemo(
+    () => new Set(moves.filter((move) => !move.disabled).map((move) => move.id)),
+    [moves],
+  );
   const trayMoves = moves.filter((move) => move.placement === "tray");
   const score = level && session && session.status === "won" ? scoreFor(level, session.state) : null;
   const lastBad = session ? [...session.log].reverse().find((event) => event.kind === "bad") : undefined;
@@ -430,7 +434,7 @@ export default function GameMission({ meta }: Props) {
       : undefined;
   const repeatLabel = lastMoveId ? moves.find((move) => move.id === lastMoveId)?.label : undefined;
   const telemetryStatus: TelemetryStatus = ruleError
-    ? "fault"
+    ? "note"
     : session?.status ?? "standby";
   const budget = parseBudget(view?.caption);
   const isHandoverSeen = handoverDismissed || (view ? handoverSeen(undefined, view.kind) : true);
@@ -790,7 +794,7 @@ export default function GameMission({ meta }: Props) {
             meta={meta}
             session={session}
             hintIndex={hintIndex}
-            ruleError={ruleError}
+            ruleError={null}
             repeatMove={repeatMove}
             showHelp={showHelp}
             parkNote={parkNote}
@@ -804,8 +808,24 @@ export default function GameMission({ meta }: Props) {
             onDismissNote={handleDismissNote}
           />
 
+          {ruleError != null && (
+            <aside className="game-note" role="status">
+              <div className="game-note__body">
+                <p className="game-note__label">THE BOARD IS UNCHANGED</p>
+                <p className="game-note__text">{ruleError}</p>
+              </div>
+              <button
+                type="button"
+                className="game-btn game-note__btn"
+                onClick={handleUndo}
+              >
+                STEP BACK
+              </button>
+            </aside>
+          )}
+
           <div
-            className={`game-stage__frame${faultMoveId ? " is-fault" : ""}${session?.status === "won" ? " is-win" : ""}${session?.status === "lost" ? " is-lost" : ""}`}
+            className={`game-stage__frame${session?.status === "won" ? " is-win" : ""}${session?.status === "lost" ? " is-lost" : ""}`}
           >
             <header className="game-stage__head">
               <div className="game-stage__brief">
@@ -844,6 +864,7 @@ export default function GameMission({ meta }: Props) {
                   onMove={handleMove}
                   faultMoveId={faultMoveId ?? undefined}
                   handoverMoveId={handoverMoveId}
+                  legalMoveIds={legalMoveIds}
                 />
               ) : (
                 <div className="game-loading" role="status">
@@ -873,7 +894,7 @@ export default function GameMission({ meta }: Props) {
                   <button
                     key={move.id}
                     type="button"
-                    className={`game-btn${faultMoveId === move.id ? " is-fault" : ""}`}
+                    className={`game-btn${faultMoveId === move.id ? " is-note" : ""}`}
                     data-move-id={move.id}
                     disabled={move.disabled}
                     onClick={() => handleMove(move.id)}
@@ -899,27 +920,15 @@ export default function GameMission({ meta }: Props) {
                 SYSTEM ONLINE
               </h2>
               <p className="game-win__mission">{meta.title}</p>
+              <p className="game-win__moves">Repaired in {session.moves} moves.</p>
 
-              <div className="game-win__rating">
-                <p className="game-win__rating-label">
-                  {outcome ? outcome.label : "SOLVED"}
-                </p>
-                <p
-                  className="game-win__stars"
-                  aria-label={`${outcome ? outcome.label : "Solved"}: ${score.stars} of 3 stars`}
-                >
-                  <span className="game-win__stars-lit">{"★".repeat(score.stars)}</span>
-                  <span className="game-win__stars-empty">{"☆".repeat(3 - score.stars)}</span>
-                </p>
-                <p className="game-win__rating-value">{score.stars} / 3</p>
-              </div>
+              {score.stars === 3 && (
+                <span className="game-win__badge">CLEAN RUN</span>
+              )}
+
+              <p className="game-win__invariant">{meta.invariant}</p>
 
               <p className="game-win__detail">{score.detail}</p>
-
-              <div className="game-win__invariant">
-                <p className="game-win__invariant-label">THE INVARIANT</p>
-                <p className="game-win__invariant-text">{meta.invariant}</p>
-              </div>
 
               {lore != null && (
                 <div className="game-win__lore">

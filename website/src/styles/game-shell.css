@@ -225,7 +225,7 @@
   background: color-mix(in srgb, var(--gf-bg-2) 60%, transparent);
   color: var(--gf-muted);
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   cursor: pointer;
@@ -270,7 +270,7 @@
   background: var(--gf-panel-solid);
   color: var(--gf-cyan);
   font-family: var(--gf-display);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-decoration: none;
@@ -415,7 +415,7 @@
   list-style: none;
   cursor: pointer;
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gf-muted);
@@ -482,7 +482,7 @@
   gap: 0.4rem;
   margin: 0 0 0.35rem;
   font-family: var(--gf-mono);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gf-cyan);
@@ -523,7 +523,7 @@
 .game-brief__label {
   margin: 0 0 0.22rem;
   font-family: var(--gf-mono);
-  font-size: 0.54rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -569,7 +569,7 @@
 .game-hints__label {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.54rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.22em;
   color: var(--gf-amber);
@@ -577,7 +577,7 @@
 
 .game-hints__count {
   font-family: var(--gf-mono);
-  font-size: 0.52rem;
+  font-size: 0.75rem;
   letter-spacing: 0.06em;
   color: var(--gf-faint);
 }
@@ -594,7 +594,7 @@
   gap: 0.4rem;
   min-width: 4.6rem;
   padding: 0.35rem 0.45rem;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   transition:
     color var(--gf-fast) var(--gf-ease),
@@ -604,7 +604,7 @@
 
 .game-hint-tier__num {
   font-family: var(--gf-mono);
-  font-size: 0.55rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0;
   color: var(--gf-amber);
@@ -630,7 +630,7 @@
   background: transparent;
   color: var(--gf-muted);
   font-family: var(--gf-mono);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-align: left;
   cursor: pointer;
@@ -666,7 +666,7 @@
 .game-stuck__label {
   color: var(--gf-text);
   font-family: var(--gf-display);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -675,7 +675,7 @@
 .game-stuck__note {
   margin-left: auto;
   color: var(--gf-faint);
-  font-size: 0.48rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -742,7 +742,7 @@
   padding-top: 0.55rem;
   border-top: 1px solid var(--gf-line);
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--gf-faint);
@@ -760,7 +760,7 @@
   min-height: 44px;
   color: var(--gf-violet);
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-decoration: none;
   transition: color var(--gf-fast) var(--gf-ease);
@@ -891,7 +891,7 @@
 .game-stage__goal-label {
   margin-right: 0.45rem;
   font-family: var(--gf-mono);
-  font-size: 0.5rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -917,7 +917,7 @@
 .game-stage__budget-label {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   font-weight: 500;
   line-height: 1;
   letter-spacing: 0.14em;
@@ -954,7 +954,7 @@
 .game-stage__budget-clean {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.54rem;
+  font-size: 0.75rem;
   line-height: 1.2;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -969,7 +969,7 @@
   gap: 0.4rem;
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -994,7 +994,7 @@
   background: var(--gf-violet-faint);
   color: var(--gf-violet-bright);
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -1041,7 +1041,7 @@
   border-radius: var(--gf-radius);
   background: color-mix(in srgb, var(--gf-bg-2) 45%, transparent);
   font-family: var(--gf-mono);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   line-height: 1.5;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1073,7 +1073,7 @@
 .game-gate__text {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   line-height: 1.5;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -1098,7 +1098,7 @@
 .game-sealed__kicker {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -1128,7 +1128,7 @@
   max-width: 60ch;
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -1144,7 +1144,7 @@
 
 .game-sealed__links .game-btn {
   min-width: 0;
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
   text-align: left;
 }
@@ -1231,7 +1231,7 @@
 
 .game-recap__actions .game-btn {
   min-width: 0;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
 }
 
@@ -1291,7 +1291,7 @@
 
 .game-conflict__actions .game-btn {
   min-width: 0;
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
 }
 
@@ -1314,7 +1314,7 @@
 .game-telemetry__label {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.52rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.24em;
   color: var(--gf-faint);
@@ -1349,7 +1349,7 @@
 .game-telemetry__readout dt {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.52rem;
+  font-size: 0.75rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--gf-faint);
@@ -1369,7 +1369,7 @@
 }
 
 .game-telemetry__of {
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   color: var(--gf-faint);
 }
 
@@ -1380,6 +1380,14 @@
 
 .game-telemetry__readout--status.is-won dd {
   color: var(--gf-amber);
+}
+
+.game-telemetry__readout--status.is-note dd {
+  color: var(--gf-amber-bright);
+}
+
+.game-telemetry--note {
+  border-color: color-mix(in srgb, var(--gf-amber) 35%, var(--gf-line));
 }
 
 .game-telemetry__readout--status.is-lost dd,
@@ -1402,7 +1410,7 @@
   padding-top: 0.45rem;
   border-top: 1px dashed var(--gf-line);
   font-family: var(--gf-mono);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   line-height: 1.5;
   color: var(--gf-muted);
   overflow-wrap: anywhere;
@@ -1413,18 +1421,75 @@
   color: var(--gf-cyan);
 }
 
-/* ----------------------------------------------------------------- fault -- */
+/* ------------------------------------------------------------------ note -- */
+
+.game-note[role="status"],
+.game-stage .game-note[role="status"],
+.game-stage > .game-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--gf-amber) 40%, var(--gf-line));
+  border-left: 3px solid var(--gf-amber);
+  border-radius: var(--gf-radius);
+  background:
+    linear-gradient(90deg, var(--gf-amber-soft), transparent 82%),
+    color-mix(in srgb, var(--gf-panel-solid) 72%, transparent);
+  transition:
+    border-color var(--gf-fast) var(--gf-ease),
+    background-color var(--gf-fast) var(--gf-ease);
+}
+
+.game-note__body {
+  display: grid;
+  gap: 0.15rem;
+  min-width: 0;
+  flex: 1 1 240px;
+}
+
+.game-note__label {
+  margin: 0;
+  font-family: var(--gf-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--gf-amber-bright);
+}
+
+.game-note__text {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--gf-text);
+}
+
+.game-note__btn {
+  flex: none;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  border-color: color-mix(in srgb, var(--gf-amber) 60%, var(--gf-line));
+  color: var(--gf-amber-bright);
+}
+
+.game-note__btn:hover,
+.game-note__btn:focus-visible {
+  border-color: var(--gf-amber-bright);
+  color: #fff;
+}
 
 .game-fault {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 0.6rem;
   padding: 0.6rem 0.75rem;
-  border: 1px solid color-mix(in srgb, var(--gf-red) 45%, var(--gf-line));
-  border-left: 3px solid var(--gf-red);
+  border: 1px solid color-mix(in srgb, var(--gf-amber) 45%, var(--gf-line));
+  border-left: 3px solid var(--gf-amber);
   border-radius: var(--gf-radius);
   background:
-    linear-gradient(90deg, var(--gf-red-soft), transparent 82%),
+    linear-gradient(90deg, var(--gf-amber-soft), transparent 82%),
     color-mix(in srgb, var(--gf-panel-solid) 72%, transparent);
   transition:
     border-color var(--gf-fast) var(--gf-ease),
@@ -1437,21 +1502,21 @@
   width: 22px;
   height: 22px;
   margin-top: 1px;
-  border: 1px solid var(--gf-red);
+  border: 1px solid var(--gf-amber);
   border-radius: 50%;
-  color: var(--gf-red);
+  color: var(--gf-amber);
   font-family: var(--gf-mono);
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   font-weight: 700;
 }
 
 .game-fault__label {
   margin: 0 0 0.1rem;
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
-  color: var(--gf-red);
+  color: var(--gf-amber-bright);
 }
 
 .game-fault__text {
@@ -1471,7 +1536,7 @@
 
 .game-tray__label {
   font-family: var(--gf-mono);
-  font-size: 0.52rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   color: var(--gf-faint);
 }
@@ -1483,15 +1548,16 @@
 }
 
 .game-tray .game-btn {
-  font-size: 0.66rem;
+  font-size: 0.75rem;
   letter-spacing: 0.04em;
   text-transform: none;
 }
 
-.game-tray .game-btn.is-fault {
-  border-color: var(--gf-red);
-  color: var(--gf-red-bright);
-  box-shadow: 0 0 0 1px var(--gf-red-soft);
+.game-tray .game-btn.is-fault,
+.game-tray .game-btn.is-note {
+  border-color: var(--gf-amber);
+  color: var(--gf-amber-bright);
+  box-shadow: 0 0 0 1px var(--gf-amber-soft);
 }
 
 .game-controls {
@@ -1503,7 +1569,7 @@
 }
 
 .game-controls .game-btn {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
 }
 
@@ -1537,7 +1603,7 @@
 
 .game-repair-rail__rule-label {
   font-family: var(--gf-mono);
-  font-size: 0.62rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   color: var(--gf-cyan);
@@ -1562,7 +1628,7 @@
 }
 
 .game-repair-rail__btn {
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   min-height: 44px;
 }
@@ -1603,8 +1669,8 @@
 }
 
 .game-repair-rail__status:not(.game-banner) .game-repair-rail__status-body {
-  border-color: color-mix(in srgb, var(--gf-red) 45%, var(--gf-line));
-  border-left-color: var(--gf-red);
+  border-color: color-mix(in srgb, var(--gf-amber) 45%, var(--gf-line));
+  border-left-color: var(--gf-amber);
 }
 
 .game-repair-rail__status-mark {
@@ -1615,7 +1681,7 @@
 }
 
 .game-repair-rail__status:not(.game-banner) .game-repair-rail__status-mark {
-  color: var(--gf-red);
+  color: var(--gf-amber);
 }
 
 .game-repair-rail__status-text {
@@ -1685,7 +1751,7 @@
 .game-log__title {
   margin: 0;
   font-family: var(--gf-display);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.16em;
   color: var(--gf-cyan);
@@ -1710,6 +1776,11 @@
   box-shadow: 0 0 8px var(--gf-amber);
 }
 
+.game-log.is-note .game-log__lamp {
+  background: var(--gf-amber);
+  box-shadow: 0 0 8px var(--gf-amber);
+}
+
 .game-log.is-lost .game-log__lamp {
   background: var(--gf-red);
   box-shadow: 0 0 8px var(--gf-red);
@@ -1717,7 +1788,7 @@
 
 .game-log__count {
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   letter-spacing: 0.08em;
   color: var(--gf-faint);
 }
@@ -1725,7 +1796,7 @@
 .game-log__sub {
   margin: 0 0 0.3rem;
   font-family: var(--gf-mono);
-  font-size: 0.5rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   color: var(--gf-faint);
 }
@@ -1790,7 +1861,7 @@
   padding-top: 0.45rem;
   border-top: 1px solid var(--gf-line);
   font-family: var(--gf-mono);
-  font-size: 0.48rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gf-faint);
@@ -1842,7 +1913,7 @@
   gap: 0.4rem;
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.56rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--gf-amber);
@@ -1858,7 +1929,7 @@
 
 .game-win__code {
   font-family: var(--gf-mono);
-  font-size: 0.54rem;
+  font-size: 0.75rem;
   letter-spacing: 0.14em;
   color: var(--gf-faint);
 }
@@ -1881,10 +1952,34 @@
 .game-win__mission {
   margin: -0.15rem 0 0;
   font-family: var(--gf-mono);
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--gf-muted);
+}
+
+.game-win__moves {
+  margin: 0.2rem 0 0;
+  font-family: var(--gf-mono);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--gf-cyan-bright);
+}
+
+.game-win__badge {
+  display: inline-flex;
+  align-items: center;
+  align-self: start;
+  margin: 0.2rem 0;
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--gf-amber);
+  border-radius: var(--gf-radius-sm, 2px);
+  background: color-mix(in srgb, var(--gf-amber) 12%, transparent);
+  font-family: var(--gf-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--gf-amber-bright);
 }
 
 .game-win__rating {
@@ -1901,7 +1996,7 @@
 .game-win__rating-label {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.52rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--gf-amber);
@@ -1922,7 +2017,7 @@
 .game-win__rating-value {
   margin: 0 0 0 auto;
   font-family: var(--gf-mono);
-  font-size: 0.68rem;
+  font-size: 0.75rem;
   font-weight: 500;
   color: var(--gf-amber-bright);
 }
@@ -1930,9 +2025,9 @@
 .game-win__detail {
   margin: 0;
   font-size: 0.92rem;
-  font-weight: 600;
+  font-weight: 500;
   line-height: 1.5;
-  color: var(--gf-text);
+  color: var(--gf-muted);
 }
 
 .game-win__invariant {
@@ -1944,10 +2039,18 @@
   background: linear-gradient(90deg, var(--gf-violet-faint), transparent 86%);
 }
 
+p.game-win__invariant {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--gf-text);
+  font-weight: 600;
+}
+
 .game-win__invariant-label {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.48rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--gf-violet);
@@ -2001,7 +2104,7 @@
 .game-win__next-kicker {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.48rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -2028,7 +2131,7 @@
 .game-win__lore-label {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.48rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.2em;
   color: var(--gf-cyan);
@@ -2058,7 +2161,7 @@
 .game-win__note {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   line-height: 1.5;
   color: var(--gf-amber);
 }
@@ -2071,7 +2174,7 @@
 }
 
 .game-win__links .game-btn {
-  font-size: 0.64rem;
+  font-size: 0.75rem;
   letter-spacing: 0.12em;
 }
 
@@ -2099,7 +2202,7 @@
 .game-checkpoint__kicker {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.5rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -2131,7 +2234,7 @@
 }
 
 .game-checkpoint__actions .game-btn {
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.1em;
 }
 
@@ -2150,7 +2253,7 @@
 .game-lose__kicker {
   margin: 0;
   font-family: var(--gf-mono);
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.18em;
   color: var(--gf-red);
@@ -2343,16 +2446,16 @@
 
   .game-hud .game-sound {
     padding: 0.3rem 0.4rem;
-    font-size: 0.55rem;
+    font-size: 0.75rem;
   }
 
   .game-hud .game-sound > span:first-child {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
   }
 
   .game-hud__map {
     padding: 0.25rem 0.45rem;
-    font-size: 0.55rem;
+    font-size: 0.75rem;
   }
 
   .game-hud__map-icon {
@@ -2439,7 +2542,7 @@
   }
 
   .game-telemetry__caption {
-    font-size: 0.56rem;
+    font-size: 0.75rem;
   }
 
   .game-dossier .game-brief__title {
@@ -2452,7 +2555,7 @@
   }
 
   .game-stage__algo {
-    font-size: 0.52rem;
+    font-size: 0.75rem;
   }
 
   .game-dossier__footer {
@@ -2480,7 +2583,7 @@
   }
 
   .game-win__links .game-btn {
-    font-size: 0.58rem;
+    font-size: 0.75rem;
   }
 
   .game-sealed {

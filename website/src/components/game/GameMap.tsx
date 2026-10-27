@@ -263,7 +263,7 @@ function Deck({
                 <p className="game-deck__readout-title">{inspected.title}</p>
                 <p className="game-deck__readout-meta">{inspected.algorithm}</p>
                 <p className="game-deck__readout-data">
-                  {inspected.minutes} min
+                  ~{inspected.minutes} min
                   {record ? ` · ${record.moves} moves · replay` : ""}
                   {nodeStatus === "locked" ? " · prior system required" : ""}
                 </p>

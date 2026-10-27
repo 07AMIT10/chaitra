@@ -457,7 +457,7 @@ export default function ShipSchematic({
               <p className="ship__readout-title">{active.title}</p>
               <p className="ship__readout-meta">
                 <span className="ship__algo">{active.algorithm}</span>
-                <span>{active.minutes} min</span>
+                <span>~{active.minutes} min</span>
                 <span>
                   Deck {pad(active.act)}
                   {activeDeck ? ` · ${activeDeck.name}` : ""}

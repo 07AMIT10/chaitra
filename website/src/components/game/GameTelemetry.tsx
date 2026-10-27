@@ -1,6 +1,6 @@
 import type { BoardView, Status } from "../../game/types";
 
-export type TelemetryStatus = Status | "fault" | "standby";
+export type TelemetryStatus = Status | "note" | "standby";
 
 type Props = {
   moves: number;
@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<TelemetryStatus, string> = {
   playing: "REPAIRING",
   won: "ONLINE",
   lost: "LOST",
-  fault: "FAULT",
+  note: "NOTE",
   standby: "STANDBY",
 };
 

@@ -323,7 +323,7 @@ export default function GameHub() {
                 </span>
               )}
               <span>{parkedMeta.algorithm}</span>
-              <span>{parkedMeta.minutes} min</span>
+              <span>~{parkedMeta.minutes} min</span>
             </span>
           </span>
           <span className="game-continue__actions">
@@ -360,7 +360,7 @@ export default function GameHub() {
                 Deck {pad(next.deck.act)} · {next.deck.name}
               </span>
               <span>{next.meta.algorithm}</span>
-              <span>{next.meta.minutes} min</span>
+              <span>~{next.meta.minutes} min</span>
             </span>
           </span>
           <span className="game-continue__cta">
