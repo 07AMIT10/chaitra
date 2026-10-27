@@ -1,5 +1,4 @@
 import type { SessionSnapshot } from "./engine";
-import { isResumable } from "./progress";
 import type { LevelMeta } from "./types";
 
 export const PARK_KEY = "chaitra_algorithms_game_park_v1";
@@ -32,6 +31,20 @@ export type ParkSaveResult =
 
 function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isParkSnapshot(value: unknown, slug: string): value is SessionSnapshot {
+  if (!isPlainObject(value)) return false;
+  const s = value as Record<string, unknown>;
+  if (typeof s.slug !== "string" || s.slug !== slug) return false;
+  if (s.status !== "playing") return false;
+  if (typeof s.moves !== "number" || !Number.isInteger(s.moves) || s.moves <= 0) return false;
+  if (!isPlainObject(s.state)) return false;
+  if (s.version !== undefined && s.version !== 1) return false;
+  if (s.hints !== undefined && (typeof s.hints !== "number" || s.hints < 0)) return false;
+  if (s.history !== undefined && !Array.isArray(s.history)) return false;
+  if (s.log !== undefined && !Array.isArray(s.log)) return false;
+  return true;
 }
 
 function defaultStorage(): StorageLike | null {
@@ -122,10 +135,7 @@ export function loadPark(storage?: StorageLike | null, now?: number): ParkLoadRe
   if (!Number.isFinite(atMs)) {
     return { record: null, expired: false, corrupt: true };
   }
-  if (
-    !isResumable(p.snapshot as SessionSnapshot) ||
-    (p.snapshot as SessionSnapshot).slug !== p.slug
-  ) {
+  if (!isParkSnapshot(p.snapshot, p.slug)) {
     return { record: null, expired: false, corrupt: true };
   }
   if (!isLastMove(p.lastMove)) {
@@ -160,7 +170,7 @@ export function savePark(
   if (typeof slug !== "string" || !slug) {
     return { ok: false, reason: "invalid" };
   }
-  if (!isResumable(snapshot) || snapshot.slug !== slug) {
+  if (!isParkSnapshot(snapshot, slug)) {
     return { ok: false, reason: "invalid" };
   }
   if (!isLastMove(lastMove)) {

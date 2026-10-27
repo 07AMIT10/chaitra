@@ -1149,6 +1149,152 @@
   text-align: left;
 }
 
+/* --------------------------------------------------- park recap & conflict -- */
+
+.game-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.6rem 0.9rem;
+  border: 1px solid color-mix(in srgb, var(--gf-cyan) 38%, var(--gf-line));
+  border-left: 3px solid var(--gf-cyan);
+  border-radius: var(--gf-radius);
+  background: color-mix(in srgb, var(--gf-panel-solid) 92%, transparent);
+}
+
+.game-banner__text {
+  margin: 0;
+  font-family: var(--gf-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  color: var(--gf-cyan-bright);
+}
+
+.game-recap {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid color-mix(in srgb, var(--gf-cyan) 42%, var(--gf-line));
+  border-left: 3px solid var(--gf-cyan);
+  border-radius: var(--gf-radius-lg);
+  background:
+    linear-gradient(90deg, var(--gf-cyan-soft), transparent 75%),
+    var(--gf-panel);
+  box-shadow: var(--gf-inset);
+}
+
+.game-recap__content {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 60ch;
+}
+
+.game-recap__title {
+  margin: 0;
+  font-family: var(--gf-display);
+  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  color: var(--gf-cyan-bright);
+  text-wrap: balance;
+}
+
+.game-recap__title:focus-visible {
+  outline: none;
+}
+
+.game-recap__body {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.game-recap__body p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--gf-muted);
+}
+
+.game-recap__body b {
+  color: var(--gf-text);
+  font-weight: 600;
+}
+
+.game-recap__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: var(--space-1);
+}
+
+.game-recap__actions .game-btn {
+  min-width: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+}
+
+.game-conflict {
+  display: grid;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-5);
+  border: 1px solid color-mix(in srgb, var(--gf-amber) 42%, var(--gf-line));
+  border-left: 3px solid var(--gf-amber);
+  border-radius: var(--gf-radius-lg);
+  background:
+    linear-gradient(90deg, var(--gf-amber-soft), transparent 75%),
+    var(--gf-panel);
+  box-shadow: var(--gf-inset);
+}
+
+.game-conflict__content {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 60ch;
+}
+
+.game-conflict__title {
+  margin: 0;
+  font-family: var(--gf-display);
+  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0.06em;
+  color: var(--gf-amber);
+  text-wrap: balance;
+}
+
+.game-conflict__title:focus-visible {
+  outline: none;
+}
+
+.game-conflict__desc {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--gf-muted);
+}
+
+.game-conflict__desc b {
+  color: var(--gf-text);
+  font-weight: 600;
+}
+
+.game-conflict__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: var(--space-1);
+}
+
+.game-conflict__actions .game-btn {
+  min-width: 0;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+}
+
 /* ------------------------------------------------------------- telemetry -- */
 
 .game-telemetry {

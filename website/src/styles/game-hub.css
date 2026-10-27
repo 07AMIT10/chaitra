@@ -379,6 +379,13 @@
   box-shadow: 0 0 30px color-mix(in srgb, var(--gf-cyan) 30%, transparent);
 }
 
+.game-continue__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 .game-continue:hover .game-continue__arrow {
   transform: translateX(3px);
 }
