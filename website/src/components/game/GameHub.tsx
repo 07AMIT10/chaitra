@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { ACTS, LEVEL_META, prevMeta } from "../../game/levels/meta";
 import { ACT_LORE, ENDING, LORE } from "../../game/lore";
+import { clearPark } from "../../game/park";
 import type { LevelMeta } from "../../game/types";
 import {
   clearResume,
@@ -177,6 +178,7 @@ export default function GameHub() {
       for (const meta of LEVEL_META) {
         clearResume(meta.slug);
       }
+      clearPark();
       resetSessionSummary();
     }
   }
