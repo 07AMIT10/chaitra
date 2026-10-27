@@ -32,8 +32,10 @@ import {
   resumeSummary,
   saveCheckpointAcknowledged,
   sessionCheckpoint,
+  winActions,
   writeSessionSummary,
 } from "./progression.ts";
+import { GAME_MAP_PATH } from "./routes.ts";
 
 function progressFor(
   slugs,
@@ -537,4 +539,83 @@ test("checkpoint stays quiet when the campaign is complete", () => {
   assert.equal(checkpoint.count, 24);
   assert.equal(checkpoint.due, false);
   assert.equal(checkpoint.next, null);
+});
+
+test("win actions are close, mathematics, and next", () => {
+  const meta1 = LEVEL_META[0];
+  const meta2 = LEVEL_META[1];
+  const actions = winActions(meta1, meta2, false);
+
+  assert.equal(actions.length, 3);
+  assert.deepEqual(
+    actions.map((a) => a.id),
+    ["close", "math", "next"],
+  );
+
+  assert.equal(actions[0].id, "close");
+  assert.equal(actions[0].label, "CLOSE THE CONSOLE");
+  assert.equal(actions[0].href, GAME_MAP_PATH);
+
+  assert.equal(actions[1].id, "math");
+  assert.equal(actions[1].label, "READ THE MATHEMATICS");
+  assert.equal(actions[1].href, meta1.page);
+
+  assert.equal(actions[2].id, "next");
+  assert.equal(
+    actions[2].label,
+    `OPEN THE NEXT REPAIR · ${meta2.title.toUpperCase()}`,
+  );
+  assert.equal(actions[2].href, `/algorithms/game/${meta2.slug}`);
+});
+
+test("ending has no next action", () => {
+  const metaFinal = LEVEL_META[LEVEL_META.length - 1];
+  const actionsEnding = winActions(metaFinal, null, true);
+
+  assert.equal(actionsEnding.length, 2);
+  assert.deepEqual(
+    actionsEnding.map((a) => a.id),
+    ["close", "math"],
+  );
+  assert.equal(actionsEnding[0].id, "close");
+  assert.equal(actionsEnding[0].href, GAME_MAP_PATH);
+  assert.equal(actionsEnding[1].id, "math");
+  assert.equal(actionsEnding[1].href, metaFinal.page);
+
+  // Even if next is provided, ending = true suppresses next
+  const actionsWithNextButEnding = winActions(metaFinal, LEVEL_META[0], true);
+  assert.equal(actionsWithNextButEnding.length, 2);
+});
+
+test("next action uses the next mission’s title and slug", () => {
+  const metaA = LEVEL_META[2];
+  const metaB = LEVEL_META[3];
+  const actions = winActions(metaA, metaB, false);
+  const nextAction = actions.find((a) => a.id === "next");
+
+  assert.ok(nextAction);
+  assert.equal(
+    nextAction.label,
+    `OPEN THE NEXT REPAIR · ${metaB.title.toUpperCase()}`,
+  );
+  assert.equal(nextAction.href, `/algorithms/game/${metaB.slug}`);
+});
+
+test("close always uses the map path", () => {
+  const metaFirst = LEVEL_META[0];
+  const metaMid = LEVEL_META[5];
+  const metaLast = LEVEL_META[LEVEL_META.length - 1];
+
+  for (const [meta, next, ending] of [
+    [metaFirst, LEVEL_META[1], false],
+    [metaMid, LEVEL_META[6], false],
+    [metaLast, null, true],
+    [metaMid, null, false],
+  ]) {
+    const actions = winActions(meta, next, ending);
+    const closeAction = actions.find((a) => a.id === "close");
+    assert.ok(closeAction);
+    assert.equal(closeAction.href, GAME_MAP_PATH);
+    assert.equal(closeAction.label, "CLOSE THE CONSOLE");
+  }
 });

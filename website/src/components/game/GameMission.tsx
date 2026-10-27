@@ -21,11 +21,13 @@ import { ACTS, LEVEL_META, loadLevel } from "../../game/levels";
 import { ENDING, LORE } from "../../game/lore";
 import {
   actTransition,
+  isCampaignComplete,
   missionAccess,
   missionHook,
   recordSessionRepair,
   saveCheckpointAcknowledged,
   sessionCheckpoint,
+  winActions,
   winOutcome,
   type SessionSummary,
 } from "../../game/progression";
@@ -352,7 +354,7 @@ export default function GameMission({ meta }: Props) {
     if (!result.ok) {
       setSaveNote("Progress could not be saved in this browser. The mission is still complete for this session.");
     } else if (improved && best != null) {
-      setSaveNote(`Record updated: ${best.stars} of 3 stars · ${best.moves} moves.`);
+      setSaveNote(`New best: ${best.moves} moves.`);
     } else {
       setSaveNote(null);
     }
@@ -448,23 +450,8 @@ export default function GameMission({ meta }: Props) {
     runRecorded &&
     nextRepair != null;
 
-  const primaryAction = showEnding
-    ? { href: GAME_MAP_PATH, label: "MISSION MAP" }
-    : !runRecorded
-      ? null
-      : showAct && nextRepair
-        ? {
-            href: `/algorithms/game/${nextRepair.slug}`,
-            label: transition?.primaryLabel ?? "STEP THROUGH",
-          }
-        : showNextPreview && nextRepair
-          ? {
-              href: `/algorithms/game/${nextRepair.slug}`,
-              label: `NEXT REPAIR · ${nextRepair.title.toUpperCase()}`,
-            }
-          : showCheckpoint
-            ? null
-            : { href: GAME_MAP_PATH, label: "MISSION MAP" };
+  const complete = Boolean(showEnding || (progress && isCampaignComplete(LEVEL_META, progress)));
+  const actions = winActions(meta, nextRepair, complete);
 
   /**
    * SABLE re-contextualises from real events, not a timer: terminal run, deck
@@ -600,6 +587,39 @@ export default function GameMission({ meta }: Props) {
 
   function handleMap() {
     window.location.href = GAME_MAP_PATH;
+  }
+
+  function handleWinClose(e?: React.MouseEvent) {
+    clearPark();
+    if (checkpoint?.due && sessionSummary) {
+      const result = saveCheckpointAcknowledged(sessionSummary);
+      setSessionSummary(result.summary);
+      setCheckpointDismissed(true);
+    }
+    if (!e) {
+      window.location.href = GAME_MAP_PATH;
+    }
+  }
+
+  function handleSaveAndClose() {
+    if (!level || !session) {
+      window.location.href = GAME_MAP_PATH;
+      return;
+    }
+    if (session.status === "playing" && session.moves > 0) {
+      const result = savePark(
+        meta.slug,
+        captureSession(level, session),
+        lastMove ? { id: lastMove.id, label: lastMove.label } : null,
+      );
+      if (!result.ok && (result.reason === "quota" || result.reason === "disabled")) {
+        setParkNote("Storage quota exceeded — progress cannot be parked.");
+        return;
+      }
+      window.location.href = GAME_MAP_PATH;
+    } else {
+      window.location.href = GAME_MAP_PATH;
+    }
   }
 
   function revealHint(nextHint: number) {
@@ -829,6 +849,14 @@ export default function GameMission({ meta }: Props) {
             >
               RESTART
             </button>
+            <button
+              type="button"
+              className="game-btn"
+              onClick={handleSaveAndClose}
+              aria-label="Save and close repair"
+            >
+              SAVE &amp; CLOSE
+            </button>
           </div>
 
           {session?.status === "won" && score != null && (
@@ -928,24 +956,17 @@ export default function GameMission({ meta }: Props) {
               )}
 
               <div className="game-win__links">
-                {primaryAction != null && (
+                {actions.map((action) => (
                   <a
-                    className="game-btn game-btn--primary"
-                    href={primaryAction.href}
-                    onClick={acknowledgeCheckpointCard}
+                    key={action.id}
+                    className="game-btn"
+                    href={action.href}
+                    onClick={action.id === "close" ? handleWinClose : undefined}
                   >
-                    {primaryAction.label}
+                    {action.label}
                     <span aria-hidden="true">→</span>
                   </a>
-                )}
-                <a
-                  className="game-btn game-btn--manual"
-                  href={meta.page}
-                  onClick={acknowledgeCheckpointCard}
-                >
-                  READ THE MATHEMATICS
-                  <span aria-hidden="true">→</span>
-                </a>
+                ))}
               </div>
             </section>
           )}
