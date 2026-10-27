@@ -551,6 +551,10 @@
 
 /* ---------------------------------------------------------------- run rail */
 
+.observatory-page .obs-mobile-runbar {
+  display: none;
+}
+
 .observatory-page .obs-runrail-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1124,5 +1128,39 @@
     max-height: 88vh;
     border-radius: var(--obs-radius-lg) var(--obs-radius-lg) 0 0;
     padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .observatory-page .obs-mobile-runbar {
+    position: fixed;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: 12px;
+    z-index: 70; /* below the 80 drawer backdrop */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid var(--obs-line-strong);
+    border-radius: var(--obs-radius-lg);
+    background: color-mix(in srgb, var(--obs-panel) 94%, transparent);
+    box-shadow: var(--obs-shadow);
+    backdrop-filter: blur(8px);
+  }
+
+  .observatory-page .obs-mobile-runbar-frame {
+    flex: 1;
+    min-width: 0;
+    color: var(--obs-muted);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  .observatory-page .obs-mobile-runbar .obs-button {
+    flex: none;
+  }
+
+  /* Keep the fixed bar from covering the footer/note at the end of the page. */
+  .observatory-page .obs-shell {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom));
   }
 }

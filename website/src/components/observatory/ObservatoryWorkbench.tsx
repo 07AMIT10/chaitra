@@ -10,7 +10,7 @@ import { runScenario } from "../../observatory/runners";
 import { canonicalJson } from "../../observatory/hash";
 import { SCAMPER_CARDS, proposeMutation } from "../../observatory/mutations";
 import { cloneScenario, isScenario } from "../../observatory/scenario";
-import { plural } from "../../observatory/format";
+import { frameLabel, plural } from "../../observatory/format";
 import {
   LIMITS,
   STORAGE_KEYS,
@@ -1660,6 +1660,23 @@ export function ObservatoryWorkbench() {
           onChangeNote={(note) => dispatch({ type: "set-note", note })}
         />
       </aside>
+
+      <div className="obs-mobile-runbar" role="group" aria-label="Quick run controls">
+        <span className="obs-mobile-runbar-frame obs-mono">
+          {frameLabel(frameIndex, frameCount)}
+        </span>
+        <button type="button" className="obs-button obs-button--accent" onClick={handleRun}>
+          Run
+        </button>
+        <button
+          type="button"
+          className="obs-button"
+          disabled={keepBlocked}
+          onClick={handleKeep}
+        >
+          Keep branch
+        </button>
+      </div>
 
       {overlays}
     </div>

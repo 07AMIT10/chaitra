@@ -290,11 +290,11 @@ export function ConfirmDialog({
       </header>
       <p>{body}</p>
       <div className="obs-drawer-actions">
-        <button type="button" className="obs-button obs-button--danger" onClick={onConfirm}>
-          {confirmLabel}
-        </button>
         <button type="button" className="obs-button obs-button--ghost" onClick={onCancel}>
           Cancel
+        </button>
+        <button type="button" className="obs-button obs-button--danger" onClick={onConfirm}>
+          {confirmLabel}
         </button>
       </div>
     </Overlay>
