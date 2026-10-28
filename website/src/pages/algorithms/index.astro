@@ -38,6 +38,10 @@ const total = algorithms.length;
     <a class="alg-hub__game-link" href="/algorithms/game">Enter the repair bay →</a>
   </section>
 
+  <p class="alg-hub__observatory">
+    <a href="/observatory">The Observatory — put a live algorithm on the bench and break it →</a>
+  </p>
+
   {total === 0 && (
     <p class="alg-hub__empty" role="status">
       No algorithms are published yet. Authoring happens in <code>algorithms/</code>; run the
@@ -236,6 +240,21 @@ const total = algorithms.length;
 
   .alg-hub__game-link:hover {
     background: var(--color-algorithms-hover, #c4b5fd);
+  }
+
+  .alg-hub__observatory {
+    margin: var(--space-5) 0;
+    padding: var(--space-4);
+    border: 1px dashed color-mix(in srgb, var(--color-algorithms, #a78bfa) 32%, transparent);
+    border-radius: var(--radius-md);
+  }
+
+  .alg-hub__observatory a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 600;
+    text-underline-offset: 4px;
   }
 
   .alg-hub__stat {
