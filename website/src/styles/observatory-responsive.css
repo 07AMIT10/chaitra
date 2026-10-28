@@ -1,0 +1,655 @@
+/*
+ * Observatory composition and responsive retuning. The component sheets own
+ * their internals; this file owns the page frame, the shelf lead, notices,
+ * the bench header, dialog chrome, and the breakpoints that keep the whole
+ * instrument usable from a wide desktop down to a 380px phone.
+ */
+
+/* ------------------------------------------------------------------- page */
+
+.observatory-page .obs-page-head {
+  max-width: 1500px;
+  margin: 0 auto var(--obs-gutter);
+  padding-bottom: var(--obs-gutter);
+  border-bottom: 1px solid var(--obs-line);
+}
+
+/* The page hero is the shelf's front door; the bench is the instrument room. */
+.observatory-page.obs-page--bench .obs-page-head {
+  display: none;
+}
+
+.observatory-page .obs-page-head h1 {
+  max-width: 18ch;
+  margin: 10px 0 8px;
+  font-size: clamp(2.2rem, 5vw, 4rem);
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+}
+
+/* The desktop rail moves inside the bench on one-column layouts (see 1020). */
+.observatory-page .obs-mobile-lens {
+  display: none;
+}
+
+.observatory-page .obs-page-lede {
+  max-width: 72ch;
+  margin: 0;
+  color: var(--obs-muted);
+  font-size: clamp(0.98rem, 1.2vw, 1.08rem);
+  line-height: 1.6;
+}
+
+.observatory-page .obs-page-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin: 14px 0 0;
+  font-size: 0.88rem;
+}
+
+.observatory-page .obs-page-links a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--obs-amber);
+  text-underline-offset: 4px;
+}
+
+.observatory-page .obs-page-links a:hover {
+  color: var(--obs-amber-hi);
+}
+
+/* ------------------------------------------------------------------ shelf */
+
+.observatory-page .obs-shelf-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--obs-gutter);
+  max-width: 1500px;
+  margin: 0 auto;
+}
+
+.observatory-page .obs-shelf-lead {
+  max-width: 78ch;
+}
+
+.observatory-page .obs-shelf-lead h2 {
+  margin: 6px 0 8px;
+  font-size: clamp(1.4rem, 2.4vw, 2.1rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+}
+
+.observatory-page .obs-shelf-lead p {
+  margin: 0;
+  color: var(--obs-muted);
+  line-height: 1.55;
+}
+
+.observatory-page .obs-shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.observatory-page .obs-reader-benches,
+.observatory-page .obs-field-index {
+  margin-top: 4px;
+}
+
+.observatory-page .obs-field-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0 16px;
+}
+
+.observatory-page .obs-field-list .obs-field-row {
+  border-top: 1px dashed var(--obs-line);
+}
+
+.observatory-page .obs-field-list > li:first-child .obs-field-row,
+.observatory-page .obs-field-list > li:nth-child(2) .obs-field-row {
+  border-top: 1px dashed var(--obs-line);
+}
+
+.observatory-page .obs-shelf-drawer {
+  width: min(1100px, 100%);
+}
+
+.observatory-page .obs-shelf-drawer .obs-shelf {
+  padding-top: 4px;
+}
+
+/* ----------------------------------------------------------- notices/draft */
+
+.observatory-page .obs-notice,
+.observatory-page .obs-draft-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--obs-panel-2);
+  border: 1px solid var(--obs-line);
+  border-left: 3px solid var(--obs-amber);
+  border-radius: var(--obs-radius);
+  color: var(--obs-ink);
+}
+
+.observatory-page .obs-notice p,
+.observatory-page .obs-draft-banner p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.observatory-page .obs-notice--error {
+  border-left-color: var(--obs-red);
+}
+
+.observatory-page .obs-notice--error p {
+  color: var(--obs-red);
+}
+
+/* A notice occupies its own row; dialogs carry their own copy instead of
+   floating a toast over the header or the modal title. */
+.observatory-page .obs-notice {
+  position: static;
+  width: auto;
+  max-width: 720px;
+  max-height: min(40vh, 320px);
+  margin: 0 auto var(--obs-gutter);
+  overflow: auto;
+  box-shadow: var(--obs-shadow);
+}
+
+.observatory-page .obs-notice--inline {
+  max-width: none;
+  max-height: min(30vh, 220px);
+  margin: 0 0 4px;
+  box-shadow: none;
+}
+
+.observatory-page .obs-notice .obs-button,
+.observatory-page .obs-draft-actions {
+  flex: none;
+}
+
+.observatory-page .obs-draft-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.observatory-page .obs-draft-banner .obs-kicker {
+  color: var(--obs-amber);
+}
+
+/* --------------------------------------------------------------- top bar */
+
+.observatory-page .obs-topbar-title {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.observatory-page .obs-topbar-title h2 {
+  margin: 4px 0 4px;
+  font-size: clamp(1.35rem, 2.1vw, 1.9rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.observatory-page .obs-topbar-sub {
+  margin: 0;
+  max-width: 75ch;
+  color: var(--obs-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.observatory-page .obs-topbar-original {
+  margin: 4px 0 0;
+  max-width: 75ch;
+  color: var(--obs-faint);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.observatory-page .obs-topbar-original-label {
+  color: var(--obs-muted);
+  font-family: var(--obs-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.observatory-page .obs-topbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex: 0 1 auto;
+}
+
+.observatory-page .obs-topbar-actions .obs-tag {
+  align-self: center;
+}
+
+/* ----------------------------------------------------------------- bench */
+
+.observatory-page .obs-bench-title {
+  margin: 2px 0 0;
+  font-size: 1.12rem;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.observatory-page .obs-bench-head {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.observatory-page .obs-bench-head-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.observatory-page .obs-deck,
+.observatory-page .obs-readout,
+.observatory-page .obs-runrail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* --------------------------------------------------------------- drawers */
+
+.observatory-page .obs-drawer-panel {
+  width: min(760px, 100%);
+  padding: 16px;
+  background: var(--obs-panel);
+  border: 1px solid var(--obs-line-strong);
+  border-radius: var(--obs-radius-lg);
+}
+
+.observatory-page .obs-branch-drawer {
+  width: min(760px, 100%);
+}
+
+.observatory-page .obs-inspector-drawer {
+  width: min(820px, 100%);
+  padding: 0;
+}
+
+.observatory-page .obs-inspector-drawer .obs-inspector {
+  border: 0;
+  border-radius: var(--obs-radius-lg);
+}
+
+.observatory-page .obs-compare-dialog {
+  width: min(980px, 100%);
+}
+
+.observatory-page .obs-compare-selectors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.observatory-page .obs-compare-diff {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--obs-mono);
+  font-size: 0.72rem;
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-compare-diff li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.observatory-page .obs-compare-diff-tag {
+  padding: 2px 6px;
+  border: 1px solid var(--obs-line);
+  border-radius: 999px;
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.observatory-page .obs-compare-diff-tag--same {
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-compare-diff-tag--differs {
+  color: var(--obs-amber);
+  border-color: var(--obs-line-strong);
+}
+
+.observatory-page .obs-compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.observatory-page .obs-compare-card {
+  height: 100%;
+  padding: 12px;
+  background: var(--obs-panel-2);
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius);
+}
+
+.observatory-page .obs-compare-title {
+  margin: 4px 0;
+  font-size: 1.05rem;
+  overflow-wrap: anywhere;
+}
+
+.observatory-page .obs-compare-mutations {
+  margin: 8px 0;
+  padding-left: 18px;
+  color: var(--obs-muted);
+  font-size: 0.84rem;
+}
+
+.observatory-page .obs-compare-note {
+  margin: 10px 0 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--obs-line-strong);
+  color: var(--obs-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.observatory-page .obs-compare-run {
+  margin: 12px 0 0;
+  color: var(--obs-ink);
+  font-family: var(--obs-mono);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.observatory-page .obs-compare-run .obs-kicker {
+  display: block;
+  margin-bottom: 3px;
+}
+
+.observatory-page .obs-compare-metrics {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 4px;
+}
+
+.observatory-page .obs-compare-metrics li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px dashed var(--obs-line);
+  color: var(--obs-muted);
+  font-family: var(--obs-mono);
+  font-size: 0.78rem;
+}
+
+.observatory-page .obs-compare-metrics strong {
+  color: var(--obs-ink);
+  font-weight: 500;
+  text-align: right;
+}
+
+.observatory-page .obs-compare-grid > div > .obs-button {
+  margin-top: 8px;
+}
+
+/* --------------------------------------------------------------- details */
+
+.observatory-page .obs-array__segment-label {
+  color: var(--obs-faint);
+  font-family: var(--obs-mono);
+  font-size: 0.68rem;
+}
+
+/* ------------------------------------------------------------- responsive */
+
+@media (max-width: 1200px) {
+  .observatory-page .obs-shell {
+    grid-template-columns: minmax(68px, 76px) minmax(0, 1fr) minmax(260px, 300px);
+  }
+}
+
+@media (max-width: 1020px) {
+  .observatory-page .obs-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "topbar"
+      "stage"
+      "run"
+      "deck"
+      "note";
+  }
+
+  .observatory-page .obs-shell > .obs-rail {
+    display: none;
+  }
+
+  .observatory-page .obs-mobile-lens {
+    display: block;
+  }
+
+  .observatory-page .obs-topbar {
+    align-items: flex-start;
+  }
+
+  .observatory-page .obs-topbar-actions {
+    justify-content: flex-start;
+  }
+
+  .observatory-page .obs-rail-list {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+    /* Horizontal lens indices are intentionally scrollable; contain their
+       paint so off-screen lens labels do not widen the document. */
+    contain: paint;
+  }
+
+  .observatory-page .obs-rail-list > li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .observatory-page .obs-lens-stop {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 760px) {
+  .observatory-page .obs-page-head {
+    margin-bottom: 12px;
+    padding-bottom: 14px;
+  }
+
+  .observatory-page .obs-topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .observatory-page .obs-topbar-title {
+    /* In the stacked topbar, the desktop flex-basis would become a 320px
+       height. Let the title take only the height of its own content. */
+    flex: 0 1 auto;
+  }
+
+  .observatory-page .obs-topbar-actions {
+    justify-content: flex-start;
+  }
+
+  .observatory-page .obs-bench-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .observatory-page .obs-bench-head-actions {
+    margin-left: 0;
+  }
+
+  .observatory-page .obs-under-canvas {
+    gap: 12px;
+  }
+
+  .observatory-page .obs-compare-selectors,
+  .observatory-page .obs-compare-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .observatory-page .obs-field-list {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .observatory-page .obs-field-list .obs-field-row,
+  .observatory-page .obs-field-list > li:first-child .obs-field-row,
+  .observatory-page .obs-field-list > li:nth-child(2) .obs-field-row {
+    border-top: 1px dashed var(--obs-line);
+  }
+
+  .observatory-page .obs-shelf-page {
+    gap: 12px;
+  }
+
+  .observatory-page .obs-drawer-panel {
+    padding: 12px;
+  }
+
+  .observatory-page .obs-inspector-drawer {
+    padding: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .observatory-page {
+    --obs-gutter: 0.85rem;
+  }
+
+  .observatory-page .obs-page-head {
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+  }
+
+  .observatory-page .obs-page-head h1 {
+    margin: 6px 0 6px;
+    font-size: clamp(1.7rem, 9vw, 2.25rem);
+    line-height: 1.02;
+  }
+
+  .observatory-page .obs-page-lede {
+    font-size: 0.92rem;
+    line-height: 1.45;
+  }
+
+  .observatory-page .obs-page-links {
+    margin-top: 8px;
+  }
+
+  .observatory-page .obs-topbar {
+    gap: 6px;
+  }
+
+  .observatory-page .obs-topbar-title {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .observatory-page .obs-topbar-title h2 {
+    font-size: 1.2rem;
+  }
+
+  .observatory-page .obs-topbar-sub,
+  .observatory-page .obs-topbar-original {
+    display: none;
+  }
+
+  .observatory-page .obs-topbar-actions {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
+
+  .observatory-page .obs-draft-actions {
+    align-items: stretch;
+  }
+
+  .observatory-page .obs-draft-actions .obs-button {
+    flex: 1 1 auto;
+  }
+
+  .observatory-page .obs-topbar-actions .obs-button {
+    flex: 0 0 auto;
+  }
+
+  .observatory-page .obs-notice,
+  .observatory-page .obs-draft-banner {
+    align-items: flex-start;
+  }
+
+  .observatory-page .obs-plates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .observatory-page .obs-readout-head {
+    flex-wrap: wrap;
+  }
+
+  .observatory-page .obs-readout-frames {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .observatory-page .obs-drawer-backdrop {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .observatory-page .obs-drawer {
+    width: 100%;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+
+  .observatory-page .obs-compare-dialog,
+  .observatory-page .obs-inspector-drawer,
+  .observatory-page .obs-branch-drawer,
+  .observatory-page .obs-shelf-drawer {
+    width: 100%;
+  }
+
+  .observatory-page .obs-drawer-panel {
+    border-radius: 0;
+    min-height: 100dvh;
+  }
+
+  .observatory-page .obs-inspector-drawer .obs-inspector {
+    border-radius: 0;
+  }
+}

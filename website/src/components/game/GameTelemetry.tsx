@@ -1,11 +1,11 @@
 import type { BoardView, Status } from "../../game/types";
 
-export type TelemetryStatus = Status | "fault" | "standby";
+export type TelemetryStatus = Status | "note" | "standby";
 
 type Props = {
   moves: number;
-  hints: number;
-  hintsTotal: number;
+  hints?: number;
+  hintsTotal?: number;
   status: TelemetryStatus;
   kind?: BoardView["kind"];
   /** The board's own caption: the only structured readout the level contract returns. */
@@ -16,7 +16,7 @@ const STATUS_LABEL: Record<TelemetryStatus, string> = {
   playing: "REPAIRING",
   won: "ONLINE",
   lost: "LOST",
-  fault: "FAULT",
+  note: "NOTE",
   standby: "STANDBY",
 };
 
@@ -50,13 +50,6 @@ export default function GameTelemetry({
         <div className="game-telemetry__readout">
           <dt>Moves</dt>
           <dd>{pad(moves)}</dd>
-        </div>
-        <div className="game-telemetry__readout">
-          <dt>Hints</dt>
-          <dd>
-            {pad(hints)}
-            <span className="game-telemetry__of"> / {pad(hintsTotal)}</span>
-          </dd>
         </div>
         <div className={`game-telemetry__readout game-telemetry__readout--status is-${status}`}>
           <dt>System</dt>

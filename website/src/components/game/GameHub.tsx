@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import { ACTS, LEVEL_META, prevMeta } from "../../game/levels/meta";
 import { ACT_LORE, ENDING, LORE } from "../../game/lore";
+import { clearPark, loadPark, type ParkRecord } from "../../game/park";
 import type { LevelMeta } from "../../game/types";
 import {
   clearResume,
@@ -134,9 +135,16 @@ function ShipLog({ log }: { log: FragmentProgress }) {
 
 export default function GameHub() {
   const [progress, setProgress] = useState<Progress>(EMPTY_PROGRESS);
+  const [park, setPark] = useState<ParkRecord | null>(null);
 
   useEffect(() => {
     setProgress(loadProgress());
+    const res = loadPark();
+    if (res.record && !res.expired && !res.corrupt) {
+      setPark(res.record);
+    } else {
+      setPark(null);
+    }
   }, []);
 
   const total = LEVEL_META.length;
@@ -160,6 +168,8 @@ export default function GameHub() {
   const complete = ending.unlocked;
   const nextSlug = next?.meta.slug ?? null;
   const finalMeta = LEVEL_META[LEVEL_META.length - 1] ?? null;
+  const parkedMeta = park ? LEVEL_META.find((m) => m.slug === park.slug) ?? null : null;
+  const parkedDeck = parkedMeta ? ACTS.find((act) => act.act === parkedMeta.act) ?? null : null;
 
   function isUnlocked(meta: LevelMeta): boolean {
     const previous = prevMeta(meta.slug);
@@ -177,6 +187,8 @@ export default function GameHub() {
       for (const meta of LEVEL_META) {
         clearResume(meta.slug);
       }
+      clearPark();
+      setPark(null);
       resetSessionSummary();
     }
   }
@@ -293,6 +305,45 @@ export default function GameHub() {
             </div>
           </dl>
         </section>
+      ) : park && parkedMeta ? (
+        <section className="game-continue game-continue--parked" aria-label="Parked repair">
+          <span className="game-continue__mark" aria-hidden="true">
+            {pad(parkedMeta.number)}
+          </span>
+          <span className="game-continue__body">
+            <span className="game-continue__kicker">
+              Parked repair · {parkedMeta.title}
+            </span>
+            <span className="game-continue__title">{parkedMeta.title}</span>
+            <span className="game-continue__meta">
+              <span>Mission {pad(parkedMeta.number)}</span>
+              {parkedDeck && (
+                <span>
+                  Deck {pad(parkedDeck.act)} · {parkedDeck.name}
+                </span>
+              )}
+              <span>{parkedMeta.algorithm}</span>
+              <span>~{parkedMeta.minutes} min</span>
+            </span>
+          </span>
+          <span className="game-continue__actions">
+            <a
+              className="game-continue__cta game-btn game-btn--primary"
+              href={`/algorithms/game/${park.slug}`}
+            >
+              Resume
+              <span className="game-continue__arrow" aria-hidden="true">
+                →
+              </span>
+            </a>
+            <a
+              className="game-btn"
+              href={`/algorithms/game/${park.slug}?fresh=1`}
+            >
+              Start fresh
+            </a>
+          </span>
+        </section>
       ) : next ? (
         <a className="game-continue" href={`/algorithms/game/${next.meta.slug}`}>
           <span className="game-continue__mark" aria-hidden="true">
@@ -300,7 +351,7 @@ export default function GameHub() {
           </span>
           <span className="game-continue__body">
             <span className="game-continue__kicker">
-              {next.index === 0 ? "Begin repair" : "Next repair"}
+              {solved === 0 ? "Begin repair" : "Next repair"}
             </span>
             <span className="game-continue__title">{next.meta.title}</span>
             <span className="game-continue__meta">
@@ -309,11 +360,11 @@ export default function GameHub() {
                 Deck {pad(next.deck.act)} · {next.deck.name}
               </span>
               <span>{next.meta.algorithm}</span>
-              <span>{next.meta.minutes} min</span>
+              <span>~{next.meta.minutes} min</span>
             </span>
           </span>
           <span className="game-continue__cta">
-            Resume repair
+            {solved === 0 ? `Begin repair · ${next.meta.title}` : `Next repair · ${next.meta.title}`}
             <span className="game-continue__arrow" aria-hidden="true">
               →
             </span>

@@ -552,6 +552,39 @@
   opacity: 0.8;
 }
 
+/* ------------------------------------------------------------- handover pulse -- */
+
+@keyframes game-motion-handover-pulse {
+  0%, 100% {
+    outline-color: var(--gf-amber, #f59e0b);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--gf-amber, #f59e0b) 45%, transparent);
+  }
+  50% {
+    outline-color: color-mix(in srgb, var(--gf-amber, #f59e0b) 40%, transparent);
+    box-shadow: 0 0 10px 2px color-mix(in srgb, var(--gf-amber, #f59e0b) 35%, transparent);
+  }
+}
+
+@keyframes game-motion-svg-handover-pulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 2px color-mix(in srgb, var(--gf-amber, #f59e0b) 60%, transparent));
+  }
+  50% {
+    opacity: 0.45;
+    filter: drop-shadow(0 0 7px color-mix(in srgb, var(--gf-amber, #f59e0b) 75%, transparent));
+  }
+}
+
+.is-handover:not(svg):not(g) {
+  animation: game-motion-handover-pulse 1.8s ease-in-out infinite;
+}
+
+.game-node.is-handover .game-node__halo,
+.game-edge.is-handover .game-edge__halo {
+  animation: game-motion-svg-handover-pulse 1.8s ease-in-out infinite;
+}
+
 /* -------------------------------------------------------------- win bloom -- */
 
 @keyframes game-motion-win-in {
@@ -655,6 +688,9 @@
   .game-error,
   .game-fault,
   .is-fault,
+  .is-handover,
+  .game-node.is-handover .game-node__halo,
+  .game-edge.is-handover .game-edge__halo,
   .game-node.is-active .game-node__dot,
   .game-cell.is-active,
   .game-map :is(a, button):focus-visible .game-map__node-inner {

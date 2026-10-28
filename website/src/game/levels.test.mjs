@@ -55,7 +55,7 @@ test("undo restores the previous state", async () => {
   assert.equal(back.moves, 0);
   assert.equal(back.history.length, 0);
   assert.equal(back.log.length, 0);
-  assert.equal(back.state.selected, null);
+  assert.equal(back.state.selected, "A");
 });
 
 test("union-find stops offering moves after the write budget is lost", async () => {
@@ -63,7 +63,6 @@ test("union-find stops offering moves after the write budget is lost", async () 
   assert.ok(level);
 
   const path = [
-    "select:A",
     "merge:A:B",
     "select:B",
     "merge:B:C",

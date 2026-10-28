@@ -129,6 +129,7 @@ const level: LevelModule<BFSState> = {
       id: `stamp:${id}`,
       label: `Stamp ${id}`,
       placement: "board",
+      disabled: !isLegalStamp(state, id),
     }));
   },
 

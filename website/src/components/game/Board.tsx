@@ -5,6 +5,11 @@ import {
   useState,
   type KeyboardEvent as ReactKeyboardEvent,
 } from "react";
+import {
+  isMoveInteractive,
+  shouldShowOverflowHint,
+  supportsFitView,
+} from "../../game/board-access";
 import type {
   ArrayView,
   BoardView,
@@ -21,6 +26,10 @@ type BoardProps = {
   onMove: (moveId: string) => void;
   /** The last rejected move; boards mark its element as a fault. */
   faultMoveId?: string;
+  /** First-move handover: highlight the recommended opening move. */
+  handoverMoveId?: string;
+  /** Currently legal move IDs; non-legal bound moves are rendered inert. */
+  legalMoveIds?: ReadonlySet<string>;
 };
 
 function activate(
@@ -39,15 +48,26 @@ function isFaultMove(moveId: string | undefined, faultMoveId: string | undefined
   return Boolean(moveId && faultMoveId && moveId === faultMoveId);
 }
 
+function isHandoverMove(
+  moveId: string | undefined,
+  handoverMoveId: string | undefined,
+): boolean {
+  return Boolean(moveId && handoverMoveId && moveId === handoverMoveId);
+}
+
 function stateClass(
   base: string,
   state: string | undefined,
   moveId: string | undefined,
   faultMoveId: string | undefined,
+  handoverMoveId?: string | undefined,
+  interactive?: boolean,
 ): string {
   const classes = [base];
   if (state && state !== "idle") classes.push(`is-${state}`);
-  if (isFaultMove(moveId, faultMoveId)) classes.push("is-fault");
+  if (isFaultMove(moveId, faultMoveId)) classes.push("is-note");
+  if (isHandoverMove(moveId, handoverMoveId)) classes.push("is-handover");
+  if (moveId != null && interactive === false) classes.push("is-inert is-blocked");
   return classes.join(" ");
 }
 
@@ -92,6 +112,42 @@ function useElementWidth<T extends HTMLElement>() {
   }, []);
 
   return { ref, width };
+}
+
+/** Measure horizontal overflow using ResizeObserver so cues appear only when content is wider than container. */
+function useBoardOverflow(...deps: unknown[]) {
+  const scrollRef = useRef<HTMLDivElement | null>(null);
+  const [hasOverflow, setHasOverflow] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const measure = () => {
+      setHasOverflow(shouldShowOverflowHint(el.scrollWidth, el.clientWidth));
+    };
+
+    measure();
+
+    const observer = new ResizeObserver(() => {
+      measure();
+    });
+
+    observer.observe(el);
+    if (el.firstElementChild) {
+      observer.observe(el.firstElementChild);
+    }
+
+    window.addEventListener("resize", measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+
+  return { scrollRef, hasOverflow };
 }
 
 function isSubAbove(sub: string | undefined): boolean {
@@ -241,12 +297,18 @@ function GraphBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
+  legalMoveIds,
 }: {
   view: GraphView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
+  const [fit, setFit] = useState(false);
   const markerId = `game-arrow-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const nodes = new Map(view.nodes.map((node) => [node.id, node]));
   const { ref: boardRef, width: boardWidth } = useElementWidth<HTMLElement>();
   const compact = boardWidth > 0 && boardWidth <= 540 && isUnionBoard(view);
@@ -260,23 +322,50 @@ function GraphBoard({
   const viewBox = compactLayout
     ? `0 0 ${compactLayout.width} ${compactLayout.height}`
     : graphViewBox(view);
+  const { scrollRef, hasOverflow } = useBoardOverflow(fit, view, compact);
 
   return (
     <figure
       ref={boardRef}
-      className={`game-board game-board--graph${compact ? " game-board--compact" : ""}`}
+      className={`game-board game-board--graph${compact ? " game-board--compact" : ""}${fit ? " is-fit" : ""}`}
     >
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <header className="game-board__head">
         <span className="game-board__head-label">STRUCTURE</span>
-        <span className="game-board__head-meta">
-          {pad2(view.nodes.length)} NODES · {pad2(view.edges.length)} EDGES
-        </span>
+        <div className="game-board__head-actions">
+          {supportsFitView("graph") && (
+            <button
+              type="button"
+              className="game-board__fit-toggle"
+              onClick={() => setFit(!fit)}
+              aria-pressed={fit}
+            >
+              {fit ? "ACTUAL SIZE" : "FIT VIEW"}
+            </button>
+          )}
+          <span className="game-board__head-meta">
+            {pad2(view.nodes.length)} NODES · {pad2(view.edges.length)} EDGES
+          </span>
+        </div>
       </header>
-      {!compact && (
-        <p className="game-board__hint">Swipe the board sideways to see every node.</p>
+      {hasOverflow && (
+        <div className="game-board__overflow-cue" aria-hidden="true">
+          Pan for more →
+        </div>
       )}
-      <div className="game-board__scroll">
-        <svg viewBox={viewBox} role="group" aria-label={view.caption ?? "Puzzle graph"}>
+      <div
+        ref={scrollRef}
+        className="game-board__scroll"
+        tabIndex={0}
+        role="group"
+        aria-label="Scrollable board (use arrow keys to scroll horizontally)"
+      >
+        <svg
+          className={fit ? "is-fit" : undefined}
+          viewBox={viewBox}
+          role="group"
+          aria-label={view.caption ?? "Puzzle graph"}
+        >
           <defs>
             <marker id={markerId} markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
               <path d="M0,0L8,4L0,8Z" className="game-arrowhead" />
@@ -299,12 +388,14 @@ function GraphBoard({
             const mx = (x1 + x2) / 2;
             const my = (y1 + y2) / 2;
             const active = Boolean(edge.moveId);
+            const interactive = isMoveInteractive(edge.moveId, legalMoveIds);
+            const handover = isHandoverMove(edge.moveId, handoverMoveId);
             const chip = edge.label != null ? labelWidth(String(edge.label)) : 0;
 
             return (
               <g
                 key={edge.id}
-                className={stateClass("game-edge", edge.state, edge.moveId, faultMoveId)}
+                className={stateClass("game-edge", edge.state, edge.moveId, faultMoveId, handoverMoveId, edge.moveId ? interactive : undefined)}
               >
                 <line className="game-edge__halo" x1={x1} y1={y1} x2={x2} y2={y2} />
                 <line
@@ -325,17 +416,20 @@ function GraphBoard({
                 )}
                 {active && (
                   <line
-                    className={`game-edge__hit${isFaultMove(edge.moveId, faultMoveId) ? " is-fault" : ""}`}
+                    className={`game-edge__hit${isFaultMove(edge.moveId, faultMoveId) ? " is-note" : ""}${handover ? " is-handover" : ""}${!interactive ? " is-inert is-blocked" : ""}`}
+                    strokeWidth="28"
                     data-move-id={edge.moveId}
                     x1={x1}
                     y1={y1}
                     x2={x2}
                     y2={y2}
-                    role="button"
-                    tabIndex={0}
+                    role={interactive ? "button" : undefined}
+                    tabIndex={interactive ? 0 : undefined}
+                    aria-disabled={!interactive ? "true" : undefined}
                     aria-label={edge.aria ?? edge.id}
-                    onClick={() => edge.moveId && onMove(edge.moveId)}
-                    onKeyDown={(event) => activate(edge.moveId, onMove, event)}
+                    aria-describedby={handover ? handoverDescId : undefined}
+                    onClick={interactive && edge.moveId ? () => onMove(edge.moveId as string) : undefined}
+                    onKeyDown={interactive ? (event) => activate(edge.moveId, onMove, event) : undefined}
                   />
                 )}
               </g>
@@ -344,7 +438,9 @@ function GraphBoard({
 
           {view.nodes.map((node) => {
             const fault = isFaultMove(node.moveId, faultMoveId);
-            const tone = fault ? "fault" : (node.state ?? "idle");
+            const handover = isHandoverMove(node.moveId, handoverMoveId);
+            const interactive = isMoveInteractive(node.moveId, legalMoveIds);
+            const tone = fault ? "note" : (node.state ?? "idle");
             const point = pointOf(node.id) ?? { x: node.x, y: node.y };
             const x = point.x;
             const y = point.y;
@@ -357,15 +453,17 @@ function GraphBoard({
             return (
               <g
                 key={node.id}
-                className={stateClass("game-node", node.state, node.moveId, faultMoveId)}
+                className={stateClass("game-node", node.state, node.moveId, faultMoveId, handoverMoveId, node.moveId ? interactive : undefined)}
                 data-move-id={node.moveId}
-                role={node.moveId ? "button" : undefined}
-                tabIndex={node.moveId ? 0 : undefined}
+                role={node.moveId && interactive ? "button" : undefined}
+                tabIndex={node.moveId && interactive ? 0 : undefined}
+                aria-disabled={node.moveId && !interactive ? "true" : undefined}
                 aria-label={node.moveId ? (node.aria ?? node.label) : undefined}
-                onClick={node.moveId ? () => onMove(node.moveId as string) : undefined}
-                onKeyDown={(event) => activate(node.moveId, onMove, event)}
+                aria-describedby={handover ? handoverDescId : undefined}
+                onClick={node.moveId && interactive ? () => onMove(node.moveId as string) : undefined}
+                onKeyDown={interactive ? (event) => activate(node.moveId, onMove, event) : undefined}
               >
-                <circle className="game-node__hit" cx={x} cy={y} r="32" />
+                <circle className="game-node__hit" cx={x} cy={y} r="36" />
                 <circle className="game-node__halo" cx={x} cy={y} r="28" aria-hidden="true" />
                 <circle className="game-node__bevel" cx={x} cy={y} r="23" aria-hidden="true" />
                 <circle className="game-node__dot" cx={x} cy={y} r="19" aria-hidden="true" />
@@ -382,7 +480,7 @@ function GraphBoard({
                     aria-hidden="true"
                   />
                 )}
-                {(tone === "bad" || tone === "fault") && (
+                {(tone === "bad") && (
                   <g className="game-node__flag" aria-hidden="true">
                     <circle cx={x + 15} cy={y - 15} r="7" />
                     <text x={x + 15} y={y - 11.5} textAnchor="middle">
@@ -423,16 +521,31 @@ function ArrayBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
+  legalMoveIds,
 }: {
   view: ArrayView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <figure className="game-board game-board--array">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <div className="game-array" role="group" aria-label={view.caption ?? "Sequence puzzle"}>
         {view.items.map((item) => {
-          const className = stateClass("game-cell", item.state, item.moveId, faultMoveId);
+          const handover = isHandoverMove(item.moveId, handoverMoveId);
+          const interactive = isMoveInteractive(item.moveId, legalMoveIds);
+          const className = stateClass(
+            "game-cell",
+            item.state,
+            item.moveId,
+            faultMoveId,
+            handoverMoveId,
+            item.moveId ? interactive : undefined,
+          );
           const content = (
             <>
               <span className="game-cell__value">{item.value}</span>
@@ -440,17 +553,28 @@ function ArrayBoard({
             </>
           );
 
-          return item.moveId ? (
+          return item.moveId && interactive ? (
             <button
               key={item.id}
               type="button"
               className={className}
               data-move-id={item.moveId}
               aria-label={item.aria ?? `${item.label ?? item.value}`}
+              aria-describedby={handover ? handoverDescId : undefined}
               onClick={() => onMove(item.moveId as string)}
             >
               {content}
             </button>
+          ) : item.moveId ? (
+            <span
+              key={item.id}
+              className={className}
+              data-move-id={item.moveId}
+              aria-label={item.aria ?? `${item.label ?? item.value}`}
+              aria-disabled="true"
+            >
+              {content}
+            </span>
           ) : (
             <span key={item.id} className={className} aria-label={item.aria}>
               {content}
@@ -490,19 +614,36 @@ function GridBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
+  legalMoveIds,
 }: {
   view: GridView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const cells = new Map(view.cells.map((cell) => [`${cell.r}:${cell.c}`, cell]));
   const rows = Array.from({ length: view.rows }, (_, r) => r);
   const cols = Array.from({ length: view.cols }, (_, c) => c);
+  const { scrollRef, hasOverflow } = useBoardOverflow(view);
 
   return (
     <figure className="game-board game-board--grid">
-      <p className="game-board__hint">Swipe the table sideways to see every column.</p>
-      <div className="game-board__scroll">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
+      {hasOverflow && (
+        <div className="game-board__overflow-cue" aria-hidden="true">
+          Pan for more →
+        </div>
+      )}
+      <div
+        ref={scrollRef}
+        className="game-board__scroll"
+        tabIndex={0}
+        role="group"
+        aria-label="Scrollable board (use arrow keys to scroll horizontally)"
+      >
         <table className="game-grid" role="grid" aria-label={view.caption ?? "Table puzzle"}>
           {view.colLabels != null && (
             <thead>
@@ -523,24 +664,38 @@ function GridBoard({
                   if (!cell) {
                     return <td key={c} className="game-grid__empty" />;
                   }
+                  const handover = isHandoverMove(cell.moveId, handoverMoveId);
+                  const interactive = isMoveInteractive(cell.moveId, legalMoveIds);
                   const className = stateClass(
                     "game-cell game-cell--grid",
                     cell.state,
                     cell.moveId,
                     faultMoveId,
+                    handoverMoveId,
+                    cell.moveId ? interactive : undefined,
                   );
                   return (
                     <td key={c}>
-                      {cell.moveId ? (
+                      {cell.moveId && interactive ? (
                         <button
                           type="button"
                           className={className}
                           data-move-id={cell.moveId}
                           aria-label={cell.aria ?? `Row ${r}, column ${c}: ${cell.value}`}
+                          aria-describedby={handover ? handoverDescId : undefined}
                           onClick={() => onMove(cell.moveId as string)}
                         >
                           {cell.value}
                         </button>
+                      ) : cell.moveId ? (
+                        <span
+                          className={className}
+                          data-move-id={cell.moveId}
+                          aria-label={cell.aria ?? `Row ${r}, column ${c}: ${cell.value}`}
+                          aria-disabled="true"
+                        >
+                          {cell.value}
+                        </span>
                       ) : (
                         <span className={className} aria-label={cell.aria}>
                           {cell.value}
@@ -565,24 +720,55 @@ function TreeBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
+  legalMoveIds,
 }: {
   view: TreeView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
+  const [fit, setFit] = useState(false);
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const nodes = new Map(view.nodes.map((node) => [node.id, node]));
+  const { scrollRef, hasOverflow } = useBoardOverflow(fit, view);
 
   return (
-    <figure className="game-board game-board--tree">
+    <figure className={`game-board game-board--tree${fit ? " is-fit" : ""}`}>
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <header className="game-board__head">
         <span className="game-board__head-label">STRUCTURE</span>
-        <span className="game-board__head-meta">
-          {pad2(view.nodes.length)} NODES · {pad2(view.edges.length)} EDGES
-        </span>
+        <div className="game-board__head-actions">
+          {supportsFitView("tree") && (
+            <button
+              type="button"
+              className="game-board__fit-toggle"
+              onClick={() => setFit(!fit)}
+              aria-pressed={fit}
+            >
+              {fit ? "ACTUAL SIZE" : "FIT VIEW"}
+            </button>
+          )}
+          <span className="game-board__head-meta">
+            {pad2(view.nodes.length)} NODES · {pad2(view.edges.length)} EDGES
+          </span>
+        </div>
       </header>
-      <p className="game-board__hint">Swipe the board sideways to see every branch.</p>
-      <div className="game-board__scroll">
+      {hasOverflow && (
+        <div className="game-board__overflow-cue" aria-hidden="true">
+          Pan for more →
+        </div>
+      )}
+      <div
+        ref={scrollRef}
+        className="game-board__scroll"
+        tabIndex={0}
+        role="group"
+        aria-label="Scrollable board (use arrow keys to scroll horizontally)"
+      >
         <svg
+          className={fit ? "is-fit" : undefined}
           viewBox={`0 0 640 ${view.height ?? 340}`}
           role="group"
           aria-label={view.caption ?? "Tree puzzle"}
@@ -621,20 +807,24 @@ function TreeBoard({
           })}
           {view.nodes.map((node) => {
             const fault = isFaultMove(node.moveId, faultMoveId);
-            const tone = fault ? "fault" : (node.state ?? "idle");
+            const handover = isHandoverMove(node.moveId, handoverMoveId);
+            const interactive = isMoveInteractive(node.moveId, legalMoveIds);
+            const tone = fault ? "note" : (node.state ?? "idle");
 
             return (
               <g
                 key={node.id}
-                className={stateClass("game-node", node.state, node.moveId, faultMoveId)}
+                className={stateClass("game-node", node.state, node.moveId, faultMoveId, handoverMoveId, node.moveId ? interactive : undefined)}
                 data-move-id={node.moveId}
-                role={node.moveId ? "button" : undefined}
-                tabIndex={node.moveId ? 0 : undefined}
+                role={node.moveId && interactive ? "button" : undefined}
+                tabIndex={node.moveId && interactive ? 0 : undefined}
+                aria-disabled={node.moveId && !interactive ? "true" : undefined}
                 aria-label={node.moveId ? (node.aria ?? node.label) : undefined}
-                onClick={node.moveId ? () => onMove(node.moveId as string) : undefined}
-                onKeyDown={(event) => activate(node.moveId, onMove, event)}
+                aria-describedby={handover ? handoverDescId : undefined}
+                onClick={node.moveId && interactive ? () => onMove(node.moveId as string) : undefined}
+                onKeyDown={interactive ? (event) => activate(node.moveId, onMove, event) : undefined}
               >
-                <circle className="game-node__hit" cx={node.x} cy={node.y} r="30" />
+                <circle className="game-node__hit" cx={node.x} cy={node.y} r="34" />
                 <circle className="game-node__halo" cx={node.x} cy={node.y} r="28" aria-hidden="true" />
                 <circle className="game-node__bevel" cx={node.x} cy={node.y} r="23" aria-hidden="true" />
                 <circle className="game-node__dot" cx={node.x} cy={node.y} r="19" aria-hidden="true" />
@@ -663,7 +853,7 @@ function TreeBoard({
                     aria-hidden="true"
                   />
                 )}
-                {(tone === "bad" || tone === "fault") && (
+                {(tone === "bad") && (
                   <g className="game-node__flag" aria-hidden="true">
                     <circle cx={node.x + 15} cy={node.y - 15} r="7" />
                     <text x={node.x + 15} y={node.y - 11.5} textAnchor="middle">
@@ -703,27 +893,52 @@ function PairingBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
+  legalMoveIds,
 }: {
   view: PairingView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const item = (
     entry: PairingView["left"][number],
     side: "left" | "right",
   ) => {
-    const className = stateClass("game-pair", entry.state, entry.moveId, faultMoveId);
-    return entry.moveId ? (
+    const handover = isHandoverMove(entry.moveId, handoverMoveId);
+    const interactive = isMoveInteractive(entry.moveId, legalMoveIds);
+    const className = stateClass(
+      "game-pair",
+      entry.state,
+      entry.moveId,
+      faultMoveId,
+      handoverMoveId,
+      entry.moveId ? interactive : undefined,
+    );
+    return entry.moveId && interactive ? (
       <button
         key={entry.id}
         type="button"
         className={className}
         data-move-id={entry.moveId}
         aria-label={`${side} ${entry.label}`}
+        aria-describedby={handover ? handoverDescId : undefined}
         onClick={() => onMove(entry.moveId as string)}
       >
         {entry.label}
       </button>
+    ) : entry.moveId ? (
+      <span
+        key={entry.id}
+        className={className}
+        data-move-id={entry.moveId}
+        aria-label={`${side} ${entry.label}`}
+        aria-disabled="true"
+      >
+        {entry.label}
+      </span>
     ) : (
       <span key={entry.id} className={className}>{entry.label}</span>
     );
@@ -731,6 +946,7 @@ function PairingBoard({
 
   return (
     <figure className="game-board game-board--pairing">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <div className="game-pairing">
         <div className="game-pairing__col game-pairing__col--left" role="group" aria-label="Left side">
           {view.left.map((e) => item(e, "left"))}
@@ -753,7 +969,15 @@ function PairingBoard({
 
 /* ----------------------------------------------------------------- number -- */
 
-function NumberBoard({ view }: { view: NumberView }) {
+function NumberBoard({
+  view,
+  handoverMoveId,
+}: {
+  view: NumberView;
+  handoverMoveId?: string;
+}) {
+  const [fit, setFit] = useState(false);
+  const { scrollRef, hasOverflow } = useBoardOverflow(fit, view);
   const points = view.history.length > 0 ? view.history : [{ x: 0, y: view.value }];
   const values = [...points.map((p) => p.y), view.target, view.value];
   const min = Math.min(...values);
@@ -788,10 +1012,40 @@ function NumberBoard({ view }: { view: NumberView }) {
       : null;
 
   return (
-    <figure className="game-board game-board--number">
-      <p className="game-board__hint">Swipe the trace sideways to read every step.</p>
-      <div className="game-board__scroll">
-        <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={view.caption ?? "Iteration plot"}>
+    <figure className={`game-board game-board--number${fit ? " is-fit" : ""}`}>
+      <header className="game-board__head">
+        <span className="game-board__head-label">TRACE</span>
+        <div className="game-board__head-actions">
+          {supportsFitView("number") && (
+            <button
+              type="button"
+              className="game-board__fit-toggle"
+              onClick={() => setFit(!fit)}
+              aria-pressed={fit}
+            >
+              {fit ? "ACTUAL SIZE" : "FIT VIEW"}
+            </button>
+          )}
+        </div>
+      </header>
+      {hasOverflow && (
+        <div className="game-board__overflow-cue" aria-hidden="true">
+          Pan for more →
+        </div>
+      )}
+      <div
+        ref={scrollRef}
+        className="game-board__scroll"
+        tabIndex={0}
+        role="group"
+        aria-label="Scrollable board (use arrow keys to scroll horizontally)"
+      >
+        <svg
+          className={fit ? "is-fit" : undefined}
+          viewBox={`0 0 ${width} ${height}`}
+          role="img"
+          aria-label={view.caption ?? "Iteration plot"}
+        >
           <g className="game-plot-grid" aria-hidden="true">
             {[0.25, 0.5, 0.75].map((t) => (
               <line
@@ -888,34 +1142,60 @@ function FormulaBoard({
   view,
   onMove,
   faultMoveId,
+  handoverMoveId,
+  legalMoveIds,
 }: {
   view: FormulaView;
   onMove: (moveId: string) => void;
   faultMoveId?: string;
+  handoverMoveId?: string;
+  legalMoveIds?: ReadonlySet<string>;
 }) {
+  const handoverDescId = `game-handover-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   return (
     <figure className="game-board game-board--formula">
+      <span id={handoverDescId} className="visually-hidden">Recommended opening move</span>
       <div className="game-formula">
         <div className="game-formula__rows" role="group" aria-label="Measurements">
           {view.rows.map((row) => {
-            const className = stateClass("game-formula__row", row.state, row.moveId, faultMoveId);
+            const handover = isHandoverMove(row.moveId, handoverMoveId);
+            const interactive = isMoveInteractive(row.moveId, legalMoveIds);
+            const className = stateClass(
+              "game-formula__row",
+              row.state,
+              row.moveId,
+              faultMoveId,
+              handoverMoveId,
+              row.moveId ? interactive : undefined,
+            );
             const content = (
               <>
                 <span className="game-formula__label">{row.label}</span>
                 <code className="game-formula__code">{row.formula}</code>
               </>
             );
-            return row.moveId ? (
+            return row.moveId && interactive ? (
               <button
                 key={row.id}
                 type="button"
                 className={className}
                 data-move-id={row.moveId}
                 aria-label={`${row.label}: ${row.formula}`}
+                aria-describedby={handover ? handoverDescId : undefined}
                 onClick={() => onMove(row.moveId as string)}
               >
                 {content}
               </button>
+            ) : row.moveId ? (
+              <div
+                key={row.id}
+                className={className}
+                data-move-id={row.moveId}
+                aria-label={`${row.label}: ${row.formula}`}
+                aria-disabled="true"
+              >
+                {content}
+              </div>
             ) : (
               <div key={row.id} className={className}>{content}</div>
             );
@@ -923,11 +1203,15 @@ function FormulaBoard({
         </div>
         <div className="game-formula__outputs" role="group" aria-label="Outputs">
           {view.outputs.map((output) => {
+            const handover = isHandoverMove(output.moveId, handoverMoveId);
+            const interactive = isMoveInteractive(output.moveId, legalMoveIds);
             const className = stateClass(
               "game-formula__output",
               output.state,
               output.moveId,
               faultMoveId,
+              handoverMoveId,
+              output.moveId ? interactive : undefined,
             );
             const content = (
               <>
@@ -935,17 +1219,28 @@ function FormulaBoard({
                 <code className="game-formula__code">{output.formula}</code>
               </>
             );
-            return output.moveId ? (
+            return output.moveId && interactive ? (
               <button
                 key={output.id}
                 type="button"
                 className={className}
                 data-move-id={output.moveId}
                 aria-label={`${output.label}: ${output.formula}`}
+                aria-describedby={handover ? handoverDescId : undefined}
                 onClick={() => onMove(output.moveId as string)}
               >
                 {content}
               </button>
+            ) : output.moveId ? (
+              <div
+                key={output.id}
+                className={className}
+                data-move-id={output.moveId}
+                aria-label={`${output.label}: ${output.formula}`}
+                aria-disabled="true"
+              >
+                {content}
+              </div>
             ) : (
               <div key={output.id} className={className}>{content}</div>
             );
@@ -959,22 +1254,76 @@ function FormulaBoard({
 
 /* ----------------------------------------------------------------- switch -- */
 
-export default function Board({ view, onMove, faultMoveId }: BoardProps) {
+export default function Board({
+  view,
+  onMove,
+  faultMoveId,
+  handoverMoveId,
+  legalMoveIds,
+}: BoardProps) {
   switch (view.kind) {
     case "graph":
-      return <GraphBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <GraphBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
+        />
+      );
     case "array":
-      return <ArrayBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <ArrayBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
+        />
+      );
     case "grid":
-      return <GridBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <GridBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
+        />
+      );
     case "tree":
-      return <TreeBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <TreeBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
+        />
+      );
     case "pairing":
-      return <PairingBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <PairingBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
+        />
+      );
     case "number":
-      return <NumberBoard view={view} />;
+      return <NumberBoard view={view} handoverMoveId={handoverMoveId} />;
     case "formula":
-      return <FormulaBoard view={view} onMove={onMove} faultMoveId={faultMoveId} />;
+      return (
+        <FormulaBoard
+          view={view}
+          onMove={onMove}
+          faultMoveId={faultMoveId}
+          handoverMoveId={handoverMoveId}
+          legalMoveIds={legalMoveIds}
+        />
+      );
     default:
       return <p className="game-note">This board is not available yet.</p>;
   }

@@ -1,0 +1,1253 @@
+/*
+ * Observatory shell: instrument panels, lens rail, deck, drawers, and the
+ * utility classes the workbench shares. Everything is scoped under
+ * .observatory-page and colored only through --obs-* tokens, so light and
+ * dark themes come straight from observatory-tokens.css. Layout here is kept
+ * modest; observatory-responsive.css may retune breakpoints and ordering.
+ */
+
+/* ------------------------------------------------------------------ layout */
+
+.observatory-page .obs-shell {
+  display: grid;
+  gap: var(--obs-gutter);
+  grid-template-columns: minmax(72px, 84px) minmax(0, 1fr) minmax(280px, 340px);
+  grid-template-areas:
+    "topbar topbar topbar"
+    "rail stage side";
+  align-items: start;
+}
+
+.observatory-page .obs-topbar {
+  grid-area: topbar;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}
+
+.observatory-page .obs-rail {
+  grid-area: rail;
+}
+
+.observatory-page .obs-stage {
+  grid-area: stage;
+  display: flex;
+  flex-direction: column;
+  gap: var(--obs-gutter);
+  min-width: 0;
+}
+
+.observatory-page .obs-under-canvas {
+  display: flex;
+  flex-direction: column;
+  gap: var(--obs-gutter);
+  min-width: 0;
+}
+
+.observatory-page .obs-side {
+  grid-area: side;
+  display: flex;
+  flex-direction: column;
+  gap: var(--obs-gutter);
+  min-width: 0;
+}
+
+.observatory-page .obs-bench {
+  display: flex;
+  flex-direction: column;
+  gap: var(--obs-gutter);
+  min-width: 0;
+}
+
+.observatory-page .obs-bench-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+}
+
+/* The heading receives focus for screen-reader context; it is not a control,
+   so do not paint the interactive focus ring around it. */
+.observatory-page .obs-bench-title:focus,
+.observatory-page .obs-shelf-lead h2:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ------------------------------------------------------------------ panels */
+
+.observatory-page .obs-panel {
+  background: var(--obs-panel);
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius-lg);
+  padding: 14px 16px 16px;
+}
+
+.observatory-page .obs-panel-title,
+.observatory-page .obs-panel-title-text {
+  margin: 0;
+  color: var(--obs-amber);
+  font-family: var(--obs-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.observatory-page h2.obs-panel-title,
+.observatory-page h3.obs-panel-title {
+  margin: 0 0 10px;
+}
+
+.observatory-page .obs-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.observatory-page .obs-empty-line {
+  margin: 6px 0;
+  color: var(--obs-muted);
+  font-size: 0.88rem;
+}
+
+/* ----------------------------------------------------------------- buttons */
+
+.observatory-page .obs-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 14px;
+  background: var(--obs-panel-2);
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius);
+  color: var(--obs-ink);
+  font: inherit;
+  font-size: 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.observatory-page .obs-button:hover:not(:disabled):not([aria-disabled="true"]),
+.observatory-page .obs-button:focus-visible {
+  border-color: var(--obs-line-strong);
+}
+
+.observatory-page .obs-button:disabled,
+.observatory-page .obs-button[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.observatory-page .obs-button--accent {
+  background: var(--obs-amber);
+  border-color: var(--obs-line-strong);
+  color: var(--obs-bg-deep);
+  font-weight: 600;
+}
+
+.observatory-page .obs-button--ghost {
+  background: transparent;
+}
+
+.observatory-page .obs-button--danger {
+  color: var(--obs-red);
+  border-color: var(--obs-line);
+}
+
+.observatory-page .obs-button--danger:hover:not(:disabled) {
+  border-color: var(--obs-red);
+}
+
+.observatory-page .obs-button a,
+.observatory-page a.obs-button {
+  color: inherit;
+}
+
+/* -------------------------------------------------------------------- tags */
+
+.observatory-page .obs-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: 1px solid var(--obs-line);
+  border-radius: 999px;
+  background: var(--obs-panel-2);
+  color: var(--obs-muted);
+  font-family: var(--obs-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.observatory-page .obs-tag--active {
+  color: var(--obs-amber);
+  border-color: var(--obs-line-strong);
+}
+
+/* ---------------------------------------------------------------- metrics */
+
+.observatory-page .obs-metrics {
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+  gap: 8px;
+}
+
+.observatory-page .obs-metric {
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+  padding: 8px 10px;
+}
+
+.observatory-page .obs-metric dt {
+  color: var(--obs-muted);
+  font-family: var(--obs-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.observatory-page .obs-metric dd {
+  margin: 3px 0 0;
+  font-family: var(--obs-mono);
+  font-size: 0.92rem;
+  color: var(--obs-ink);
+}
+
+.observatory-page .obs-metric--signal dd {
+  color: var(--obs-cyan);
+}
+
+.observatory-page .obs-metric--warn dd {
+  color: var(--obs-red);
+}
+
+/* ------------------------------------------------------------------- diff */
+
+.observatory-page .obs-diff {
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.observatory-page .obs-diff-row {
+  display: grid;
+  grid-template-columns: minmax(110px, 38%) 1fr;
+  gap: 4px 12px;
+  padding: 6px 0;
+  border-top: 1px dashed var(--obs-line);
+}
+
+.observatory-page .obs-diff-path {
+  color: var(--obs-amber);
+  font-family: var(--obs-mono);
+  font-size: 0.76rem;
+  word-break: break-all;
+}
+
+.observatory-page .obs-diff-change {
+  margin: 0;
+  font-family: var(--obs-mono);
+  font-size: 0.78rem;
+  color: var(--obs-muted);
+  word-break: break-word;
+}
+
+.observatory-page .obs-diff-before {
+  text-decoration: line-through;
+}
+
+.observatory-page .obs-diff-after {
+  color: var(--obs-ink);
+}
+
+/* -------------------------------------------------------------- rejection */
+
+.observatory-page .obs-rejection {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--obs-line);
+  border-left: 3px solid var(--obs-red);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+  font-size: 0.88rem;
+}
+
+.observatory-page .obs-diagnostics {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.observatory-page .obs-diagnostics li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+
+.observatory-page .obs-diagnostics .obs-mono {
+  color: var(--obs-red);
+  font-size: 0.74rem;
+}
+
+.observatory-page .obs-diagnostics-path::before {
+  content: "@";
+}
+
+/* ---------------------------------------------------------------- absence */
+
+.observatory-page .obs-absence {
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--obs-line);
+  border-left: 3px solid var(--obs-amber);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+  font-size: 0.88rem;
+}
+
+/* -------------------------------------------------------------- lens rail */
+
+.observatory-page .obs-rail-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.observatory-page .obs-lens-stop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 4px 8px;
+  background: var(--obs-panel);
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius-lg);
+  color: var(--obs-muted);
+  font: inherit;
+  font-size: 0.72rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.observatory-page .obs-lens-dot {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--obs-line);
+  border-radius: 50%;
+  background: var(--obs-panel-2);
+  color: var(--obs-faint);
+  font-family: var(--obs-mono);
+  font-size: 1rem;
+}
+
+.observatory-page .obs-lens-name {
+  display: inline-flex;
+  flex: 1;
+}
+
+.observatory-page .obs-lens-current {
+  display: none;
+  color: var(--obs-amber);
+}
+
+.observatory-page .obs-lens-stop[aria-pressed="true"] {
+  color: var(--obs-ink);
+  border-color: var(--obs-line-strong);
+  background: var(--obs-panel-2);
+}
+
+.observatory-page .obs-lens-stop[aria-pressed="true"] .obs-lens-dot {
+  border-radius: 4px;
+  border-color: var(--obs-amber);
+  box-shadow: 0 0 0 1px var(--obs-amber);
+  color: var(--obs-amber);
+}
+
+.observatory-page .obs-lens-stop[aria-pressed="true"] .obs-lens-current {
+  display: inline-flex;
+}
+
+/* ------------------------------------------------------------ lens readout */
+
+.observatory-page .obs-readout-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.observatory-page .obs-readout-glyph {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--obs-line-strong);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+  color: var(--obs-amber);
+  font-family: var(--obs-mono);
+  font-size: 1.2rem;
+}
+
+.observatory-page .obs-readout-id {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.observatory-page .obs-readout-title {
+  margin: 4px 0 2px;
+  font-size: 1.05rem;
+}
+
+.observatory-page .obs-readout-question {
+  margin: 0;
+  color: var(--obs-muted);
+  font-size: 0.88rem;
+}
+
+.observatory-page .obs-readout-frames {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.observatory-page .obs-readout-step {
+  min-width: 9ch;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--obs-muted);
+  white-space: nowrap;
+}
+
+.observatory-page .obs-readout-text {
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  max-width: 70ch;
+}
+
+.observatory-page .obs-note-prompt {
+  margin: 12px 0 0;
+  color: var(--obs-muted);
+  font-size: 0.84rem;
+}
+
+.observatory-page .obs-note-prompt .obs-panel-title-text {
+  display: inline-flex;
+  margin-right: 6px;
+}
+
+/* ------------------------------------------------------------- scamper deck */
+
+.observatory-page .obs-deck-cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.observatory-page .obs-deck-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 12px;
+  background: var(--obs-panel-2);
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius);
+  color: var(--obs-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.observatory-page .obs-deck-card:hover:not(:disabled),
+.observatory-page .obs-deck-card:focus-visible {
+  border-color: var(--obs-line-strong);
+}
+
+.observatory-page .obs-deck-glyph {
+  color: var(--obs-amber);
+  font-family: var(--obs-mono);
+  font-size: 1rem;
+}
+
+.observatory-page .obs-deck-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.observatory-page .obs-deck-prompt {
+  color: var(--obs-muted);
+  font-size: 0.78rem;
+}
+
+.observatory-page .obs-deck-card--suggested {
+  border-color: var(--obs-line-strong);
+  background: var(--obs-panel-3);
+}
+
+.observatory-page .obs-deck-suggest {
+  color: var(--obs-amber);
+  font-family: var(--obs-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.observatory-page .obs-applied {
+  margin-top: 14px;
+}
+
+.observatory-page .obs-applied-list {
+  margin: 0 0 10px;
+  padding-left: 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.84rem;
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-applied-note {
+  margin: 8px 0 0;
+  color: var(--obs-faint);
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.observatory-page .obs-deck-cap {
+  margin: 0 0 10px;
+}
+
+/* ---------------------------------------------------------------- run rail */
+
+.observatory-page .obs-mobile-runbar {
+  display: none;
+}
+
+.observatory-page .obs-runrail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.observatory-page .obs-scrubber-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.observatory-page .obs-scrubber-label {
+  font-family: var(--obs-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-scrubber {
+  flex: 1;
+  min-height: 44px;
+  accent-color: var(--obs-amber);
+}
+
+.observatory-page .obs-scrubber-step {
+  min-width: 9ch;
+  text-align: right;
+  font-size: 0.74rem;
+  color: var(--obs-muted);
+  white-space: nowrap;
+}
+
+.observatory-page .obs-runrail-status {
+  margin: 10px 0 0;
+  color: var(--obs-muted);
+  font-size: 0.84rem;
+}
+
+.observatory-page .obs-runrail-keep {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--obs-line);
+}
+
+.observatory-page .obs-runrail-cap {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--obs-line);
+  border-left: 3px solid var(--obs-amber);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+  font-size: 0.86rem;
+}
+
+.observatory-page .obs-runrail-cap p {
+  margin: 0 0 8px;
+  color: var(--obs-muted);
+  line-height: 1.45;
+}
+
+/* ------------------------------------------------------------ mutation drawer */
+
+.observatory-page .obs-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(4, 10, 14, 0.62);
+}
+
+.observatory-page .obs-drawer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: min(640px, 100%);
+  max-height: min(88vh, 760px);
+  overflow: auto;
+  box-shadow: var(--obs-shadow);
+}
+
+.observatory-page .obs-drawer-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.observatory-page .obs-drawer-glyph {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--obs-line-strong);
+  border-radius: var(--obs-radius);
+  color: var(--obs-amber);
+  font-family: var(--obs-mono);
+  font-size: 1.1rem;
+}
+
+.observatory-page .obs-drawer-title {
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+}
+
+.observatory-page .obs-drawer-prompt {
+  margin: 4px 0 0;
+  color: var(--obs-muted);
+  font-size: 0.84rem;
+}
+
+.observatory-page .obs-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 4px;
+}
+
+.observatory-page .obs-proposal {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+}
+
+.observatory-page .obs-proposal-summary {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.observatory-page .obs-proposal-diffsummary {
+  margin: 6px 0 0;
+  color: var(--obs-muted);
+  font-size: 0.84rem;
+}
+
+.observatory-page .obs-drawer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* ----------------------------------------------------------- form controls */
+
+.observatory-page .obs-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.observatory-page .obs-field > span {
+  font-family: var(--obs-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-field input,
+.observatory-page .obs-field select,
+.observatory-page .obs-field textarea {
+  min-height: 44px;
+  padding: 8px 10px;
+  background: var(--obs-panel);
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius);
+  color: var(--obs-ink);
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.observatory-page .obs-field textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+
+.observatory-page .obs-field input:focus-visible,
+.observatory-page .obs-field select:focus-visible,
+.observatory-page .obs-field textarea:focus-visible {
+  outline: none;
+  border-color: var(--obs-line-strong);
+  box-shadow: var(--obs-focus);
+}
+
+/* ---------------------------------------------------------------- specimen */
+
+.observatory-page .obs-plates {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 10px;
+}
+
+.observatory-page .obs-plate {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  padding: 12px 14px;
+  background: var(--obs-panel);
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius-lg);
+  color: var(--obs-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.observatory-page .obs-plate:hover,
+.observatory-page .obs-plate:focus-visible {
+  border-color: var(--obs-line-strong);
+}
+
+.observatory-page .obs-plate-title {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+
+.observatory-page .obs-plate-framing {
+  color: var(--obs-muted);
+  font-size: 0.82rem;
+}
+
+.observatory-page .obs-plate-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.observatory-page .obs-plate--blank {
+  border-style: dashed;
+  background: transparent;
+}
+
+.observatory-page .obs-blank-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* ---------------------------------------------- reader benches + field index */
+
+.observatory-page .obs-bench-list,
+.observatory-page .obs-field-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.observatory-page .obs-bench-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px dashed var(--obs-line);
+}
+
+.observatory-page .obs-bench-row:first-child {
+  border-top: none;
+}
+
+.observatory-page .obs-bench-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.observatory-page .obs-bench-meta {
+  display: block;
+  margin-top: 2px;
+  color: var(--obs-muted);
+  font-size: 0.74rem;
+  overflow-wrap: anywhere;
+}
+
+.observatory-page .obs-bench-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.observatory-page .obs-field-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px 2px;
+  background: none;
+  border: none;
+  border-top: 1px dashed var(--obs-line);
+  color: var(--obs-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.observatory-page .obs-field-list > li:first-child .obs-field-row {
+  border-top: none;
+}
+
+.observatory-page .obs-field-row:hover,
+.observatory-page .obs-field-row:focus-visible {
+  color: var(--obs-amber);
+}
+
+.observatory-page .obs-field-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.observatory-page .obs-branches-entry {
+  width: 100%;
+  justify-content: space-between;
+}
+
+/* ---------------------------------------------------------- branch shelf */
+
+.observatory-page .obs-cap {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--obs-line);
+  border-left: 3px solid var(--obs-amber);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+  font-size: 0.88rem;
+}
+
+.observatory-page .obs-branch-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.observatory-page .obs-branch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: var(--obs-panel-2);
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius);
+}
+
+.observatory-page .obs-branch-card--active {
+  border-left: 3px solid var(--obs-amber);
+}
+
+.observatory-page .obs-branch-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.observatory-page .obs-branch-title {
+  margin: 0;
+  font-size: 0.94rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.observatory-page .obs-branch-framing {
+  margin: 0;
+  color: var(--obs-faint);
+  font-size: 0.78rem;
+}
+
+.observatory-page .obs-branch-line {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-branch-saved {
+  margin: 0;
+  color: var(--obs-faint);
+  font-size: 0.72rem;
+}
+
+.observatory-page .obs-branch-note {
+  margin: 2px 0 0;
+  color: var(--obs-muted);
+  font-size: 0.82rem;
+}
+
+.observatory-page .obs-branch-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.observatory-page .obs-branch-share {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--obs-line);
+}
+
+.observatory-page .obs-branch-share-label {
+  flex: 1 1 100%;
+  margin: 0;
+}
+
+.observatory-page .obs-branch-share-note {
+  flex: 1 1 100%;
+  margin: 0;
+  color: var(--obs-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.observatory-page .obs-inline-link {
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--obs-cyan);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.observatory-page .obs-saved-branches {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.observatory-page .obs-saved-branches-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.observatory-page .obs-saved-branch-list {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.observatory-page .obs-saved-branch {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 10px;
+  border: 1px solid var(--obs-line);
+  border-radius: var(--obs-radius);
+  background: var(--obs-panel-2);
+  color: var(--obs-ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.observatory-page .obs-saved-branch:hover {
+  border-color: var(--obs-line-strong);
+}
+
+.observatory-page .obs-saved-branch-title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.observatory-page .obs-saved-branch-meta {
+  color: var(--obs-muted);
+  font-size: 0.76rem;
+  overflow-wrap: anywhere;
+}
+
+/* ------------------------------------------------------------- field note */
+/* ------------------------------------------------------------- field note */
+
+.observatory-page .obs-fieldnote .obs-field-label-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.observatory-page .obs-note-count {
+  font-size: 0.7rem;
+  color: var(--obs-faint);
+}
+
+.observatory-page .obs-note-saved {
+  margin: 10px 0 0;
+  color: var(--obs-muted);
+  font-size: 0.8rem;
+  letter-spacing: 0.02em;
+}
+
+/* ------------------------------------------------------------ field card */
+
+.observatory-page .obs-field-card-summary {
+  margin: 4px 0;
+  color: var(--obs-muted);
+  font-size: 0.9rem;
+}
+
+.observatory-page .obs-lens-links {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.86rem;
+}
+
+.observatory-page .obs-lens-links li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 8px;
+  padding: 4px 0;
+  border-top: 1px dashed var(--obs-line);
+}
+
+.observatory-page .obs-lens-links-glyph {
+  color: var(--obs-amber);
+  min-width: 1.4em;
+}
+
+.observatory-page .obs-lens-links-name {
+  color: var(--obs-ink);
+  font-weight: 600;
+}
+
+/* ------------------------------------------------------------------- empty */
+
+.observatory-page .obs-empty {
+  max-width: 48ch;
+}
+
+.observatory-page .obs-empty-lede {
+  margin: 4px 0 12px;
+  font-size: 0.94rem;
+  color: var(--obs-muted);
+}
+
+.observatory-page .obs-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* -------------------------------------------------------------- utilities */
+
+.observatory-page .obs-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ mobile */
+
+@media (max-width: 1020px) {
+  .observatory-page .obs-shell {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "topbar"
+      "stage"
+      "run"
+      "rail"
+      "deck"
+      "note";
+  }
+
+  /* Let the run rail, deck, and note join the shell grid so the run controls
+     sit between the readout and the lens strip on a phone. */
+  .observatory-page .obs-side {
+    display: contents;
+  }
+
+  .observatory-page .obs-runrail {
+    grid-area: run;
+  }
+
+  .observatory-page .obs-deck {
+    grid-area: deck;
+  }
+
+  .observatory-page .obs-fieldnote {
+    grid-area: note;
+  }
+
+  .observatory-page .obs-rail-list {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+
+  .observatory-page .obs-rail-list > li {
+    flex: none;
+    scroll-snap-align: start;
+  }
+
+  .observatory-page .obs-lens-stop {
+    flex-direction: column;
+    width: auto;
+    min-width: 64px;
+    text-align: center;
+  }
+
+  .observatory-page .obs-lens-name {
+    flex: none;
+  }
+
+  .observatory-page .obs-drawer-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .observatory-page .obs-drawer {
+    width: 100%;
+    max-height: 88vh;
+    border-radius: var(--obs-radius-lg) var(--obs-radius-lg) 0 0;
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+
+  .observatory-page .obs-mobile-runbar {
+    position: fixed;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    left: 12px;
+    z-index: 70; /* below the 80 drawer backdrop */
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border: 1px solid var(--obs-line-strong);
+    border-radius: var(--obs-radius-lg);
+    background: color-mix(in srgb, var(--obs-panel) 94%, transparent);
+    box-shadow: var(--obs-shadow);
+    backdrop-filter: blur(8px);
+  }
+
+  .observatory-page .obs-mobile-runbar-frame {
+    flex: 1;
+    min-width: 0;
+    color: var(--obs-muted);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  .observatory-page .obs-mobile-runbar .obs-button {
+    flex: 1 1 0;
+    min-width: 0;
+    min-height: 44px;
+    padding: 0 6px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
+
+  /* Keep the fixed bar from covering the footer/note at the end of the page. */
+  .observatory-page .obs-shell {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+
+  body:has(.obs-mobile-runbar) .site-footer {
+    padding-bottom: calc(96px + env(safe-area-inset-bottom));
+  }
+}

@@ -6,7 +6,7 @@ type Props = {
   repaired: number;
   total: number;
   hintIndex: number;
-  onRevealHint: (next: number) => void;
+  onRevealHint?: (next: number) => void;
 };
 
 function pad(value: number): string {
@@ -65,8 +65,6 @@ export default function GameDossier({
       <section className="game-brief" aria-labelledby="game-brief-title">
         <p className="game-brief__kicker">
           <span>{meta.algorithm}</span>
-          <span className="game-brief__dot" aria-hidden="true">·</span>
-          <span>{meta.minutes} MIN</span>
         </p>
         <h1 id="game-brief-title" className="game-brief__title">{meta.title}</h1>
 
@@ -78,52 +76,20 @@ export default function GameDossier({
         )}
       </section>
 
-      {meta.hints.length > 0 && (
+      {meta.hints.length > 0 && hintIndex > 0 && (
         <section className="game-hints" aria-label="Hints">
           <div className="game-hints__head">
             <p className="game-hints__label">FIELD NOTES</p>
-            {hintIndex > 0 && (
-              <span className="game-hints__count">
-                {hintIndex} / {meta.hints.length}
-              </span>
-            )}
           </div>
 
-          {hintIndex === 0 ? (
-            <button
-              type="button"
-              className="game-stuck"
-              onClick={() => onRevealHint(1)}
-              aria-label="Stuck? Reveal the first hint"
-            >
-              <span className="game-stuck__mark" aria-hidden="true">?</span>
-              <span className="game-stuck__label">Stuck?</span>
-              <span className="game-stuck__note" aria-hidden="true">one nudge</span>
-            </button>
-          ) : (
-            <>
-              <ol className="game-hints__list" aria-live="polite">
-                {meta.hints.slice(0, hintIndex).map((hint, i) => (
-                  <li key={i} className="game-hints__item">
-                    <span className="game-hints__num" aria-hidden="true">{pad(i + 1)}</span>
-                    <p>{hint}</p>
-                  </li>
-                ))}
-              </ol>
-              {hintIndex < meta.hints.length && (
-                <button
-                  type="button"
-                  className="game-stuck game-stuck--more"
-                  onClick={() => onRevealHint(hintIndex + 1)}
-                >
-                  <span className="game-stuck__mark" aria-hidden="true">+</span>
-                  <span className="game-stuck__label">
-                    {hintIndex === 1 ? "Show the invariant" : "Show the move"}
-                  </span>
-                </button>
-              )}
-            </>
-          )}
+          <ol className="game-hints__list" aria-live="polite">
+            {meta.hints.slice(0, hintIndex).map((hint, i) => (
+              <li key={i} className="game-hints__item">
+                <span className="game-hints__num" aria-hidden="true">{pad(i + 1)}</span>
+                <p>{hint}</p>
+              </li>
+            ))}
+          </ol>
         </section>
       )}
 
