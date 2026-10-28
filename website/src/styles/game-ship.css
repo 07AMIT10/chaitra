@@ -1,0 +1,1424 @@
+/* ============================================================================
+   Living ship — the Chaitra, cut open.
+   A hero instrument, not a card: one hull elevation, three deck bands, eight
+   system sockets each. The hull seam, deck conduits and integrity rail all
+   fill from the same campaign progress. Cyan = repaired; amber = next;
+   outlined = sealed. No images, no infinite loops, no colour outside tokens.
+   ========================================================================== */
+
+.ship-schematic {
+  --ship-pad: 0.75rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--gf-line-strong) 88%, transparent);
+  border-radius: var(--gf-radius-lg);
+  background:
+    radial-gradient(120% 90% at 82% 8%, var(--gf-cyan-faint), transparent 58%),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--gf-panel-raised) 34%, transparent),
+      transparent 38%
+    ),
+    color-mix(in srgb, var(--gf-panel-solid) 94%, transparent);
+  box-shadow:
+    var(--gf-inset),
+    inset 0 0 80px color-mix(in srgb, var(--gf-bg) 55%, transparent);
+  color: var(--gf-text);
+  container-type: inline-size;
+  isolation: isolate;
+  overflow: clip;
+}
+
+.ship-schematic::before,
+.ship-schematic::after {
+  content: "";
+  position: absolute;
+  z-index: 6;
+  width: 9px;
+  height: 9px;
+  pointer-events: none;
+  border-color: color-mix(in srgb, var(--gf-cyan) 42%, var(--gf-line-strong));
+}
+
+.ship-schematic::before {
+  top: 5px;
+  left: 5px;
+  border-top: 1px solid;
+  border-left: 1px solid;
+}
+
+.ship-schematic::after {
+  right: 5px;
+  bottom: 5px;
+  border-right: 1px solid;
+  border-bottom: 1px solid;
+}
+
+/* ------------------------------------------------------------------ head -- */
+
+.ship__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem var(--ship-pad) 0.4rem;
+}
+
+.ship__ident {
+  min-width: 0;
+}
+
+.ship__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.2rem;
+  overflow: hidden;
+  font-family: var(--gf-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gf-cyan);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.ship__eyebrow::before {
+  content: "";
+  flex: none;
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  box-shadow: 0 0 7px color-mix(in srgb, var(--gf-cyan) 65%, transparent);
+  transform: rotate(45deg);
+}
+
+.ship__name {
+  margin: 0;
+  font-family: var(--gf-display);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 0.9;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+  color: var(--gf-text);
+}
+
+.ship__dest {
+  display: grid;
+  flex: none;
+  gap: 0.1rem;
+  padding-top: 1px;
+  text-align: right;
+}
+
+.ship__dest-key {
+  font-family: var(--gf-mono);
+  font-size: 0.5625rem;
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--gf-faint);
+}
+
+.ship__dest-name {
+  font-family: var(--gf-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gf-muted);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------- integrity -- */
+
+.ship__integrity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 var(--ship-pad) 0.55rem;
+  border-bottom: 1px solid var(--gf-line);
+}
+
+.ship__integrity-label {
+  font-family: var(--gf-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--gf-muted);
+  white-space: nowrap;
+}
+
+.ship-schematic.is-complete .ship__integrity-label {
+  color: var(--gf-cyan-bright);
+}
+
+.ship__meter {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: 7px;
+  min-width: 0;
+}
+
+.ship__meter-seg {
+  flex: 1 1 0;
+  min-width: 1px;
+  background: color-mix(in srgb, var(--gf-line) 90%, transparent);
+  opacity: 0.85;
+  transform: skewX(-18deg);
+  transition: background-color var(--gf-slow) var(--gf-ease-out);
+}
+
+.ship__meter-seg.is-repaired {
+  background: var(--gf-cyan);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--gf-cyan) 38%, transparent);
+  opacity: 1;
+}
+
+.ship__meter-seg.is-next {
+  background: var(--gf-amber);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--gf-amber) 42%, transparent);
+  opacity: 1;
+}
+
+.ship__meter-seg.is-open {
+  background: color-mix(in srgb, var(--gf-cyan-dim) 62%, var(--gf-line));
+  opacity: 0.9;
+}
+
+.ship__integrity-value {
+  font-family: var(--gf-mono);
+  font-size: 0.625rem;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  color: var(--gf-faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ship__integrity-value b {
+  font-weight: 500;
+  color: var(--gf-cyan-bright);
+}
+
+.ship__integrity-value i {
+  margin-left: 0.25rem;
+  font-style: normal;
+  color: var(--gf-muted);
+}
+
+/* ---------------------------------------------------------------- stage --- */
+
+.ship__stage {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 260px;
+  border-bottom: 1px solid var(--gf-line);
+  background:
+    radial-gradient(circle at 12% 22%, color-mix(in srgb, var(--gf-text) 22%, transparent) 0 0.6px, transparent 1.2px),
+    radial-gradient(circle at 78% 14%, color-mix(in srgb, var(--gf-text) 18%, transparent) 0 0.5px, transparent 1.1px),
+    radial-gradient(circle at 42% 82%, color-mix(in srgb, var(--gf-text) 14%, transparent) 0 0.6px, transparent 1.2px),
+    radial-gradient(circle at 90% 68%, color-mix(in srgb, var(--gf-text) 16%, transparent) 0 0.5px, transparent 1.1px),
+    radial-gradient(circle at 28% 48%, color-mix(in srgb, var(--gf-text) 10%, transparent) 0 0.6px, transparent 1.2px),
+    radial-gradient(30% 38% at 3% 52%, color-mix(in srgb, var(--gf-cyan) 9%, transparent), transparent 70%),
+    radial-gradient(22% 34% at 98% 48%, color-mix(in srgb, var(--gf-cyan) 5%, transparent), transparent 72%),
+    radial-gradient(120% 100% at 80% 0%, color-mix(in srgb, var(--gf-cyan) 6%, transparent), transparent 60%),
+    var(--gf-bg);
+  overflow: hidden;
+}
+
+.ship__stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--gf-cyan) 4.5%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--gf-cyan) 4.5%, transparent) 1px, transparent 1px);
+  background-size: 54px 54px;
+  mask-image: radial-gradient(130% 120% at 50% 45%, black 20%, transparent 82%);
+  pointer-events: none;
+}
+
+.ship__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0 3px,
+    color-mix(in srgb, var(--gf-cyan) 3.5%, transparent) 3px 4px
+  );
+  opacity: 0.28;
+  mask-image: linear-gradient(to bottom, transparent, black 18%, black 82%, transparent);
+  pointer-events: none;
+}
+
+.ship__frame-tag {
+  position: absolute;
+  top: 5px;
+  left: var(--ship-pad);
+  z-index: 3;
+  padding: 1px 4px;
+  background: color-mix(in srgb, var(--gf-bg) 72%, transparent);
+  font-family: var(--gf-mono);
+  font-size: 0.5625rem;
+  line-height: 1.3;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--gf-cyan);
+  pointer-events: none;
+}
+
+.ship__sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 0;
+  width: 22%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--gf-cyan) 5%, transparent) 55%,
+    transparent
+  );
+  opacity: 0;
+  pointer-events: none;
+  animation: ship-sweep 1.6s var(--gf-ease-out) 1;
+}
+
+.ship__frame {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1120px;
+  height: 100%;
+  min-height: 0;
+  margin-inline: auto;
+}
+
+/* ----------------------------------------------------------- hull art ----- */
+
+.ship__hull-art {
+  position: absolute;
+  inset: 0 2%;
+  z-index: 0;
+  display: block;
+  width: 96%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ship__hull-fill {
+  fill: color-mix(in srgb, var(--gf-panel-solid) 42%, transparent);
+}
+
+.ship__hull-hatch {
+  opacity: 0.55;
+}
+
+.ship__hatch-line {
+  stroke: color-mix(in srgb, var(--gf-cyan) 15%, transparent);
+  stroke-width: 0.6;
+}
+
+.ship__rib {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-line-strong) 52%, transparent);
+  stroke-width: 0.6;
+  vector-effect: non-scaling-stroke;
+}
+
+.ship__keel {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-cyan) 10%, transparent);
+  stroke-width: 0.7;
+  vector-effect: non-scaling-stroke;
+}
+
+.ship__hull-outer {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-cyan) 32%, var(--gf-line-strong));
+  stroke-width: 1.15;
+}
+
+.ship__hull-inner {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-cyan) 17%, var(--gf-line));
+  stroke-width: 0.65;
+  stroke-dasharray: 1.5 4;
+  opacity: 0.8;
+}
+
+.ship__fins path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-line-strong) 85%, var(--gf-cyan));
+  stroke-width: 0.9;
+}
+
+.ship__engine path,
+.ship__bridge path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-cyan) 26%, var(--gf-line-strong));
+  stroke-width: 0.9;
+}
+
+.ship__engine-block {
+  fill: color-mix(in srgb, var(--gf-cyan) 5%, var(--gf-panel-solid));
+}
+
+.ship__engine-coil {
+  stroke: color-mix(in srgb, var(--gf-cyan) 16%, var(--gf-line)) !important;
+  stroke-width: 0.7 !important;
+}
+
+.ship__engine-brace {
+  stroke: color-mix(in srgb, var(--gf-cyan) 18%, var(--gf-line)) !important;
+}
+
+.ship__engine-plume {
+  stroke: color-mix(in srgb, var(--gf-cyan) 42%, transparent) !important;
+  stroke-width: 1.2 !important;
+}
+
+.ship__bridge path {
+  stroke: color-mix(in srgb, var(--gf-cyan) 46%, var(--gf-line-strong));
+}
+
+.ship__bridge .ship__beacon {
+  fill: var(--gf-cyan-bright);
+  stroke: none;
+  filter: drop-shadow(0 0 4px color-mix(in srgb, var(--gf-cyan) 65%, transparent));
+}
+
+.ship__hull-heal {
+  fill: none;
+  stroke: var(--gf-cyan-bright);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--gf-cyan) 52%, transparent));
+  opacity: 0.95;
+  transition: stroke-dasharray 640ms var(--gf-ease-out);
+}
+
+.ship-schematic.is-complete .ship__hull-art {
+  filter: drop-shadow(0 0 14px color-mix(in srgb, var(--gf-cyan) 16%, transparent));
+}
+
+/* --------------------------------------------------------------- decks ---- */
+
+.ship__decks {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  height: 100%;
+  padding: 24px 7% 20px;
+}
+
+.ship-deck {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-height: 0;
+  border-top: 1px solid color-mix(in srgb, var(--gf-cyan) 9%, var(--gf-line));
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--gf-cyan) 2.5%, transparent),
+    transparent 46%
+  );
+}
+
+.ship-deck:first-child {
+  border-top: 0;
+}
+
+.ship-deck__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
+  text-shadow:
+    0 1px 2px var(--gf-bg),
+    0 0 7px color-mix(in srgb, var(--gf-bg) 82%, transparent);
+}
+
+.ship-deck__head::before {
+  content: "";
+  flex: none;
+  align-self: center;
+  width: 4px;
+  height: 4px;
+  background: color-mix(in srgb, var(--gf-cyan) 58%, var(--gf-line-strong));
+  transform: rotate(45deg);
+}
+
+.ship-deck__no {
+  flex: none;
+  font-family: var(--gf-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--gf-cyan);
+  white-space: nowrap;
+}
+
+.ship-deck__name {
+  flex: none;
+  margin: 0;
+  font-family: var(--gf-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--gf-text);
+  white-space: nowrap;
+}
+
+.ship-deck__promise {
+  display: none;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: var(--gf-body);
+  font-size: 0.6875rem;
+  line-height: 1.3;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--gf-faint);
+}
+
+.ship-deck__count {
+  flex: none;
+  margin-left: auto;
+  font-family: var(--gf-mono);
+  font-size: 0.59375rem;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  color: var(--gf-faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ship-deck__count b {
+  font-weight: 500;
+  color: var(--gf-cyan);
+}
+
+.ship-deck.is-clear .ship-deck__count b,
+.ship-deck.is-clear .ship-deck__no {
+  color: var(--gf-cyan-bright);
+}
+
+.ship-deck__track {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  align-items: center;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ship-deck__track::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 6.25%;
+  right: 6.25%;
+  z-index: 0;
+  height: 1px;
+  background: color-mix(in srgb, var(--gf-line) 85%, transparent);
+  pointer-events: none;
+}
+
+.ship-deck.is-clear .ship-deck__track::before {
+  background: color-mix(in srgb, var(--gf-cyan) 42%, transparent);
+}
+
+.ship-deck__slot {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.ship-deck__slot::before {
+  content: "";
+  position: absolute;
+  top: 1px;
+  bottom: 1px;
+  left: 50%;
+  z-index: 0;
+  width: 1px;
+  background: color-mix(in srgb, var(--gf-line) 52%, transparent);
+  pointer-events: none;
+}
+
+.ship-deck__slot.is-repaired::before {
+  background: color-mix(in srgb, var(--gf-cyan) 24%, transparent);
+}
+
+.ship-deck__slot.is-next::before {
+  background: color-mix(in srgb, var(--gf-amber) 34%, transparent);
+}
+
+.ship-deck__slot::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: 100%;
+  height: 1px;
+  background: color-mix(in srgb, var(--gf-line) 85%, transparent);
+  pointer-events: none;
+}
+
+.ship-deck__slot.is-repaired::after {
+  background: color-mix(in srgb, var(--gf-cyan) 52%, transparent);
+}
+
+.ship-deck__slot:last-child::after {
+  display: none;
+}
+
+.ship-deck__empty {
+  margin: 0;
+  padding: 0.5rem 0;
+  font-family: var(--gf-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gf-faint);
+}
+
+/* --------------------------------------------------------------- ports ---- */
+
+.ship-schematic .ship-port {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0;
+  color: var(--gf-muted);
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ship-schematic .ship-port:link,
+.ship-schematic .ship-port:visited {
+  color: var(--gf-muted);
+}
+
+.ship-schematic .ship-port:hover {
+  color: var(--gf-cyan-bright);
+}
+
+.ship-schematic .ship-port:focus-visible {
+  outline: 2px solid var(--gf-cyan-bright);
+  outline-offset: 2px;
+  border-radius: var(--gf-radius);
+  box-shadow: none;
+}
+
+.ship-port__glyph {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  transition:
+    transform var(--gf-fast) var(--gf-ease),
+    filter var(--gf-med) var(--gf-ease);
+}
+
+.ship-port__glyph svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.ship-port__shell {
+  fill: color-mix(in srgb, var(--gf-panel-solid) 92%, transparent);
+  stroke: var(--gf-line-strong);
+  stroke-width: 1;
+  transition:
+    fill var(--gf-fast) var(--gf-ease),
+    stroke var(--gf-fast) var(--gf-ease);
+}
+
+.ship-port__inner {
+  fill: none;
+  stroke: color-mix(in srgb, var(--gf-line-strong) 58%, transparent);
+  stroke-width: 0.6;
+  transition: stroke var(--gf-fast) var(--gf-ease);
+}
+
+.ship-port__orbit {
+  fill: none;
+  stroke: var(--gf-amber);
+  stroke-width: 0.9;
+  stroke-dasharray: 2 3;
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ship-next-signal 2.4s var(--gf-ease-out) 2 both;
+}
+
+.ship-port__num {
+  position: relative;
+  z-index: 1;
+  font-family: var(--gf-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--gf-muted);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--gf-fast) var(--gf-ease);
+}
+
+.ship-port__clean {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 2;
+  width: 4px;
+  height: 4px;
+  background: var(--gf-amber);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--gf-amber) 52%, transparent);
+  transform: rotate(45deg);
+}
+
+.ship-port.is-repaired .ship-port__shell {
+  fill: color-mix(in srgb, var(--gf-cyan) 14%, var(--gf-panel-solid));
+  stroke: color-mix(in srgb, var(--gf-cyan) 82%, var(--gf-line));
+}
+
+.ship-port.is-repaired .ship-port__inner {
+  stroke: color-mix(in srgb, var(--gf-cyan) 36%, transparent);
+}
+
+.ship-port.is-repaired .ship-port__num {
+  color: var(--gf-cyan-bright);
+}
+
+.ship-port.is-repaired .ship-port__glyph {
+  filter: drop-shadow(0 0 7px color-mix(in srgb, var(--gf-cyan) 30%, transparent));
+}
+
+.ship-port.is-next .ship-port__shell {
+  fill: color-mix(in srgb, var(--gf-amber) 12%, var(--gf-panel-solid));
+  stroke: var(--gf-amber);
+}
+
+.ship-port.is-next .ship-port__inner {
+  stroke: color-mix(in srgb, var(--gf-amber) 46%, transparent);
+}
+
+.ship-port.is-next .ship-port__num {
+  color: var(--gf-amber-bright);
+}
+
+.ship-port.is-next .ship-port__glyph {
+  filter: drop-shadow(0 0 10px color-mix(in srgb, var(--gf-amber) 42%, transparent));
+}
+
+.ship-port.is-open .ship-port__shell {
+  fill: color-mix(in srgb, var(--gf-cyan) 4%, var(--gf-panel-solid));
+  stroke: color-mix(in srgb, var(--gf-cyan) 42%, var(--gf-line-strong));
+}
+
+.ship-port.is-open .ship-port__inner {
+  stroke: color-mix(in srgb, var(--gf-cyan) 20%, transparent);
+}
+
+.ship-port.is-open .ship-port__num {
+  color: var(--gf-cyan);
+}
+
+.ship-port.is-locked {
+  cursor: default;
+}
+
+.ship-port.is-locked .ship-port__shell {
+  fill: color-mix(in srgb, var(--gf-bg) 52%, var(--gf-panel-solid));
+  stroke: var(--gf-line);
+  stroke-dasharray: 2 3;
+}
+
+.ship-port.is-locked .ship-port__inner {
+  stroke: color-mix(in srgb, var(--gf-line) 72%, transparent);
+}
+
+.ship-port.is-locked .ship-port__num {
+  color: var(--gf-faint);
+}
+
+.ship-schematic .ship-port:hover .ship-port__glyph,
+.ship-schematic .ship-port:focus-visible .ship-port__glyph {
+  transform: scale(1.08);
+}
+
+.ship-schematic .ship-port:hover .ship-port__num,
+.ship-schematic .ship-port:focus-visible .ship-port__num {
+  color: var(--gf-cyan-bright);
+}
+
+.ship-schematic .ship-port:hover .ship-port__shell,
+.ship-schematic .ship-port:focus-visible .ship-port__shell {
+  stroke: var(--gf-cyan-bright);
+}
+
+.ship-schematic .ship-port.is-next:hover .ship-port__shell,
+.ship-schematic .ship-port.is-next:focus-visible .ship-port__shell {
+  stroke: var(--gf-amber-bright);
+}
+
+.ship-schematic .ship-port.is-next:hover .ship-port__num,
+.ship-schematic .ship-port.is-next:focus-visible .ship-port__num {
+  color: var(--gf-amber-bright);
+}
+
+.ship-schematic .ship-port.is-locked:hover .ship-port__glyph {
+  transform: none;
+}
+
+.ship-schematic .ship-port.is-locked:hover .ship-port__shell {
+  stroke: var(--gf-cyan-dim);
+  stroke-dasharray: none;
+}
+
+.ship-schematic .ship-port.is-locked:hover .ship-port__num {
+  color: var(--gf-muted);
+}
+
+/* ------------------------------------------------------------- readout ---- */
+
+.ship__readout {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 0.28rem;
+  min-height: 86px;
+  padding: 0.6rem var(--ship-pad) 0.6rem calc(var(--ship-pad) + 2px);
+  background:
+    linear-gradient(90deg, var(--gf-cyan-faint), transparent 62%),
+    color-mix(in srgb, var(--gf-panel-solid) 38%, transparent);
+}
+
+.ship__readout::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 2px;
+  background: var(--gf-line-strong);
+}
+
+.ship__readout[data-state="repaired"]::before {
+  background: var(--gf-cyan);
+}
+
+.ship__readout[data-state="next"]::before {
+  background: var(--gf-amber);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--gf-amber) 38%, transparent);
+}
+
+.ship__readout[data-state="open"]::before {
+  background: var(--gf-cyan-dim);
+}
+
+.ship__readout-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.ship__readout-id {
+  font-family: var(--gf-mono);
+  font-size: 0.625rem;
+  line-height: 1.2;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--gf-faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.ship__state {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 2px 5px;
+  border: 1px solid currentColor;
+  border-radius: 1px;
+  font-family: var(--gf-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gf-muted);
+  white-space: nowrap;
+}
+
+.ship__state-dot {
+  width: 4px;
+  height: 4px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+.ship__state.is-repaired {
+  color: var(--gf-cyan);
+}
+
+.ship__state.is-next {
+  color: var(--gf-amber);
+}
+
+.ship__state.is-open {
+  color: var(--gf-cyan-dim);
+}
+
+.ship__state.is-locked {
+  color: var(--gf-faint);
+}
+
+.ship__readout-main {
+  animation: ship-readout-in var(--gf-med) var(--gf-ease-out) both;
+}
+
+.ship__readout-title {
+  margin: 0;
+  font-family: var(--gf-display);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.005em;
+  color: var(--gf-text);
+  text-wrap: balance;
+}
+
+.ship__readout-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.1rem 0.55rem;
+  margin: 0.1rem 0 0;
+  font-family: var(--gf-mono);
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  letter-spacing: 0.02em;
+  color: var(--gf-muted);
+}
+
+.ship__readout-meta > span + span::before {
+  content: "·";
+  margin-right: 0.55rem;
+  color: var(--gf-faint);
+}
+
+.ship__readout-meta .ship__algo {
+  color: var(--gf-violet-bright);
+  font-weight: 500;
+}
+
+.ship__readout-sealed {
+  color: var(--gf-faint);
+}
+
+.ship__readout-clean {
+  color: var(--gf-amber);
+}
+
+/* ---------------------------------------------------------------- foot ---- */
+
+.ship__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.3rem 0.7rem;
+  padding: 0.4rem var(--ship-pad) 0.5rem;
+  border-top: 1px solid var(--gf-line);
+  background: color-mix(in srgb, var(--gf-bg) 24%, transparent);
+}
+
+.ship__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.65rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ship__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--gf-mono);
+  font-size: 0.5625rem;
+  line-height: 1.3;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--gf-muted);
+  white-space: nowrap;
+}
+
+.ship__legend-key {
+  position: relative;
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--gf-line-strong);
+}
+
+.ship__legend-key.is-repaired {
+  border-color: var(--gf-cyan);
+  background: color-mix(in srgb, var(--gf-cyan) 26%, transparent);
+}
+
+.ship__legend-key.is-clean {
+  width: 5px;
+  height: 5px;
+  margin-inline: 1px;
+  border: 0;
+  background: var(--gf-amber);
+  transform: rotate(45deg);
+}
+
+.ship__legend-key.is-next {
+  border-color: var(--gf-amber);
+}
+
+.ship__legend-key.is-next::after {
+  content: "";
+  position: absolute;
+  inset: 2px;
+  background: var(--gf-amber);
+}
+
+.ship__legend-key.is-locked {
+  border-style: dashed;
+  opacity: 0.7;
+}
+
+.ship__crew {
+  margin: 0;
+  font-family: var(--gf-mono);
+  font-size: 0.5625rem;
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  color: var(--gf-faint);
+  display: none;
+}
+
+/* -------------------------------------------------------------- motion ---- */
+
+@keyframes ship-next-signal {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scale(1);
+  }
+  42% {
+    opacity: 1;
+    transform: scale(1.13);
+  }
+}
+
+@keyframes ship-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-120%);
+  }
+  18% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(460%);
+  }
+}
+
+@keyframes ship-readout-in {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------- wide tweaks --- */
+
+@container (min-width: 720px) {
+  .ship-schematic {
+    --ship-pad: 0.875rem;
+  }
+
+  .ship__head {
+    padding-top: 0.85rem;
+  }
+
+  .ship__name {
+    font-size: 2rem;
+  }
+
+  .ship__dest-name {
+    font-size: 0.875rem;
+  }
+
+  .ship__meter {
+    height: 8px;
+  }
+
+  .ship__stage {
+    min-height: 300px;
+  }
+
+  .ship__decks {
+    padding-block: 28px 24px;
+  }
+
+  .ship-deck {
+    gap: 4px;
+  }
+
+  .ship-deck__no {
+    font-size: 0.65625rem;
+  }
+
+  .ship-deck__name {
+    font-size: 0.875rem;
+  }
+
+  .ship-deck__promise {
+    display: block;
+  }
+
+  .ship-deck__track {
+    min-height: 48px;
+  }
+
+  .ship-schematic .ship-port {
+    height: 48px;
+  }
+
+  .ship-port__glyph {
+    width: 44px;
+    height: 44px;
+  }
+
+  .ship-port__num {
+    font-size: 0.8125rem;
+  }
+
+  .ship__readout {
+    min-height: 92px;
+    padding-block: 0.7rem;
+  }
+
+  .ship__readout-title {
+    font-size: 1.25rem;
+  }
+
+  .ship__readout-meta {
+    font-size: 0.75rem;
+  }
+
+  .ship__legend li,
+  .ship__crew {
+    font-size: 0.625rem;
+  }
+
+  .ship__crew {
+    display: block;
+  }
+}
+
+@container (min-width: 1000px) {
+  .ship__stage {
+    min-height: 330px;
+  }
+
+  .ship__decks {
+    padding-block: 28px 24px;
+  }
+
+  .ship-deck {
+    gap: 5px;
+  }
+}
+
+/* --------------------------------------------------------------- compact -- */
+
+@container (max-width: 380px) {
+  .ship-schematic {
+    --ship-pad: 0.625rem;
+  }
+
+  .ship__head {
+    padding: 0.625rem var(--ship-pad) 0.35rem;
+  }
+
+  .ship__eyebrow {
+    font-size: 0.5625rem;
+    letter-spacing: 0.09em;
+  }
+
+  .ship__name {
+    font-size: 1.375rem;
+  }
+
+  .ship__dest-key {
+    font-size: 0.5rem;
+  }
+
+  .ship__dest-name {
+    font-size: 0.6875rem;
+  }
+
+  .ship__integrity {
+    gap: 0.35rem;
+    padding-bottom: 0.45rem;
+  }
+
+  .ship__integrity-label {
+    font-size: 0.5625rem;
+    letter-spacing: 0.08em;
+  }
+
+  .ship__meter {
+    gap: 1.5px;
+    height: 6px;
+  }
+
+  .ship__integrity-value {
+    font-size: 0.5625rem;
+  }
+
+  .ship__integrity-value i {
+    margin-left: 0.15rem;
+  }
+
+  .ship__stage {
+    flex: none;
+    min-height: 0;
+  }
+
+  .ship__frame-tag,
+  .ship__sweep,
+  .ship__hull-art {
+    display: none;
+  }
+
+  .ship__frame {
+    height: auto;
+  }
+
+  .ship__decks {
+    grid-template-rows: none;
+    height: auto;
+    padding: 0.55rem 0.5rem 0.6rem;
+    gap: 0.45rem;
+  }
+
+  .ship-deck {
+    display: block;
+    padding: 0.45rem 0.5rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--gf-cyan) 12%, var(--gf-line));
+    border-radius: 2px 20px 20px 2px;
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--gf-cyan) 4%, transparent), transparent 62%),
+      color-mix(in srgb, var(--gf-panel-solid) 58%, transparent);
+  }
+
+  .ship-deck:first-child {
+    border-top: 1px solid color-mix(in srgb, var(--gf-cyan) 12%, var(--gf-line));
+  }
+
+  .ship-deck + .ship-deck {
+    border-top: 1px solid color-mix(in srgb, var(--gf-cyan) 12%, var(--gf-line));
+  }
+
+  .ship-deck__head {
+    margin-bottom: 0.2rem;
+  }
+
+  .ship-deck__no {
+    font-size: 0.5625rem;
+  }
+
+  .ship-deck__name {
+    font-size: 0.8125rem;
+  }
+
+  .ship-deck__promise {
+    display: none;
+  }
+
+  .ship-deck__count {
+    font-size: 0.5625rem;
+  }
+
+  .ship-deck__track {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-auto-rows: 44px;
+    min-height: 0;
+    column-gap: 0.25rem;
+  }
+
+  .ship-deck__track::before,
+  .ship-deck__slot::before,
+  .ship-deck__slot::after {
+    display: none;
+  }
+
+  .ship-deck__slot {
+    min-height: 44px;
+  }
+
+  .ship-schematic .ship-port {
+    height: 44px;
+  }
+
+  .ship-port__glyph {
+    width: 34px;
+    height: 34px;
+  }
+
+  .ship-port__num {
+    font-size: 0.75rem;
+  }
+
+  .ship__readout {
+    min-height: 0;
+    padding: 0.55rem var(--ship-pad) 0.6rem calc(var(--ship-pad) + 2px);
+  }
+
+  .ship__readout-title {
+    font-size: 1rem;
+  }
+
+  .ship__readout-meta {
+    font-size: 0.625rem;
+    gap: 0.1rem 0.45rem;
+  }
+
+  .ship__readout-meta > span + span::before {
+    margin-right: 0.45rem;
+  }
+
+  .ship__state {
+    font-size: 0.5rem;
+    letter-spacing: 0.06em;
+  }
+
+  .ship__foot {
+    padding: 0.4rem var(--ship-pad) 0.5rem;
+  }
+
+  .ship__legend {
+    gap: 0.25rem 0.5rem;
+  }
+
+  .ship__legend li {
+    font-size: 0.5rem;
+    letter-spacing: 0.05em;
+  }
+
+  .ship__crew {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------ reduced motion ---- */
+
+@media (prefers-reduced-motion: reduce) {
+  .ship-schematic *,
+  .ship-schematic *::before,
+  .ship-schematic *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .ship__sweep {
+    display: none;
+  }
+
+  .ship__hull-heal {
+    transition: none;
+  }
+
+  .ship-schematic .ship-port:hover .ship-port__glyph,
+  .ship-schematic .ship-port:focus-visible .ship-port__glyph {
+    transform: none;
+  }
+}
+
+/* --------------------------------------------------------- forced colors -- */
+
+@media (forced-colors: active) {
+  .ship-schematic {
+    border-color: CanvasText;
+  }
+
+  .ship-port__shell {
+    fill: Canvas;
+    stroke: CanvasText;
+  }
+
+  .ship-port.is-next .ship-port__shell {
+    stroke: Highlight;
+  }
+
+  .ship-port__num,
+  .ship-deck__no,
+  .ship-deck__name {
+    color: CanvasText;
+  }
+
+  .ship__meter-seg {
+    border: 1px solid CanvasText;
+  }
+}

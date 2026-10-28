@@ -1,0 +1,1040 @@
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import Board from "./Board";
+import GameCoach, { type CoachStep } from "./GameCoach";
+import GameDossier, { GameScenario } from "./GameDossier";
+import GameHUD from "./GameHUD";
+import GameLog from "./GameLog";
+import GameTelemetry, { type TelemetryStatus } from "./GameTelemetry";
+import ShipVoice from "./ShipVoice";
+import { useGameAudio } from "./useGameAudio";
+import {
+  captureSession,
+  play,
+  restart,
+  restoreSession,
+  start,
+  undo,
+  type Session,
+} from "../../game/engine";
+import { ACTS, LEVEL_META, loadLevel } from "../../game/levels";
+import { ENDING, LORE } from "../../game/lore";
+import {
+  actTransition,
+  isCampaignComplete,
+  missionAccess,
+  missionHook,
+  recordSessionRepair,
+  saveCheckpointAcknowledged,
+  sessionCheckpoint,
+  winActions,
+  winOutcome,
+  type SessionSummary,
+} from "../../game/progression";
+import { lineFor, toneFor, type VoiceEvent } from "../../game/ship-voice";
+import type { LevelMeta, LevelModule } from "../../game/types";
+import { GAME_MAP_PATH } from "../../game/routes";
+import {
+  loadProgress,
+  saveSolved,
+  type Progress,
+} from "../../game/progress";
+import {
+  loadPark,
+  savePark,
+  clearPark,
+  parkSummary,
+  type ParkRecord,
+} from "../../game/park";
+import ResumeParkCard from "./ResumeParkCard";
+import ParkConflictCard from "./ParkConflictCard";
+import RepairRail from "./RepairRail";
+import { shouldOfferHelp } from "../../game/rail";
+import {
+  chooseHandoverMove,
+  handoverSeen,
+  markHandoverSeen,
+  shouldHandover,
+} from "../../game/handover";
+import "../../styles/game.css";
+
+type Props = { meta: LevelMeta };
+
+const COACH_KEY = "chaitra_algorithms_game_coached";
+
+const COACH_STEPS: CoachStep[] = [
+  {
+    title: "A is selected.",
+    body: "Voss stopped here. A is selected. Choose the block it joins.",
+  },
+  {
+    title: "Choose the destination.",
+    body: "Relabel the selected block into the larger registry. The selected block's size is the write cost.",
+  },
+  {
+    title: "One merge recorded.",
+    body: "Repeat the pattern: select a block, then relabel it into the growing root. Five writes is a clean run.",
+  },
+];
+
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+function scoreFor(level: LevelModule<any>, state: unknown) {
+  return level.score ? level.score(state) : { stars: 1 as const, detail: "System repaired." };
+}
+
+/**
+ * A restored snapshot is only trusted once the level can describe it. A
+ * stale-but-well-formed state from an older schema is rejected here instead
+ * of throwing inside `level.view()` during render.
+ */
+function canRenderBoard(module: LevelModule<any>, state: unknown): boolean {
+  try {
+    module.view(state);
+    module.moves(state);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/** Current state and every undo state must be describable by this level. */
+function canRenderSession(module: LevelModule<any>, session: Session): boolean {
+  return (
+    canRenderBoard(module, session.state) &&
+    session.history.every((entry) => canRenderBoard(module, entry.state))
+  );
+}
+
+type BudgetReadout = {
+  label: string;
+  current: string;
+  total: string;
+  clean: string | null;
+};
+
+/** Prefer the caption's cost meter over incidental progress pairs. */
+const BUDGET_LABELS = [
+  "labels written",
+  "tests",
+  "cost",
+  "flow",
+  "firings",
+  "comparisons",
+  "products",
+  "ticks",
+  "capacity left",
+  "stamped",
+  "settled",
+  "welds",
+  "emitted",
+  "length",
+  "placements",
+  "holds",
+  "exact",
+  "deepest",
+  "row",
+];
+
+/**
+ * The board contract has no structured budget, so read the one number the
+ * caption already prints. `x / y` becomes the primary meter; a clean-run
+ * target is carried alongside it when the level publishes one.
+ */
+function parseBudget(caption?: string): BudgetReadout | null {
+  if (!caption) return null;
+  const cleanMatch = caption.match(/Clean run:\s*([^·]+)/i);
+  const clean = cleanMatch ? cleanMatch[1].trim() : null;
+  const matches = [
+    ...caption.matchAll(/([A-Za-z][A-Za-z0-9 ’'()\-]{0,24}?):?\s*(\d+)\s*\/\s*(\d+)/g),
+  ];
+  if (matches.length === 0) return null;
+  const pick =
+    BUDGET_LABELS.map((needle) =>
+      matches.find((match) => match[1].toLowerCase().includes(needle)),
+    ).find((match) => match != null) ?? matches[0];
+  return {
+    label: pick[1].replace(/[:\s]+$/, "").trim(),
+    current: pick[2],
+    total: pick[3],
+    clean,
+  };
+}
+
+export default function GameMission({ meta }: Props) {
+  const [level, setLevel] = useState<LevelModule<any> | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [parkPreview, setParkPreview] = useState<{
+    record: ParkRecord;
+    session: Session;
+    nextMoveLabel: string | null;
+  } | null>(null);
+  const [parkConflict, setParkConflict] = useState<{
+    record: ParkRecord;
+    parkedTitle: string;
+  } | null>(null);
+  const [parkResolved, setParkResolved] = useState(false);
+  const [parkNote, setParkNote] = useState<string | null>(null);
+  const [lastMove, setLastMove] = useState<{ id: string; label: string } | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [ruleError, setRuleError] = useState<string | null>(null);
+  const [faultMoveId, setFaultMoveId] = useState<string | null>(null);
+  const [lastMoveId, setLastMoveId] = useState<string | null>(null);
+  const [hintIndex, setHintIndex] = useState(0);
+  const [progress, setProgress] = useState<Progress | null>(null);
+  const [saveNote, setSaveNote] = useState<string | null>(null);
+  const [lastAcceptedAt, setLastAcceptedAt] = useState<number>(() => Date.now());
+  const [hasRejection, setHasRejection] = useState(false);
+  const [now, setNow] = useState<number>(() => Date.now());
+  const [coached, setCoached] = useState<boolean | null>(null);
+  const [handoverDismissed, setHandoverDismissed] = useState(false);
+  const [sessionSummary, setSessionSummary] = useState<SessionSummary | null>(null);
+  const [checkpointDismissed, setCheckpointDismissed] = useState(false);
+  const saved = useRef(false);
+  const sessionRef = useRef<Session | null>(null);
+  const winRef = useRef<HTMLElement | null>(null);
+  const winTitleRef = useRef<HTMLHeadingElement | null>(null);
+  const lastStatus = useRef<string | null>(null);
+  const audio = useGameAudio();
+
+  /**
+   * One write path for the session. The ref updates synchronously, so two
+   * clicks dispatched against the same render cannot both play the old state;
+   * the state update keeps React in step for the next paint.
+   */
+  function commit(next: Session | null) {
+    sessionRef.current = next;
+    setSession(next);
+  }
+
+  useEffect(() => {
+    let live = true;
+    setLevel(null);
+    commit(null);
+    setParkPreview(null);
+    setParkConflict(null);
+    setParkResolved(false);
+    setParkNote(null);
+    setLastMove(null);
+    setLoadError(null);
+    setRuleError(null);
+    setFaultMoveId(null);
+    setLastMoveId(null);
+    setHintIndex(0);
+    setSaveNote(null);
+    setHasRejection(false);
+    setHandoverDismissed(false);
+    setLastAcceptedAt(Date.now());
+    setSessionSummary(null);
+    setCheckpointDismissed(false);
+    saved.current = false;
+
+    loadLevel(meta.slug)
+      .then((module) => {
+        if (!live) return;
+        if (!module) {
+          setLoadError("This mission is not installed in the current build.");
+          return;
+        }
+
+        setLevel(module);
+
+        const isFresh =
+          typeof window !== "undefined" &&
+          new URLSearchParams(window.location.search).get("fresh") === "1";
+
+        if (isFresh) {
+          clearPark();
+          if (typeof window !== "undefined") {
+            window.history.replaceState(null, "", window.location.pathname);
+          }
+          commit(start(module));
+          setHintIndex(0);
+          setLastMoveId(null);
+          setLastMove(null);
+          setParkResolved(true);
+          return;
+        }
+
+        const parkRes = loadPark();
+        if (parkRes.expired) {
+          clearPark();
+          setParkNote("Previous repair expired after 14 days.");
+          commit(start(module));
+          setHintIndex(0);
+          setLastMoveId(null);
+          setLastMove(null);
+          setParkResolved(true);
+        } else if (parkRes.corrupt) {
+          clearPark();
+          setParkNote("Previous repair data was unreadable and was reset.");
+          commit(start(module));
+          setHintIndex(0);
+          setLastMoveId(null);
+          setLastMove(null);
+          setParkResolved(true);
+        } else if (parkRes.record) {
+          const record = parkRes.record;
+          if (record.slug === meta.slug) {
+            const restored = restoreSession(module, record.snapshot);
+            const valid = restored && canRenderSession(module, restored);
+            if (valid) {
+              let nextMoveLabel: string | null = null;
+              try {
+                const moves = module.moves(restored.state);
+                nextMoveLabel = moves.find((m) => !m.disabled)?.label ?? null;
+              } catch {
+                nextMoveLabel = null;
+              }
+              setParkPreview({
+                record,
+                session: restored,
+                nextMoveLabel,
+              });
+            } else {
+              clearPark();
+              commit(start(module));
+              setHintIndex(0);
+              setLastMoveId(null);
+              setLastMove(null);
+              setParkResolved(true);
+            }
+          } else {
+            const parkedMeta = LEVEL_META.find((m) => m.slug === record.slug);
+            setParkConflict({
+              record,
+              parkedTitle: parkedMeta?.title ?? record.slug,
+            });
+          }
+        } else {
+          commit(start(module));
+          setHintIndex(0);
+          setLastMoveId(null);
+          setLastMove(null);
+          setParkResolved(true);
+        }
+      })
+      .catch(() => {
+        if (live) setLoadError("The repair console failed to load. Reload the page.");
+      });
+
+    return () => {
+      live = false;
+    };
+  }, [meta.slug]);
+
+  useEffect(() => {
+    setProgress(loadProgress());
+  }, []);
+
+  useEffect(() => {
+    if (!level || !session || !parkResolved) return;
+
+    if (session.status === "playing") {
+      if (session.moves > 0) {
+        const result = savePark(
+          meta.slug,
+          captureSession(level, session),
+          lastMove ? { id: lastMove.id, label: lastMove.label } : null,
+        );
+        if (!result.ok && (result.reason === "quota" || result.reason === "disabled")) {
+          setParkNote("Storage quota exceeded — repair state could not be parked.");
+        }
+      } else {
+        clearPark();
+      }
+    } else if (session.status === "won" || session.status === "lost") {
+      clearPark();
+    }
+  }, [level, session, meta.slug, parkResolved, lastMove]);
+
+  useEffect(() => {
+    if (!level || !session || session.status !== "won" || saved.current) return;
+    const score = scoreFor(level, session.state);
+    const previous = loadProgress().levels[meta.slug];
+    const result = saveSolved(meta.slug, score.stars, session.moves);
+    setProgress(result.progress);
+    const sessionResult = recordSessionRepair(meta, {
+      stars: score.stars,
+      moves: session.moves,
+    });
+    setSessionSummary(sessionResult.summary);
+    clearPark();
+    const improved =
+      previous != null &&
+      (score.stars > previous.stars || session.moves < previous.moves);
+    const best = result.progress.levels[meta.slug];
+    if (!result.ok) {
+      setSaveNote("Progress could not be saved in this browser. The mission is still complete for this session.");
+    } else if (improved && best != null) {
+      setSaveNote(`New best: ${best.moves} moves.`);
+    } else {
+      setSaveNote(null);
+    }
+    saved.current = true;
+  }, [level, session, meta]);
+
+  useEffect(() => {
+    const status = session?.status ?? null;
+    if (status === "won" && lastStatus.current !== "won") {
+      const reduced =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      winRef.current?.scrollIntoView({
+        behavior: reduced ? "auto" : "smooth",
+        block: "center",
+      });
+      winTitleRef.current?.focus({ preventScroll: true });
+    }
+    lastStatus.current = status;
+  }, [session?.status]);
+
+  useEffect(() => {
+    setCoached(null);
+    if (meta.number !== 1) return;
+    try {
+      setCoached(window.localStorage.getItem(COACH_KEY) === "1");
+    } catch {
+      setCoached(false);
+    }
+  }, [meta.slug, meta.number]);
+
+  useEffect(() => {
+    if (coached !== false || !session || session.moves < COACH_STEPS.length) return;
+    setCoached(true);
+    try {
+      window.localStorage.setItem(COACH_KEY, "1");
+    } catch {
+      /* storage disabled; the guide stays dismissed for this session */
+    }
+  }, [coached, session]);
+
+  const act = ACTS.find((entry) => entry.act === meta.act);
+  const view = level && session ? level.view(session.state) : null;
+  const moves = level && session ? level.moves(session.state) : [];
+  const legalMoveIds = useMemo(
+    () => new Set(moves.filter((move) => !move.disabled).map((move) => move.id)),
+    [moves],
+  );
+  const trayMoves = moves.filter((move) => move.placement === "tray");
+  const score = level && session && session.status === "won" ? scoreFor(level, session.state) : null;
+  const lastBad = session ? [...session.log].reverse().find((event) => event.kind === "bad") : undefined;
+  const repaired = progress ? Object.keys(progress.levels).length : 0;
+  const isFirstMission = meta.number === 1;
+  const coachStep =
+    isFirstMission && coached === false && session && session.moves < COACH_STEPS.length
+      ? COACH_STEPS[session.moves]
+      : null;
+  const coachIndex = session ? Math.min(session.moves, COACH_STEPS.length - 1) : 0;
+  const repeatMove =
+    lastMoveId && session?.status === "playing"
+      ? moves.find((move) => move.id === lastMoveId && !move.disabled)
+      : undefined;
+  const repeatLabel = lastMoveId ? moves.find((move) => move.id === lastMoveId)?.label : undefined;
+  const telemetryStatus: TelemetryStatus = ruleError
+    ? "note"
+    : session?.status ?? "standby";
+  const budget = parseBudget(view?.caption);
+  const isHandoverSeen = handoverDismissed || (view ? handoverSeen(undefined, view.kind) : true);
+  const showHandover = Boolean(
+    level &&
+      session &&
+      view &&
+      shouldHandover({
+        moveCount: session.moves,
+        seen: isHandoverSeen,
+        status: session.status,
+      }),
+  );
+  const handoverMove = showHandover && level && session ? chooseHandoverMove(level, session) : null;
+  const handoverMoveId = handoverMove?.id;
+  const lore = LORE[meta.slug];
+  const checkpoint =
+    sessionSummary && progress ? sessionCheckpoint(sessionSummary, LEVEL_META, progress) : null;
+  const won = session?.status === "won";
+  const outcome = score ? winOutcome(score.stars) : null;
+  // Direct mission URLs are always directly playable even with empty progress.
+  // Campaign progression order (missionAccess) is preserved on the map (GameMap/GameHub),
+  // while in GameMission access is only used to determine the next repair recommendation.
+  const access = progress ? missionAccess(LEVEL_META, progress, meta.slug) : null;
+  const nextRepair = access?.next?.meta ?? null;
+  const showEnding = won && meta.number === 24;
+
+  // Precedence: landing → deck boundary → session checkpoint → next preview.
+  const transition =
+    won && progress && (meta.number === 8 || meta.number === 16)
+      ? actTransition(LEVEL_META, progress, meta.act)
+      : null;
+  const showAct = !showEnding && transition?.due === true;
+  // The save effect runs after paint; do not show a "next" preview for the
+  // one frame before this run's record lands. The act card then takes over.
+  const runRecorded = progress?.levels[meta.slug] != null;
+  const showCheckpoint =
+    !showEnding &&
+    !showAct &&
+    won &&
+    checkpoint?.due === true &&
+    !checkpointDismissed;
+  const showNextPreview =
+    !showEnding &&
+    !showAct &&
+    !showCheckpoint &&
+    won &&
+    runRecorded &&
+    nextRepair != null;
+
+  const complete = Boolean(showEnding || (progress && isCampaignComplete(LEVEL_META, progress)));
+  const actions = winActions(meta, nextRepair, complete);
+
+  useEffect(() => {
+    if (session?.status !== "playing") return;
+    const interval = setInterval(() => {
+      setNow(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [session?.status]);
+
+  const showHelp = shouldOfferHelp({
+    hintIndex,
+    hasRejection,
+    status: session?.status ?? "playing",
+    now,
+    lastAcceptedAt,
+  });
+
+  /**
+   * SABLE re-contextualises from real events, not a timer: terminal run, deck
+   * boundary, refusal, then the accepted move count. `accepted` picks its lead
+   * from that count and takes its tail from the live caption, so the strip
+   * follows the board without cycling lines or animating.
+   */
+  const actBoundary = showAct && transition != null;
+  const acceptedMoves = session?.moves ?? 0;
+  const voiceEvent: VoiceEvent = showEnding
+    ? "ending"
+    : actBoundary
+      ? "act"
+      : won
+        ? "clean"
+        : ruleError
+          ? "rejected"
+          : acceptedMoves > 0
+            ? acceptedMoves === 1
+              ? "first-move"
+              : "accepted"
+            : "boot";
+  const voiceContext = {
+    stars: score?.stars,
+    error: ruleError ?? undefined,
+    caption: view?.caption,
+    moves: acceptedMoves,
+    act: meta.act,
+    phase: actBoundary ? ("outro" as const) : ("intro" as const),
+  };
+  const voiceLine = lineFor(voiceEvent, meta, voiceContext);
+  const voiceTone = toneFor(voiceEvent, meta, voiceContext);
+
+  function handleMove(moveId: string) {
+    const current = sessionRef.current;
+    if (!level || !current) return;
+    if (current.status !== "playing") return;
+
+    const availableMoves = level.moves(current.state);
+    const playedMove = availableMoves.find((m) => m.id === moveId);
+
+    const result = play(level, current, moveId);
+    if (result.error) {
+      setRuleError(result.error);
+      setFaultMoveId(moveId);
+      setHasRejection(true);
+      audio.play("error");
+      return;
+    }
+    setRuleError(null);
+    setFaultMoveId(null);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
+    setLastMoveId(moveId);
+    setLastMove(
+      playedMove
+        ? { id: playedMove.id, label: playedMove.label }
+        : { id: moveId, label: moveId },
+    );
+    if (view) {
+      markHandoverSeen(undefined, view.kind);
+    }
+    commit(result.session);
+    if (result.session.status === "won") {
+      audio.play("win");
+    } else {
+      audio.play("move");
+    }
+  }
+
+  function handleSkipHandover() {
+    if (view) {
+      markHandoverSeen(undefined, view.kind);
+    }
+    setHandoverDismissed(true);
+  }
+
+  function handleRepeat() {
+    if (repeatMove) handleMove(repeatMove.id);
+  }
+
+  function handleUndo() {
+    const current = sessionRef.current;
+    if (!level || !current) return;
+    commit(undo(level, current));
+    setRuleError(null);
+    setFaultMoveId(null);
+    setHasRejection(false);
+    setLastMoveId(null);
+    setLastMove(null);
+    setSaveNote(null);
+    saved.current = false;
+  }
+
+  function handleRestart() {
+    if (!level) return;
+    clearPark();
+    commit(restart(level));
+    setRuleError(null);
+    setFaultMoveId(null);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
+    setLastMoveId(null);
+    setLastMove(null);
+    setHintIndex(0);
+    setSaveNote(null);
+    saved.current = false;
+  }
+
+  function handleDismissNote() {
+    setRuleError(null);
+    setParkNote(null);
+  }
+
+  function handleResume() {
+    if (!parkPreview) return;
+    commit(parkPreview.session);
+    setHintIndex(parkPreview.session.hints);
+    setLastMoveId(parkPreview.record.lastMove?.id ?? null);
+    setLastMove(parkPreview.record.lastMove ?? null);
+    setParkPreview(null);
+    setParkResolved(true);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
+  }
+
+  function handleStartFresh() {
+    clearPark();
+    if (level) {
+      commit(start(level));
+    }
+    setHintIndex(0);
+    setLastMoveId(null);
+    setLastMove(null);
+    setParkPreview(null);
+    setParkResolved(true);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
+  }
+
+  function handleResumeParked() {
+    if (!parkConflict) return;
+    window.location.href = `/algorithms/game/${parkConflict.record.slug}`;
+  }
+
+  function handleReplace() {
+    clearPark();
+    setParkConflict(null);
+    setParkNote("Replaced the parked repair.");
+    if (level) {
+      commit(start(level));
+    }
+    setHintIndex(0);
+    setLastMoveId(null);
+    setLastMove(null);
+    setParkResolved(true);
+    setHasRejection(false);
+    setLastAcceptedAt(Date.now());
+  }
+
+  function handleMap() {
+    window.location.href = GAME_MAP_PATH;
+  }
+
+  function handleWinClose(e?: React.MouseEvent) {
+    clearPark();
+    if (checkpoint?.due && sessionSummary) {
+      const result = saveCheckpointAcknowledged(sessionSummary);
+      setSessionSummary(result.summary);
+      setCheckpointDismissed(true);
+    }
+    if (!e) {
+      window.location.href = GAME_MAP_PATH;
+    }
+  }
+
+  function handleSaveAndClose() {
+    if (!level || !session) {
+      window.location.href = GAME_MAP_PATH;
+      return;
+    }
+    if (session.status === "playing" && session.moves > 0) {
+      const result = savePark(
+        meta.slug,
+        captureSession(level, session),
+        lastMove ? { id: lastMove.id, label: lastMove.label } : null,
+      );
+      if (!result.ok && (result.reason === "quota" || result.reason === "disabled")) {
+        setParkNote("Storage quota exceeded — progress cannot be parked.");
+        return;
+      }
+      window.location.href = GAME_MAP_PATH;
+    } else {
+      window.location.href = GAME_MAP_PATH;
+    }
+  }
+
+  function revealHint(nextHint: number) {
+    const current = sessionRef.current;
+    const capped = Math.max(
+      hintIndex,
+      current?.hints ?? 0,
+      Math.min(nextHint, meta.hints.length),
+    );
+    if (capped <= hintIndex) return;
+    setHintIndex(capped);
+    if (current) {
+      commit({ ...current, hints: Math.max(current.hints, capped) });
+    }
+    audio.play("hint");
+  }
+
+  function dismissCoach() {
+    setCoached(true);
+    try {
+      window.localStorage.setItem(COACH_KEY, "1");
+    } catch {
+      /* storage disabled */
+    }
+  }
+
+  function acknowledgeCheckpointCard() {
+    if (!sessionSummary) return;
+    const result = saveCheckpointAcknowledged(sessionSummary);
+    setSessionSummary(result.summary);
+    setCheckpointDismissed(true);
+  }
+
+  return (
+    <div className="game-mission-page">
+      <p className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+        {won && score != null && outcome != null
+          ? `System online. ${outcome.label} ${score.stars} of 3 stars.`
+          : ""}
+      </p>
+
+      <GameHUD
+        meta={meta}
+        actName={act?.name ?? "Cadet"}
+        repaired={repaired}
+        total={LEVEL_META.length}
+        soundEnabled={audio.enabled}
+        onToggleSound={audio.toggle}
+      />
+
+      {parkConflict != null ? (
+        <ParkConflictCard
+          record={parkConflict.record}
+          parkedTitle={parkConflict.parkedTitle}
+          currentTitle={meta.title}
+          onResumeParked={handleResumeParked}
+          onReplace={handleReplace}
+          onMap={handleMap}
+        />
+      ) : parkPreview != null ? (
+        <ResumeParkCard
+          record={parkPreview.record}
+          session={parkPreview.session}
+          meta={meta}
+          nextMoveLabel={parkPreview.nextMoveLabel}
+          onResume={handleResume}
+          onStartFresh={handleStartFresh}
+        />
+      ) : !level || !session ? (
+        <section className="game-gate" role="status" aria-label="Loading repair">
+          <span className="game-loading__line" aria-hidden="true" />
+          <p className="game-gate__text">Booting the repair console…</p>
+        </section>
+      ) : (
+        <div className="game-console">
+        <GameDossier
+          meta={meta}
+          repaired={repaired}
+          total={LEVEL_META.length}
+          hintIndex={hintIndex}
+          onRevealHint={revealHint}
+        />
+
+        <section className="game-stage" aria-label="Repair console">
+          <div className="game-stage__situation game-scenario">
+            <GameScenario meta={meta} />
+          </div>
+
+          <GameCoach
+            step={coachStep}
+            stepIndex={coachIndex}
+            total={COACH_STEPS.length}
+            onDismiss={dismissCoach}
+          />
+
+          <RepairRail
+            meta={meta}
+            session={session}
+            hintIndex={hintIndex}
+            ruleError={null}
+            repeatMove={repeatMove}
+            showHelp={showHelp}
+            parkNote={parkNote}
+            showSkipHandover={showHandover}
+            onSkipHandover={handleSkipHandover}
+            onUndo={handleUndo}
+            onRepeat={handleRepeat}
+            onRestart={handleRestart}
+            onRevealHint={() => revealHint(hintIndex + 1)}
+            onSaveAndClose={handleSaveAndClose}
+            onDismissNote={handleDismissNote}
+          />
+
+          {ruleError != null && (
+            <aside className="game-note" role="status">
+              <div className="game-note__body">
+                <p className="game-note__label">THE BOARD IS UNCHANGED</p>
+                <p className="game-note__text">{ruleError}</p>
+              </div>
+              <button
+                type="button"
+                className="game-btn game-note__btn"
+                onClick={handleUndo}
+              >
+                STEP BACK
+              </button>
+            </aside>
+          )}
+
+          <div
+            className={`game-stage__frame${session?.status === "won" ? " is-win" : ""}${session?.status === "lost" ? " is-lost" : ""}`}
+          >
+            <header className="game-stage__head">
+              <div className="game-stage__brief">
+                <p className="game-stage__id">
+                  <span className="game-stage__repair">REPAIR {pad(meta.number)}</span>
+                  <span className="game-stage__divider" aria-hidden="true">·</span>
+                  <span className="game-stage__schematic">{meta.title}</span>
+                </p>
+                <p className="game-stage__goal">
+                  <span className="game-stage__goal-label">OBJECTIVE</span>
+                  {meta.goal}
+                </p>
+              </div>
+              <div className="game-stage__readout">
+                {budget != null && (
+                  <div className="game-stage__budget">
+                    <p className="game-stage__budget-label">{budget.label}</p>
+                    <p className="game-stage__budget-value">
+                      <b>{budget.current}</b>
+                      <span className="game-stage__budget-slash" aria-hidden="true">/</span>
+                      <span>{budget.total}</span>
+                    </p>
+                    {budget.clean != null && (
+                      <p className="game-stage__budget-clean">CLEAN TARGET {budget.clean}</p>
+                    )}
+                  </div>
+                )}
+                <span className="game-stage__algo">{meta.algorithm}</span>
+              </div>
+            </header>
+
+            <div className="game-stage__viewport">
+              {view ? (
+                <Board
+                  view={view}
+                  onMove={handleMove}
+                  faultMoveId={faultMoveId ?? undefined}
+                  handoverMoveId={handoverMoveId}
+                  legalMoveIds={legalMoveIds}
+                />
+              ) : (
+                <div className="game-loading" role="status">
+                  <span className="game-loading__line" aria-hidden="true" />
+                  <span>{loadError ?? "Booting the repair console…"}</span>
+                </div>
+              )}
+            </div>
+
+            {view != null && (
+              <GameTelemetry
+                moves={session?.moves ?? 0}
+                status={telemetryStatus}
+                kind={view.kind}
+                caption={view.caption}
+              />
+            )}
+          </div>
+
+          <ShipVoice line={voiceLine} tone={voiceTone} />
+
+          {trayMoves.length > 0 && (
+            <div className="game-tray" role="group" aria-label="Available actions">
+              <span className="game-tray__label">MANUAL ACTIONS</span>
+              <div className="game-tray__buttons">
+                {trayMoves.map((move) => (
+                  <button
+                    key={move.id}
+                    type="button"
+                    className={`game-btn${faultMoveId === move.id ? " is-note" : ""}`}
+                    data-move-id={move.id}
+                    disabled={move.disabled}
+                    onClick={() => handleMove(move.id)}
+                  >
+                    {move.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {session?.status === "won" && score != null && (
+            <section className="game-win" aria-label="Mission complete" ref={winRef}>
+              <div className="game-win__head">
+                <p className="game-win__kicker">
+                  <span className="game-win__lamp" aria-hidden="true" />
+                  REPAIR {pad(meta.number)} COMPLETE
+                </p>
+                <span className="game-win__code">{meta.algorithm}</span>
+              </div>
+
+              <h2 className="game-win__title" ref={winTitleRef} tabIndex={-1}>
+                SYSTEM ONLINE
+              </h2>
+              <p className="game-win__mission">{meta.title}</p>
+              <p className="game-win__moves">Repaired in {session.moves} moves.</p>
+
+              {score.stars === 3 && (
+                <span className="game-win__badge">CLEAN RUN</span>
+              )}
+
+              <p className="game-win__invariant">{meta.invariant}</p>
+
+              <p className="game-win__detail">{score.detail}</p>
+
+              {lore != null && (
+                <div className="game-win__lore">
+                  <p className="game-win__lore-label">SHIP'S LOG</p>
+                  <p className="game-win__lore-title">{lore.title}</p>
+                  <p className="game-win__lore-text">{lore.fragment}</p>
+                </div>
+              )}
+
+              {showEnding && (
+                <div className="game-win__ending">
+                  <p className="game-win__lore-label">ENDING · {ENDING.title.toUpperCase()}</p>
+                  <p className="game-win__lore-text">{ENDING.transmission}</p>
+                  <p className="game-win__lore-text">{ENDING.epilogue}</p>
+                </div>
+              )}
+
+              {showAct && transition != null && (
+                <aside className="game-win__act" aria-label="Deck boundary">
+                  <p className="game-win__lore-label">{transition.kicker}</p>
+                  <p className="game-win__lore-title">{transition.title}</p>
+                  <p className="game-win__lore-text">{transition.body}</p>
+                  {transition.nextLine != null && (
+                    <p className="game-win__lore-text">{transition.nextLine}</p>
+                  )}
+                </aside>
+              )}
+
+              {saveNote != null && <p className="game-win__note">{saveNote}</p>}
+
+              {showCheckpoint && checkpoint != null && (
+                <aside className="game-checkpoint" aria-label="Session checkpoint">
+                  <p className="game-checkpoint__kicker">{checkpoint.kicker}</p>
+                  <p className="game-checkpoint__title">{checkpoint.title}</p>
+                  <p className="game-checkpoint__body">{checkpoint.body}</p>
+                  <div className="game-checkpoint__actions">
+                    <a
+                      className="game-btn game-btn--primary"
+                      href={GAME_MAP_PATH}
+                      onClick={acknowledgeCheckpointCard}
+                    >
+                      {checkpoint.pauseLabel}
+                      <span aria-hidden="true">→</span>
+                    </a>
+                    <button type="button" className="game-btn" onClick={acknowledgeCheckpointCard}>
+                      STAY ON CONSOLE
+                    </button>
+                  </div>
+                </aside>
+              )}
+
+              {showNextPreview && nextRepair != null && (
+                <div className="game-win__next">
+                  <p className="game-win__next-kicker">
+                    NEXT REPAIR · MISSION {pad(nextRepair.number)}
+                  </p>
+                  <p className="game-win__next-title">{nextRepair.title}</p>
+                  <p className="game-win__next-hook">{missionHook(nextRepair)}</p>
+                </div>
+              )}
+
+              <div className="game-win__links">
+                {actions.map((action) => (
+                  <a
+                    key={action.id}
+                    className="game-btn"
+                    href={action.href}
+                    onClick={action.id === "close" ? handleWinClose : undefined}
+                  >
+                    {action.label}
+                    <span aria-hidden="true">→</span>
+                  </a>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {session?.status === "lost" && (
+            <section className="game-lose" role="alert" aria-label="Mission failed">
+              <p className="game-lose__kicker">SYSTEM LOST</p>
+              <p className="game-lose__text">
+                {lastBad?.text ?? "The repair failed. Undo the last move or restart the mission."}
+              </p>
+              <div className="game-lose__links">
+                <button
+                  type="button"
+                  className="game-btn"
+                  onClick={handleUndo}
+                  disabled={session.history.length === 0}
+                >
+                  UNDO LAST MOVE
+                </button>
+                <button type="button" className="game-btn game-btn--primary" onClick={handleRestart}>
+                  RESTART REPAIR
+                </button>
+              </div>
+            </section>
+          )}
+        </section>
+
+        <GameLog events={session?.log ?? []} status={telemetryStatus} />
+        </div>
+      )}
+    </div>
+  );
+}

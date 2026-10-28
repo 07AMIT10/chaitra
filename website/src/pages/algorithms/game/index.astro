@@ -1,0 +1,16 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import GameEntry from "../../../components/game/GameEntry.tsx";
+import "../../../styles/game.css";
+---
+
+<BaseLayout bare title="The Long Repair — Algorithms">
+  <link
+    slot="head"
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap"
+  />
+  <div class="game-page">
+    <GameEntry client:visible />
+  </div>
+</BaseLayout>

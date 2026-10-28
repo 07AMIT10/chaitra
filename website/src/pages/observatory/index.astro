@@ -1,0 +1,32 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { ObservatoryWorkbench } from "../../components/observatory/ObservatoryWorkbench";
+import "../../styles/observatory.css";
+---
+
+<BaseLayout title="Drishti Observatory — Chaitra">
+  <section class="observatory-page">
+    <header class="obs-page-head">
+      <p class="obs-kicker">Drishti × Algorithms</p>
+      <h1>Put a system on the bench.</h1>
+      <p class="obs-page-lede">
+        Choose a live specimen, look through seven lenses, mutate it with SCAMPER, and
+        run the consequence. Every run is deterministic; every branch stays yours.
+      </p>
+      <p class="obs-page-links">
+        <a href="/drishti">The seven lenses</a>
+        <a href="/algorithms">The algorithm catalogue</a>
+        <a href="/algorithms/game">The Long Repair</a>
+      </p>
+    </header>
+
+    <ObservatoryWorkbench client:load />
+
+    <noscript>
+      <p class="obs-page-lede">
+        The observatory needs JavaScript for its local, deterministic runs. The
+        specimen pages and field cards remain readable without it.
+      </p>
+    </noscript>
+  </section>
+</BaseLayout>

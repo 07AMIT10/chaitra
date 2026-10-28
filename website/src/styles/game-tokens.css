@@ -1,0 +1,290 @@
+/* ============================================================================
+   The Long Repair — shared design tokens and primitives
+   Direction: "Deep Field" — a diegetic salvage console.
+   Cyan = ship systems and interaction. Violet = the algorithm / mathematics.
+   Amber = warning and clean-run reward. Red = fault.
+   Each area's CSS is a separate file so UI workstreams can edit in parallel.
+   ========================================================================== */
+
+.game-page {
+  /* palette — Drydock Schematic */
+  --gf-bg: #05090e;
+  --gf-bg-2: #0a131b;
+  --game-bg: #0b0f17;
+  --game-border: #1f293d;
+  --gf-panel: rgba(10, 19, 27, 0.86);
+  --gf-panel-solid: #0a131b;
+  --gf-panel-raised: #132430;
+  --gf-line: #1d313d;
+  --gf-line-strong: #2b4754;
+  --gf-cyan: #63e1e6;
+  --gf-cyan-bright: #c9fbff;
+  --gf-cyan-dim: #2c8e96;
+  --gf-cyan-soft: rgba(99, 225, 230, 0.12);
+  --gf-cyan-faint: rgba(99, 225, 230, 0.06);
+  --gf-violet: #b9a7ff;
+  --gf-violet-bright: #ded5ff;
+  --gf-violet-soft: rgba(185, 167, 255, 0.12);
+  --gf-violet-faint: rgba(185, 167, 255, 0.06);
+  --gf-amber: #ffb454;
+  --gf-amber-bright: #ffd28a;
+  --gf-amber-soft: rgba(255, 180, 84, 0.1);
+  --gf-red: #ff6b6b;
+  --gf-red-bright: #ffb3b3;
+  --gf-red-soft: rgba(255, 107, 107, 0.1);
+  --gf-text: #e9f2f1;
+  --gf-muted: #a6b9be;
+  --gf-faint: #71888f;
+
+  /* type — one display/body face, one data face, five steps */
+  --gf-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --gf-mono: "JetBrains Mono", ui-monospace, monospace;
+  --gf-body: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --gf-text-micro: 0.75rem;
+  --gf-text-sm: 0.875rem;
+  --gf-text-body: 1.0625rem;
+  --gf-text-title: 1.5rem;
+  --gf-text-heading: 2.5rem;
+  --gf-text-display: clamp(2.5rem, 6vw, 4.5rem);
+
+  /* shape, depth, motion */
+  --gf-radius: 2px;
+  --gf-radius-lg: 3px;
+  --gf-glow: 0 0 0 1px rgba(99, 225, 230, 0.28), 0 0 22px -8px rgba(99, 225, 230, 0.5);
+  --gf-glow-violet: 0 0 0 1px rgba(185, 167, 255, 0.28), 0 0 22px -8px rgba(185, 167, 255, 0.5);
+  --gf-glow-amber: 0 0 0 1px rgba(255, 180, 84, 0.3), 0 0 18px -8px rgba(255, 180, 84, 0.5);
+  --gf-inset: inset 0 1px 0 rgba(255, 255, 255, 0.045);
+  --gf-ease: cubic-bezier(0.2, 0, 0, 1);
+  --gf-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --gf-fast: 90ms;
+  --gf-med: 160ms;
+  --gf-slow: 240ms;
+  --gf-reward: 600ms;
+
+  /* aliases used by the existing components */
+  --game-accent: var(--gf-cyan);
+  --game-accent-hover: var(--gf-cyan-bright);
+  --game-accent-soft: var(--gf-cyan-soft);
+  --game-accent-faint: var(--gf-cyan-faint);
+  --game-accent-line: var(--gf-line-strong);
+  --game-line: var(--gf-line);
+  --game-line-strong: var(--gf-line-strong);
+  --game-panel: var(--gf-panel);
+  --game-good: var(--gf-cyan);
+  --game-warn: var(--gf-amber);
+  --game-bad: var(--gf-red);
+  --game-mono: var(--gf-mono);
+  --alg-accent: var(--gf-violet);
+  --alg-accent-hover: var(--gf-violet-bright);
+  --alg-accent-soft: var(--gf-violet-soft);
+  --alg-accent-faint: var(--gf-violet-faint);
+  --alg-accent-line: rgba(185, 167, 255, 0.45);
+  --alg-border: var(--gf-line);
+  --alg-border-strong: var(--gf-line-strong);
+  --alg-mono: var(--gf-mono);
+  --alg-surface-2: var(--gf-panel);
+
+  position: relative;
+  width: 100%;
+  max-width: 1280px;
+  min-width: 0;
+  margin: 0 auto;
+  padding: clamp(var(--space-3), 2vw, var(--space-5));
+  color: var(--gf-text);
+  font-family: var(--gf-body);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 255, 255, 0.16) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 68% 42%, rgba(255, 255, 255, 0.12) 0 1px, transparent 1.4px),
+    radial-gradient(circle at 84% 8%, rgba(255, 255, 255, 0.18) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 38% 78%, rgba(255, 255, 255, 0.1) 0 1px, transparent 1.4px),
+    radial-gradient(80% 60% at 12% 0%, rgba(99, 225, 230, 0.07), transparent 62%),
+    radial-gradient(60% 55% at 100% 8%, rgba(185, 167, 255, 0.06), transparent 60%),
+    var(--gf-bg);
+  background-size:
+    120px 120px,
+    180px 180px,
+    240px 240px,
+    300px 300px,
+    100% 100%,
+    100% 100%,
+    100% 100%;
+  border: 1px solid var(--gf-line);
+  border-radius: var(--gf-radius-lg);
+  box-shadow:
+    inset 0 0 90px rgba(0, 0, 0, 0.42),
+    0 24px 80px rgba(0, 0, 0, 0.28);
+  overflow: clip;
+}
+
+/* ------------------------------------------------------------------ shared -- */
+
+.game-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--gf-line-strong);
+  border-radius: var(--gf-radius);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 55%),
+    var(--gf-panel-solid);
+  color: var(--gf-text);
+  font-family: var(--gf-display);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: var(--gf-inset);
+  transition:
+    border-color var(--gf-fast) var(--gf-ease),
+    background-color var(--gf-fast) var(--gf-ease),
+    color var(--gf-fast) var(--gf-ease);
+}
+
+.game-btn:hover {
+  border-color: var(--gf-cyan);
+  color: var(--gf-cyan-bright);
+}
+
+.game-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--gf-bg), 0 0 0 4px var(--gf-cyan);
+}
+
+.game-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.game-btn--primary {
+  background: var(--gf-amber);
+  border-color: var(--gf-amber);
+  color: #1a1206;
+  box-shadow: 0 0 22px rgba(255, 180, 84, 0.18);
+}
+
+.game-btn--primary:hover {
+  background: var(--gf-amber-bright);
+  border-color: var(--gf-amber-bright);
+  color: #1a1206;
+}
+
+.game-btn--hint {
+  border-style: dashed;
+  border-color: var(--gf-amber);
+  color: var(--gf-amber-bright);
+}
+
+.game-kicker {
+  margin: 0 0 var(--space-2);
+  font-family: var(--gf-display);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gf-cyan);
+}
+
+.game-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  font-family: var(--gf-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gf-muted);
+}
+
+.game-breadcrumb a {
+  color: var(--gf-cyan);
+  text-decoration: none;
+}
+
+.game-breadcrumb a:hover {
+  color: var(--gf-cyan-bright);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.game-caption {
+  margin: var(--space-2) 0 0;
+  font-family: var(--gf-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--gf-muted);
+}
+
+.game-noscript {
+  margin: 0 0 var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--gf-amber);
+  border-radius: var(--gf-radius);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--gf-amber-bright);
+}
+
+.game-board__hint,
+.game-board__overflow-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0 0 var(--space-2);
+  font-family: var(--gf-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--gf-cyan);
+}
+
+.game-note {
+  margin: var(--space-2) 0 0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--gf-muted);
+}
+
+
+/* The site's global `main a:link` outranks several game button rules. Restore
+   the console's own link colours after that global rule. */
+.game-page a:link,
+.game-page a:visited {
+  color: inherit;
+}
+
+.game-page a:hover {
+  color: var(--gf-cyan-bright);
+}
+
+.game-page .game-breadcrumb a:link,
+.game-page .game-breadcrumb a:visited,
+.game-page .game-side__meta a:link,
+.game-page .game-side__meta a:visited,
+.game-page .game-hub__link:link,
+.game-page .game-hub__link:visited {
+  color: var(--gf-cyan);
+}
+
+.game-page .game-btn:link,
+.game-page .game-btn:visited {
+  color: var(--gf-text);
+}
+
+.game-page .game-btn:hover {
+  color: var(--gf-cyan-bright);
+}
+
+.game-page .game-btn--primary:link,
+.game-page .game-btn--primary:visited,
+.game-page .game-btn--primary:hover {
+  color: #1a1206;
+}
+
+.game-page .game-btn:focus-visible {
+  box-shadow: 0 0 0 2px var(--gf-bg), 0 0 0 4px var(--gf-cyan);
+}

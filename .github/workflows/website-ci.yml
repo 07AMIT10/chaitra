@@ -35,4 +35,5 @@ jobs:
       - run: npm run lint:algorithms
       - run: npm run test:links
       - run: npm run test:drishti-pass
+      - run: npm run test:game
       - run: npm run build
