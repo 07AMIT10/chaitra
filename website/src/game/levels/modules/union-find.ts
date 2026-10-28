@@ -74,7 +74,7 @@ function initialState(): UFState {
     size: Object.fromEntries(NODES.map((id) => [id, 1])),
     labels: 0,
     merges: 0,
-    selected: null,
+    selected: "A",
   };
 }
 
@@ -239,7 +239,6 @@ const level: LevelModule<UFState> = {
   },
 
   solution: [
-    "select:A",
     "merge:A:B",
     "select:C",
     "merge:C:B",

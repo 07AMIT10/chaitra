@@ -18,6 +18,7 @@
 
 import { ACTS } from "./levels/meta";
 import type { Progress, SolvedLevel } from "./progress";
+import { GAME_MAP_PATH } from "./routes";
 import type { Act, LevelMeta } from "./types";
 
 /** Three repairs is the default checkpoint cadence. Two is allowed. */
@@ -391,6 +392,41 @@ export function winOutcome(stars: number): WinOutcome {
   if (marks === 3) return { label: "CLEAN RUN", clean: true };
   if (marks === 2) return { label: "SOLVED", clean: false };
   return { label: "REPAIRED", clean: false };
+}
+
+export type WinAction = {
+  id: "close" | "math" | "next";
+  label: string;
+  href: string;
+};
+
+export function winActions(
+  meta: LevelMeta,
+  next: LevelMeta | null,
+  ending: boolean,
+): WinAction[] {
+  const actions: WinAction[] = [
+    {
+      id: "close",
+      label: "CLOSE THE CONSOLE",
+      href: GAME_MAP_PATH,
+    },
+    {
+      id: "math",
+      label: "READ THE MATHEMATICS",
+      href: meta.page,
+    },
+  ];
+
+  if (!ending && next) {
+    actions.push({
+      id: "next",
+      label: `OPEN THE NEXT REPAIR · ${next.title.toUpperCase()}`,
+      href: `/algorithms/game/${next.slug}`,
+    });
+  }
+
+  return actions;
 }
 
 export type CleanRunEntry = {

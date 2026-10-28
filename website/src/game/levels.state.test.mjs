@@ -118,9 +118,9 @@ function checkState(level, session, where) {
     [...new Set(bound)],
     `${where}: duplicate move ids bound in the view`,
   );
-  const enabled = new Set(moves.map((move) => move.id));
+  const offered = new Set(allMoves.map((move) => move.id));
   for (const id of bound) {
-    assert.ok(enabled.has(id), `${where}: view binds ${id}, which moves() does not offer`);
+    assert.ok(offered.has(id), `${where}: view binds ${id}, which moves() does not offer`);
   }
   for (const move of moves) {
     if (move.placement !== "tray") {

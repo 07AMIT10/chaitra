@@ -16,7 +16,7 @@ export const unionFindMeta: LevelMeta = {
       "At 10⁹ elements the old registry wrote 10¹⁸ labels — 31.7 years at a billion writes a second.",
       "This hull has six compartments and a budget of nine writes.",
     ],
-    question: "Which compartment do you select first?",
+    question: "Which block should A join first?",
   },
   goal: "Connect all six compartments with at most 9 label writes; a clean run is 5.",
   constraint:
